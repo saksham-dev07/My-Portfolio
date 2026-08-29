@@ -1,0 +1,28 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+dist-ssr/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+npm-debug.log*
+
+# Editor
+.vscode/
+.idea/
+*.sw?
+.DS_Store
+
+# OS
+Thumbs.db
+Desktop.ini
+
+# Lock files (optional — uncomment if you want faster installs for contributors)
+# package-lock.json
