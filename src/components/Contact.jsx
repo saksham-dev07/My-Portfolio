@@ -116,10 +116,10 @@ const FormField = memo(({ field, register, errors, onFocus, characterCount = 0, 
   const hasError = errors[name];
   const [isFocused, setIsFocused] = useState(false);
 
-  const baseClasses = 'bg-zinc-900 py-3 px-4 pl-12 rounded-md outline-none transition-all duration-300 border border-zinc-800 w-full text-zinc-100 placeholder:text-zinc-500';
+  const baseClasses = 'bg-zinc-950/60 backdrop-blur-md py-3.5 px-4 pl-12 rounded-xl outline-none transition-all duration-300 border border-white/10 w-full text-zinc-100 placeholder:text-zinc-500 shadow-[inset_0_1px_2px_rgba(0,0,0,0.4)]';
   const errorClasses = hasError
-    ? 'border-red-500 focus:border-red-500 bg-red-500/5 focus:shadow-[0_0_15px_rgba(239,68,68,0.3)]'
-    : 'focus:border-accent hover:border-zinc-700 focus:shadow-glassGlowStrong';
+    ? 'border-red-500/80 focus:border-red-500 bg-red-500/10 focus:shadow-[0_0_20px_rgba(239,68,68,0.3)]'
+    : 'focus:border-cyan-400/60 focus:bg-zinc-900/90 hover:border-white/20 focus:shadow-[0_0_20px_rgba(6,182,212,0.25)]';
 
   const handleFocus = useCallback(() => {
     setIsFocused(true);
@@ -142,7 +142,7 @@ const FormField = memo(({ field, register, errors, onFocus, characterCount = 0, 
         htmlFor={name} 
         className={clsx(
           'block text-sm font-semibold mb-2 transition-colors duration-300',
-          isFocused ? 'text-zinc-300' : hasError ? 'text-red-400' : 'text-zinc-500'
+          isFocused ? 'text-cyan-300' : hasError ? 'text-red-400' : 'text-zinc-400'
         )}
       >
         {label}
@@ -153,11 +153,11 @@ const FormField = memo(({ field, register, errors, onFocus, characterCount = 0, 
       
       <div className="relative group">
         <Motion.div 
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-10"
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-10 pointer-events-none"
           variants={iconVariants}
           animate={hasError ? "error" : isFocused ? "focus" : "idle"}
         >
-          <Icon size={20} />
+          <Icon size={20} className={clsx(isFocused ? 'text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]' : 'text-zinc-500')} />
         </Motion.div>
         
         {type === 'textarea' ? (
@@ -170,7 +170,7 @@ const FormField = memo(({ field, register, errors, onFocus, characterCount = 0, 
             {...register(name, validation)}
             className={clsx(
               baseClasses,
-              'placeholder:text-gray-500 text-gray-100 resize-none min-h-[140px]',
+              'placeholder:text-zinc-500 text-zinc-100 resize-none min-h-[140px]',
               errorClasses
             )}
           />
@@ -184,7 +184,7 @@ const FormField = memo(({ field, register, errors, onFocus, characterCount = 0, 
             {...register(name, validation)}
             className={clsx(
               baseClasses,
-              'placeholder:text-gray-500 text-gray-100',
+              'placeholder:text-zinc-500 text-zinc-100',
               errorClasses
             )}
           />
@@ -194,8 +194,8 @@ const FormField = memo(({ field, register, errors, onFocus, characterCount = 0, 
         {type === 'textarea' && maxLength && (
           <div 
             className={clsx(
-              "absolute bottom-3 right-4 text-xs transition-colors duration-300",
-              characterCount > maxLength * 0.9 ? 'text-red-400' : 'text-gray-400'
+              "absolute bottom-3 right-4 text-xs px-2.5 py-0.5 rounded-md bg-zinc-950/80 border border-white/10 backdrop-blur-sm transition-colors duration-300",
+              characterCount > maxLength * 0.9 ? 'text-red-400 border-red-500/30' : 'text-zinc-400'
             )}
           >
             {characterCount}/{maxLength}
@@ -354,17 +354,18 @@ const ContactForm = memo(() => {
     >
       {/* Fixed progress indicator */}
       <div className="relative">
-        <div className="w-full bg-gray-800/50 rounded-full h-3 overflow-hidden backdrop-blur-sm">
+        <div className="w-full bg-zinc-950/80 rounded-full h-2.5 overflow-hidden border border-white/10 p-[1px] shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)] backdrop-blur-sm">
           <Motion.div
-            className="h-full rounded-full bg-zinc-200"
+            className="h-full rounded-full bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400 shadow-[0_0_12px_rgba(6,182,212,0.4)]"
             variants={progressVariants}
             custom={progressPercentage}
             initial="hidden"
             animate="visible"
           />
         </div>
-        <div className="text-xs text-gray-400 mt-2 text-center">
-          {progressPercentage}% Complete
+        <div className="text-xs text-zinc-400 mt-2 text-center font-mono flex items-center justify-center gap-1.5">
+          <span className="text-cyan-400 font-bold">{progressPercentage}%</span>
+          <span>Complete</span>
         </div>
       </div>
       
@@ -397,11 +398,11 @@ const ContactForm = memo(() => {
           whileTap={!isSubmitting ? "tap" : "idle"}
           animate={isSuccess ? "success" : isLoading ? "loading" : "idle"}
           className={clsx(
-            'relative w-full flex items-center justify-center gap-3 py-4 px-8 rounded-lg font-bold transition-all duration-300 overflow-hidden',
+            'relative w-full flex items-center justify-center gap-3 py-4 px-8 rounded-xl font-bold transition-all duration-300 overflow-hidden cursor-pointer active:scale-[0.99]',
             isSuccess 
-              ? 'bg-zinc-800 text-green-400 border border-green-500 shadow-[0_0_20px_rgba(34,197,94,0.3)]' 
-              : 'bg-accent text-white hover:bg-accentLight shadow-glass hover:shadow-glassGlow transition-all duration-300',
-            'disabled:opacity-50 disabled:cursor-not-allowed'
+              ? 'bg-zinc-900 text-emerald-300 border border-emerald-500/50 shadow-[0_0_24px_rgba(52,211,153,0.35)]' 
+              : 'bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-600 hover:from-blue-500 hover:to-cyan-500 text-white border border-white/20 shadow-[0_0_25px_rgba(59,130,246,0.35)] hover:shadow-[0_0_35px_rgba(6,182,212,0.5)]',
+            'disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:shadow-none'
           )}
         >
           <AnimatePresence mode="wait">
@@ -426,9 +427,9 @@ const ContactForm = memo(() => {
                 exit={{ opacity: 0, scale: 0.8 }}
                 className="flex items-center gap-3"
               >
-                <CheckCircle size={20} />
+                <CheckCircle size={20} className="text-emerald-400 drop-shadow-[0_0_8px_rgba(52,211,153,0.6)]" />
                 <span>Message Sent!</span>
-                <Sparkles size={16} />
+                <Sparkles size={16} className="text-amber-300" />
               </Motion.div>
             ) : (
               <Motion.div
@@ -438,9 +439,9 @@ const ContactForm = memo(() => {
                 exit={{ opacity: 0, scale: 0.8 }}
                 className="flex items-center gap-3"
               >
-                <Send size={20} />
+                <Send size={20} className="text-cyan-200" />
                 <span>Send Message</span>
-                <Sparkles size={16} />
+                <Sparkles size={16} className="text-cyan-300" />
               </Motion.div>
             )}
           </AnimatePresence>
@@ -478,8 +479,15 @@ const Contact = memo(() => (
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, amount: 0.05 }}
       transition={{ duration: 0.4, ease: "easeOut" }}
-      className="flex-1 p-6 xs:p-8 sm:p-10 rounded-2xl glass-card border border-white/10 relative overflow-hidden"
+      className="flex-1 p-6 xs:p-8 sm:p-10 rounded-3xl glass-card border border-white/10 relative overflow-hidden shadow-2xl"
     >
+      {/* Top specular reflection line */}
+      <div className="specular-line" />
+
+      {/* Optical backlight flares */}
+      <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl pointer-events-none -mr-24 -mt-24" />
+      <div className="absolute bottom-0 left-0 w-72 h-72 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
+
       <div className="relative z-10">
         <Motion.div 
           className="mb-8 text-center"
@@ -488,6 +496,12 @@ const Contact = memo(() => (
           viewport={{ once: true, amount: 0.05 }}
           transition={{ duration: 0.35 }}
         >
+          <div className="section-number-badge">
+            <span className="number">07</span>
+            <span>//</span>
+            <span>Get In Touch</span>
+          </div>
+
           <p className="text-zinc-500 mb-2 text-sm uppercase tracking-wider font-semibold">
             Get in touch
           </p>
@@ -505,32 +519,36 @@ const Contact = memo(() => (
 
         {/* Direct Social Links */}
         <div className="mt-8 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-400">
-          <div className="flex items-center gap-2">
-            <Mail size={15} className="text-accent" />
-            <a href="mailto:sakmmm07@gmail.com" className="hover:text-white transition-colors">
+          <div className="flex items-center gap-2 group/mail">
+            <Mail size={15} className="text-cyan-400 drop-shadow-[0_0_6px_rgba(6,182,212,0.4)]" />
+            <a href="mailto:sakmmm07@gmail.com" className="hover:text-cyan-300 transition-colors font-mono">
               sakmmm07@gmail.com
             </a>
           </div>
 
           <div className="flex items-center gap-3">
-            <a 
+            <Motion.a 
               href="https://www.linkedin.com/in/saksham-agarwal-b44910289/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-950/80 border border-white/10 hover:border-accent hover:text-white hover:bg-zinc-900 transition-all shadow-sm cursor-pointer"
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl liquid-glass-island border border-white/10 hover:border-cyan-400/50 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] hover:text-white transition-all shadow-sm cursor-pointer"
             >
               <Linkedin size={14} className="text-blue-400" />
               <span>LinkedIn</span>
-            </a>
-            <a 
+            </Motion.a>
+            <Motion.a 
               href="https://github.com/saksham-dev07" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-zinc-950/80 border border-white/10 hover:border-accent hover:text-white hover:bg-zinc-900 transition-all shadow-sm"
+              whileHover={{ scale: 1.05, y: -1 }}
+              whileTap={{ scale: 0.95 }}
+              className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl liquid-glass-island border border-white/10 hover:border-cyan-400/50 hover:shadow-[0_0_15px_rgba(6,182,212,0.25)] hover:text-white transition-all shadow-sm cursor-pointer"
             >
               <Github size={14} />
               <span>GitHub</span>
-            </a>
+            </Motion.a>
           </div>
         </div>
       </div>

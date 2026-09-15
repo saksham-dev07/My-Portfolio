@@ -71,8 +71,8 @@ const DesktopNavItem = memo(({ item, active }) => {
   return (
     <button
       onClick={handle}
-      className={`relative px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 outline-none ${
-        isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
+      className={`relative px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide transition-all duration-200 outline-none cursor-pointer ${
+        isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-100'
       }`}
       aria-current={isActive ? 'page' : undefined}
       aria-label={`Go to ${title}`}
@@ -80,8 +80,8 @@ const DesktopNavItem = memo(({ item, active }) => {
       {isActive && (
         <Motion.div
           layoutId="desktop-active-pill"
-          className="absolute inset-0 bg-white/10 rounded-full border border-white/15 shadow-[0_0_12px_rgba(59,130,246,0.2)]"
-          transition={{ type: "tween", duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+          className="absolute inset-0 bg-gradient-to-r from-blue-500/25 via-cyan-500/20 to-blue-500/25 rounded-full border border-cyan-400/40 shadow-[0_0_14px_rgba(6,182,212,0.35)] backdrop-blur-md"
+          transition={{ type: "spring", stiffness: 350, damping: 30 }}
         />
       )}
       <span className="relative z-10">{title}</span>
@@ -141,23 +141,25 @@ const Logo = memo(() => {
       className="flex items-center gap-3 group focus:outline-none rounded-xl p-1.5 -m-1.5 cursor-pointer"
       aria-label="Go to top"
     >
-      <div className="relative">
+      <div className="relative flex items-center justify-center w-9 h-9 rounded-xl bg-white/[0.06] border border-white/15 p-1 backdrop-blur-md group-hover:border-cyan-400/40 transition-colors">
         <img 
           src={logo} 
           alt="Logo" 
-          className="w-9 h-9 object-contain transition-transform duration-300 group-hover:scale-105 group-hover:rotate-3" 
+          className="w-full h-full object-contain transition-transform duration-300 group-hover:scale-110" 
+          width={36}
+          height={36}
         />
-        <div className="absolute inset-0 bg-accentGlow rounded-full opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md" />
+        <div className="absolute inset-0 bg-accentGlow rounded-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-md pointer-events-none" />
       </div>
       <div className="flex flex-col text-left">
-        <div className="flex items-center gap-2">
-          <span className="text-base font-bold text-white tracking-tight group-hover:text-blue-300 transition-colors">
+        <div className="relative inline-block">
+          <span className="font-signature text-2xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-400 via-cyan-300 to-teal-300 tracking-wide leading-none signature-glow">
             Saksham
           </span>
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" title="Available for opportunities" />
+          <div className="signature-underline -mt-0.5 w-full" />
         </div>
-        <span className="hidden sm:inline-block text-[11px] font-mono text-zinc-400 tracking-tight">
-          Software Engineer
+        <span className="hidden sm:inline-block text-[10px] font-mono text-zinc-400 tracking-wider uppercase mt-1">
+          CSE Student • VIT Bhopal
         </span>
       </div>
     </button>
@@ -224,14 +226,14 @@ const Navbar = () => {
       <header 
         className={`fixed top-0 z-50 w-full transition-all duration-300 ${
           scrolled 
-            ? 'bg-zinc-950/85 backdrop-blur-xl border-b border-white/10 shadow-[0_8px_30px_rgba(0,0,0,0.6)] py-3' 
+            ? 'bg-zinc-950/80 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.7)] py-3' 
             : 'bg-transparent py-5'
         }`} 
         role="banner"
       >
-        {/* Top Scroll Reading Progress Indicator */}
+        {/* Top Scroll Reading Progress Indicator with glow */}
         <Motion.div
-          className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500 origin-left z-50"
+          className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-blue-500 via-cyan-400 to-indigo-500 shadow-[0_0_8px_rgba(59,130,246,0.6)] origin-left z-50"
           style={{ scaleX: scrollYProgress }}
         />
 
@@ -241,7 +243,7 @@ const Navbar = () => {
 
           {/* Center: Liquid Glass Floating Pill Navigation (Desktop) */}
           <nav 
-            className="hidden lg:flex items-center p-1.5 rounded-full liquid-glass-island" 
+            className="hidden lg:flex items-center p-1.5 rounded-full liquid-glass-island shadow-[0_8px_30px_rgba(0,0,0,0.5)] border border-white/20" 
             role="navigation" 
             aria-label="Desktop nav"
           >
@@ -253,21 +255,23 @@ const Navbar = () => {
           {/* Right: Contact CTA Button (Desktop) */}
           {ctaLink && (
             <div className="hidden lg:flex items-center">
-              <button
+              <Motion.button
+                whileHover={{ scale: 1.04 }}
+                whileTap={{ scale: 0.96 }}
                 onClick={handleCtaClick}
-                className="group relative inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 shadow-[0_0_20px_rgba(59,130,246,0.35)] hover:shadow-[0_0_25px_rgba(59,130,246,0.55)] transition-all duration-300 active:scale-95 cursor-pointer"
+                className="group relative inline-flex items-center gap-1.5 px-5 py-2 rounded-full text-xs font-bold text-white bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 hover:from-blue-500 hover:to-indigo-500 border border-white/20 shadow-[0_0_20px_rgba(59,130,246,0.4)] hover:shadow-[0_0_28px_rgba(59,130,246,0.6)] transition-all duration-300 cursor-pointer"
                 aria-label="Contact Saksham"
               >
                 <span>{ctaLink.title}</span>
                 <ArrowUpRight size={14} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-              </button>
+              </Motion.button>
             </div>
           )}
 
           {/* Mobile Hamburger Toggle Button */}
           <Motion.button 
             onClick={toggle} 
-            className="lg:hidden p-2 rounded-xl bg-zinc-900/80 border border-white/10 focus:outline-none text-white active:scale-95 transition-all" 
+            className="lg:hidden p-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.12] border border-white/15 backdrop-blur-xl focus:outline-none text-white active:scale-95 transition-all shadow-sm" 
             whileTap={reduce ? {} : { scale: 0.9 }} 
             aria-label={open ? 'Close menu' : 'Open menu'} 
             aria-expanded={open} 
@@ -298,7 +302,7 @@ const Navbar = () => {
               exit={{ opacity: 0 }} 
               transition={{ duration: 0.2 }}
               onClick={close} 
-              className="fixed inset-0 bg-black/70 backdrop-blur-md z-40" 
+              className="fixed inset-0 bg-black/75 backdrop-blur-md z-40" 
             />
             <Motion.nav 
               id="mobile-menu" 
@@ -307,13 +311,16 @@ const Navbar = () => {
               animate={{ opacity: 1, x: 0, scale: 1 }} 
               exit={{ opacity: 0, x: 20, scale: 0.95 }} 
               transition={{ duration: 0.2 }}
-              className="fixed top-20 right-4 w-72 bg-zinc-900/95 backdrop-blur-xl border border-white/15 rounded-2xl shadow-2xl p-4 space-y-2 z-50" 
+              className="fixed top-20 right-4 w-72 bg-zinc-950/90 backdrop-blur-2xl border border-white/20 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.8)] p-4 space-y-2 z-50 overflow-hidden" 
               role="navigation"
             >
+              {/* Top specular reflection */}
+              <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/30 to-transparent pointer-events-none" />
+
               {navLinks.map((item) => (
                 <MobileNavItem key={item.id} item={item} active={active} onClick={close} />
               ))}
-              <div className="mt-4 pt-4 border-t border-white/10 text-center text-xs text-zinc-400">
+              <div className="mt-4 pt-4 border-t border-white/10 text-center text-xs text-zinc-400 font-medium">
                 Saksham Agarwal &bull; Portfolio
               </div>
             </Motion.nav>

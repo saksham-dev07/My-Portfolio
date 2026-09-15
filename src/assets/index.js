@@ -12,6 +12,7 @@ import google from "./company/google.webp";
 import vitb from "./company/vitb.webp";
 import anthony from "./company/anthony.webp";
 import fintech from "./company/fintech.webp";
+import aws from "./company/aws.webp";
 
 // Certifications
 import certificate_1 from "./certificates/certificate_1.webp";
@@ -23,6 +24,8 @@ import certificate_7 from "./certificates/certificate_7.webp";
 import certificate_8 from "./certificates/certificate_8.webp";
 import certificate_9 from "./certificates/certificate_9.webp";
 import certificate_10 from "./certificates/certificate_10.webp";
+import aws_cloud_practitioner from "./certificates/aws_cloud_practitioner.webp";
+import aws_ai_practitioner from "./certificates/aws_ai_practitioner.webp";
 
 // Projects
 import expenselens from "./projects/expenselens.webp";
@@ -51,6 +54,7 @@ export {
   vitb,
   anthony,
   fintech,
+  aws,
   certificate_1,
   certificate_2,
   certificate_3,
@@ -60,6 +64,8 @@ export {
   certificate_8,
   certificate_9,
   certificate_10,
+  aws_cloud_practitioner,
+  aws_ai_practitioner,
   expenselens,
   deepfake,
   blockforge,

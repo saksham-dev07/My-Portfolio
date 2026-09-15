@@ -43,6 +43,8 @@
         },
         fontFamily: {
           sans: ['Inter', ...defaultTheme.fontFamily.sans],
+          heading: ['Poppins', ...defaultTheme.fontFamily.sans],
+          signature: ['Caveat', 'cursive'],
           mono: ['Fira Code', ...defaultTheme.fontFamily.mono],
         },
         boxShadow: {

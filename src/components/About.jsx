@@ -11,7 +11,10 @@ import {
   Cpu,
   Shield,
   Layers,
-  Flame
+  Flame,
+  GraduationCap,
+  Award,
+  Trophy
 } from 'lucide-react';
 import clsx from 'clsx';
 import { services } from '../constants';
@@ -114,25 +117,28 @@ const SkillCategoryCard = memo(({ group, index, isDimmed }) => {
       animate={{ opacity: isDimmed ? 0.35 : 1, scale: isDimmed ? 0.98 : 1 }}
       transition={{ duration: 0.3 }}
       className={clsx(
-        "group relative rounded-2xl p-6 sm:p-7 flex flex-col justify-between h-full",
-        "glass-card border border-white/10",
+        "group relative rounded-2xl p-6 sm:p-7 flex flex-col justify-between h-full overflow-hidden",
+        "glass-card border border-white/10 hover:border-white/25 shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)]",
         borderGlow
       )}
     >
-      {/* Top accent glow gradient */}
-      <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-t-2xl" />
+      {/* Top specular reflection line */}
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
+
+      {/* Subtle corner light flare */}
+      <div className="absolute -top-16 -right-16 w-32 h-32 bg-white/5 rounded-full blur-2xl pointer-events-none group-hover:bg-accent/15 transition-colors duration-500" />
 
       <div>
         {/* Card Header */}
         <div className="flex items-start gap-3.5 mb-5">
-          <div className="w-12 h-12 rounded-xl bg-zinc-900/90 border border-white/10 flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-300 shrink-0">
-            <Icon className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 rounded-xl bg-white/[0.06] border border-white/15 backdrop-blur-md flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:border-accent/40 group-hover:shadow-[0_0_15px_rgba(59,130,246,0.3)] transition-all duration-300 shrink-0">
+            <Icon className="w-6 h-6 text-white group-hover:text-accent transition-colors" />
           </div>
           <div className="min-w-0 flex-1">
             <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-400 block mb-0.5">
               {badge}
             </span>
-            <h4 className="text-lg font-bold text-zinc-100 group-hover:text-white transition-colors leading-snug">
+            <h4 className="text-lg font-bold text-zinc-100 group-hover:text-white transition-colors leading-snug tracking-tight">
               {title}
             </h4>
             <p className="text-xs text-zinc-400 mt-1 line-clamp-2">
@@ -144,27 +150,29 @@ const SkillCategoryCard = memo(({ group, index, isDimmed }) => {
         {/* Skills Chips Grid */}
         <div className="flex flex-wrap gap-2 pt-2">
           {skills.map((skill) => (
-            <span
+            <Motion.span
               key={skill}
+              whileHover={{ scale: 1.06, y: -1 }}
+              whileTap={{ scale: 0.96 }}
               className={clsx(
-                "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-default",
+                "inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-medium border backdrop-blur-md transition-all duration-200 cursor-default shadow-sm",
                 tagStyle
               )}
             >
               <span className={clsx("w-1.5 h-1.5 rounded-full", dotColor)} />
               <span>{skill}</span>
-            </span>
+            </Motion.span>
           ))}
         </div>
       </div>
 
       {/* Card Footer Meta */}
-      <div className="pt-5 mt-6 border-t border-white/5 flex items-center justify-between text-xs text-zinc-500">
+      <div className="pt-5 mt-6 border-t border-white/10 flex items-center justify-between text-xs text-zinc-400">
         <span className="flex items-center gap-1.5 font-medium text-emerald-400">
-          <CheckCircle2 size={13} />
+          <CheckCircle2 size={13} className="text-emerald-400 drop-shadow-[0_0_6px_rgba(16,185,129,0.4)]" />
           <span>Production Ready</span>
         </span>
-        <span className="font-mono text-[11px] text-zinc-400 px-2 py-0.5 rounded bg-zinc-900 border border-white/5">
+        <span className="font-mono text-[11px] text-zinc-300 px-2.5 py-0.5 rounded-full bg-white/[0.06] border border-white/10 backdrop-blur-md">
           {skills.length} skills
         </span>
       </div>
@@ -183,32 +191,34 @@ const ServiceCard = memo(({ service, index }) => {
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.05 }}
+      whileHover={{ y: -6, transition: { duration: 0.25, ease: [0.16, 1, 0.3, 1] } }}
       className="group relative w-full max-w-sm mx-auto"
     >
       <Suspense fallback={
-        <div className="w-full h-64 bg-zinc-900 rounded-2xl border border-zinc-800 animate-pulse" />
+        <div className="w-full h-64 bg-zinc-900/60 rounded-2xl border border-zinc-800 animate-pulse backdrop-blur-sm" />
       }>
-        <Motion.div
-          className="relative glass-card glass-card-hover rounded-2xl p-8 h-full flex flex-col items-center overflow-hidden border border-white/10 group"
-          variants={reduceMotion ? {} : glowEffect}
-          whileHover="hover"
+        <div
+          className="relative glass-card glass-card-hover rounded-2xl p-8 h-full flex flex-col items-center overflow-hidden border border-white/10 group shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] hover:border-accent/40 hover:shadow-[0_20px_40px_-12px_rgba(59,130,246,0.25)] transition-all duration-300"
           role="article"
           aria-labelledby={`service-${index}-title`}
         >
-          {/* Top gradient glow bar */}
-          <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-transparent via-accent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+          {/* Top specular refraction line */}
+          <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-white/25 to-transparent pointer-events-none" />
+
+          {/* Ambient corner glow */}
+          <div className="absolute -top-16 -right-16 w-32 h-32 bg-accent/10 rounded-full blur-2xl pointer-events-none group-hover:bg-accent/20 transition-colors duration-500" />
           
-          <div className="relative z-10">
+          <div className="relative z-10 w-full flex flex-col items-center">
             <div className="flex justify-center mb-6">
-              <div className="relative p-4 rounded-2xl bg-zinc-900/80 border border-white/10 shadow-lg group-hover:border-accent/40 group-hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300">
-                <Icon className="w-10 h-10 text-accent drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" strokeWidth={1.5} />
+              <div className="relative p-4 rounded-2xl bg-white/[0.05] border border-white/15 shadow-lg backdrop-blur-md group-hover:border-accent/50 group-hover:shadow-[0_0_25px_rgba(59,130,246,0.4)] group-hover:scale-108 transition-all duration-300">
+                <Icon className="w-10 h-10 text-accent drop-shadow-[0_0_10px_rgba(59,130,246,0.6)]" strokeWidth={1.5} />
               </div>
             </div>
 
             <div className="text-center space-y-3">
               <h3 
                 id={`service-${index}-title`}
-                className="text-zinc-100 text-lg font-semibold group-hover:text-accent transition-colors"
+                className="text-zinc-100 text-lg font-bold group-hover:text-white transition-colors tracking-tight"
               >
                 {title}
               </h3>
@@ -219,7 +229,7 @@ const ServiceCard = memo(({ service, index }) => {
               </p>
             </div>
           </div>
-        </Motion.div>
+        </div>
       </Suspense>
     </Motion.div>
   );
@@ -242,6 +252,13 @@ const About = memo(() => {
       <div className="relative z-10 container mx-auto max-w-7xl">
         {/* Header section */}
         <header className="text-center mb-10 sm:mb-14">
+          {/* Section Number Divider Badge */}
+          <div className="section-number-badge">
+            <span className="number">01</span>
+            <span>//</span>
+            <span>Profile & Overview</span>
+          </div>
+
           <p className="text-zinc-500 mb-2 text-sm uppercase tracking-wider font-semibold">
             Overview & Core Competencies
           </p>
@@ -255,26 +272,79 @@ const About = memo(() => {
             B.Tech CSE student at <strong>VIT Bhopal (CGPA: 8.46/10, Class of 2027)</strong> specializing in full-stack web engineering, applied ML/AI systems, and cybersecurity forensics.
           </p>
 
+          {/* Key Impact Stats Bento Bar (Visual Storytelling) */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5 sm:gap-4 max-w-5xl mx-auto my-8">
+            <Motion.div
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="relative p-4 rounded-2xl glass-card border border-white/10 flex flex-col items-center justify-center text-center overflow-hidden"
+            >
+              <div className="specular-line" />
+              <div className="flex items-center gap-2 mb-1">
+                <GraduationCap size={18} className="text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.5)]" />
+                <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">8.46</span>
+              </div>
+              <span className="text-xs text-zinc-400 font-medium">B.Tech CSE @ VIT Bhopal</span>
+            </Motion.div>
+
+            <Motion.div
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="relative p-4 rounded-2xl glass-card border border-white/10 flex flex-col items-center justify-center text-center overflow-hidden"
+            >
+              <div className="specular-line" />
+              <div className="flex items-center gap-2 mb-1">
+                <Code2 size={18} className="text-blue-400 drop-shadow-[0_0_8px_rgba(59,130,246,0.5)]" />
+                <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">10+</span>
+              </div>
+              <span className="text-xs text-zinc-400 font-medium">Production & AI Projects</span>
+            </Motion.div>
+
+            <Motion.div
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="relative p-4 rounded-2xl glass-card border border-white/10 flex flex-col items-center justify-center text-center overflow-hidden"
+            >
+              <div className="specular-line" />
+              <div className="flex items-center gap-2 mb-1">
+                <Award size={18} className="text-purple-400 drop-shadow-[0_0_8px_rgba(168,85,247,0.5)]" />
+                <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">12+</span>
+              </div>
+              <span className="text-xs text-zinc-400 font-medium">Verified Certifications</span>
+            </Motion.div>
+
+            <Motion.div
+              whileHover={{ y: -4, transition: { duration: 0.2 } }}
+              className="relative p-4 rounded-2xl glass-card border border-white/10 flex flex-col items-center justify-center text-center overflow-hidden"
+            >
+              <div className="specular-line" />
+              <div className="flex items-center gap-2 mb-1">
+                <Trophy size={18} className="text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" />
+                <span className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">Top 33%</span>
+              </div>
+              <span className="text-xs text-zinc-400 font-medium">TCS CodeVita & Flipkart ML</span>
+            </Motion.div>
+          </div>
+
           {/* Interactive Filter Pills */}
           <div className="flex flex-wrap items-center justify-center gap-2 mt-8 max-w-4xl mx-auto">
             {FILTER_TABS.map((tab) => {
               const isActive = activeTab === tab.id;
               return (
-                <button
+                <Motion.button
                   key={tab.id}
+                  whileHover={{ scale: 1.05, y: -1 }}
+                  whileTap={{ scale: 0.96 }}
                   onClick={() => setActiveTab(tab.id)}
                   className={clsx(
-                    "relative px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-200 outline-none",
+                    "relative px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 outline-none cursor-pointer border",
                     isActive
-                      ? "bg-accent text-white shadow-lg shadow-blue-500/25 border border-blue-400/40"
-                      : "bg-zinc-900/80 text-zinc-400 hover:text-white hover:bg-zinc-800 border border-white/5"
+                      ? "bg-gradient-to-r from-blue-600 via-blue-500 to-cyan-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.45)] border-white/30"
+                      : "bg-white/[0.05] text-zinc-300 hover:text-white hover:bg-white/[0.1] border-white/10 hover:border-white/20 backdrop-blur-md"
                   )}
                 >
                   <span>{tab.label}</span>
                   {tab.id === 'all' && (
-                    <span className="ml-1.5 text-[11px] font-mono opacity-80">({totalSkillsCount})</span>
+                    <span className="ml-1.5 text-[11px] font-mono opacity-85">({totalSkillsCount})</span>
                   )}
-                </button>
+                </Motion.button>
               );
             })}
           </div>

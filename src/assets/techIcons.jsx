@@ -34,7 +34,7 @@ import {
   SiC
 } from 'react-icons/si';
 import { IoLogoCss3 } from 'react-icons/io5';
-import { FaJava } from 'react-icons/fa6';
+import { FaJava, FaAws } from 'react-icons/fa6';
 
 // Languages
 export const PythonIcon = ({ className = "w-full h-full" }) => (
@@ -146,6 +146,10 @@ export const AppwriteIcon = ({ className = "w-full h-full" }) => (
 
 export const GcpIcon = ({ className = "w-full h-full" }) => (
   <SiGooglecloud className={className} color="#4285F4" />
+);
+
+export const AwsIcon = ({ className = "w-full h-full" }) => (
+  <FaAws className={className} color="#FF9900" />
 );
 
 // DevOps & Tools

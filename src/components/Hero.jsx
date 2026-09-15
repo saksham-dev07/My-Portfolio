@@ -108,17 +108,17 @@ const Hero = memo(() => {
         
         {/* Status Badges */}
         <Motion.div 
-          className="flex flex-wrap items-center gap-2 pointer-events-auto"
+          className="flex flex-wrap items-center gap-2.5 pointer-events-auto"
           initial={shouldReduceMotion ? false : { opacity: 0, y: -15 }}
           animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shadow-sm backdrop-blur-md">
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)] backdrop-blur-xl hover:border-emerald-400/50 transition-colors cursor-default">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-xs font-semibold">Available for Hire</span>
           </div>
-          <div className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-300 shadow-sm backdrop-blur-md">
-            <GraduationCap size={13} className="text-accent" />
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full liquid-glass-island text-zinc-300 shadow-md backdrop-blur-xl hover:border-white/30 transition-colors cursor-default">
+            <GraduationCap size={14} className="text-accent" />
             <span className="text-xs font-semibold">VIT Bhopal • CGPA 8.46</span>
           </div>
         </Motion.div>
@@ -128,14 +128,17 @@ const Hero = memo(() => {
           initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
           animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
+          className="space-y-2"
         >
-          <h1
-            id="hero-heading"
-            className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]"
-          >
-            Hi, I'm <br className="sm:hidden" />
-            <span className="accent-gradient-text italic font-serif">Saksham Agarwal</span>
-          </h1>
+          <div className="flex items-baseline gap-3 flex-wrap">
+            <h1
+              id="hero-heading"
+              className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]"
+            >
+              Hi, I'm <br className="sm:hidden" />
+              <span className="accent-gradient-text italic font-serif">Saksham Agarwal</span>
+            </h1>
+          </div>
         </Motion.div>
 
         {/* Subtitle / Bio */}
@@ -145,7 +148,7 @@ const Hero = memo(() => {
           animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
         >
-          Full-Stack Developer & Applied ML/AI Engineer building deepfake forensics platforms, LLM app compilers, and real-time distributed web systems.
+          B.Tech CSE Student at VIT Bhopal building deepfake forensics platforms, LLM app compilers, and real-time distributed web systems.
         </Motion.p>
 
         {/* Interactive CTA Group */}
@@ -155,43 +158,58 @@ const Hero = memo(() => {
           animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
           transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
         >
-          <button
+          <Motion.button
+            whileHover={{ scale: 1.04, y: -2 }}
+            whileTap={{ scale: 0.96 }}
             onClick={handleProjectsClick}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-full shadow-[0_0_20px_rgba(59,130,246,0.35)] hover:shadow-[0_0_28px_rgba(59,130,246,0.55)] hover:-translate-y-0.5 transition-all duration-300 cursor-pointer active:scale-95 flex items-center gap-2 group"
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-full border border-white/20 shadow-[0_0_22px_rgba(59,130,246,0.4)] hover:shadow-[0_0_32px_rgba(59,130,246,0.6)] transition-all duration-300 cursor-pointer flex items-center gap-2 group"
           >
             <span>Explore Projects</span>
-            <ArrowRight size={15} className="group-hover:translate-x-0.5 transition-transform" />
-          </button>
+            <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
+          </Motion.button>
 
-          <a href={resume} download className="inline-block">
-            <button
-              className="px-5 py-3 liquid-glass-island text-zinc-200 text-sm font-semibold rounded-full hover:text-white hover:border-accent/40 hover:shadow-glassGlow transition-all duration-300 active:scale-95 flex items-center gap-2 cursor-pointer"
+          <a 
+            href={resume} 
+            download="Saksham_Agarwal_Resume.pdf" 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="inline-block"
+            aria-label="Download Saksham Agarwal's Resume PDF"
+          >
+            <Motion.button
+              whileHover={{ scale: 1.04, y: -2 }}
+              whileTap={{ scale: 0.96 }}
+              className="px-5 py-3 liquid-glass-island text-zinc-200 text-sm font-semibold rounded-full border border-white/15 hover:text-white hover:border-accent/40 shadow-sm hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 flex items-center gap-2 cursor-pointer group"
             >
-              <Download size={14} />
+              <Download size={14} className="group-hover:-translate-y-0.5 transition-transform text-accent" />
               <span>Resume</span>
-            </button>
+            </Motion.button>
           </a>
 
           {/* Social Icons */}
           <div className="flex items-center gap-2">
-            <a 
+            <Motion.a 
+              whileHover={{ scale: 1.1, y: -2 }}
+              whileTap={{ scale: 0.94 }}
               href="https://github.com/saksham-dev07" 
               target="_blank" 
               rel="noopener noreferrer"
               aria-label="GitHub Profile"
-              className="p-3 liquid-glass-island rounded-full text-zinc-400 hover:text-white hover:border-accent hover:shadow-glassGlow transition-all duration-300 active:scale-95 cursor-pointer"
+              className="p-3 liquid-glass-island rounded-full text-zinc-300 hover:text-white border border-white/15 hover:border-accent shadow-md hover:shadow-[0_0_18px_rgba(59,130,246,0.35)] transition-all duration-300 cursor-pointer"
             >
               <Github size={16} />
-            </a>
-            <a
+            </Motion.a>
+            <Motion.a
+              whileHover={{ scale: 1.1, y: -2 }}
+              whileTap={{ scale: 0.94 }}
               href="https://www.linkedin.com/in/saksham-agarwal-b44910289/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="p-3 liquid-glass-island rounded-full text-zinc-400 hover:text-white hover:border-accent hover:shadow-glassGlow transition-all duration-300 active:scale-95 cursor-pointer"
+              className="p-3 liquid-glass-island rounded-full text-zinc-300 hover:text-white border border-white/15 hover:border-accent shadow-md hover:shadow-[0_0_18px_rgba(59,130,246,0.35)] transition-all duration-300 cursor-pointer"
               aria-label="LinkedIn Profile"
             >
               <Linkedin size={16} />
-            </a>
+            </Motion.a>
           </div>
         </Motion.div>
 
