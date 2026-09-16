@@ -80,6 +80,36 @@ ScrollIndicator.displayName = "ScrollIndicator";
 // Full-screen Immersive Hero
 const Hero = memo(() => {
   const shouldReduceMotion = useReducedMotion();
+  const [load3D, setLoad3D] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkWebGL = () => {
+      try {
+        const canvas = document.createElement("canvas");
+        return Boolean(
+          window.WebGLRenderingContext &&
+            (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+        );
+      } catch {
+        return false;
+      }
+    };
+
+    const mobile = typeof window !== "undefined" && window.innerWidth < 768;
+    setIsMobile(mobile);
+
+    if (!mobile && checkWebGL()) {
+      const timer = setTimeout(() => {
+        if ("requestIdleCallback" in window) {
+          window.requestIdleCallback(() => setLoad3D(true), { timeout: 1500 });
+        } else {
+          setLoad3D(true);
+        }
+      }, 150);
+      return () => clearTimeout(timer);
+    }
+  }, []);
 
   const handleProjectsClick = useCallback((e) => {
     e.preventDefault();
@@ -216,15 +246,27 @@ const Hero = memo(() => {
       </div>
 
       {/* Full-Screen 3D Interactive Canvas */}
-      <div className="w-full h-full absolute inset-0 z-0">
-        <Suspense fallback={
-          <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400 gap-3 bg-zinc-950/20">
-            <div className="w-10 h-10 rounded-full border-2 border-accent/20 border-t-accent animate-spin" />
-            <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Loading 3D Experience...</p>
+      <div className="w-full h-full absolute inset-0 z-0 pointer-events-auto">
+        {load3D ? (
+          <Suspense fallback={
+            <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400 gap-3 bg-zinc-950/20">
+              <div className="w-10 h-10 rounded-full border-2 border-accent/20 border-t-accent animate-spin" />
+              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Loading 3D Experience...</p>
+            </div>
+          }>
+            <ComputersCanvas />
+          </Suspense>
+        ) : isMobile ? (
+          <div className="w-full h-full flex items-end justify-center pb-24 pointer-events-none">
+            <button
+              onClick={() => setLoad3D(true)}
+              className="pointer-events-auto px-4 py-2 rounded-full liquid-glass-island text-zinc-300 hover:text-white border border-white/15 hover:border-accent shadow-lg flex items-center gap-2 text-xs font-medium backdrop-blur-xl transition-all hover:scale-105 active:scale-95 cursor-pointer"
+            >
+              <Sparkles size={14} className="text-accent" />
+              <span>Tap to Load 3D Workstation</span>
+            </button>
           </div>
-        }>
-          <ComputersCanvas />
-        </Suspense>
+        ) : null}
       </div>
 
       {/* Bottom Gradient Fade */}

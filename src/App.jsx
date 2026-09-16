@@ -1,19 +1,19 @@
-import { useEffect, useLayoutEffect } from "react";
+import { useEffect, useLayoutEffect, lazy, Suspense } from "react";
 import Lenis from "lenis";
 
-import {
-  About,
-  Certifications,
-  Education,
-  Leadership,
-  Contact,
-  Footer,
-  Hero,
-  Navbar,
-  StarsCanvas,
-  Tech,
-  Works,
-} from "./components";
+import Hero from "./components/Hero";
+import Navbar from "./components/Navbar";
+
+// Lazy load below-the-fold components for instant initial page rendering
+const About = lazy(() => import("./components/About"));
+const Tech = lazy(() => import("./components/Tech"));
+const Works = lazy(() => import("./components/Projects"));
+const Education = lazy(() => import("./components/Education"));
+const Leadership = lazy(() => import("./components/Leadership"));
+const Certifications = lazy(() => import("./components/Certifications"));
+const Contact = lazy(() => import("./components/Contact"));
+const Footer = lazy(() => import("./components/Footer"));
+const StarsCanvas = lazy(() => import("./components/canvas/Stars"));
 
 const App = () => {
   // Initialize Lenis with optimal interpolation (no touch hijacking)
@@ -56,22 +56,24 @@ const App = () => {
         <Hero />
       </div>
 
-      {/* === Main Content Sections === */}
-      <About />
-      <Tech />
-      <Works />
-      <Education />
-      <Leadership />
-      <Certifications />
+      {/* === Main Content Sections (Code-split) === */}
+      <Suspense fallback={<div className="w-full min-h-screen bg-primary" />}>
+        <About />
+        <Tech />
+        <Works />
+        <Education />
+        <Leadership />
+        <Certifications />
 
-      {/* === Contact & Background Canvas === */}
-      <div className="relative z-0">
-        <Contact />
-        <StarsCanvas />
-      </div>
+        {/* === Contact & Background Canvas === */}
+        <div className="relative z-0">
+          <Contact />
+          <StarsCanvas />
+        </div>
 
-      {/* === Footer Section === */}
-      <Footer />
+        {/* === Footer Section === */}
+        <Footer />
+      </Suspense>
     </div>
   );
 };

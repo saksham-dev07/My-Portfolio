@@ -501,10 +501,11 @@ const CertCard = memo(({ cert, index, onImageClick }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={handleVerifyClick}
+                aria-label={`Verify ${title} credential on official portal`}
                 className="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-gradient-to-r from-accent/20 via-accent/15 to-cyan-500/20 hover:from-accent hover:to-cyan-500 text-accent hover:text-white border border-accent/40 hover:border-white/30 backdrop-blur-md font-semibold text-xs transition-all duration-300 cursor-pointer whitespace-nowrap shadow-sm hover:shadow-[0_0_20px_rgba(59,130,246,0.35)] group/btn"
                 whileHover={{ scale: 1.02 }}
                 whileTap={buttonTap}
-                title="Verify credential on official portal"
+                title={`Verify ${title} credential on official portal`}
               >
                 <span>Verify Credential</span>
                 <ExternalLink size={13} className="transition-transform duration-200 group-hover/btn:translate-x-0.5 group-hover/btn:-translate-y-0.5" />
@@ -575,7 +576,7 @@ const Certifications = () => {
               <span>//</span>
               <span>Credentials & Licenses</span>
             </div>
-            <p className="text-zinc-500 mb-2 text-sm uppercase tracking-wider font-semibold">
+            <p className="text-zinc-400 mb-2 text-sm uppercase tracking-wider font-semibold">
               Professional Credentials & Mastery
             </p>
             <h2 className="text-4xl sm:text-5xl font-bold text-zinc-100 mb-4">

@@ -45,11 +45,26 @@ const Stars = (props) => {
   );
 };
 
+const hasWebGL = () => {
+  try {
+    const canvas = document.createElement("canvas");
+    return Boolean(
+      window.WebGLRenderingContext &&
+        (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+    );
+  } catch {
+    return false;
+  }
+};
+
 const StarsCanvas = memo(() => {
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef(null);
+  const [canRenderWebGL, setCanRenderWebGL] = useState(false);
 
   useEffect(() => {
+    setCanRenderWebGL(hasWebGL());
+
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
@@ -63,6 +78,8 @@ const StarsCanvas = memo(() => {
 
     return () => observer.disconnect();
   }, []);
+
+  if (!canRenderWebGL) return null;
 
   return (
     <div ref={containerRef} className="w-full h-auto absolute inset-0 z-[-1] pointer-events-none overflow-hidden">

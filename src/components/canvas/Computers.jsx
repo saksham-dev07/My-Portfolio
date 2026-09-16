@@ -29,27 +29,10 @@ const Computers = ({ device }) => {
 
   useMemo(() => {
     gltf.scene.traverse((child) => {
-      if (child.isMesh && child.geometry.attributes.position) {
-        const posAttr = child.geometry.attributes.position;
-        let foundBad = false;
-
-        for (let i = 0; i < posAttr.count; i++) {
-          const x = posAttr.getX(i);
-          const y = posAttr.getY(i);
-          const z = posAttr.getZ(i);
-          if (isNaN(x) || isNaN(y) || isNaN(z)) {
-            console.warn(`Found NaN in ${child.name} at vertex ${i}`, x, y, z);
-            foundBad = true;
-            break;
-          }
-        }
-
-        if (foundBad) {
+      if (child.isMesh && child.geometry) {
+        if (!child.geometry.boundingSphere || isNaN(child.geometry.boundingSphere.radius)) {
           child.geometry.computeBoundingBox();
-          const bs = child.geometry.boundingBox.getBoundingSphere(
-            new THREE.Sphere()
-          );
-          child.geometry.boundingSphere = bs;
+          child.geometry.computeBoundingSphere();
         }
       }
     });
@@ -213,8 +196,5 @@ const ComputersCanvas = () => {
     </div>
   );
 };
-
-// Preload GLTF model immediately for faster Vercel delivery
-useGLTF.preload("/desktop_pc/scene-opt.glb");
 
 export default ComputersCanvas;

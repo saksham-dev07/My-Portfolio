@@ -84,7 +84,7 @@ const TechCard = memo(({ tech, index }) => {
       {/* Vector Icon */}
       <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
         {IconComponent ? (
-          <IconComponent className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.12)] group-hover:drop-shadow-[0_0_14px_rgba(59,130,246,0.7)] transition-all duration-300" />
+          <IconComponent aria-label={tech.name} className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.12)] group-hover:drop-shadow-[0_0_14px_rgba(59,130,246,0.7)] transition-all duration-300" />
         ) : (
           <img
             src={tech.icon}
@@ -168,7 +168,7 @@ const Tech = () => {
           <span>Core Arsenal</span>
         </div>
 
-        <p className="text-zinc-500 mb-2 text-sm uppercase tracking-wider font-semibold">
+        <p className="text-zinc-400 mb-2 text-sm uppercase tracking-wider font-semibold">
           Tools & Frameworks
         </p>
         <h2 className="text-4xl sm:text-5xl font-bold text-zinc-100">

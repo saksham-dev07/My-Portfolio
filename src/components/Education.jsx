@@ -152,7 +152,7 @@ const Education = () => {
             <span>//</span>
             <span>Academic Timeline</span>
           </div>
-          <p className="text-zinc-500 mb-2 text-sm uppercase tracking-wider font-semibold">
+          <p className="text-zinc-400 mb-2 text-sm uppercase tracking-wider font-semibold">
             Academic Background
           </p>
           <h2

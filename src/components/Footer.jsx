@@ -111,7 +111,7 @@ const Footer = memo(() => {
       </div>
 
       {/* Bottom copyright line */}
-      <div className="mt-8 pt-6 border-t border-white/5 text-center text-xs text-zinc-500">
+      <div className="mt-8 pt-6 border-t border-white/5 text-center text-xs text-zinc-400">
         © {new Date().getFullYear()} Saksham Agarwal. Built with React & Three.js. All rights reserved.
       </div>
     </footer>

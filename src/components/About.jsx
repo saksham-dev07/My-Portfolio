@@ -138,9 +138,9 @@ const SkillCategoryCard = memo(({ group, index, isDimmed }) => {
             <span className="text-[11px] font-mono font-semibold uppercase tracking-wider text-blue-400 block mb-0.5">
               {badge}
             </span>
-            <h4 className="text-lg font-bold text-zinc-100 group-hover:text-white transition-colors leading-snug tracking-tight">
+            <h3 className="text-lg font-bold text-zinc-100 group-hover:text-white transition-colors leading-snug tracking-tight">
               {title}
-            </h4>
+            </h3>
             <p className="text-xs text-zinc-400 mt-1 line-clamp-2">
               {subtitle}
             </p>
@@ -199,7 +199,7 @@ const ServiceCard = memo(({ service, index }) => {
       }>
         <div
           className="relative glass-card glass-card-hover rounded-2xl p-8 h-full flex flex-col items-center overflow-hidden border border-white/10 group shadow-[0_10px_30px_-10px_rgba(0,0,0,0.5)] hover:border-accent/40 hover:shadow-[0_20px_40px_-12px_rgba(59,130,246,0.25)] transition-all duration-300"
-          role="article"
+          role="listitem"
           aria-labelledby={`service-${index}-title`}
         >
           {/* Top specular refraction line */}
@@ -259,7 +259,7 @@ const About = memo(() => {
             <span>Profile & Overview</span>
           </div>
 
-          <p className="text-zinc-500 mb-2 text-sm uppercase tracking-wider font-semibold">
+          <p className="text-zinc-400 mb-2 text-sm uppercase tracking-wider font-semibold">
             Overview & Core Competencies
           </p>
           <h2 

@@ -289,7 +289,7 @@ const Works = () => {
               <span>//</span>
               <span>Featured Work</span>
             </div>
-            <p className="text-zinc-500 mb-2 text-sm uppercase tracking-wider font-semibold">
+            <p className="text-zinc-400 mb-2 text-sm uppercase tracking-wider font-semibold">
               Portfolio & Engineering Builds
             </p>
             <h2 className="text-4xl sm:text-5xl font-bold text-zinc-100">
