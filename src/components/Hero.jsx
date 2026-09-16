@@ -119,9 +119,9 @@ const Hero = memo(() => {
       className="relative w-full h-screen mx-auto overflow-hidden bg-primary"
       aria-labelledby="hero-heading"
     >
-      {/* Ambient background glow orbs */}
-      <div className="absolute top-1/4 left-1/4 -translate-x-1/2 w-[600px] h-[600px] bg-blue-600/15 blur-[150px] rounded-full pointer-events-none" />
-      <div className="absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none" />
+      {/* Ambient background glow orbs (hidden on mobile for GPU perf) */}
+      <div className="hidden sm:block absolute top-1/4 left-1/4 -translate-x-1/2 w-[600px] h-[600px] bg-blue-600/15 blur-[150px] rounded-full pointer-events-none" />
+      <div className="hidden sm:block absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none" />
 
       {/* Floating Hero Content Overlay */}
       <div className="absolute inset-0 top-[95px] sm:top-[115px] max-w-7xl mx-auto px-6 sm:px-12 flex flex-col items-start gap-4 sm:gap-5 z-10 pointer-events-none">

@@ -1,7 +1,10 @@
-import React, { forwardRef, memo } from "react";
+import React, { forwardRef, memo, useState, useEffect } from "react";
 import { motion as Motion } from "framer-motion";
 import { styles } from "../styles";
 import { staggerContainer } from "../utils/motion";
+
+// Detect mobile once at module level to avoid per-component checks
+const getIsMobile = () => typeof window !== "undefined" && window.innerWidth < 768;
 
 const SectionWrapper = (Component, idName, options = {}) => {
   const {
@@ -17,6 +20,24 @@ const SectionWrapper = (Component, idName, options = {}) => {
   const combinedClassName = `${padding} ${maxWidth} mx-auto relative z-0 ${className}`.trim();
 
   const WrappedComponent = forwardRef((props, ref) => {
+    const [isMobile] = useState(getIsMobile);
+
+    // On mobile: skip framer-motion entirely — render plain section for zero overhead scroll
+    if (isMobile) {
+      return (
+        <section className={combinedClassName} ref={passRef ? ref : undefined}>
+          <span className="hash-span" id={idName}>
+            &nbsp;
+          </span>
+          {passRef ? (
+            <Component ref={ref} {...props} />
+          ) : (
+            <Component {...props} />
+          )}
+        </section>
+      );
+    }
+
     return (
       <Motion.section
         variants={animationVariants}

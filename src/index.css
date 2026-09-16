@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&display=swap");
+/* Fonts loaded non-blocking from index.html — no @import needed */
 
 @tailwind base;
 @tailwind components;
@@ -265,4 +265,36 @@
   color: #38bdf8;
   font-family: 'Fira Code', monospace;
   font-weight: 700;
+}
+
+/*--------------------------------------------------------------
+  Mobile Performance: Kill backdrop-blur to eliminate GPU jank
+  backdrop-blur forces every scroll frame through the GPU compositor
+  on low-end mobile chips. Replace with opaque fallbacks.
+--------------------------------------------------------------*/
+@media (max-width: 767px) {
+  *,
+  *::before,
+  *::after {
+    -webkit-backdrop-filter: none !important;
+    backdrop-filter: none !important;
+  }
+
+  /* Compensate with slightly more opaque backgrounds */
+  .liquid-glass-island {
+    background: rgba(14, 14, 18, 0.92) !important;
+  }
+  .glass-card {
+    background: rgba(12, 12, 16, 0.95) !important;
+  }
+  .glass-pill {
+    background: rgba(20, 20, 26, 0.9) !important;
+  }
+  .glass-input {
+    background: rgba(12, 12, 16, 0.92) !important;
+  }
+  .section-number-badge {
+    backdrop-filter: none;
+    background: rgba(9, 9, 11, 0.92);
+  }
 }

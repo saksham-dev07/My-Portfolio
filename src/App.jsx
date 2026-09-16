@@ -49,8 +49,13 @@ const DeferredStarsCanvas = () => {
 };
 
 const App = () => {
-  // Initialize Lenis with optimal interpolation (no touch hijacking)
+  // Initialize Lenis for smooth scroll — desktop only (mobile has native momentum)
   useEffect(() => {
+    // Skip Lenis on mobile: native iOS/Android scroll is already buttery smooth
+    // and the perpetual RAF loop wastes CPU cycles for zero visual benefit
+    const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+    if (isMobile) return;
+
     const lenis = new Lenis({
       lerp: 0.08, // Smooth exponential linear interpolation
       smoothWheel: true,
