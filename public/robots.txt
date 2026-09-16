@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://saksham.dev/sitemap.xml
+Sitemap: https://saksham-dev07.me/sitemap.xml

@@ -3,11 +3,11 @@
 > B.Tech CSE Student at VIT Bhopal (Class of 2027) specializing in Full-Stack Web Development, Applied AI/ML, and Scalable Web Systems.
 
 ## Core Links
-- [Website](https://saksham.dev/)
+- [Website](https://saksham-dev07.me/)
 - [GitHub](https://github.com/saksham-dev07)
 - [LinkedIn](https://www.linkedin.com/in/saksham-agarwal-b44910289/)
-- [Projects](https://saksham.dev/#projects)
-- [Certifications](https://saksham.dev/#certifications)
+- [Projects](https://saksham-dev07.me/#projects)
+- [Certifications](https://saksham-dev07.me/#certifications)
 
 ## Summary
 Saksham Agarwal is a Computer Science and Engineering student at VIT Bhopal building deepfake forensics platforms, LLM app compilers, and real-time distributed web systems.
