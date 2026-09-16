@@ -1,4 +1,4 @@
-import { useEffect, useLayoutEffect, lazy, Suspense } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, lazy, Suspense } from "react";
 import Lenis from "lenis";
 
 import Hero from "./components/Hero";
@@ -14,6 +14,39 @@ const Certifications = lazy(() => import("./components/Certifications"));
 const Contact = lazy(() => import("./components/Contact"));
 const Footer = lazy(() => import("./components/Footer"));
 const StarsCanvas = lazy(() => import("./components/canvas/Stars"));
+
+// Defers loading Three.js star field until scrolled into view on desktop only
+const DeferredStarsCanvas = () => {
+  const [shouldRender, setShouldRender] = useState(false);
+  const containerRef = useRef(null);
+
+  useEffect(() => {
+    // Skip 3D canvas on mobile phones to save network and main-thread CPU
+    if (typeof window !== "undefined" && window.innerWidth < 768) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setShouldRender(true);
+          observer.disconnect();
+        }
+      },
+      { rootMargin: "400px" }
+    );
+
+    if (containerRef.current) {
+      observer.observe(containerRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <div ref={containerRef} className="absolute inset-0 z-[-1] pointer-events-none">
+      {shouldRender ? <StarsCanvas /> : null}
+    </div>
+  );
+};
 
 const App = () => {
   // Initialize Lenis with optimal interpolation (no touch hijacking)
@@ -68,7 +101,7 @@ const App = () => {
         {/* === Contact & Background Canvas === */}
         <div className="relative z-0">
           <Contact />
-          <StarsCanvas />
+          <DeferredStarsCanvas />
         </div>
 
         {/* === Footer Section === */}

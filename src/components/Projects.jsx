@@ -1,9 +1,8 @@
 import React, { useCallback, memo, useMemo, useState } from "react";
 import {motion as Motion, useReducedMotion, AnimatePresence } from "framer-motion";
 import clsx from "clsx";
-import { ExternalLink } from "lucide-react";
+import { ExternalLink, Github } from "lucide-react";
 
-import { github } from "../assets";
 import { SectionWrapper } from "../hoc";
 import { projects } from "../constants";
 
@@ -177,11 +176,7 @@ const ProjectCard = memo(({ index, name, description, tags, image, source_code_l
                     className="bg-black/60 hover:bg-black/80 text-white p-2.5 rounded-full border border-white/15 hover:border-accent/50 backdrop-blur-xl transition-all shadow-lg hover:shadow-[0_0_15px_rgba(59,130,246,0.35)] active:scale-95 cursor-pointer"
                     aria-label={`View ${name} source code on GitHub`}
                   >
-                    <img 
-                      src={github} 
-                      alt="GitHub" 
-                      className="w-4 h-4 invert" 
-                    />
+                    <Github className="w-4 h-4 text-white" />
                   </button>
                 )}
               </div>

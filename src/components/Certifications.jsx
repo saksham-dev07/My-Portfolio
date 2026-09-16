@@ -348,6 +348,10 @@ const CertCard = memo(({ cert, index, onImageClick }) => {
               <Motion.img 
                 src={profilePic} 
                 alt={`${issuer} logo`} 
+                loading="lazy"
+                decoding="async"
+                width={40}
+                height={40}
                 className="w-10 h-10 rounded-full object-cover border-2 border-white/20 group-hover:border-accent/60 shadow-md group-hover:shadow-[0_0_15px_rgba(59,130,246,0.35)] transition-all duration-300"
                 whileHover={{ scale: 1.12, rotate: 6 }}
                 transition={{ duration: 0.2 }}

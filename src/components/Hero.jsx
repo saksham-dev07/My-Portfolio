@@ -137,12 +137,7 @@ const Hero = memo(() => {
       <div className="absolute inset-0 top-[95px] sm:top-[115px] max-w-7xl mx-auto px-6 sm:px-12 flex flex-col items-start gap-4 sm:gap-5 z-10 pointer-events-none">
         
         {/* Status Badges */}
-        <Motion.div 
-          className="flex flex-wrap items-center gap-2.5 pointer-events-auto"
-          initial={shouldReduceMotion ? false : { opacity: 0, y: -15 }}
-          animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, ease: "easeOut" }}
-        >
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 pointer-events-auto">
           <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)] backdrop-blur-xl hover:border-emerald-400/50 transition-colors cursor-default">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-xs font-semibold">Available for Hire</span>
@@ -151,15 +146,10 @@ const Hero = memo(() => {
             <GraduationCap size={14} className="text-accent" />
             <span className="text-xs font-semibold">VIT Bhopal • CGPA 8.46</span>
           </div>
-        </Motion.div>
+        </div>
 
         {/* Main Headline */}
-        <Motion.div
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
-          animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.1, ease: "easeOut" }}
-          className="space-y-2"
-        >
+        <div className="space-y-2">
           <div className="flex items-baseline gap-3 flex-wrap">
             <h1
               id="hero-heading"
@@ -169,25 +159,15 @@ const Hero = memo(() => {
               <span className="accent-gradient-text italic font-serif">Saksham Agarwal</span>
             </h1>
           </div>
-        </Motion.div>
+        </div>
 
         {/* Subtitle / Bio */}
-        <Motion.p
-          className="text-zinc-300 text-sm sm:text-base lg:text-lg leading-relaxed max-w-xl font-normal drop-shadow-md"
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
-          animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.2, ease: "easeOut" }}
-        >
+        <p className="text-zinc-300 text-sm sm:text-base lg:text-lg leading-relaxed max-w-xl font-normal drop-shadow-md">
           B.Tech CSE Student at VIT Bhopal building deepfake forensics platforms, LLM app compilers, and real-time distributed web systems.
-        </Motion.p>
+        </p>
 
         {/* Interactive CTA Group */}
-        <Motion.div
-          className="flex flex-wrap items-center gap-3 pt-2 pointer-events-auto"
-          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
-          animate={shouldReduceMotion ? false : { opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
-        >
+        <div className="flex flex-wrap items-center gap-3 pt-2 pointer-events-auto">
           <Motion.button
             whileHover={{ scale: 1.04, y: -2 }}
             whileTap={{ scale: 0.96 }}
@@ -241,7 +221,7 @@ const Hero = memo(() => {
               <Linkedin size={16} />
             </Motion.a>
           </div>
-        </Motion.div>
+        </div>
 
       </div>
 
