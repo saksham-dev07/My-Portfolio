@@ -1,5 +1,4 @@
 import React, { Suspense, lazy, useCallback, useState, useEffect, memo } from "react";
-import { motion as Motion, useReducedMotion } from "framer-motion";
 import { Github, Linkedin, GraduationCap, Sparkles, ArrowRight, Download } from "lucide-react";
 import { resume } from "../assets";
 
@@ -58,15 +57,7 @@ const ScrollIndicator = memo(() => {
         className="group flex flex-col items-center gap-2 focus:outline-none opacity-75 hover:opacity-100 transition-opacity duration-300"
       >
         <div className="w-5 h-8 rounded-full border border-white/20 flex justify-center pt-1.5 group-hover:border-accent transition-colors bg-zinc-950/40 backdrop-blur-sm">
-          <Motion.div
-            className="w-1 h-1.5 rounded-full bg-accent"
-            animate={{ y: [0, 8, 0] }}
-            transition={{
-              duration: 1.5,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-          />
+          <div className="w-1 h-2 rounded-full bg-accent animate-bounce" />
         </div>
         <span className="text-[10px] font-medium tracking-wider uppercase text-zinc-400 group-hover:text-zinc-200 transition-colors">
           Scroll
@@ -79,7 +70,6 @@ ScrollIndicator.displayName = "ScrollIndicator";
 
 // Full-screen Immersive Hero
 const Hero = memo(() => {
-  const shouldReduceMotion = useReducedMotion();
   const [load3D, setLoad3D] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
 
@@ -168,15 +158,13 @@ const Hero = memo(() => {
 
         {/* Interactive CTA Group */}
         <div className="flex flex-wrap items-center gap-3 pt-2 pointer-events-auto">
-          <Motion.button
-            whileHover={{ scale: 1.04, y: -2 }}
-            whileTap={{ scale: 0.96 }}
+          <button
             onClick={handleProjectsClick}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-full border border-white/20 shadow-[0_0_22px_rgba(59,130,246,0.4)] hover:shadow-[0_0_32px_rgba(59,130,246,0.6)] transition-all duration-300 cursor-pointer flex items-center gap-2 group"
+            className="px-6 py-3 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-full border border-white/20 shadow-[0_0_22px_rgba(59,130,246,0.4)] hover:shadow-[0_0_32px_rgba(59,130,246,0.6)] hover:scale-105 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 cursor-pointer flex items-center gap-2 group"
           >
             <span>Explore Projects</span>
             <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
-          </Motion.button>
+          </button>
 
           <a 
             href={resume} 
@@ -186,40 +174,34 @@ const Hero = memo(() => {
             className="inline-block"
             aria-label="Download Saksham Agarwal's Resume PDF"
           >
-            <Motion.button
-              whileHover={{ scale: 1.04, y: -2 }}
-              whileTap={{ scale: 0.96 }}
-              className="px-5 py-3 liquid-glass-island text-zinc-200 text-sm font-semibold rounded-full border border-white/15 hover:text-white hover:border-accent/40 shadow-sm hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] transition-all duration-300 flex items-center gap-2 cursor-pointer group"
+            <button
+              className="px-5 py-3 liquid-glass-island text-zinc-200 text-sm font-semibold rounded-full border border-white/15 hover:text-white hover:border-accent/40 shadow-sm hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 flex items-center gap-2 cursor-pointer group"
             >
               <Download size={14} className="group-hover:-translate-y-0.5 transition-transform text-accent" />
               <span>Resume</span>
-            </Motion.button>
+            </button>
           </a>
 
           {/* Social Icons */}
           <div className="flex items-center gap-2">
-            <Motion.a 
-              whileHover={{ scale: 1.1, y: -2 }}
-              whileTap={{ scale: 0.94 }}
+            <a 
               href="https://github.com/saksham-dev07" 
               target="_blank" 
-              rel="noopener noreferrer"
+              rel="noopener noreferrer" 
               aria-label="GitHub Profile"
-              className="p-3 liquid-glass-island rounded-full text-zinc-300 hover:text-white border border-white/15 hover:border-accent shadow-md hover:shadow-[0_0_18px_rgba(59,130,246,0.35)] transition-all duration-300 cursor-pointer"
+              className="p-3 liquid-glass-island rounded-full text-zinc-300 hover:text-white border border-white/15 hover:border-accent shadow-md hover:shadow-[0_0_18px_rgba(59,130,246,0.35)] hover:scale-110 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 cursor-pointer"
             >
               <Github size={16} />
-            </Motion.a>
-            <Motion.a
-              whileHover={{ scale: 1.1, y: -2 }}
-              whileTap={{ scale: 0.94 }}
+            </a>
+            <a
               href="https://www.linkedin.com/in/saksham-agarwal-b44910289/" 
               target="_blank" 
-              rel="noopener noreferrer"
-              className="p-3 liquid-glass-island rounded-full text-zinc-300 hover:text-white border border-white/15 hover:border-accent shadow-md hover:shadow-[0_0_18px_rgba(59,130,246,0.35)] transition-all duration-300 cursor-pointer"
+              rel="noopener noreferrer" 
+              className="p-3 liquid-glass-island rounded-full text-zinc-300 hover:text-white border border-white/15 hover:border-accent shadow-md hover:shadow-[0_0_18px_rgba(59,130,246,0.35)] hover:scale-110 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 cursor-pointer"
               aria-label="LinkedIn Profile"
             >
               <Linkedin size={16} />
-            </Motion.a>
+            </a>
           </div>
         </div>
 
