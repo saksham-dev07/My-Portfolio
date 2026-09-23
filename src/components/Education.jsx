@@ -1,197 +1,306 @@
 import React, { memo } from "react";
 import { motion as Motion, useReducedMotion } from "framer-motion";
-import { GraduationCap, Calendar, Award, Building2, CheckCircle, Trophy, Sparkles } from "lucide-react";
+import { 
+  GraduationCap, 
+  Calendar, 
+  Award, 
+  Building2, 
+  Trophy, 
+  Sparkles,
+  CheckCircle2,
+  BookOpen,
+  MapPin,
+  TrendingUp
+} from "lucide-react";
 import { SectionWrapper } from "../hoc";
+import { fadeIn } from "../utils/motion";
 import { education, hackathons } from "../constants";
-import { fadeIn, staggerContainer, hoverLift } from "../utils/motion";
 
-const EducationCard = memo(({ item, index }) => {
-  const { title, institution, period, score, progress, description, profilePic } = item;
-  const reduceMotion = useReducedMotion();
-
-  return (
-    <Motion.div
-      variants={reduceMotion ? {} : fadeIn("up", "spring", index * 0.15, 0.7)}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.05 }}
-      whileHover={reduceMotion ? {} : { y: -5, transition: { type: "spring", stiffness: 350, damping: 25 } }}
-      className="group relative glass-card glass-card-hover rounded-2xl p-6 sm:p-8 w-full border border-white/10 overflow-hidden"
-    >
-      {/* Top specular reflection line */}
-      <div className="specular-line" />
-
-      {/* Ambient optical backlight glow */}
-      <div className="absolute top-0 right-0 w-44 h-44 bg-blue-500/10 group-hover:bg-blue-500/20 rounded-full blur-3xl pointer-events-none transition-all duration-700 -mr-10 -mt-10" />
-      <div className="absolute bottom-0 left-0 w-36 h-36 bg-cyan-500/5 group-hover:bg-cyan-500/15 rounded-full blur-2xl pointer-events-none transition-all duration-700 -ml-8 -mb-8" />
-
-      <div className="relative z-10 space-y-4">
-        {/* Header row */}
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-center gap-3.5">
-            {profilePic ? (
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl overflow-hidden bg-zinc-900/90 backdrop-blur-md border border-white/15 p-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] group-hover:border-cyan-400/40 transition-colors duration-300 flex items-center justify-center">
-                <img
-                  src={profilePic}
-                  alt={`${institution} logo`}
-                  className="w-full h-full object-contain rounded-lg"
-                  loading="lazy"
-                  decoding="async"
-                  width={48}
-                  height={48}
-                />
-              </div>
-            ) : (
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-zinc-900/90 backdrop-blur-md border border-white/15 flex items-center justify-center text-accent shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] group-hover:border-cyan-400/40 transition-colors duration-300">
-                <GraduationCap size={22} className="text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]" />
-              </div>
-            )}
-            <div>
-              <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors duration-300">
-                {title}
-              </h3>
-              <div className="flex items-center gap-2 text-sm text-zinc-400 mt-0.5">
-                <Building2 size={14} className="text-cyan-400/80" />
-                <span className="font-medium text-zinc-300">{institution}</span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full liquid-glass-island border border-white/10 text-xs font-semibold text-zinc-300 shadow-sm">
-            <Calendar size={13} className="text-cyan-400" />
-            <span>{period}</span>
-          </div>
-        </div>
-
-        {/* Description */}
-        <p className="text-zinc-400 text-sm sm:text-base leading-relaxed">
-          {description}
-        </p>
-
-        {/* Score Progress bar indicator */}
-        <div className="space-y-2 pt-2">
-          <div className="flex justify-between items-center text-xs">
-            <span className="text-zinc-300 font-medium flex items-center gap-1.5">
-              <CheckCircle size={14} className="text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.4)]" />
-              {score}
-            </span>
-            <span className="text-cyan-400 font-bold font-mono text-xs px-2 py-0.5 rounded-md bg-cyan-500/10 border border-cyan-500/20">
-              {progress}%
-            </span>
-          </div>
-          <div className="w-full h-2.5 bg-zinc-950/80 rounded-full overflow-hidden border border-white/10 p-[1px] shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]">
-            <Motion.div
-              className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-cyan-400 rounded-full shadow-[0_0_10px_rgba(6,182,212,0.4)]"
-              initial={{ width: 0 }}
-              whileInView={{ width: `${progress}%` }}
-              viewport={{ once: true }}
-              transition={{ duration: 1.1, ease: "easeOut", delay: index * 0.2 }}
-            />
-          </div>
-        </div>
-      </div>
-    </Motion.div>
-  );
-});
-
-EducationCard.displayName = "EducationCard";
-
-const HackathonCard = memo(({ item, index }) => {
-  const { title, role, period, achievement, tag } = item;
-  const reduceMotion = useReducedMotion();
-
-  return (
-    <Motion.div
-      variants={reduceMotion ? {} : fadeIn("up", "spring", index * 0.15, 0.7)}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.05 }}
-      whileHover={reduceMotion ? {} : { y: -5, transition: { type: "spring", stiffness: 350, damping: 25 } }}
-      className="group relative glass-card glass-card-hover rounded-2xl p-6 border border-white/10 flex flex-col justify-between overflow-hidden"
-    >
-      {/* Top specular line */}
-      <div className="specular-line" />
-
-      {/* Ambient corner flare */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-amber-500/5 group-hover:bg-amber-500/15 rounded-full blur-2xl pointer-events-none transition-all duration-500 -mr-6 -mt-6" />
-
-      <div className="relative z-10 space-y-3">
-        <div className="flex justify-between items-start gap-2">
-          <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/25 text-amber-300 text-xs font-semibold flex items-center gap-1.5 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
-            <Trophy size={13} className="text-amber-400" />
-            {tag}
-          </span>
-          <span className="text-xs text-zinc-400 font-mono px-2.5 py-0.5 rounded-full bg-zinc-950/60 border border-white/10">
-            {period}
-          </span>
-        </div>
-        <h4 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors duration-300">
-          {title}
-        </h4>
-        <p className="text-sm font-semibold text-cyan-400">{role}</p>
-        <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed">
-          {achievement}
-        </p>
-      </div>
-    </Motion.div>
-  );
-});
-
-HackathonCard.displayName = "HackathonCard";
+const vitCoursework = [
+  "Data Structures & Algorithms",
+  "Operating Systems",
+  "Computer Networks",
+  "Database Systems (DBMS)",
+  "Object-Oriented Programming (Java/C++)",
+  "Applied Machine Learning",
+  "Deep Learning & Computer Vision",
+  "Cloud Architecture (AWS)"
+];
 
 const Education = () => {
   const reduceMotion = useReducedMotion();
 
+  // Primary degree (VIT Bhopal)
+  const undergrad = education.find(item => item.id === 1) || education[0];
+  // Secondary schooling
+  const schooling = education.filter(item => item.id !== 1);
+
   return (
-    <div className="relative py-10 bg-primary" aria-labelledby="education-heading">
-      <div className="relative z-10 container mx-auto max-w-7xl">
-        {/* Header matching global styled italic serif accents */}
-        <div className="text-center mb-16">
-          <div className="section-number-badge">
-            <span className="number">04</span>
-            <span>//</span>
-            <span>Academic Timeline</span>
+    <div className="space-y-12" id="education">
+      {/* Editorial Section Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-white/10">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-white/10 text-xs font-mono text-zinc-400">
+            <span className="text-cyan-400 font-bold">06</span>
+            <span>&bull;</span>
+            <span>Academic Foundation</span>
           </div>
-          <p className="text-zinc-400 mb-2 text-sm uppercase tracking-wider font-semibold">
-            Academic Background
-          </p>
-          <h2
-            id="education-heading"
-            className="text-4xl sm:text-5xl font-bold text-zinc-100 mb-4"
-          >
-            Education <span className="accent-gradient-text italic font-serif">Timeline</span>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+            Education &amp; Academic Honors
           </h2>
-          <p className="text-zinc-400 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-            Academic foundation, B.Tech CSE degree at VIT Bhopal, and competitive achievements.
+          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal">
+            Undergraduate engineering curriculum at VIT Bhopal, specializations in AI/ML & systems, and foundational schooling.
           </p>
         </div>
 
-        {/* Timeline cards stack */}
-        <Motion.div
-          variants={reduceMotion ? {} : staggerContainer(0.2, 0.1)}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.05 }}
-          className="space-y-6 max-w-4xl mx-auto mb-20"
-        >
-          {education.map((item, idx) => (
-            <EducationCard key={item.id || idx} item={item} index={idx} />
-          ))}
-        </Motion.div>
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 text-xs font-mono text-blue-400">
+            <GraduationCap size={12} />
+            <span>Class of 2027 &bull; CGPA 8.46</span>
+          </span>
+        </div>
+      </div>
 
-        {/* Hackathons & Competitions subsection */}
-        <div className="max-w-4xl mx-auto">
-          <div className="flex items-center gap-2 mb-6">
-            <Trophy className="text-amber-400" size={20} />
-            <h3 className="text-xl sm:text-2xl font-bold text-white">
-              Hackathons & <span className="text-accent italic font-serif">Competitions</span>
+      {/* Flagship Undergrad Degree Card (Full Width Architectural Presentation) */}
+      <Motion.div
+        variants={reduceMotion ? {} : fadeIn("up", "spring", 0.1, 0.7)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.05 }}
+        className="group relative rounded-3xl bg-zinc-900/60 border border-white/10 p-4 sm:p-8 backdrop-blur-xl hover:border-cyan-400/40 transition-all duration-300 shadow-2xl overflow-hidden"
+      >
+        {/* Specular top reflection line */}
+        <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+
+        {/* Ambient backlight aura */}
+        <div className="absolute top-0 right-0 w-80 h-80 bg-blue-500/5 group-hover:bg-blue-500/10 rounded-full blur-3xl pointer-events-none transition-all duration-700 -mr-20 -mt-20" />
+        <div className="absolute bottom-0 left-0 w-72 h-72 bg-cyan-500/5 group-hover:bg-cyan-500/10 rounded-full blur-3xl pointer-events-none transition-all duration-700 -ml-20 -mb-20" />
+
+        <div className="relative z-10 space-y-6">
+          {/* Header Row */}
+          <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div className="flex items-start gap-4">
+              {undergrad.profilePic ? (
+                <div className="w-12 h-12 min-w-[48px] min-h-[48px] max-w-[48px] max-h-[48px] rounded-2xl bg-zinc-900/90 border border-white/15 p-2 flex items-center justify-center overflow-hidden shrink-0 shadow-lg group-hover:border-cyan-400/40 transition-colors">
+                  <img
+                    src={undergrad.profilePic}
+                    alt={undergrad.institution}
+                    className="w-full h-full max-w-full max-h-full object-contain"
+                    width={48}
+                    height={48}
+                  />
+                </div>
+              ) : (
+                <div className="w-14 h-14 rounded-2xl bg-zinc-900/90 border border-white/15 flex items-center justify-center shrink-0">
+                  <GraduationCap size={24} className="text-cyan-400" />
+                </div>
+              )}
+
+              <div className="space-y-1">
+                <div className="inline-flex items-center gap-1.5 text-xs font-mono text-cyan-400 font-semibold uppercase tracking-wider">
+                  <GraduationCap size={13} />
+                  <span>Bachelor of Technology</span>
+                </div>
+                <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight group-hover:text-cyan-300 transition-colors">
+                  {undergrad.title}
+                </h3>
+                <p className="text-xs sm:text-sm text-zinc-400 flex items-center gap-2">
+                  <Building2 size={13} className="text-zinc-500" />
+                  <span>{undergrad.institution}</span>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
+              <span className="px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-zinc-300 flex items-center gap-1.5 shadow-sm">
+                <Calendar size={12} className="text-cyan-400" />
+                <span>{undergrad.period}</span>
+              </span>
+              <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                Class of 2027
+              </span>
+            </div>
+          </div>
+
+          {/* Performance & Academic Metric Stats Grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+            {/* Metric 1: CGPA */}
+            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1">
+              <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+                <TrendingUp size={12} className="text-emerald-400" />
+                Cumulative Grade Point
+              </span>
+              <div className="flex items-baseline gap-1.5">
+                <span className="text-2xl sm:text-3xl font-black text-emerald-400 font-mono">
+                  8.46
+                </span>
+                <span className="text-xs font-mono text-zinc-500">/ 10.0</span>
+              </div>
+              <p className="text-[11px] text-zinc-500 font-mono">Consolidated B.Tech Standing</p>
+            </div>
+
+            {/* Metric 2: Specialization */}
+            <div className="p-4 rounded-2xl bg-white/[0.03] border border-white/5 space-y-1 sm:col-span-2">
+              <span className="text-[11px] font-mono text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles size={12} className="text-cyan-400" />
+                Core Engineering Focus
+              </span>
+              <p className="text-sm font-bold text-zinc-100">
+                Artificial Intelligence, Machine Learning &amp; Distributed Systems
+              </p>
+              <p className="text-xs text-zinc-400 leading-relaxed font-normal">
+                {undergrad.description}
+              </p>
+            </div>
+          </div>
+
+          {/* Core Coursework Badges */}
+          <div className="pt-2 border-t border-white/10 space-y-2">
+            <span className="text-xs font-mono text-zinc-400 flex items-center gap-1.5">
+              <BookOpen size={13} className="text-cyan-400" />
+              <span>Key University Coursework:</span>
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {vitCoursework.map((course, idx) => (
+                <span
+                  key={idx}
+                  className="px-2.5 py-1 rounded-lg bg-zinc-950/60 border border-white/10 text-xs font-mono text-zinc-300 hover:border-cyan-400/40 hover:text-white transition-colors"
+                >
+                  {course}
+                </span>
+              ))}
+            </div>
+          </div>
+        </div>
+      </Motion.div>
+
+      {/* Secondary Schooling Cards (Clean 2-Column Responsive Grid) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+        {schooling.map((item, idx) => (
+          <Motion.div
+            key={item.id}
+            variants={reduceMotion ? {} : fadeIn("up", "spring", 0.2 + idx * 0.1, 0.6)}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.05 }}
+            className="group relative rounded-3xl bg-zinc-900/50 border border-white/10 p-4 sm:p-6 backdrop-blur-xl hover:border-white/20 transition-all shadow-xl overflow-hidden flex flex-col justify-between"
+          >
+            {/* Specular line */}
+            <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
+
+            <div className="space-y-4">
+              <div className="flex items-start justify-between gap-3">
+                <div className="flex items-center gap-3">
+                  {item.profilePic && (
+                    <div className="w-10 h-10 min-w-[40px] min-h-[40px] max-w-[40px] max-h-[40px] rounded-xl bg-zinc-900/90 border border-white/15 p-1.5 flex items-center justify-center shrink-0 overflow-hidden">
+                      <img
+                        src={item.profilePic}
+                        alt={item.institution}
+                        className="w-full h-full max-w-full max-h-full object-contain"
+                        width={40}
+                        height={40}
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <h4 className="text-base font-bold text-white group-hover:text-cyan-300 transition-colors">
+                      {item.title}
+                    </h4>
+                    <p className="text-xs text-zinc-400 font-mono">
+                      {item.institution}
+                    </p>
+                  </div>
+                </div>
+
+                <span className="px-2.5 py-0.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-zinc-400 shrink-0">
+                  {item.period}
+                </span>
+              </div>
+
+              <p className="text-xs text-zinc-400 leading-relaxed font-normal">
+                {item.description}
+              </p>
+            </div>
+
+            {/* Score Badge */}
+            <div className="pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono">
+              <span className="text-zinc-500">CBSE Board Score:</span>
+              <span className="px-2.5 py-1 rounded-md bg-white/[0.04] border border-white/10 font-bold text-cyan-400">
+                {item.score}
+              </span>
+            </div>
+          </Motion.div>
+        ))}
+      </div>
+
+      {/* Subsection: Hackathons & Competitions */}
+      <div className="pt-4 space-y-6">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 pb-3 border-b border-white/10">
+          <div className="space-y-1">
+            <div className="inline-flex items-center gap-2 text-xs font-mono text-amber-400 font-semibold uppercase tracking-wider">
+              <Trophy size={14} />
+              <span>Competitive Milestones</span>
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
+              Hackathons &amp; Competitions
             </h3>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {hackathons.map((item, idx) => (
-              <HackathonCard key={item.id || idx} item={item} index={idx} />
-            ))}
-          </div>
+          <span className="text-xs font-mono text-zinc-500">
+            National ML Hackathon &bull; Global Algorithmic Code
+          </span>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          {hackathons.map((item, idx) => (
+            <Motion.div
+              key={item.id}
+              variants={reduceMotion ? {} : fadeIn("up", "spring", 0.3 + idx * 0.1, 0.6)}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.05 }}
+              className="group relative rounded-3xl bg-zinc-900/60 border border-white/10 p-4 sm:p-7 backdrop-blur-xl hover:border-amber-400/40 transition-all duration-300 shadow-xl overflow-hidden flex flex-col justify-between"
+            >
+              {/* Specular line */}
+              <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
+
+              {/* Ambient flare */}
+              <div className="absolute top-0 right-0 w-44 h-44 bg-amber-500/5 group-hover:bg-amber-500/10 rounded-full blur-2xl pointer-events-none transition-all duration-500 -mr-10 -mt-10" />
+
+              <div className="relative z-10 space-y-4">
+                <div className="flex items-start justify-between gap-3">
+                  <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-amber-300 text-xs font-mono font-semibold flex items-center gap-1.5 shadow-[0_0_12px_rgba(245,158,11,0.15)]">
+                    <Trophy size={12} className="text-amber-400" />
+                    <span>{item.tag}</span>
+                  </span>
+                  <span className="text-xs text-zinc-400 font-mono px-2.5 py-0.5 rounded-full bg-zinc-950/60 border border-white/10">
+                    {item.period}
+                  </span>
+                </div>
+
+                <div className="space-y-1">
+                  <h4 className="text-lg font-bold text-white group-hover:text-amber-300 transition-colors">
+                    {item.title}
+                  </h4>
+                  <p className="text-xs sm:text-sm font-semibold font-mono text-cyan-400">
+                    {item.role}
+                  </p>
+                </div>
+
+                <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-normal">
+                  {item.achievement}
+                </p>
+              </div>
+
+              <div className="relative z-10 pt-4 mt-4 border-t border-white/10 flex items-center justify-between text-xs font-mono text-zinc-500">
+                <span className="flex items-center gap-1.5 text-zinc-400">
+                  <CheckCircle2 size={13} className="text-emerald-400" />
+                  Verified Performance
+                </span>
+                <span className="text-zinc-400">National Stage</span>
+              </div>
+            </Motion.div>
+          ))}
         </div>
       </div>
     </div>

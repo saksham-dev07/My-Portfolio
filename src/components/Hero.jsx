@@ -1,79 +1,84 @@
 import React, { Suspense, lazy, useCallback, useState, useEffect, memo } from "react";
-import { Github, Linkedin, GraduationCap, Sparkles, ArrowRight, Download } from "lucide-react";
-import { resume } from "../assets";
+import { motion as Motion } from "framer-motion";
+import { ArrowUpRight, ArrowDown, Github, Linkedin, Mail, Sparkles, Terminal } from "lucide-react";
+import { resume, profile } from "../assets";
+import { useRole } from "../context/RoleContext";
+import {
+  PythonIcon,
+  PytorchIcon,
+  ReactIcon,
+  NextIcon,
+  FastapiIcon,
+  NodeIcon,
+  DockerIcon,
+  PostgresIcon,
+  OpencvIcon,
+  AwsIcon,
+  GcpIcon,
+  TsIcon,
+  LinuxIcon,
+  FirebaseIcon,
+  TailwindIcon,
+} from "../assets/techIcons";
 
-// Lazy load with fallback
+// Lazy load 3D workstation
 const ComputersCanvas = lazy(() =>
   import("./canvas/Computers").catch(() => ({
     default: () => (
       <div className="flex flex-col items-center justify-center h-full text-zinc-400 bg-zinc-900/40 backdrop-blur-sm rounded-2xl border border-white/10 p-8">
-        <div className="w-16 h-16 mb-4 bg-zinc-800 rounded-2xl flex items-center justify-center text-accent">
-          <Sparkles size={32} />
-        </div>
-        <p className="text-sm font-semibold text-white mb-1">Interactive 3D Workstation</p>
-        <p className="text-xs text-zinc-500 text-center max-w-xs">
-          Interactive WebGL preview
-        </p>
+        <Sparkles size={28} className="text-cyan-400 mb-2" />
+        <p className="text-xs font-mono text-zinc-400">Interactive 3D Engine</p>
       </div>
     ),
   }))
 );
 
-// Minimalist animated scroll indicator
-const ScrollIndicator = memo(() => {
-  const [isVisible, setIsVisible] = useState(true);
+// Ticker items with official SVG icons
+const MARQUEE_ITEMS = [
+  { name: "Python", icon: PythonIcon },
+  { name: "PyTorch", icon: PytorchIcon },
+  { name: "TypeScript", icon: TsIcon },
+  { name: "React.js", icon: ReactIcon },
+  { name: "Next.js", icon: NextIcon },
+  { name: "FastAPI", icon: FastapiIcon },
+  { name: "Node.js", icon: NodeIcon },
+  { name: "PostgreSQL", icon: PostgresIcon },
+  { name: "Docker", icon: DockerIcon },
+  { name: "OpenCV", icon: OpencvIcon },
+  { name: "AWS", icon: AwsIcon },
+  { name: "Google Cloud", icon: GcpIcon },
+  { name: "Linux", icon: LinuxIcon },
+  { name: "Firebase", icon: FirebaseIcon },
+  { name: "Tailwind CSS", icon: TailwindIcon },
+];
 
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrolled = window.scrollY > 80;
-      setIsVisible(!scrolled);
-    };
+const ROLE_NARRATIVES = {
+  all: {
+    title: "Applied AI & Full-Stack Engineer.",
+    body: "I build deepfake forensic engines, multi-stage LLM compilers, and distributed real-time web applications.",
+  },
+  fullstack: {
+    title: "Full-Stack Web Engineer.",
+    body: "I build reactive component architectures, collaborative canvas engines, and end-to-end microservices.",
+  },
+  ai: {
+    title: "Applied AI & Computer Vision Specialist.",
+    body: "I train multi-modal forensic neural nets, design LLM compiler pipelines, and build explainability systems.",
+  },
+  backend: {
+    title: "Backend & Systems Engineer.",
+    body: "I engineer high-throughput async REST/WebSocket APIs, relational schemas, and containerized cloud services.",
+  },
+};
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, []);
-
-  const handleScrollClick = useCallback((e) => {
-    e.preventDefault();
-    const aboutSection = document.getElementById('about');
-    if (aboutSection) {
-      if (window.lenis) {
-        window.lenis.scrollTo(aboutSection, { offset: -80, duration: 1.2 });
-      } else {
-        const yOffset = -80;
-        const y = aboutSection.getBoundingClientRect().top + window.pageYOffset + yOffset;
-        window.scrollTo({ top: y, behavior: 'smooth' });
-      }
-    }
-  }, []);
-
-  if (!isVisible) return null;
-
-  return (
-    <div className="absolute bottom-6 sm:bottom-8 w-full flex justify-center items-center z-20 pointer-events-auto">
-      <button
-        onClick={handleScrollClick}
-        aria-label="Scroll to content"
-        className="group flex flex-col items-center gap-2 focus:outline-none opacity-75 hover:opacity-100 transition-opacity duration-300"
-      >
-        <div className="w-5 h-8 rounded-full border border-white/20 flex justify-center pt-1.5 group-hover:border-accent transition-colors bg-zinc-950/40 backdrop-blur-sm">
-          <div className="w-1 h-2 rounded-full bg-accent animate-bounce" />
-        </div>
-        <span className="text-[10px] font-medium tracking-wider uppercase text-zinc-400 group-hover:text-zinc-200 transition-colors">
-          Scroll
-        </span>
-      </button>
-    </div>
-  );
-});
-ScrollIndicator.displayName = "ScrollIndicator";
-
-// Full-screen Immersive Hero
 const Hero = memo(() => {
+  const { activeRole } = useRole();
   const [load3D, setLoad3D] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const eyebrowText = "B.Tech CSE at VIT Bhopal · Graduating 2027";
 
   useEffect(() => {
+    const mobile = typeof window !== "undefined" && window.innerWidth < 768;
+
     const checkWebGL = () => {
       try {
         const canvas = document.createElement("canvas");
@@ -85,9 +90,6 @@ const Hero = memo(() => {
         return false;
       }
     };
-
-    const mobile = typeof window !== "undefined" && window.innerWidth < 768;
-    setIsMobile(mobile);
 
     if (!mobile && checkWebGL()) {
       const timer = setTimeout(() => {
@@ -101,141 +103,218 @@ const Hero = memo(() => {
     }
   }, []);
 
-  const handleProjectsClick = useCallback((e) => {
+  const handleScrollToContact = useCallback((e) => {
     e.preventDefault();
-    const el = document.getElementById('projects');
+    const el = document.getElementById("contact");
     if (el) {
       if (window.lenis) {
         window.lenis.scrollTo(el, { offset: -80, duration: 1.2 });
       } else {
         const y = el.getBoundingClientRect().top + window.pageYOffset - 80;
-        window.scrollTo({ top: y, behavior: 'smooth' });
+        window.scrollTo({ top: y, behavior: "smooth" });
       }
     }
   }, []);
 
+  const narrative = ROLE_NARRATIVES[activeRole] || ROLE_NARRATIVES.all;
+
+
   return (
     <section
-      className="relative w-full h-screen mx-auto overflow-hidden bg-primary"
-      aria-labelledby="hero-heading"
+      className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col justify-between overflow-hidden bg-primary pt-20 sm:pt-28 pb-3 sm:pb-4"
+      aria-labelledby="hero-name"
     >
-      {/* Ambient background glow orbs (hidden on mobile for GPU perf) */}
-      <div className="hidden sm:block absolute top-1/4 left-1/4 -translate-x-1/2 w-[600px] h-[600px] bg-blue-600/15 blur-[150px] rounded-full pointer-events-none" />
-      <div className="hidden sm:block absolute top-1/3 right-1/4 w-[500px] h-[500px] bg-purple-600/10 blur-[150px] rounded-full pointer-events-none" />
+      {/* Ambient optical backlight glow */}
+      <div className="hidden sm:block absolute top-1/4 left-1/4 -translate-x-1/2 w-[550px] h-[550px] bg-blue-600/10 blur-[160px] rounded-full pointer-events-none" />
+      <div className="hidden sm:block absolute top-1/3 right-1/4 w-[450px] h-[450px] bg-cyan-600/10 blur-[150px] rounded-full pointer-events-none" />
 
-      {/* Floating Hero Content Overlay */}
-      <div className="absolute inset-0 top-[95px] sm:top-[115px] max-w-7xl mx-auto px-6 sm:px-12 flex flex-col items-start gap-4 sm:gap-5 z-10 pointer-events-none">
+      {/* Main Content Container */}
+      <div className="container mx-auto max-w-7xl px-4 sm:px-12 relative z-10 flex-1 flex flex-col justify-center">
         
-        {/* Status Badges */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2.5 pointer-events-auto">
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.2)] backdrop-blur-xl hover:border-emerald-400/50 transition-colors cursor-default">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="text-xs font-semibold">Available for Hire</span>
+        {/* Eyebrow Status Badge with Avatar (Single-line on mobile, no awkward wrapping) */}
+        <div className="flex items-center gap-2.5 sm:gap-3 mb-3.5 sm:mb-6">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] rounded-full overflow-hidden border-2 border-cyan-400/50 shadow-[0_0_15px_rgba(6,182,212,0.35)] shrink-0 bg-zinc-950">
+            <img
+              src={profile}
+              alt="Saksham Agarwal"
+              className="w-full h-full object-cover object-top"
+              width={40}
+              height={40}
+            />
           </div>
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full liquid-glass-island text-zinc-300 shadow-md backdrop-blur-xl hover:border-white/30 transition-colors cursor-default">
-            <GraduationCap size={14} className="text-accent" />
-            <span className="text-xs font-semibold">VIT Bhopal • CGPA 8.46</span>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900/90 border border-white/10 text-zinc-300 text-xs font-mono shadow-sm backdrop-blur-md">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
+            <span className="xs:hidden">VIT Bhopal '27 · Available</span>
+            <span className="hidden xs:inline">{eyebrowText}</span>
           </div>
-        </div>
-
-        {/* Main Headline */}
-        <div className="space-y-2">
-          <div className="flex items-baseline gap-3 flex-wrap">
-            <h1
-              id="hero-heading"
-              className="text-4xl sm:text-6xl lg:text-7xl font-extrabold tracking-tight text-white leading-[1.1]"
-            >
-              Hi, I'm <br className="sm:hidden" />
-              <span className="accent-gradient-text italic font-serif">Saksham Agarwal</span>
-            </h1>
+          <div className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-zinc-400 text-xs font-mono">
+            <Terminal size={12} className="text-cyan-400" />
+            <span>CGPA: 8.46 / 10.0</span>
           </div>
         </div>
 
-        {/* Subtitle / Bio */}
-        <p className="text-zinc-300 text-sm sm:text-base lg:text-lg leading-relaxed max-w-xl font-normal drop-shadow-md">
-          B.Tech CSE Student at VIT Bhopal building deepfake forensics platforms, LLM app compilers, and real-time distributed web systems.
-        </p>
-
-        {/* Interactive CTA Group */}
-        <div className="flex flex-wrap items-center gap-3 pt-2 pointer-events-auto">
-          <button
-            onClick={handleProjectsClick}
-            className="px-6 py-3 bg-gradient-to-r from-blue-600 via-blue-500 to-indigo-600 text-white text-sm font-semibold rounded-full border border-white/20 shadow-[0_0_22px_rgba(59,130,246,0.4)] hover:shadow-[0_0_32px_rgba(59,130,246,0.6)] hover:scale-105 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 cursor-pointer flex items-center gap-2 group"
+        {/* Display Headline with Staggered Character Reveal */}
+        <div className="space-y-1 sm:space-y-2 mb-3.5 sm:mb-6">
+          <p className="text-xs sm:text-sm font-mono tracking-widest uppercase text-cyan-400/90 font-semibold">
+            Software & Applied AI Engineer
+          </p>
+          <Motion.h1
+            id="hero-name"
+            className="text-4xl xs:text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-black tracking-tighter text-white leading-[0.95] flex flex-wrap"
+            initial="hidden"
+            animate="visible"
+            variants={{
+              hidden: {},
+              visible: { transition: { staggerChildren: 0.03, delayChildren: 0.2 } },
+            }}
           >
-            <span>Explore Projects</span>
-            <ArrowRight size={15} className="group-hover:translate-x-1 transition-transform" />
-          </button>
+            {["Saksham", "Agarwal"].map((word, wordIndex) => (
+              <span key={wordIndex} className="inline-flex whitespace-nowrap mr-3 sm:mr-5">
+                {word.split("").map((char, charIndex) => (
+                  <Motion.span
+                    key={charIndex}
+                    className="inline-block hover:text-cyan-400 transition-colors duration-200"
+                    variants={{
+                      hidden: { opacity: 0, y: 20 },
+                      visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+                    }}
+                  >
+                    {char}
+                  </Motion.span>
+                ))}
+              </span>
+            ))}
+          </Motion.h1>
+        </div>
 
-          <a 
-            href={resume} 
-            download="Saksham_Agarwal_Resume.pdf" 
-            target="_blank" 
-            rel="noopener noreferrer" 
-            className="inline-block"
-            aria-label="Download Saksham Agarwal's Resume PDF"
-          >
-            <button
-              className="px-5 py-3 liquid-glass-island text-zinc-200 text-sm font-semibold rounded-full border border-white/15 hover:text-white hover:border-accent/40 shadow-sm hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:scale-105 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 flex items-center gap-2 cursor-pointer group"
+        {/* Narrative / Engineering Value Statement */}
+        <div className="max-w-2xl mb-5 sm:mb-8 space-y-1 sm:space-y-1.5">
+          <p className="text-base sm:text-lg md:text-xl font-medium text-white tracking-tight">
+            {narrative.title}
+          </p>
+          <p className="text-xs sm:text-base text-zinc-400 leading-relaxed font-normal">
+            {narrative.body}
+          </p>
+        </div>
+
+        {/* Action Group: Magnetic Buttons & Socials */}
+        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-5 sm:mb-8">
+          {/* Main Action Buttons */}
+          <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
+            {/* Primary CTA: Resume */}
+            <a
+              href={resume}
+              download="Saksham_Agarwal_Resume.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-white text-zinc-950 font-bold text-xs sm:text-sm shadow-[0_0_25px_rgba(255,255,255,0.25)] hover:bg-zinc-100 hover:shadow-[0_0_35px_rgba(255,255,255,0.45)] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
             >
-              <Download size={14} className="group-hover:-translate-y-0.5 transition-transform text-accent" />
               <span>Resume</span>
-            </button>
-          </a>
+              <ArrowUpRight size={15} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+            </a>
 
-          {/* Social Icons */}
-          <div className="flex items-center gap-2">
-            <a 
-              href="https://github.com/saksham-dev07" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              aria-label="GitHub Profile"
-              className="p-3 liquid-glass-island rounded-full text-zinc-300 hover:text-white border border-white/15 hover:border-accent shadow-md hover:shadow-[0_0_18px_rgba(59,130,246,0.35)] hover:scale-110 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 cursor-pointer"
+            {/* Secondary Ghost CTA: Contact */}
+            <button
+              onClick={handleScrollToContact}
+              className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4.5 sm:px-5 py-2.5 sm:py-3 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-white font-semibold text-xs sm:text-sm border border-white/15 hover:border-white/30 shadow-sm hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer backdrop-blur-md"
             >
-              <Github size={16} />
+              <span>Contact</span>
+              <ArrowDown size={14} className="transition-transform duration-200 group-hover:translate-y-0.5" />
+            </button>
+          </div>
+
+          {/* Social Links */}
+          <div className="flex items-center justify-start sm:justify-center gap-2">
+            <a
+              href="https://github.com/saksham-dev07"
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub Profile"
+              className="p-2.5 sm:p-3 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 shadow-sm hover:scale-110 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
+            >
+              <Github size={15} />
             </a>
             <a
-              href="https://www.linkedin.com/in/saksham-agarwal-b44910289/" 
-              target="_blank" 
-              rel="noopener noreferrer" 
-              className="p-3 liquid-glass-island rounded-full text-zinc-300 hover:text-white border border-white/15 hover:border-accent shadow-md hover:shadow-[0_0_18px_rgba(59,130,246,0.35)] hover:scale-110 hover:-translate-y-0.5 active:scale-95 transition-all duration-300 cursor-pointer"
+              href="https://www.linkedin.com/in/saksham-agarwal-b44910289/"
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="LinkedIn Profile"
+              className="p-2.5 sm:p-3 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 shadow-sm hover:scale-110 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
             >
-              <Linkedin size={16} />
+              <Linkedin size={15} />
+            </a>
+            <a
+              href="mailto:sakmmm07@gmail.com"
+              aria-label="Direct Email"
+              title="Email Saksham directly (sakmmm07@gmail.com)"
+              className="p-2.5 sm:p-3 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-cyan-400 hover:border-cyan-400/40 shadow-sm hover:scale-110 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
+            >
+              <Mail size={15} />
             </a>
           </div>
         </div>
 
       </div>
 
-      {/* Full-Screen 3D Interactive Canvas */}
-      <div className="w-full h-full absolute inset-0 z-0 pointer-events-auto">
-        {load3D ? (
-          <Suspense fallback={
-            <div className="w-full h-full flex flex-col items-center justify-center text-zinc-400 gap-3 bg-zinc-950/20">
-              <div className="w-10 h-10 rounded-full border-2 border-accent/20 border-t-accent animate-spin" />
-              <p className="text-xs font-semibold uppercase tracking-wider text-zinc-400">Loading 3D Experience...</p>
+      {/* Background 3D Workstation Canvas (desktop only, non-blocking) */}
+      <div className="hero-3d-wrapper hidden md:block absolute inset-0 z-0 pointer-events-none opacity-40 lg:opacity-75">
+        {load3D && (
+          <Suspense fallback={null}>
+            <div className="w-full h-full pointer-events-auto">
+              <ComputersCanvas />
             </div>
-          }>
-            <ComputersCanvas />
           </Suspense>
-        ) : isMobile ? (
-          <div className="w-full h-full flex items-end justify-center pb-24 pointer-events-none">
-            <button
-              onClick={() => setLoad3D(true)}
-              className="pointer-events-auto px-4 py-2 rounded-full liquid-glass-island text-zinc-300 hover:text-white border border-white/15 hover:border-accent shadow-lg flex items-center gap-2 text-xs font-medium backdrop-blur-xl transition-all hover:scale-105 active:scale-95 cursor-pointer"
-            >
-              <Sparkles size={14} className="text-accent" />
-              <span>Tap to Load 3D Workstation</span>
-            </button>
-          </div>
-        ) : null}
+        )}
       </div>
 
-      {/* Bottom Gradient Fade */}
-      <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-primary via-primary/50 to-transparent pointer-events-none z-10" />
+      {/* Infinite Tech Marquee Ticker (abhyudaytomar.com signature feature) */}
+      <div 
+        className="relative w-full overflow-hidden border-y border-white/10 bg-zinc-950/70 backdrop-blur-md py-3.5 z-20"
+        role="region"
+        aria-label="Core technologies and toolset"
+      >
+        {/* Edge gradient masks */}
+        <div className="absolute left-0 inset-y-0 w-24 bg-gradient-to-r from-primary via-primary/80 to-transparent pointer-events-none z-10 hero-marquee-mask-left" />
+        <div className="absolute right-0 inset-y-0 w-24 bg-gradient-to-l from-primary via-primary/80 to-transparent pointer-events-none z-10 hero-marquee-mask-right" />
 
-      {/* Animated Scroll Indicator */}
-      <ScrollIndicator />
+        <div className="animate-marquee-scroll flex items-center gap-8 text-zinc-400">
+          {/* Track 1 */}
+          <ul className="flex items-center gap-8 list-none">
+            {MARQUEE_ITEMS.map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <li
+                  key={`track1-${idx}`}
+                  className="hero-marquee-item flex items-center gap-2.5 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] hover:border-cyan-400/40 hover:text-white transition-all cursor-default text-xs font-mono font-medium"
+                >
+                  <span className="w-4 h-4 flex items-center justify-center opacity-85">
+                    <Icon className="w-full h-full object-contain" />
+                  </span>
+                  <span>{item.name}</span>
+                </li>
+              );
+            })}
+          </ul>
+
+          {/* Track 2 (Duplicate for seamless loop) */}
+          <ul className="flex items-center gap-8 list-none" aria-hidden="true">
+            {MARQUEE_ITEMS.map((item, idx) => {
+              const Icon = item.icon;
+              return (
+                <li
+                  key={`track2-${idx}`}
+                  className="hero-marquee-item flex items-center gap-2.5 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] hover:border-cyan-400/40 hover:text-white transition-all cursor-default text-xs font-mono font-medium"
+                >
+                  <span className="w-4 h-4 flex items-center justify-center opacity-85">
+                    <Icon className="w-full h-full object-contain" />
+                  </span>
+                  <span>{item.name}</span>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      </div>
     </section>
   );
 });

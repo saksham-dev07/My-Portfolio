@@ -1,9 +1,10 @@
 import { StarsCanvas } from './canvas';
 import Hero from './Hero';
 import Navbar from './Navbar';
-import About from './About';
 import Tech from './Tech';
 import Works from './Projects';
+import SmallerBuilds from './SmallerBuilds';
+import SystemsLab from './SystemsLab';
 import Certifications from './Certifications';
 import Education from './Education';
 import Leadership from './Leadership';
@@ -13,9 +14,10 @@ import Footer from './Footer';
 export {
   Hero,
   Navbar,
-  About,
   Tech,
   Works,
+  SmallerBuilds,
+  SystemsLab,
   Certifications,
   Education,
   Leadership,

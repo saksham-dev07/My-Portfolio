@@ -1,13 +1,19 @@
 import React, { memo } from "react";
 import { motion as Motion, useReducedMotion } from "framer-motion";
-import { Users, Calendar, Palette, CheckCircle2, ShieldCheck } from "lucide-react";
+import { Users, Calendar, Palette, Sparkles, ChevronRight, ShieldCheck } from "lucide-react";
 import { SectionWrapper } from "../hoc";
+import { fadeIn, staggerContainer } from "../utils/motion";
 import { leadership } from "../constants";
-import { fadeIn, staggerContainer, hoverLift } from "../utils/motion";
+
+const leadershipTags = {
+  1: ["Visual Identity", "Event Collateral", "Fintech Workshops", "Brand Architecture"],
+  2: ["UI Deliverables", "Competitive Recruitment", "Cross-Functional Collaboration"]
+};
 
 const LeadershipCard = memo(({ item, index }) => {
-  const { title, organization, period, highlights, profilePic } = item;
+  const { id, title, organization, period, highlights, profilePic } = item;
   const reduceMotion = useReducedMotion();
+  const tags = leadershipTags[id] || ["Design Direction", "Community Impact"];
 
   return (
     <Motion.div
@@ -15,65 +21,94 @@ const LeadershipCard = memo(({ item, index }) => {
       initial="hidden"
       whileInView="show"
       viewport={{ once: true, amount: 0.05 }}
-      whileHover={reduceMotion ? {} : { y: -5, transition: { type: "spring", stiffness: 350, damping: 25 } }}
-      className="group relative glass-card glass-card-hover rounded-2xl p-6 sm:p-8 w-full border border-white/10 overflow-hidden"
+      className="group relative rounded-3xl bg-zinc-900/60 border border-white/10 p-4 sm:p-8 backdrop-blur-xl hover:border-cyan-400/40 transition-all duration-300 shadow-2xl overflow-hidden flex flex-col justify-between"
     >
-      {/* Top specular reflection line */}
-      <div className="specular-line" />
+      {/* Specular top reflection line */}
+      <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
-      {/* Subtle background optical glow */}
-      <div className="absolute top-0 right-0 w-44 h-44 bg-blue-500/10 group-hover:bg-blue-500/20 rounded-full blur-3xl pointer-events-none transition-all duration-700 -mr-8 -mt-8" />
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-cyan-500/5 group-hover:bg-cyan-500/15 rounded-full blur-2xl pointer-events-none transition-all duration-700 -ml-6 -mb-6" />
+      {/* Ambient optical flare */}
+      <div className="absolute top-0 right-0 w-64 h-64 bg-cyan-500/5 group-hover:bg-cyan-500/10 rounded-full blur-3xl pointer-events-none transition-all duration-700 -mr-16 -mt-16" />
 
-      <div className="relative z-10 space-y-4">
+      <div className="relative z-10 space-y-6">
         {/* Header row */}
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-center gap-3.5">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+          <div className="flex items-start gap-3.5">
             {profilePic ? (
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl overflow-hidden bg-zinc-900/90 backdrop-blur-md border border-white/15 p-1 shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] group-hover:border-cyan-400/40 transition-colors duration-300 flex items-center justify-center">
+              <div className="w-12 h-12 min-w-[48px] min-h-[48px] max-w-[48px] max-h-[48px] rounded-2xl bg-zinc-900/90 border border-white/15 p-2 flex items-center justify-center overflow-hidden shrink-0 shadow-lg group-hover:border-cyan-400/40 transition-colors">
                 <img
                   src={profilePic}
-                  alt={`${organization} logo`}
-                  className="w-full h-full object-contain rounded-lg"
-                  loading="lazy"
-                  decoding="async"
+                  alt={organization}
+                  className="w-full h-full max-w-full max-h-full object-contain"
                   width={48}
                   height={48}
                 />
               </div>
             ) : (
-              <div className="flex-shrink-0 w-12 h-12 rounded-xl bg-zinc-900/90 backdrop-blur-md border border-white/15 flex items-center justify-center text-accent shadow-[inset_0_1px_1px_rgba(255,255,255,0.2)] group-hover:border-cyan-400/40 transition-colors duration-300">
-                <Palette size={22} className="text-cyan-400 drop-shadow-[0_0_8px_rgba(6,182,212,0.4)]" />
+              <div className="w-12 h-12 min-w-[48px] min-h-[48px] max-w-[48px] max-h-[48px] rounded-2xl bg-zinc-900/90 border border-white/15 flex items-center justify-center shrink-0">
+                <Palette size={22} className="text-cyan-400" />
               </div>
             )}
-            <div>
-              <h3 className="text-xl font-bold text-white group-hover:text-cyan-300 transition-colors duration-300">
+
+            <div className="space-y-1">
+              <div className="inline-flex items-center gap-1.5 text-xs font-mono text-cyan-400 font-semibold uppercase tracking-wider">
+                <Users size={12} />
+                <span>Executive Role</span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight group-hover:text-cyan-300 transition-colors">
                 {title}
               </h3>
-              <div className="flex items-center gap-2 text-sm text-zinc-400 mt-0.5">
-                <Users size={14} className="text-cyan-400/80" />
-                <span className="font-medium text-zinc-200">{organization}</span>
-              </div>
+              <p className="text-xs sm:text-sm text-zinc-400 font-medium">
+                {organization}
+              </p>
             </div>
           </div>
 
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-full liquid-glass-island border border-white/10 text-xs font-semibold text-zinc-300 shadow-sm">
-            <Calendar size={13} className="text-cyan-400" />
-            <span>{period}</span>
+          <div className="flex sm:flex-col items-center sm:items-end justify-between gap-2 shrink-0">
+            <span className="px-3 py-1 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-zinc-300 flex items-center gap-1.5 shadow-sm">
+              <Calendar size={12} className="text-cyan-400" />
+              <span>{period}</span>
+            </span>
+            {period.includes("Present") && (
+              <span className="text-[11px] font-mono text-emerald-400 flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                Active Leadership
+              </span>
+            )}
           </div>
         </div>
 
-        {/* Highlights List */}
-        <div className="space-y-3 pt-2">
+        {/* Skill/Role Badges */}
+        <div className="flex flex-wrap gap-1.5">
+          {tags.map((tag, idx) => (
+            <span
+              key={idx}
+              className="px-2.5 py-0.5 rounded-md bg-white/[0.04] border border-white/5 text-[11px] font-mono text-zinc-400 group-hover:text-zinc-300 transition-colors"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+
+        {/* Deliverables / Highlights List */}
+        <div className="space-y-2.5 pt-2 border-t border-white/10">
           {highlights.map((highlight, idx) => (
-            <div key={idx} className="flex items-start gap-3 group/item">
-              <CheckCircle2 size={16} className="text-cyan-400 mt-1 flex-shrink-0 drop-shadow-[0_0_6px_rgba(6,182,212,0.4)]" />
-              <p className="text-zinc-300 text-sm sm:text-base leading-relaxed group-hover/item:text-zinc-100 transition-colors">
-                {highlight}
-              </p>
+            <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal">
+              <span className="text-cyan-400 font-mono font-bold mt-0.5 shrink-0 select-none">
+                ›
+              </span>
+              <span>{highlight}</span>
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Card Footer Status */}
+      <div className="relative z-10 pt-4 mt-6 border-t border-white/10 flex items-center justify-between text-xs font-mono text-zinc-500">
+        <span className="flex items-center gap-1.5 text-zinc-400">
+          <ShieldCheck size={13} className="text-cyan-400" />
+          Verified Campus Record
+        </span>
+        <span className="text-zinc-500">VIT Bhopal University</span>
       </div>
     </Motion.div>
   );
@@ -85,42 +120,36 @@ const Leadership = () => {
   const reduceMotion = useReducedMotion();
 
   return (
-    <div className="relative py-10 bg-primary" aria-labelledby="leadership-heading">
-      <div className="relative z-10 container mx-auto max-w-7xl">
-        {/* Section Header */}
-        <div className="text-center mb-12">
-          <div className="section-number-badge">
-            <span className="number">05</span>
-            <span>//</span>
-            <span>Leadership & Impact</span>
+    <div className="space-y-10" id="leadership">
+      {/* Editorial Section Header */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-white/10">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-white/10 text-xs font-mono text-zinc-400">
+            <span className="text-cyan-400 font-bold">07</span>
+            <span>&bull;</span>
+            <span>Leadership &amp; Impact</span>
           </div>
-          <p className="text-zinc-400 mb-2 text-sm uppercase tracking-wider font-semibold">
-            Extracurricular & Community Impact
-          </p>
-          <h2
-            id="leadership-heading"
-            className="text-4xl sm:text-5xl font-bold text-zinc-100 mb-4"
-          >
-            Leadership & <span className="accent-gradient-text italic font-serif">Volunteering</span>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+            Leadership &amp; Community Direction
           </h2>
-          <p className="text-zinc-400 max-w-2xl mx-auto text-sm sm:text-base leading-relaxed">
-            Team leadership, visual branding direction, and student community initiatives.
+          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal">
+            Creative direction, visual branding architecture for student fintech organizations, and campus initiatives.
           </p>
         </div>
-
-        {/* Cards container */}
-        <Motion.div
-          variants={reduceMotion ? {} : staggerContainer(0.2, 0.1)}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.05 }}
-          className="space-y-6 max-w-4xl mx-auto"
-        >
-          {leadership.map((item, idx) => (
-            <LeadershipCard key={item.id || idx} item={item} index={idx} />
-          ))}
-        </Motion.div>
       </div>
+
+      {/* Structured Leadership Grid */}
+      <Motion.div
+        variants={reduceMotion ? {} : staggerContainer(0.2, 0.1)}
+        initial="hidden"
+        whileInView="show"
+        viewport={{ once: true, amount: 0.05 }}
+        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
+      >
+        {leadership.map((item, idx) => (
+          <LeadershipCard key={item.id || idx} item={item} index={idx} />
+        ))}
+      </Motion.div>
     </div>
   );
 };

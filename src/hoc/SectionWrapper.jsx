@@ -1,4 +1,4 @@
-import React, { forwardRef, memo, useState, useEffect } from "react";
+import React, { forwardRef, memo, useState } from "react";
 import { motion as Motion } from "framer-motion";
 import { styles } from "../styles";
 import { staggerContainer } from "../utils/motion";

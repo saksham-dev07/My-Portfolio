@@ -1,233 +1,249 @@
-import React, { memo, useState, useMemo } from "react";
-import { motion as Motion, AnimatePresence, useReducedMotion } from "framer-motion";
-import { Sparkles, Layers, Cpu, Database, Server, Terminal, Globe } from "lucide-react";
-import clsx from "clsx";
+import React, { memo, useState } from "react";
+import { motion as Motion } from "framer-motion";
+import { 
+  BrainCircuit, 
+  Server, 
+  Globe, 
+  ShieldCheck, 
+  Terminal, 
+  Cpu, 
+  Database, 
+  Sparkles,
+  Layers,
+  Activity,
+  Zap
+} from "lucide-react";
 import { SectionWrapper } from "../hoc";
-import { technologies } from "../constants";
-import { textVariant } from "../utils/motion";
+import PhysicsSandbox from "./interactive/PhysicsSandbox";
+import {
+  PythonIcon,
+  PytorchIcon,
+  TensorflowIcon,
+  OpencvIcon,
+  ScikitlearnIcon,
+  ReactIcon,
+  NextIcon,
+  TsIcon,
+  JsIcon,
+  TailwindIcon,
+  ThreeIcon,
+  ReduxIcon,
+  FastapiIcon,
+  FlaskIcon,
+  NodeIcon,
+  ExpressIcon,
+  PostgresIcon,
+  MongoIcon,
+  MysqlIcon,
+  FirebaseIcon,
+  AppwriteIcon,
+  AwsIcon,
+  GcpIcon,
+  DockerIcon,
+  LinuxIcon,
+  GitIcon,
+  PostmanIcon,
+  VercelIcon,
+  JavaIcon,
+  CppIcon,
+  CIcon,
+} from "../assets/techIcons";
 
-const CATEGORIES = [
-  { id: "all", label: "All Tech", icon: Layers },
-  { id: "Languages", label: "Languages", icon: Terminal },
-  { id: "Frontend", label: "Frontend", icon: Globe },
-  { id: "Backend", label: "Backend", icon: Server },
-  { id: "AI & ML", label: "AI & ML", icon: Cpu },
-  { id: "Cloud & DB", label: "Cloud & DB", icon: Database },
-  { id: "DevOps & Tools", label: "DevOps & Tools", icon: Sparkles },
+const BENTO_GROUPS = [
+  {
+    id: "ai",
+    title: "Applied AI & Machine Learning",
+    description: "Multi-modal forensic neural nets, computer vision and LLM compiler pipelines.",
+    accent: "text-purple-400",
+    borderGlow: "hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]",
+    icon: BrainCircuit,
+    gridClass: "col-span-12 lg:col-span-6",
+    tools: [
+      { name: "PyTorch", icon: PytorchIcon },
+      { name: "TensorFlow", icon: TensorflowIcon },
+      { name: "OpenCV", icon: OpencvIcon },
+      { name: "scikit-learn", icon: ScikitlearnIcon },
+      { name: "Gemini API", icon: Sparkles },
+      { name: "Python", icon: PythonIcon },
+      { name: "Grad-CAM & XAI", icon: Cpu },
+      { name: "Tesseract OCR", icon: Terminal },
+    ],
+  },
+  {
+    id: "backend",
+    title: "Backend & Distributed Systems",
+    description: "High-throughput async APIs, relational schemas, auth and persistent queues.",
+    accent: "text-emerald-400",
+    borderGlow: "hover:border-emerald-500/30 hover:shadow-[0_0_30px_rgba(52,211,153,0.15)]",
+    icon: Server,
+    gridClass: "col-span-12 lg:col-span-6",
+    tools: [
+      { name: "FastAPI", icon: FastapiIcon },
+      { name: "Python", icon: PythonIcon },
+      { name: "Node.js", icon: NodeIcon },
+      { name: "Express.js", icon: ExpressIcon },
+      { name: "Flask", icon: FlaskIcon },
+      { name: "PostgreSQL", icon: PostgresIcon },
+      { name: "MongoDB", icon: MongoIcon },
+      { name: "Appwrite", icon: AppwriteIcon },
+      { name: "Firebase", icon: FirebaseIcon },
+      { name: "WebSockets", icon: Activity },
+    ],
+  },
+  {
+    id: "frontend",
+    title: "Frontend & Creative Web",
+    description: "Reactive component architecture, WebGL 3D graphics and canvas engines.",
+    accent: "text-cyan-400",
+    borderGlow: "hover:border-cyan-500/30 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]",
+    icon: Globe,
+    gridClass: "col-span-12 lg:col-span-6",
+    tools: [
+      { name: "React.js", icon: ReactIcon },
+      { name: "Next.js", icon: NextIcon },
+      { name: "TypeScript", icon: TsIcon },
+      { name: "JavaScript", icon: JsIcon },
+      { name: "Tailwind CSS", icon: TailwindIcon },
+      { name: "Three.js", icon: ThreeIcon },
+      { name: "Canvas API", icon: Layers },
+      { name: "Redux Toolkit", icon: ReduxIcon },
+    ],
+  },
+  {
+    id: "cloud-devops",
+    title: "Cloud Architecture & Security",
+    description: "AWS certified foundations, containerized workflows and PE forensics.",
+    accent: "text-amber-400",
+    borderGlow: "hover:border-amber-500/30 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]",
+    icon: ShieldCheck,
+    gridClass: "col-span-12 lg:col-span-6",
+    tools: [
+      { name: "AWS Certified AI", icon: AwsIcon },
+      { name: "AWS Certified Cloud", icon: AwsIcon },
+      { name: "Docker", icon: DockerIcon },
+      { name: "Linux / POSIX", icon: LinuxIcon },
+      { name: "Google Cloud", icon: GcpIcon },
+      { name: "Git & GitHub", icon: GitIcon },
+      { name: "Vercel", icon: VercelIcon },
+      { name: "Postman", icon: PostmanIcon },
+      { name: "YARA Forensics", icon: ShieldCheck },
+    ],
+  },
 ];
 
-const CATEGORY_COLORS = {
-  Languages: {
-    accent: "text-amber-400",
-    glow: "rgba(251, 191, 36, 0.4)",
-    badge: "bg-amber-500/10 text-amber-300 border-amber-500/20",
-  },
-  Frontend: {
-    accent: "text-cyan-400",
-    glow: "rgba(6, 182, 212, 0.45)",
-    badge: "bg-cyan-500/10 text-cyan-300 border-cyan-500/20",
-  },
-  Backend: {
-    accent: "text-emerald-400",
-    glow: "rgba(52, 211, 153, 0.45)",
-    badge: "bg-emerald-500/10 text-emerald-300 border-emerald-500/20",
-  },
-  "AI & ML": {
-    accent: "text-purple-400",
-    glow: "rgba(168, 85, 247, 0.5)",
-    badge: "bg-purple-500/10 text-purple-300 border-purple-500/20",
-  },
-  "Cloud & DB": {
-    accent: "text-blue-400",
-    glow: "rgba(59, 130, 246, 0.45)",
-    badge: "bg-blue-500/10 text-blue-300 border-blue-500/20",
-  },
-  "DevOps & Tools": {
-    accent: "text-teal-400",
-    glow: "rgba(45, 212, 191, 0.45)",
-    badge: "bg-teal-500/10 text-teal-300 border-teal-500/20",
-  },
-};
 
-const TechCard = memo(({ tech, index }) => {
-  const [isHovered, setIsHovered] = useState(false);
-  const IconComponent = typeof tech.icon === "function" ? tech.icon : null;
-  const categoryConfig = CATEGORY_COLORS[tech.category] || {
-    accent: "text-cyan-400",
-    glow: "rgba(6, 182, 212, 0.4)",
-    badge: "bg-cyan-500/10 text-cyan-300 border-cyan-500/20",
-  };
+
+const Tech = memo(() => {
+  const [isSandboxOpen, setIsSandboxOpen] = useState(false);
 
   return (
-    <Motion.div
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.2, delay: Math.min(index * 0.02, 0.15) }}
-      whileHover={{ y: -6, scale: 1.05, transition: { duration: 0.2, ease: [0.16, 1, 0.3, 1] } }}
-      whileTap={{ scale: 0.96 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className={clsx(
-        "group relative flex flex-col items-center justify-center p-4 sm:p-5 rounded-2xl glass-card border border-white/10 hover:border-white/25 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.5)] transition-all duration-300 cursor-pointer overflow-visible aspect-square sm:aspect-[1/1.05]",
-        isHovered ? "z-50 ring-1 ring-white/25" : "z-10"
-      )}
-    >
-      {/* Top specular reflection line */}
-      <div className="specular-line" />
+    <div className="space-y-10" id="skills">
+      {/* Section Header (abhyudaytomar.com Bento inspiration) */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-white/10">
+        <div className="space-y-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-white/10 text-xs font-mono text-zinc-400">
+            <span className="text-cyan-400 font-bold">04</span>
+            <span>&bull;</span>
+            <span>Technical Toolkit</span>
+          </div>
+          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
+            What I Work With
+          </h2>
+          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal">
+            Core programming languages, machine learning frameworks, async web backends, and cloud tools I use to build scalable systems.
+          </p>
+        </div>
 
-      {/* Ambient glowing backlight tuned to category */}
-      <div
-        className="absolute -top-10 -right-10 w-24 h-24 rounded-full blur-2xl pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-        style={{ backgroundColor: categoryConfig.glow }}
-      />
+        <div className="flex items-center gap-2 flex-wrap shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsSandboxOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs font-mono text-cyan-300 hover:text-white transition-all cursor-pointer shadow-sm active:scale-95 group"
+            title="Launch interactive physics sandbox for tech badges"
+          >
+            <Zap size={12} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+            <span>Break Gravity</span>
+          </button>
 
-      {/* Vector Icon */}
-      <div className="w-10 h-10 sm:w-12 sm:h-12 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300">
-        {IconComponent ? (
-          <IconComponent aria-label={tech.name} className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.12)] group-hover:drop-shadow-[0_0_14px_rgba(59,130,246,0.7)] transition-all duration-300" />
-        ) : (
-          <img
-            src={tech.icon}
-            alt={tech.name}
-            className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(255,255,255,0.12)] group-hover:drop-shadow-[0_0_14px_rgba(59,130,246,0.7)] transition-all duration-300"
-            loading="lazy"
-            decoding="async"
-            width={48}
-            height={48}
-          />
-        )}
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-mono text-cyan-400">
+            <Sparkles size={12} />
+            <span className="hidden sm:inline">35+ Production Technologies</span>
+            <span className="sm:hidden">35+ Tech</span>
+          </span>
+        </div>
       </div>
 
-      {/* Tech Name */}
-      <span className="text-xs font-semibold text-zinc-300 group-hover:text-white transition-colors duration-200 text-center tracking-tight">
-        {tech.name}
-      </span>
+      {/* Bento Grid */}
+      <div className="grid grid-cols-12 gap-6">
+        {BENTO_GROUPS.map((group) => {
+          const GroupIcon = group.icon;
+          return (
+            <article
+              key={group.id}
+              className={`${group.gridClass} p-6 sm:p-8 rounded-3xl bg-zinc-900/60 border border-white/10 ${group.borderGlow} backdrop-blur-xl transition-all duration-300 flex flex-col justify-between relative overflow-hidden`}
+            >
+              {/* Top specular reflection */}
+              <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
 
-      {/* Interactive Tooltip on Hover (Floats above card with arrow and high z-index) */}
-      <AnimatePresence>
-        {isHovered && (
-          <Motion.div
-            initial={{ opacity: 0, y: 6, scale: 0.92 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 4, scale: 0.92 }}
-            transition={{ duration: 0.15 }}
-            className="absolute bottom-full mb-3 left-1/2 -translate-x-1/2 z-50 pointer-events-none w-48 p-2.5 rounded-xl bg-zinc-950/95 backdrop-blur-2xl border border-white/20 shadow-[0_12px_32px_rgba(0,0,0,0.85)] text-center"
-          >
-            <div className="flex items-center justify-center gap-1.5 mb-1">
-              <span className={`text-[10px] px-2 py-0.5 rounded-full font-semibold border ${categoryConfig.badge}`}>
-                {tech.category}
-              </span>
-            </div>
-            <p className="text-[11px] font-medium text-zinc-200 leading-snug">
-              {tech.desc}
-            </p>
-            {/* Tooltip downward notch arrow */}
-            <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 rotate-45 bg-zinc-950 border-r border-b border-white/20" />
-          </Motion.div>
-        )}
-      </AnimatePresence>
-    </Motion.div>
+              <div>
+                {/* Header */}
+                <div className="flex items-center gap-3 mb-2">
+                  <div className={`p-2 rounded-xl bg-white/[0.04] border border-white/10 ${group.accent}`}>
+                    <GroupIcon size={18} />
+                  </div>
+                  <h3 className="text-xl font-bold text-white tracking-tight">
+                    {group.title}
+                  </h3>
+                </div>
+
+                <p className="text-xs sm:text-sm text-zinc-400 mb-6 font-normal">
+                  {group.description}
+                </p>
+
+                {/* Tool Pills */}
+                <ul className="flex flex-wrap gap-2.5 list-none">
+                  {group.tools.map((tool, idx) => {
+                    const Icon = tool.icon;
+                    return (
+                      <li
+                        key={idx}
+                        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/[0.03] hover:bg-white/[0.08] border border-white/10 hover:border-white/25 text-xs font-mono text-zinc-300 hover:text-white transition-all cursor-default"
+                      >
+                        <span className="w-3.5 h-3.5 flex items-center justify-center opacity-85">
+                          {typeof Icon === "function" ? (
+                            <Icon className="w-full h-full object-contain" />
+                          ) : (
+                            <Icon size={14} />
+                          )}
+                        </span>
+                        <span>{tool.name}</span>
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            </article>
+          );
+        })}
+      </div>
+
+      {/* Coursework & Systems Fundamentals note (abhyudaytomar.com inspiration) */}
+      <div className="p-4 rounded-2xl bg-zinc-900/40 border border-white/10 text-xs font-mono text-zinc-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div className="flex items-center gap-2">
+          <Terminal size={14} className="text-cyan-400 shrink-0" />
+          <span>Core Coursework: Data Structures &amp; Algorithms (Java), C/C++, Database Systems (DBMS), Operating Systems &amp; Computer Networks.</span>
+        </div>
+        <span className="text-zinc-500 text-[11px] whitespace-nowrap">VIT Bhopal University</span>
+      </div>
+
+      {/* Interactive Physics Sandbox Modal */}
+      <PhysicsSandbox
+        isOpen={isSandboxOpen}
+        onClose={() => setIsSandboxOpen(false)}
+      />
+    </div>
   );
 });
 
-TechCard.displayName = "TechCard";
-
-const Tech = () => {
-  const [activeCategory, setActiveCategory] = useState("all");
-  const reduceMotion = useReducedMotion();
-
-  const filteredTech = useMemo(() => {
-    if (activeCategory === "all") return technologies;
-    return technologies.filter((t) => t.category === activeCategory);
-  }, [activeCategory]);
-
-  const countsByCategory = useMemo(() => {
-    const counts = { all: technologies.length };
-    technologies.forEach((t) => {
-      counts[t.category] = (counts[t.category] || 0) + 1;
-    });
-    return counts;
-  }, []);
-
-  return (
-    <div className="w-full relative py-6">
-      {/* Subtle atmospheric gradient orb */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-purple-600/5 rounded-full blur-3xl pointer-events-none" />
-
-      <Motion.div
-        variants={reduceMotion ? {} : textVariant()}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.05 }}
-        className="w-full text-center mb-10 sm:mb-12 relative z-10"
-      >
-        {/* Section number divider badge */}
-        <div className="section-number-badge">
-          <span className="number">02</span>
-          <span>//</span>
-          <span>Core Arsenal</span>
-        </div>
-
-        <p className="text-zinc-400 mb-2 text-sm uppercase tracking-wider font-semibold">
-          Tools & Frameworks
-        </p>
-        <h2 className="text-4xl sm:text-5xl font-bold text-zinc-100">
-          Core <span className="accent-gradient-text italic font-serif">Tech Stack</span>
-        </h2>
-        <p className="mt-3 max-w-2xl leading-relaxed text-sm sm:text-base text-zinc-400 mx-auto">
-          Production-proven languages, full-stack frameworks, AI runtimes, and cloud databases categorized for rapid inspection.
-        </p>
-
-        {/* Interactive Category Filter Pills */}
-        <div className="flex flex-wrap items-center justify-center gap-2 mt-8 max-w-4xl mx-auto px-4">
-          {CATEGORIES.map((cat) => {
-            const isActive = activeCategory === cat.id;
-            const Icon = cat.icon;
-            const count = countsByCategory[cat.id] || 0;
-
-            return (
-              <Motion.button
-                key={cat.id}
-                whileHover={{ scale: 1.04, y: -1 }}
-                whileTap={{ scale: 0.96 }}
-                onClick={() => setActiveCategory(cat.id)}
-                className={clsx(
-                  "relative flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 outline-none cursor-pointer border",
-                  isActive
-                    ? "bg-gradient-to-r from-blue-600 via-indigo-600 to-cyan-500 text-white shadow-[0_0_20px_rgba(59,130,246,0.4)] border-white/30"
-                    : "bg-white/[0.04] text-zinc-400 hover:text-white hover:bg-white/[0.08] border-white/10 hover:border-white/20 backdrop-blur-md"
-                )}
-              >
-                <Icon size={14} className={isActive ? "text-cyan-200" : "text-zinc-400"} />
-                <span>{cat.label}</span>
-                <span className={clsx("text-[11px] font-mono px-1.5 py-0.2 rounded-full", isActive ? "bg-white/20 text-white" : "bg-zinc-900 text-zinc-500")}>
-                  {count}
-                </span>
-              </Motion.button>
-            );
-          })}
-        </div>
-      </Motion.div>
-
-      {/* Modern Responsive Grid with Category-tuned Glow & Tooltips */}
-      <AnimatePresence mode="wait">
-        <Motion.div
-          key={activeCategory}
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -8 }}
-          transition={{ duration: 0.18, ease: "easeOut" }}
-          className="grid grid-cols-2 xs:grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 sm:gap-5 max-w-7xl mx-auto relative z-10"
-        >
-          {filteredTech.map((tech, idx) => (
-            <TechCard key={tech.name} tech={tech} index={idx} />
-          ))}
-        </Motion.div>
-      </AnimatePresence>
-    </div>
-  );
-};
-
-const WrappedTech = SectionWrapper(memo(Tech), "tech");
-WrappedTech.displayName = "WrappedTech";
+const WrappedTech = SectionWrapper(memo(Tech), "skills");
 export default WrappedTech;

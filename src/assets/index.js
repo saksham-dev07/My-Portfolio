@@ -40,8 +40,10 @@ import nexusboard from "./projects/nexusboard.webp";
 import malware from "./projects/malware.webp";
 import scrapeverse from "./projects/scrapeverse.webp";
 import delivery from "./projects/delivery.webp";
+import profile from "./profile.webp";
 
 export {
+  profile,
   logo,
   github,
   resume,

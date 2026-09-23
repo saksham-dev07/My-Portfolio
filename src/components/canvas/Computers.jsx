@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls, Preload, useGLTF, Float } from "@react-three/drei";
 import CanvasLoader from "../Loader";
+import { useThemeMood } from "../../context/ThemeMoodContext";
 
 // Custom hook to detect device type based on screen width
 const useDeviceType = () => {
@@ -24,7 +25,8 @@ const useDeviceType = () => {
   return device;
 };
 
-const Computers = ({ device }) => {
+const Computers = ({ device, mood = "cyber" }) => {
+  const isLight = mood === "light";
   const gltf = useGLTF("/desktop_pc/scene-opt.glb");
 
   useMemo(() => {
@@ -88,29 +90,29 @@ const Computers = ({ device }) => {
     >
       {/* Ambient base lighting */}
       <hemisphereLight
-        skyColor="#ffffff"
-        groundColor="#33334d"
-        intensity={1.4}
+        skyColor={isLight ? "#e2e8f0" : "#ffffff"}
+        groundColor={isLight ? "#0f172a" : "#33334d"}
+        intensity={isLight ? 0.95 : 1.4}
       />
 
       {/* Key light – bright warm white from top-right */}
       <directionalLight
-        color="#fdfbd3"
-        intensity={3.2}
+        color={isLight ? "#fffbeb" : "#fdfbd3"}
+        intensity={isLight ? 2.6 : 3.2}
         position={[8, 12, 6]}
       />
 
       {/* Fill light – cool blue from left */}
       <directionalLight
-        color="#93c5fd"
-        intensity={2.0}
+        color={isLight ? "#60a5fa" : "#93c5fd"}
+        intensity={isLight ? 1.6 : 2.0}
         position={[-6, 4, 4]}
       />
 
       {/* Front fill – illuminates monitor & keyboard */}
       <pointLight
         color="#ffffff"
-        intensity={2.2}
+        intensity={isLight ? 1.0 : 2.2}
         position={[0, 3, 8]}
         distance={25}
         decay={2}
@@ -118,8 +120,8 @@ const Computers = ({ device }) => {
 
       {/* Screen glow accent */}
       <spotLight
-        color="#60a5fa"
-        intensity={2.4}
+        color={isLight ? "#0284c7" : "#60a5fa"}
+        intensity={isLight ? 2.6 : 2.4}
         position={[0, 2, 4]}
         angle={0.6}
         penumbra={0.8}
@@ -140,6 +142,7 @@ const Computers = ({ device }) => {
 
 const ComputersCanvas = () => {
   const device = useDeviceType();
+  const { mood } = useThemeMood();
   const [isVisible, setIsVisible] = useState(true);
   const containerRef = useRef(null);
 
@@ -175,7 +178,7 @@ const ComputersCanvas = () => {
           powerPreference: "high-performance", 
           antialias: false,
           stencil: false,
-          alpha: false,
+          alpha: true,
         }}
         style={{ touchAction: 'pan-y', pointerEvents: device === 'mobile' ? 'none' : 'auto' }}
       >
@@ -189,7 +192,7 @@ const ComputersCanvas = () => {
             minPolarAngle={Math.PI / 2}
             maxPolarAngle={Math.PI / 2}
           />
-          <Computers device={device} />
+          <Computers device={device} mood={mood} />
         </Suspense>
         <Preload all />
       </Canvas>

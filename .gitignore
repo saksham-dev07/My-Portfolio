@@ -20,6 +20,9 @@ npm-debug.log*
 *.sw?
 .DS_Store
 
+# Components
+.Components/
+
 # OS
 Thumbs.db
 Desktop.ini
