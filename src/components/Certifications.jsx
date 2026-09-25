@@ -10,7 +10,9 @@ import {
   Sparkles,
   X,
   ShieldCheck,
-  CheckCircle2
+  CheckCircle2,
+  QrCode,
+  Scan
 } from "lucide-react";
 import { SectionWrapper } from "../hoc";
 import { certifications } from "../constants";
@@ -140,6 +142,20 @@ const CredentialCard = memo(({ cert, index, isFlippedAll, onViewImage }) => {
             )}
 
             <div className="flex items-center gap-1.5">
+              {cert.qrCode && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleToggleFlip();
+                  }}
+                  className="p-1 rounded-md text-cyan-400 hover:text-cyan-300 hover:bg-white/10 transition-colors"
+                  title="Flip to Scan Verification QR Code"
+                >
+                  <QrCode size={13} />
+                </button>
+              )}
+
               {cert.imageSrc && (
                 <button
                   type="button"
@@ -169,53 +185,107 @@ const CredentialCard = memo(({ cert, index, isFlippedAll, onViewImage }) => {
           </div>
         </div>
 
-        {/* BACK FACE (Geometric Security Lattice with monogram SA) */}
-        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-2xl p-5 bg-zinc-950 border border-cyan-500/30 shadow-2xl flex flex-col justify-between overflow-hidden">
-          {/* Subtle Geometric Lattice */}
-          <div 
-            className="absolute inset-0 opacity-[0.12] pointer-events-none"
-            style={{
-              backgroundImage: "linear-gradient(45deg, #06b6d4 25%, transparent 25%), linear-gradient(-45deg, #06b6d4 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #06b6d4 75%), linear-gradient(-45deg, transparent 75%, #06b6d4 75%)",
-              backgroundSize: "16px 16px"
-            }}
-          />
+        {/* BACK FACE */}
+        <div className="absolute inset-0 [backface-visibility:hidden] [transform:rotateY(180deg)] rounded-2xl p-5 bg-zinc-900/95 border border-white/10 hover:border-cyan-400/40 shadow-xl backdrop-blur-xl flex flex-col justify-between overflow-hidden transition-all duration-300">
+          {/* Top specular reflection */}
+          <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
-          <div className="relative z-10 flex items-center justify-between text-xs font-mono text-cyan-400">
-            <span className="flex items-center gap-1">
+          {/* Top Header Bar */}
+          <div className="flex items-center justify-between text-xs font-mono text-cyan-400">
+            <span className="flex items-center gap-1.5 font-bold tracking-wider text-[11px]">
               <ShieldCheck size={13} />
-              OFFICIAL RECORD
+              <span>OFFICIAL RECORD</span>
             </span>
-            <span>SA-2027</span>
+            <span className="text-zinc-500 font-mono text-[11px]">
+              {cert.qrCode ? "QR AUTH" : "SA-2027"}
+            </span>
           </div>
 
-          <div className="relative z-10 text-center my-auto space-y-2 px-1">
-            <div className="w-12 h-12 mx-auto rounded-full border border-cyan-400/40 bg-cyan-950/40 flex items-center justify-center font-mono font-bold text-cyan-300 text-xs shadow-[0_0_15px_rgba(6,182,212,0.3)] shrink-0">
-              SA
-            </div>
-            <p className="text-xs font-mono text-zinc-200 font-semibold line-clamp-2">
-              {cert.title}
-            </p>
-            {cert.validationNumber && (
-              <p className="cert-id-badge text-[10px] font-mono text-zinc-400 bg-black/60 py-1.5 px-3 rounded-lg border border-white/10 break-all select-all font-semibold">
-                ID: {cert.validationNumber}
-              </p>
+          {/* Center Content */}
+          <div className="text-center my-auto space-y-2 px-1">
+            {cert.qrCode ? (
+              <div className="flex flex-col items-center">
+                <a
+                  href={cert.credentialUrl || undefined}
+                  target={cert.credentialUrl ? "_blank" : undefined}
+                  rel={cert.credentialUrl ? "noopener noreferrer" : undefined}
+                  onClick={(e) => {
+                    if (cert.credentialUrl) e.stopPropagation();
+                  }}
+                  className={`p-1.5 rounded-xl bg-white border border-white/20 shadow-md inline-block transition-transform hover:scale-105 ${
+                    cert.credentialUrl ? "cursor-pointer" : "cursor-default"
+                  }`}
+                  title={cert.credentialUrl ? "Click to open verification portal or scan with camera" : "Scan with camera to verify"}
+                >
+                  <img
+                    src={cert.qrCode}
+                    alt={`Verification QR for ${cert.title}`}
+                    className="w-16 h-16 object-contain rounded"
+                    loading="lazy"
+                    width={64}
+                    height={64}
+                  />
+                </a>
+                <span className="mt-1 text-[9px] font-mono text-cyan-400 font-semibold tracking-wider uppercase">
+                  Scan QR to Verify
+                </span>
+              </div>
+            ) : (
+              <div className="w-11 h-11 mx-auto rounded-full border border-cyan-400/40 bg-cyan-950/40 flex items-center justify-center font-mono font-bold text-cyan-300 text-xs shadow-[0_0_15px_rgba(6,182,212,0.25)] shrink-0">
+                SA
+              </div>
             )}
+
+            <h4 className="text-xs font-bold text-white tracking-tight line-clamp-2">
+              {cert.title}
+            </h4>
+
+            {cert.validationNumber && (
+              <button
+                type="button"
+                onClick={handleCopy}
+                title="Click to copy validation ID"
+                className="cert-id-badge text-[10px] font-mono text-zinc-300 hover:text-white bg-black/60 hover:bg-black/90 py-1.5 px-3 rounded-lg border border-white/10 break-all select-all font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <span>ID: {cert.validationNumber}</span>
+                {copied ? <Check size={10} className="text-emerald-400 shrink-0" /> : <Copy size={10} className="text-zinc-500 shrink-0" />}
+              </button>
+            )}
+
             {cert.description && (
-              <p className="text-[10px] text-zinc-400 line-clamp-3 leading-relaxed">
+              <p className="text-[10px] text-zinc-400 line-clamp-2 leading-relaxed">
                 {cert.description}
               </p>
             )}
           </div>
 
-          <div className="relative z-10 flex items-center justify-between text-[11px] font-mono text-zinc-400 pt-2 border-t border-white/10">
-            <span>Verified Record</span>
+          {/* Bottom Actions Bar */}
+          <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400 pt-2 border-t border-white/10">
+            {cert.credentialUrl ? (
+              <a
+                href={cert.credentialUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={(e) => e.stopPropagation()}
+                className="text-cyan-400 hover:text-cyan-300 font-semibold inline-flex items-center gap-1"
+              >
+                <span>Verify Link</span>
+                <ExternalLink size={10} />
+              </a>
+            ) : (
+              <span className="text-zinc-500 flex items-center gap-1">
+                <CheckCircle2 size={11} className="text-emerald-400" />
+                Verified Record
+              </span>
+            )}
+
             <button
               type="button"
               onClick={(e) => {
                 e.stopPropagation();
                 handleToggleFlip();
               }}
-              className="text-cyan-400 hover:text-white font-semibold flex items-center gap-1"
+              className="text-cyan-400 hover:text-white font-semibold flex items-center gap-1 cursor-pointer"
             >
               <span>Flip Back</span>
               <RotateCw size={11} />
@@ -287,9 +357,15 @@ const CertificateModal = memo(({ cert, onClose }) => {
 
           {/* Footer Metadata & Actions */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-white/10 text-xs">
-            <div className="font-mono text-zinc-400">
+            <div className="font-mono text-zinc-400 flex flex-wrap items-center gap-3">
               {cert.validationNumber && (
                 <span>Verification ID: <span className="text-cyan-300 font-semibold">{cert.validationNumber}</span></span>
+              )}
+              {cert.qrCode && (
+                <span className="inline-flex items-center gap-1 text-[11px] text-cyan-400 font-mono bg-cyan-950/40 border border-cyan-500/30 px-2 py-0.5 rounded-full">
+                  <QrCode size={11} />
+                  <span>QR Verifiable</span>
+                </span>
               )}
             </div>
             {cert.credentialUrl && (

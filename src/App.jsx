@@ -11,9 +11,9 @@ import SentinelObserver from "./components/interactive/SentinelObserver";
 import SecretTerminal from "./components/interactive/SecretTerminal";
 import CursorTrail from "./components/interactive/CursorTrail";
 import KonamiCelebration from "./components/interactive/KonamiCelebration";
-import PixelPlatformer from "./components/interactive/PixelPlatformer";
 
-// Lazy load below-the-fold components for instant initial page rendering
+// Lazy load below-the-fold components and easter egg mini-game for optimal initial bundle size
+const SignalRun = lazy(() => import("./components/interactive/signalRun/SignalRunModal"));
 const Works = lazy(() => import("./components/Projects"));
 const SmallerBuilds = lazy(() => import("./components/SmallerBuilds"));
 const SystemsLab = lazy(() => import("./components/SystemsLab"));
@@ -65,11 +65,13 @@ const App = () => {
     if (isMobile) return;
 
     const lenis = new Lenis({
-      lerp: 0.08,
+      lerp: 0.12,
       smoothWheel: true,
       syncTouch: false,
-      wheelMultiplier: 0.9,
+      wheelMultiplier: 1.0,
+      touchMultiplier: 1.5,
       infinite: false,
+      autoResize: true,
     });
 
     window.lenis = lenis;
@@ -82,8 +84,25 @@ const App = () => {
 
     rafId = requestAnimationFrame(raf);
 
+    // Watch for external overflow:hidden on body (Navbar, modals, etc.)
+    // and stop/start Lenis to avoid scroll conflicts that make the page stuck
+    const bodyObserver = new MutationObserver(() => {
+      const bodyOverflow = document.body.style.overflow;
+      if (bodyOverflow === "hidden") {
+        lenis.stop();
+      } else {
+        lenis.start();
+      }
+    });
+
+    bodyObserver.observe(document.body, {
+      attributes: true,
+      attributeFilter: ["style"],
+    });
+
     return () => {
       cancelAnimationFrame(rafId);
+      bodyObserver.disconnect();
       lenis.destroy();
       delete window.lenis;
     };
@@ -117,43 +136,63 @@ const App = () => {
               </div>
 
               {/* === Main Content Sections === */}
-              <Suspense fallback={<div className="w-full min-h-screen bg-primary" />}>
+              {/* Individual Suspense boundaries so each section loads independently,
+                  preventing the entire page from going blank while one chunk loads */}
+              <Suspense fallback={null}>
                 {/* 01: Selected Work (Flagship Stacked Panels) */}
                 <Works />
+              </Suspense>
 
+              <Suspense fallback={null}>
                 {/* 02: Smaller Builds (Minimalist Interactive Row Showcase) */}
                 <SmallerBuilds />
+              </Suspense>
 
+              <Suspense fallback={null}>
                 {/* 03: Systems & Inference Architecture Lab (abhyudaytomar.com homelab inspiration) */}
                 <SystemsLab />
+              </Suspense>
 
+              <Suspense fallback={null}>
                 {/* 04: What I Work With (Bento Grid Skills) */}
                 <Tech />
+              </Suspense>
 
+              <Suspense fallback={null}>
                 {/* 05: Credentials & Background (Flippable Card Deck) */}
                 <Certifications />
+              </Suspense>
 
+              <Suspense fallback={null}>
                 {/* 06: Academic Foundation */}
                 <Education />
+              </Suspense>
 
+              <Suspense fallback={null}>
                 {/* 07: Leadership & Community Direction */}
                 <Leadership />
+              </Suspense>
 
+              <Suspense fallback={null}>
                 {/* 08: Editorial Contact & Direct Outreach */}
                 <div className="relative z-0">
                   <Contact />
                   <DeferredStarsCanvas />
                 </div>
+              </Suspense>
 
+              <Suspense fallback={null}>
                 {/* 08: Deep Editorial Footer */}
                 <Footer />
               </Suspense>
 
-              {/* === Interactive Experience Suite: Sentinel Bot, Secret Terminal, Konami & Pixel Platformer === */}
+              {/* === Interactive Experience Suite: Sentinel Bot, Secret Terminal, Konami & Signal Run === */}
               <SentinelObserver />
               <SecretTerminal />
               <KonamiCelebration />
-              <PixelPlatformer />
+              <Suspense fallback={null}>
+                <SignalRun />
+              </Suspense>
             </div>
           </RoleProvider>
         </ArcadeProvider>

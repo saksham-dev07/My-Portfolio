@@ -82,6 +82,12 @@
 
   .lenis.lenis-stopped {
     overflow: hidden;
+    overscroll-behavior: none;
+  }
+
+  .lenis.lenis-smooth ~ body,
+  .lenis.lenis-smooth body {
+    overflow: visible !important;
   }
 
   body {

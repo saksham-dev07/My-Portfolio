@@ -201,7 +201,7 @@ const MobileNavItem = memo(({ item, onClick, active }) => {
 MobileNavItem.displayName = 'MobileNavItem';
 
 const Logo = memo(() => {
-  const { openPlatformer } = useArcade();
+  const { openSignalRun } = useArcade();
   const { playBlip, playVictory } = useSound();
   const [clickCount, setClickCount] = useState(0);
   const resetTimerRef = useRef(null);
@@ -221,7 +221,7 @@ const Logo = memo(() => {
 
       if (next >= 5) {
         playVictory();
-        openPlatformer();
+        openSignalRun();
         return 0;
       } else {
         playBlip();
@@ -231,7 +231,7 @@ const Logo = memo(() => {
         return next;
       }
     });
-  }, [openPlatformer, playBlip, playVictory]);
+  }, [openSignalRun, playBlip, playVictory]);
 
   return (
     <button
@@ -292,7 +292,13 @@ const Navbar = () => {
   useEffect(() => {
     if (!open) return;
     document.body.style.overflow = 'hidden';
-    return () => { document.body.style.overflow = ''; };
+    // Explicitly stop Lenis so it doesn't fight with overflow:hidden
+    if (window.lenis) window.lenis.stop();
+    return () => {
+      document.body.style.overflow = '';
+      // Always force-restart Lenis on cleanup to prevent stuck scroll
+      if (window.lenis) window.lenis.start();
+    };
   }, [open]);
 
   useEffect(() => {

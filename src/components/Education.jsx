@@ -1,19 +1,17 @@
 import React, { memo } from "react";
-import { motion as Motion, useReducedMotion } from "framer-motion";
 import { 
   GraduationCap, 
   Calendar, 
   Award, 
   Building2, 
   Trophy, 
-  Sparkles,
-  CheckCircle2,
-  BookOpen,
-  MapPin,
-  TrendingUp
+  Sparkles, 
+  CheckCircle2, 
+  BookOpen, 
+  MapPin, 
+  TrendingUp 
 } from "lucide-react";
 import { SectionWrapper } from "../hoc";
-import { fadeIn } from "../utils/motion";
 import { education, hackathons } from "../constants";
 
 const vitCoursework = [
@@ -28,7 +26,6 @@ const vitCoursework = [
 ];
 
 const Education = () => {
-  const reduceMotion = useReducedMotion();
 
   // Primary degree (VIT Bhopal)
   const undergrad = education.find(item => item.id === 1) || education[0];
@@ -62,13 +59,7 @@ const Education = () => {
       </div>
 
       {/* Flagship Undergrad Degree Card (Full Width Architectural Presentation) */}
-      <Motion.div
-        variants={reduceMotion ? {} : fadeIn("up", "spring", 0.1, 0.7)}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.05 }}
-        className="group relative rounded-3xl bg-zinc-900/60 border border-white/10 p-4 sm:p-8 backdrop-blur-xl hover:border-cyan-400/40 transition-all duration-300 shadow-2xl overflow-hidden"
-      >
+      <div className="group relative rounded-3xl bg-zinc-900/60 border border-white/10 p-4 sm:p-8 backdrop-blur-xl hover:border-cyan-400/40 transition-all duration-300 shadow-2xl overflow-hidden">
         {/* Specular top reflection line */}
         <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
@@ -173,18 +164,14 @@ const Education = () => {
             </div>
           </div>
         </div>
-      </Motion.div>
+      </div>
 
       {/* Secondary Schooling Cards (Clean 2-Column Responsive Grid) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-        {schooling.map((item, idx) => (
-          <Motion.div
+        {schooling.map((item) => (
+          <div
             key={item.id}
-            variants={reduceMotion ? {} : fadeIn("up", "spring", 0.2 + idx * 0.1, 0.6)}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.05 }}
-            className="group relative rounded-3xl bg-zinc-900/50 border border-white/10 p-4 sm:p-6 backdrop-blur-xl hover:border-white/20 transition-all shadow-xl overflow-hidden flex flex-col justify-between"
+            className="group relative rounded-3xl bg-zinc-900/50 border border-white/10 p-4 sm:p-6 backdrop-blur-xl hover:border-white/20 transition-all duration-300 shadow-xl overflow-hidden flex flex-col justify-between"
           >
             {/* Specular line */}
             <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none" />
@@ -230,7 +217,7 @@ const Education = () => {
                 {item.score}
               </span>
             </div>
-          </Motion.div>
+          </div>
         ))}
       </div>
 
@@ -252,13 +239,9 @@ const Education = () => {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-          {hackathons.map((item, idx) => (
-            <Motion.div
+          {hackathons.map((item) => (
+            <div
               key={item.id}
-              variants={reduceMotion ? {} : fadeIn("up", "spring", 0.3 + idx * 0.1, 0.6)}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: 0.05 }}
               className="group relative rounded-3xl bg-zinc-900/60 border border-white/10 p-4 sm:p-7 backdrop-blur-xl hover:border-amber-400/40 transition-all duration-300 shadow-xl overflow-hidden flex flex-col justify-between"
             >
               {/* Specular line */}
@@ -299,7 +282,7 @@ const Education = () => {
                 </span>
                 <span className="text-zinc-400">National Stage</span>
               </div>
-            </Motion.div>
+            </div>
           ))}
         </div>
       </div>

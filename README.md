@@ -9,16 +9,18 @@ Production-grade, highly interactive portfolio and systems showcase built with *
 
 ## Highlights & Interactive Features
 
-### 1. Interactive Resume Platformer
-* **Retro Arcade Engine**: Custom HTML5 Canvas physics engine running with delta-time normalization (`dt = deltaMs / 16.67`) across 60Hz, 120Hz, and 144Hz displays. Zero heavy game engine dependencies.
-* **Four Career Rooms**:
-  * *Room 1 (Core Foundations)*: Python, React 19, FastAPI, Docker, and Linux engineering milestones.
-  * *Room 2 (Flagship Systems)*: Deepfake Forensics, LLM Compilers, Scraping Engines, and Real-Time Systems.
-  * *Room 3 (Academic & Honors)*: B.Tech CSE at VIT Bhopal, honors, hackathons, and systems lab research.
-  * *Room 4 (Cloud Validation)*: Dual AWS Certifications (Solutions Architect & Cloud Practitioner).
-* **Synthesized Chiptune & SFX**: Procedural audio engine built purely with Web Audio API oscillators, biquad filters, and acoustic envelopes (warm major chime victory sequence, double-jump bursts, and chiptune BGM).
-* **Cosmetic Outfits**: Real-time character skin selection (*Cyber*, *Space Cadet*, *Graduation Cap*, *The Matrix*).
-* **Mobile Touch Engine**: Virtual D-pad, tap-to-jump canvas viewport, multi-touch event isolation, safe-area insets (`env(safe-area-inset-bottom)`), and scroll locking.
+### 1. Interactive Resume Side-Scroller ("SIGNAL RUN")
+* **Side-Scrolling Physics Engine**: Custom HTML5 Canvas physics engine running with delta-time normalization (`dt = deltaMs / 1000`) across 60Hz, 120Hz, and 144Hz displays. Zero heavy external game dependencies.
+* **Six Chronological Career Zones**:
+  * *Zone 01 (Education)*: VIT Bhopal University B.Tech CSE (Class of 2027), CGPA 8.46, and foundational academics.
+  * *Zone 02 (Projects)*: Deepfake Forensics (94.2% accuracy, 15 signals fused), NL App Compiler, and DocPilot.
+  * *Zone 03 (Certifications)*: 12 Industry Credentials across AWS Cloud & AI, IBM Watsonx, and NPTEL IIT Honors.
+  * *Zone 04 (Hackathons)*: TCS CodeVita (Global Rank 6,735) and Flipkart Gridlock Hackathon (93.94% accuracy).
+  * *Zone 05 (Leadership)*: FinTech Club VIT Bhopal Design Team Lead and visual direction.
+  * *Zone 06 (Finish Gateway)*: Quantum Portal finish line with verified run report and direct link to Hiring section.
+* **Signal Node Collectibles & Non-Punitive Stumble**: Collect real fact toasts along the track; hitting an obstacle triggers a gentle recovery to current zone start without erasing collected signals.
+* **Synthesized Audio Engine**: Procedural audio engine built purely with Web Audio API oscillators and acoustic envelopes (jump, coin collection chime, stumble pop, and victory chords).
+* **Mobile Touch Engine**: Tap-anywhere mobile jump control, high-DPI scaling, and responsive viewport calculation.
 
 ### 2. Interactive Secret Terminal (SakshamOS)
 * Authentic retro Unix command shell emulator with custom commands (`help`, `about`, `projects`, `skills`, `certs`, `contact`, `clear`, `sudo`, `exit`).
@@ -64,7 +66,7 @@ My-Portfolio/
 │   ├── components/            # Main portfolio sections
 │   │   ├── canvas/            # Three.js 3D Computers model & Stars particle canvas
 │   │   ├── interactive/       # Interactive modules
-│   │   │   ├── PixelPlatformer.jsx   # 4-room retro resume platformer
+│   │   │   ├── signalRun/            # SIGNAL RUN timeline side-scroller mini-game
 │   │   │   ├── SecretTerminal.jsx    # Unix shell console emulator
 │   │   │   ├── DodgeButton.jsx       # Evasive physics CTA button
 │   │   │   └── SentinelObserver.jsx  # Floating status monitor

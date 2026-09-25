@@ -72,7 +72,7 @@ export const SoundProvider = ({ children }) => {
     }
   }, []);
 
-  // Crisp, tactile mechanical click
+  // Crisp, tactile mechanical click (warm, non-piercing)
   const playClick = useCallback(() => {
     if (isMuted) return;
     const ctx = getAudioContext();
@@ -83,11 +83,11 @@ export const SoundProvider = ({ children }) => {
       const gain = ctx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(1200, now);
-      osc.frequency.exponentialRampToValueAtTime(320, now + 0.05);
+      osc.frequency.setValueAtTime(600, now);
+      osc.frequency.exponentialRampToValueAtTime(250, now + 0.04);
 
-      gain.gain.setValueAtTime(0.22, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+      gain.gain.setValueAtTime(0.025, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -99,7 +99,7 @@ export const SoundProvider = ({ children }) => {
     }
   }, [isMuted, getAudioContext]);
 
-  // Soft cyber blip (for tabs/hover)
+  // Soft cyber blip (for tabs/hover) — very gentle
   const playBlip = useCallback(() => {
     if (isMuted) return;
     const ctx = getAudioContext();
@@ -110,11 +110,11 @@ export const SoundProvider = ({ children }) => {
       const gain = ctx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(600, now);
-      osc.frequency.exponentialRampToValueAtTime(900, now + 0.06);
+      osc.frequency.setValueAtTime(440, now);
+      osc.frequency.exponentialRampToValueAtTime(580, now + 0.05);
 
-      gain.gain.setValueAtTime(0.18, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.06);
+      gain.gain.setValueAtTime(0.02, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
@@ -126,7 +126,7 @@ export const SoundProvider = ({ children }) => {
     }
   }, [isMuted, getAudioContext]);
 
-  // Success 4-chord ascending chime
+  // Success 4-chord ascending chime — gentle and melodic
   const playSuccess = useCallback(() => {
     if (isMuted) return;
     const ctx = getAudioContext();
@@ -137,26 +137,26 @@ export const SoundProvider = ({ children }) => {
       chord.forEach((freq, idx) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        const start = now + idx * 0.06;
+        const start = now + idx * 0.07;
 
         osc.type = "sine";
         osc.frequency.setValueAtTime(freq, start);
 
-        gain.gain.setValueAtTime(0.16, start);
-        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.16);
+        gain.gain.setValueAtTime(0.025, start);
+        gain.gain.exponentialRampToValueAtTime(0.001, start + 0.18);
 
         osc.connect(gain);
         gain.connect(ctx.destination);
 
         osc.start(start);
-        osc.stop(start + 0.17);
+        osc.stop(start + 0.19);
       });
     } catch {
       // Ignore
     }
   }, [isMuted, getAudioContext]);
 
-  // Whoosh frequency sweep
+  // Whoosh frequency sweep — soft breeze
   const playWhoosh = useCallback(() => {
     if (isMuted) return;
     const ctx = getAudioContext();
@@ -167,11 +167,11 @@ export const SoundProvider = ({ children }) => {
       const gain = ctx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(180, now);
-      osc.frequency.exponentialRampToValueAtTime(550, now + 0.09);
-      osc.frequency.exponentialRampToValueAtTime(140, now + 0.2);
+      osc.frequency.setValueAtTime(140, now);
+      osc.frequency.exponentialRampToValueAtTime(340, now + 0.09);
+      osc.frequency.exponentialRampToValueAtTime(100, now + 0.2);
 
-      gain.gain.setValueAtTime(0.14, now);
+      gain.gain.setValueAtTime(0.02, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
 
       osc.connect(gain);
@@ -184,7 +184,7 @@ export const SoundProvider = ({ children }) => {
     }
   }, [isMuted, getAudioContext]);
 
-  // Secret 8-bit retro fanfare
+  // Secret 8-bit retro fanfare — soft retro charm
   const playSecret = useCallback(() => {
     if (isMuted) return;
     const ctx = getAudioContext();
@@ -200,7 +200,7 @@ export const SoundProvider = ({ children }) => {
         osc.type = "square";
         osc.frequency.setValueAtTime(freq, start);
 
-        gain.gain.setValueAtTime(0.09, start);
+        gain.gain.setValueAtTime(0.018, start);
         gain.gain.exponentialRampToValueAtTime(0.001, start + 0.1);
 
         osc.connect(gain);
@@ -214,7 +214,7 @@ export const SoundProvider = ({ children }) => {
     }
   }, [isMuted, getAudioContext]);
 
-  // Retro 8-bit platformer jump sound
+  // Retro 8-bit platformer jump sound — subtle pop
   const playJump = useCallback(() => {
     if (isMuted) return;
     try {
@@ -225,10 +225,10 @@ export const SoundProvider = ({ children }) => {
       const gain = ctx.createGain();
 
       osc.type = "square";
-      osc.frequency.setValueAtTime(140, now);
-      osc.frequency.exponentialRampToValueAtTime(580, now + 0.14);
+      osc.frequency.setValueAtTime(130, now);
+      osc.frequency.exponentialRampToValueAtTime(380, now + 0.14);
 
-      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.setValueAtTime(0.018, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
 
       osc.connect(gain);
@@ -241,7 +241,7 @@ export const SoundProvider = ({ children }) => {
     }
   }, [isMuted, getAudioContext]);
 
-  // Retro 8-bit double jump sound (higher octave chirp)
+  // Retro 8-bit double jump sound (higher octave chirp) — gentle
   const playDoubleJump = useCallback(() => {
     if (isMuted) return;
     try {
@@ -252,10 +252,10 @@ export const SoundProvider = ({ children }) => {
       const gain = ctx.createGain();
 
       osc.type = "square";
-      osc.frequency.setValueAtTime(320, now);
-      osc.frequency.exponentialRampToValueAtTime(920, now + 0.12);
+      osc.frequency.setValueAtTime(240, now);
+      osc.frequency.exponentialRampToValueAtTime(560, now + 0.12);
 
-      gain.gain.setValueAtTime(0.08, now);
+      gain.gain.setValueAtTime(0.018, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.13);
 
       osc.connect(gain);
@@ -268,7 +268,7 @@ export const SoundProvider = ({ children }) => {
     }
   }, [isMuted, getAudioContext]);
 
-  // Retro spring booster boing sound
+  // Retro spring booster boing sound — soft boing
   const playSpring = useCallback(() => {
     if (isMuted) return;
     try {
@@ -279,11 +279,11 @@ export const SoundProvider = ({ children }) => {
       const gain = ctx.createGain();
 
       osc.type = "triangle";
-      osc.frequency.setValueAtTime(220, now);
-      osc.frequency.exponentialRampToValueAtTime(880, now + 0.08);
-      osc.frequency.exponentialRampToValueAtTime(1180, now + 0.18);
+      osc.frequency.setValueAtTime(180, now);
+      osc.frequency.exponentialRampToValueAtTime(500, now + 0.08);
+      osc.frequency.exponentialRampToValueAtTime(650, now + 0.18);
 
-      gain.gain.setValueAtTime(0.12, now);
+      gain.gain.setValueAtTime(0.02, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.22);
 
       osc.connect(gain);
@@ -296,7 +296,7 @@ export const SoundProvider = ({ children }) => {
     }
   }, [isMuted, getAudioContext]);
 
-  // Retro portal warp teleport sound
+  // Retro portal warp teleport sound — ethereal transition
   const playDoor = useCallback(() => {
     if (isMuted) return;
     try {
@@ -307,11 +307,11 @@ export const SoundProvider = ({ children }) => {
       const gain = ctx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(280, now);
-      osc.frequency.exponentialRampToValueAtTime(620, now + 0.1);
-      osc.frequency.exponentialRampToValueAtTime(1050, now + 0.22);
+      osc.frequency.setValueAtTime(220, now);
+      osc.frequency.exponentialRampToValueAtTime(420, now + 0.1);
+      osc.frequency.exponentialRampToValueAtTime(600, now + 0.22);
 
-      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.setValueAtTime(0.02, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.26);
 
       osc.connect(gain);
@@ -324,7 +324,7 @@ export const SoundProvider = ({ children }) => {
     }
   }, [isMuted, getAudioContext]);
 
-  // Retro 8-bit coin pickup sound
+  // Retro 8-bit coin pickup sound — delicate ding
   const playCoin = useCallback(() => {
     if (isMuted) return;
     try {
@@ -335,17 +335,17 @@ export const SoundProvider = ({ children }) => {
       const gain = ctx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(987.77, now); // B5
-      osc.frequency.setValueAtTime(1318.51, now + 0.08); // E6
+      osc.frequency.setValueAtTime(659.25, now); // E5
+      osc.frequency.setValueAtTime(783.99, now + 0.08); // G5
 
-      gain.gain.setValueAtTime(0.12, now);
-      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.28);
+      gain.gain.setValueAtTime(0.02, now);
+      gain.gain.exponentialRampToValueAtTime(0.001, now + 0.24);
 
       osc.connect(gain);
       gain.connect(ctx.destination);
 
       osc.start(now);
-      osc.stop(now + 0.3);
+      osc.stop(now + 0.26);
     } catch {
       // Ignore
     }
@@ -363,7 +363,7 @@ export const SoundProvider = ({ children }) => {
       // Master lowpass filter to completely eliminate high-frequency harshness
       const filter = ctx.createBiquadFilter();
       filter.type = "lowpass";
-      filter.frequency.setValueAtTime(750, now);
+      filter.frequency.setValueAtTime(700, now);
       filter.connect(ctx.destination);
 
       notes.forEach((freq, idx) => {
@@ -374,9 +374,9 @@ export const SoundProvider = ({ children }) => {
         osc.type = "sine"; // Pure round sine wave, zero sharp harmonics
         osc.frequency.setValueAtTime(freq, start);
 
-        // Soft acoustic attack and lush decay (gentle ~0.04 gain)
+        // Feather-light acoustic attack and lush decay (~0.015 gain)
         gain.gain.setValueAtTime(0.0001, start);
-        gain.gain.linearRampToValueAtTime(0.042, start + 0.04);
+        gain.gain.linearRampToValueAtTime(0.015, start + 0.06);
         gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.55);
 
         osc.connect(gain);
@@ -390,7 +390,7 @@ export const SoundProvider = ({ children }) => {
     }
   }, [isMuted, getAudioContext]);
 
-  // Cheeky dodge whoosh/boing sound
+  // Cheeky dodge whoosh/boing sound — subtle swish
   const playDodge = useCallback(() => {
     if (isMuted) return;
     try {
@@ -401,10 +401,10 @@ export const SoundProvider = ({ children }) => {
       const gain = ctx.createGain();
 
       osc.type = "sine";
-      osc.frequency.setValueAtTime(450, now);
-      osc.frequency.exponentialRampToValueAtTime(180, now + 0.16);
+      osc.frequency.setValueAtTime(320, now);
+      osc.frequency.exponentialRampToValueAtTime(140, now + 0.16);
 
-      gain.gain.setValueAtTime(0.1, now);
+      gain.gain.setValueAtTime(0.018, now);
       gain.gain.exponentialRampToValueAtTime(0.001, now + 0.18);
 
       osc.connect(gain);
@@ -427,7 +427,7 @@ export const SoundProvider = ({ children }) => {
         // Ignore
       }
       if (!next) {
-        // Just unmuted: immediately play audible confirmation chirp
+        // Just unmuted: immediately play gentle confirmation chirp
         const ctx = getAudioContext();
         if (ctx) {
           if (ctx.state === "suspended") {
@@ -438,17 +438,17 @@ export const SoundProvider = ({ children }) => {
           const gain = ctx.createGain();
 
           osc.type = "sine";
-          osc.frequency.setValueAtTime(587.33, now); // D5
-          osc.frequency.exponentialRampToValueAtTime(880, now + 0.09); // A5
+          osc.frequency.setValueAtTime(392, now); // G4
+          osc.frequency.exponentialRampToValueAtTime(523.25, now + 0.09); // C5
 
-          gain.gain.setValueAtTime(0.24, now);
-          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.14);
+          gain.gain.setValueAtTime(0.03, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.12);
 
           osc.connect(gain);
           gain.connect(ctx.destination);
 
           osc.start(now);
-          osc.stop(now + 0.15);
+          osc.stop(now + 0.13);
         }
       }
       return next;

@@ -1,8 +1,6 @@
 import React, { memo } from "react";
-import { motion as Motion, useReducedMotion } from "framer-motion";
 import { Users, Calendar, Palette, Sparkles, ChevronRight, ShieldCheck } from "lucide-react";
 import { SectionWrapper } from "../hoc";
-import { fadeIn, staggerContainer } from "../utils/motion";
 import { leadership } from "../constants";
 
 const leadershipTags = {
@@ -10,17 +8,12 @@ const leadershipTags = {
   2: ["UI Deliverables", "Competitive Recruitment", "Cross-Functional Collaboration"]
 };
 
-const LeadershipCard = memo(({ item, index }) => {
+const LeadershipCard = memo(({ item }) => {
   const { id, title, organization, period, highlights, profilePic } = item;
-  const reduceMotion = useReducedMotion();
   const tags = leadershipTags[id] || ["Design Direction", "Community Impact"];
 
   return (
-    <Motion.div
-      variants={reduceMotion ? {} : fadeIn("up", "spring", index * 0.15, 0.7)}
-      initial="hidden"
-      whileInView="show"
-      viewport={{ once: true, amount: 0.05 }}
+    <div
       className="group relative rounded-3xl bg-zinc-900/60 border border-white/10 p-4 sm:p-8 backdrop-blur-xl hover:border-cyan-400/40 transition-all duration-300 shadow-2xl overflow-hidden flex flex-col justify-between"
     >
       {/* Specular top reflection line */}
@@ -110,15 +103,13 @@ const LeadershipCard = memo(({ item, index }) => {
         </span>
         <span className="text-zinc-500">VIT Bhopal University</span>
       </div>
-    </Motion.div>
+    </div>
   );
 });
 
 LeadershipCard.displayName = "LeadershipCard";
 
 const Leadership = () => {
-  const reduceMotion = useReducedMotion();
-
   return (
     <div className="space-y-10" id="leadership">
       {/* Editorial Section Header */}
@@ -139,17 +130,11 @@ const Leadership = () => {
       </div>
 
       {/* Structured Leadership Grid */}
-      <Motion.div
-        variants={reduceMotion ? {} : staggerContainer(0.2, 0.1)}
-        initial="hidden"
-        whileInView="show"
-        viewport={{ once: true, amount: 0.05 }}
-        className="grid grid-cols-1 lg:grid-cols-2 gap-6"
-      >
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {leadership.map((item, idx) => (
-          <LeadershipCard key={item.id || idx} item={item} index={idx} />
+          <LeadershipCard key={item.id || idx} item={item} />
         ))}
-      </Motion.div>
+      </div>
     </div>
   );
 };

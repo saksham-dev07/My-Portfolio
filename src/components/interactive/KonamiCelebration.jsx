@@ -19,7 +19,7 @@ const KONAMI_SEQUENCE = [
 
 const KonamiCelebration = memo(() => {
   const { playVictory } = useSound();
-  const { openPlatformer, triggerKonami } = useArcade();
+  const { openSignalRun, triggerKonami } = useArcade();
   const [isActive, setIsActive] = useState(false);
   const [progress, setProgress] = useState(0);
   const canvasRef = useRef(null);
@@ -175,7 +175,7 @@ const KonamiCelebration = memo(() => {
                 Konami Code Accepted!
               </p>
               <p className="text-[11px] text-zinc-400">
-                You've unlocked the Pixel Resume Platformer!
+                You've unlocked the SIGNAL RUN interactive resume run!
               </p>
             </div>
 
@@ -184,7 +184,7 @@ const KonamiCelebration = memo(() => {
                 type="button"
                 onClick={() => {
                   setIsActive(false);
-                  openPlatformer();
+                  openSignalRun();
                 }}
                 className="px-3 py-1.5 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-zinc-950 text-xs font-bold transition-all shadow-md cursor-pointer flex items-center gap-1.5 active:scale-95"
               >

@@ -1,6 +1,10 @@
 import React, { createContext, useContext, useState, useCallback } from "react";
 
 const ArcadeContext = createContext({
+  isSignalRunOpen: false,
+  openSignalRun: () => {},
+  closeSignalRun: () => {},
+  // Legacy aliases to prevent runtime issues during refactoring
   isPlatformerOpen: false,
   openPlatformer: () => {},
   closePlatformer: () => {},
@@ -9,15 +13,15 @@ const ArcadeContext = createContext({
 });
 
 export const ArcadeProvider = ({ children }) => {
-  const [isPlatformerOpen, setIsPlatformerOpen] = useState(false);
+  const [isSignalRunOpen, setIsSignalRunOpen] = useState(false);
   const [konamiActive, setKonamiActive] = useState(false);
 
-  const openPlatformer = useCallback(() => {
-    setIsPlatformerOpen(true);
+  const openSignalRun = useCallback(() => {
+    setIsSignalRunOpen(true);
   }, []);
 
-  const closePlatformer = useCallback(() => {
-    setIsPlatformerOpen(false);
+  const closeSignalRun = useCallback(() => {
+    setIsSignalRunOpen(false);
   }, []);
 
   const triggerKonami = useCallback(() => {
@@ -30,9 +34,13 @@ export const ArcadeProvider = ({ children }) => {
   return (
     <ArcadeContext.Provider
       value={{
-        isPlatformerOpen,
-        openPlatformer,
-        closePlatformer,
+        isSignalRunOpen,
+        openSignalRun,
+        closeSignalRun,
+        // Legacy aliases
+        isPlatformerOpen: isSignalRunOpen,
+        openPlatformer: openSignalRun,
+        closePlatformer: closeSignalRun,
         triggerKonami,
         konamiActive,
       }}

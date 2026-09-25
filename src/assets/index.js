@@ -26,6 +26,13 @@ import certificate_9 from "./certificates/certificate_9.webp";
 import certificate_10 from "./certificates/certificate_10.webp";
 import aws_cloud_practitioner from "./certificates/aws_cloud_practitioner.webp";
 import aws_ai_practitioner from "./certificates/aws_ai_practitioner.webp";
+import marketing_analytics_qr from "./certificates/marketing_analytics_qr.svg";
+import marketing_analytics_extracted_qr from "./certificates/marketing_analytics_extracted_qr.webp";
+import ml_intro_qr from "./certificates/ml_intro_extracted_qr.webp";
+import futureai_qr from "./certificates/futureai_qr.svg";
+import vityarthi_ai_qr from "./certificates/vityarthi_ai_qr.svg";
+import vityarthi_java_qr from "./certificates/vityarthi_java_qr.svg";
+import vityarthi_python_qr from "./certificates/vityarthi_python_qr.svg";
 
 // Projects
 import expenselens from "./projects/expenselens.webp";
@@ -68,6 +75,13 @@ export {
   certificate_10,
   aws_cloud_practitioner,
   aws_ai_practitioner,
+  marketing_analytics_qr,
+  marketing_analytics_extracted_qr,
+  ml_intro_qr,
+  futureai_qr,
+  vityarthi_ai_qr,
+  vityarthi_java_qr,
+  vityarthi_python_qr,
   expenselens,
   deepfake,
   blockforge,

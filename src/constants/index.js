@@ -71,6 +71,12 @@ import {
     malware,
     scrapeverse,
     delivery,
+    marketing_analytics_qr,
+    ml_intro_qr,
+    futureai_qr,
+    vityarthi_ai_qr,
+    vityarthi_java_qr,
+    vityarthi_python_qr,
 } from "../assets";
 
 import {
@@ -393,6 +399,9 @@ export const certifications = [
         issuer: "NPTEL & IIT Kharagpur",
         date: "2026-04-01",
         verifyMethod: "qr",
+        validationNumber: "NPTEL26MG33S1052405420",
+        credentialUrl: "https://nptel.ac.in/noc/E_Certificate/NOC26MG33S105240542004847551",
+        qrCode: marketing_analytics_qr,
         description:
             "Elite NPTEL Online Certification (Funded by MoE, Govt. of India) in Marketing Analytics with a consolidated score of 85%.",
         skills: ["Marketing Analytics", "Predictive Modeling", "Customer Lifetime Value", "Data Analytics", "Statistical Analysis"],
@@ -405,6 +414,8 @@ export const certifications = [
         issuer: "NPTEL & IIT Madras",
         date: "2025-04-01",
         verifyMethod: "qr",
+        validationNumber: "NPTEL25CS46S350600275",
+        qrCode: ml_intro_qr,
         description:
             "NPTEL Online Certification in Introduction to Machine Learning covering supervised learning algorithms, gradient descent, and model optimization.",
         skills: ["Machine Learning", "Supervised Learning", "Gradient Descent", "Model Optimization", "scikit-learn"],
@@ -417,6 +428,8 @@ export const certifications = [
         issuer: "FutureAI",
         date: "2026-01-01",
         verifyMethod: "qr",
+        credentialUrl: "http://Futureai.lokeshloki.in",
+        qrCode: futureai_qr,
         description:
             "Certificate of Participation as a Global Innovator in the FutureAI Global Hackathon 2026, building impactful AI-powered solutions.",
         skills: ["Hackathon Innovator", "Generative AI", "Full-Stack AI", "Rapid Prototyping", "Team Collaboration"],
@@ -429,6 +442,9 @@ export const certifications = [
         issuer: "VIT Bhopal University (Vityarthi)",
         date: "2025-06-17",
         verifyMethod: "qr",
+        validationNumber: "FyTURgiBvnft",
+        credentialUrl: "https://vityarthi.com/certificate/FyTURgiBvnft",
+        qrCode: vityarthi_ai_qr,
         description:
             "Core AI and ML concepts including supervised and unsupervised learning, algorithms, data preprocessing, and model evaluation.",
         skills: ["AI Fundamentals", "Machine Learning", "Data Preprocessing", "Neural Networks", "Model Evaluation"],
@@ -441,6 +457,9 @@ export const certifications = [
         issuer: "VIT Bhopal University (Vityarthi)",
         date: "2025-03-28",
         verifyMethod: "qr",
+        validationNumber: "NZIT8x4oJnts",
+        credentialUrl: "https://vityarthi.com/certificate/NZIT8x4oJnts",
+        qrCode: vityarthi_java_qr,
         description:
             "Proficiency in core Java concepts, including object-oriented programming, data structures, exception handling, and file I/O development.",
         skills: ["Java", "Object-Oriented Programming", "Data Structures", "Exception Handling", "File I/O"],
@@ -453,6 +472,9 @@ export const certifications = [
         issuer: "VIT Bhopal University (Vityarthi)",
         date: "2024-09-17",
         verifyMethod: "qr",
+        validationNumber: "ae26b9d852",
+        credentialUrl: "https://vityarthi.com/certificate/ae26b9d852",
+        qrCode: vityarthi_python_qr,
         description:
             "Foundational knowledge of Python programming, including data types, control structures, functions, modules, and basic problem-solving techniques.",
         skills: ["Python", "Control Structures", "Data Structures", "Functions & Modules", "Algorithms"],
