@@ -5,6 +5,8 @@ Production-grade, highly interactive portfolio and distributed systems showcase 
 [![React 19](https://img.shields.io/badge/React-19.1.0-61dafb?style=flat-square&logo=react)](https://react.dev/)
 [![Vite 6](https://img.shields.io/badge/Vite-6.3.5-646cff?style=flat-square&logo=vite)](https://vitejs.dev/)
 [![Bun](https://img.shields.io/badge/Bun-1.4.0-fbf0df?style=flat-square&logo=bun&logoColor=black)](https://bun.sh/)
+[![SWC](https://img.shields.io/badge/SWC-Rust-orange?style=flat-square&logo=swc)](https://swc.rs/)
+[![Biome](https://img.shields.io/badge/Biome-Rust-60a5fa?style=flat-square&logo=biome)](https://biomejs.dev/)
 [![Three.js](https://img.shields.io/badge/Three.js-0.176.0-black?style=flat-square&logo=threedotjs)](https://threejs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.17-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![Resend](https://img.shields.io/badge/Resend-6.28.1-000000?style=flat-square&logo=resend)](https://resend.com/)
@@ -162,7 +164,8 @@ An authentic 2D platformer embedded directly into the portfolio (`src/components
 
 | Layer | Technologies | Purpose |
 |---|---|---|
-| **Core Framework** | React 19.1.0, Vite 6.3.5, JavaScript (ESNext/ES2020) | Reactive component architecture & ultra-fast HMR build toolchain |
+| **Core Framework & Compiler** | React 19.1.0, Vite 6.3.5, SWC in Rust (@vitejs/plugin-react-swc) | Reactive component architecture with 20x faster Rust-powered JSX compiler |
+| **Code Quality & Tooling** | Biome 2.5 (Rust), Bun 1.4 (Zig) | Sub-10ms native linter & formatter + 25x faster native package manager |
 | **3D & WebGL Graphics** | Three.js 0.176.0, @react-three/fiber 9.1.2, @react-three/drei 10.0.8 | Interactive 3D retro computer workstation & stars particle canvas |
 | **Styling & Design Tokens** | Tailwind CSS 3.4.17, Vanilla CSS, Custom Glassmorphism | Custom design system, dark mode, and responsive layout utilities |
 | **Animation & Gestures** | Framer Motion 12.12.1, Lenis 1.3.26 | Fluid spring animations, 3D card flips, and momentum scroll |
@@ -299,9 +302,11 @@ My-Portfolio/
 
 | Bun Command | npm Equivalent | Description |
 |---|---|---|
-| `bun dev` | `npm run dev` | Launches local Vite development server with Hot Module Replacement (HMR) and local Resend API middleware |
-| `bun run build` | `npm run build` | Compiles production bundle, splits chunks, strips debuggers, and emits pre-compressed Brotli & Gzip files |
-| `bun run lint` | `npm run lint` | Runs ESLint 9 to verify code quality, hooks integrity, and syntax standards |
+| `bun dev` | `npm run dev` | Launches local Vite development server with Rust SWC compiler & HMR |
+| `bun run build` | `npm run build` | Compiles production bundle via SWC, emits pre-compressed Brotli & Gzip files |
+| `bun run lint` | `npm run lint` | Runs Biome (Rust) to verify code quality in sub-50ms |
+| `bun run format` | `npm run format` | Formats the entire codebase via Biome native formatter |
+| `bun run check` | `npm run check` | Runs full Biome check (lint, format, and organize imports in one pass) |
 | `bun run preview` | `npm run preview` | Locally serves and tests the compiled production build from `/dist` |
 
 ---
