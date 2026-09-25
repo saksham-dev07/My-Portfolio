@@ -1,26 +1,33 @@
-import React, { 
-  useState, 
-  useEffect, 
-  useRef, 
-  useCallback, 
-  memo 
-} from "react";
-import { motion as Motion, AnimatePresence, useReducedMotion, useScroll } from "framer-motion";
-import { Menu, X, ArrowUpRight, Layers, Cpu, Server, Globe } from "lucide-react";
+import {
+  AnimatePresence,
+  motion as Motion,
+  useReducedMotion,
+  useScroll,
+} from "framer-motion";
+import {
+  ArrowUpRight,
+  Cpu,
+  Globe,
+  Layers,
+  Menu,
+  Server,
+  X,
+} from "lucide-react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { navLinks } from "../constants";
-import { useRole } from "../context/RoleContext";
 import { useArcade } from "../context/ArcadeContext";
+import { useRole } from "../context/RoleContext";
 import { useSound } from "../context/SoundContext";
 import MoodSwitcher from "./interactive/MoodSwitcher";
 import SoundToggle from "./interactive/SoundToggle";
 
 const NAVBAR_HEIGHT = 80;
-const sectionIds = [...navLinks.map(link => link.id), "smaller-builds"];
+const sectionIds = [...navLinks.map((link) => link.id), "smaller-builds"];
 
 // High-performance IntersectionObserver for active section tracking
 const useActiveSection = () => {
-  const [active, setActive] = useState('');
+  const [active, setActive] = useState("");
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -33,9 +40,9 @@ const useActiveSection = () => {
         });
       },
       {
-        rootMargin: '-20% 0px -60% 0px',
+        rootMargin: "-20% 0px -60% 0px",
         threshold: 0.1,
-      }
+      },
     );
 
     sectionIds.forEach((id) => {
@@ -58,7 +65,7 @@ const scrollToSection = (id) => {
   } else {
     const yOffset = -NAVBAR_HEIGHT;
     const y = el.getBoundingClientRect().top + window.pageYOffset + yOffset;
-    window.scrollTo({ top: y, behavior: 'smooth' });
+    window.scrollTo({ top: y, behavior: "smooth" });
   }
 };
 
@@ -108,7 +115,9 @@ const RoleSwitcher = memo(({ isMobile = false, onCloseMobile }) => {
                       : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5 border border-transparent"
                   }`
                 : `relative z-10 flex items-center gap-1.5 px-2.5 xl:px-3 py-1 text-[11px] xl:text-xs font-semibold tracking-tight transition-colors duration-200 outline-none cursor-pointer whitespace-nowrap shrink-0 ${
-                    isSelected ? "text-white" : "text-zinc-400 hover:text-zinc-200"
+                    isSelected
+                      ? "text-white"
+                      : "text-zinc-400 hover:text-zinc-200"
                   }`
             }
           >
@@ -119,8 +128,13 @@ const RoleSwitcher = memo(({ isMobile = false, onCloseMobile }) => {
                 transition={{ type: "spring", stiffness: 400, damping: 32 }}
               />
             )}
-            <Icon size={13} className={`shrink-0 ${isSelected ? "text-cyan-400" : "text-zinc-500"}`} />
-            <span className="relative z-10 whitespace-nowrap">{role.label}</span>
+            <Icon
+              size={13}
+              className={`shrink-0 ${isSelected ? "text-cyan-400" : "text-zinc-500"}`}
+            />
+            <span className="relative z-10 whitespace-nowrap">
+              {role.label}
+            </span>
           </button>
         );
       })}
@@ -134,18 +148,21 @@ const DesktopNavItem = memo(({ item, active }) => {
   const { id, title } = item;
   const isActive = active === id;
 
-  const handle = useCallback((e) => {
-    e.preventDefault();
-    scrollToSection(id);
-  }, [id]);
+  const handle = useCallback(
+    (e) => {
+      e.preventDefault();
+      scrollToSection(id);
+    },
+    [id],
+  );
 
   return (
     <button
       onClick={handle}
       className={`relative px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-[11px] xl:text-xs font-semibold tracking-wide transition-all duration-200 outline-none cursor-pointer whitespace-nowrap shrink-0 ${
-        isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-100'
+        isActive ? "text-white" : "text-zinc-400 hover:text-zinc-100"
       }`}
-      aria-current={isActive ? 'page' : undefined}
+      aria-current={isActive ? "page" : undefined}
       aria-label={`Go to ${title}`}
     >
       {isActive && (
@@ -159,7 +176,7 @@ const DesktopNavItem = memo(({ item, active }) => {
     </button>
   );
 });
-DesktopNavItem.displayName = 'DesktopNavItem';
+DesktopNavItem.displayName = "DesktopNavItem";
 
 // Mobile Nav Item
 const MobileNavItem = memo(({ item, onClick, active }) => {
@@ -167,38 +184,42 @@ const MobileNavItem = memo(({ item, onClick, active }) => {
   const reduce = useReducedMotion();
   const isActive = active === id;
 
-  const handle = useCallback((e) => {
-    e.preventDefault();
-    onClick?.();
-    setTimeout(() => {
-      scrollToSection(id);
-    }, 80);
-  }, [id, onClick]);
+  const handle = useCallback(
+    (e) => {
+      e.preventDefault();
+      onClick?.();
+      setTimeout(() => {
+        scrollToSection(id);
+      }, 80);
+    },
+    [id, onClick],
+  );
 
-  const base = "relative flex items-center font-medium transition-all duration-200 outline-none w-full justify-start gap-3 px-4 py-3 rounded-xl text-left text-sm cursor-pointer";
+  const base =
+    "relative flex items-center font-medium transition-all duration-200 outline-none w-full justify-start gap-3 px-4 py-3 rounded-xl text-left text-sm cursor-pointer";
   const cta = `${base} mt-2 bg-white text-zinc-950 font-bold hover:bg-zinc-200 shadow-lg shadow-white/10 active:scale-[0.98]`;
-  const reg = `${base} ${isActive ? 'text-cyan-400 bg-cyan-400/10 font-semibold border border-cyan-400/25' : 'text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent'}`;
+  const reg = `${base} ${isActive ? "text-cyan-400 bg-cyan-400/10 font-semibold border border-cyan-400/25" : "text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent"}`;
 
   return (
     <Motion.button
       onClick={handle}
       className={isCta ? cta : reg}
       whileTap={reduce ? {} : { scale: 0.98 }}
-      aria-current={isActive ? 'page' : undefined}
+      aria-current={isActive ? "page" : undefined}
       aria-label={`Go to ${title}`}
     >
-      <Icon className={`text-base shrink-0 ${isCta ? 'text-zinc-950' : isActive ? 'text-cyan-400' : 'text-zinc-400'}`} />
+      <Icon
+        className={`text-base shrink-0 ${isCta ? "text-zinc-950" : isActive ? "text-cyan-400" : "text-zinc-400"}`}
+      />
       <span className="flex-1">{title}</span>
       {isActive && !isCta && (
         <span className="w-1.5 h-1.5 bg-cyan-400 rounded-full shadow-[0_0_8px_rgba(6,182,212,0.8)] shrink-0" />
       )}
-      {isCta && (
-        <ArrowUpRight size={15} className="text-zinc-950 shrink-0" />
-      )}
+      {isCta && <ArrowUpRight size={15} className="text-zinc-950 shrink-0" />}
     </Motion.button>
   );
 });
-MobileNavItem.displayName = 'MobileNavItem';
+MobileNavItem.displayName = "MobileNavItem";
 
 const Logo = memo(() => {
   const { openSignalRun } = useArcade();
@@ -211,7 +232,7 @@ const Logo = memo(() => {
     if (window.lenis) {
       window.lenis.scrollTo(0, { duration: 1.2 });
     } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
 
     // Rapid easter egg click tracker
@@ -261,7 +282,7 @@ const Logo = memo(() => {
     </button>
   );
 });
-Logo.displayName = 'Logo';
+Logo.displayName = "Logo";
 
 // Navbar
 const Navbar = () => {
@@ -282,55 +303,63 @@ const Navbar = () => {
       }
     };
 
-    window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const toggle = useCallback(() => setOpen(v => !v), []);
+  const toggle = useCallback(() => setOpen((v) => !v), []);
   const close = useCallback(() => setOpen(false), []);
 
   useEffect(() => {
     if (!open) return;
-    document.body.style.overflow = 'hidden';
+    document.body.style.overflow = "hidden";
     // Explicitly stop Lenis so it doesn't fight with overflow:hidden
     if (window.lenis) window.lenis.stop();
     return () => {
-      document.body.style.overflow = '';
+      document.body.style.overflow = "";
       // Always force-restart Lenis on cleanup to prevent stuck scroll
       if (window.lenis) window.lenis.start();
     };
   }, [open]);
 
   useEffect(() => {
-    const onClick = e => {
-      if (open && menuRef.current && !menuRef.current.contains(e.target) && !e.target.closest('[aria-controls="mobile-menu"]')) {
+    const onClick = (e) => {
+      if (
+        open &&
+        menuRef.current &&
+        !menuRef.current.contains(e.target) &&
+        !e.target.closest('[aria-controls="mobile-menu"]')
+      ) {
         close();
       }
     };
-    document.addEventListener('mousedown', onClick);
-    return () => document.removeEventListener('mousedown', onClick);
+    document.addEventListener("mousedown", onClick);
+    return () => document.removeEventListener("mousedown", onClick);
   }, [open, close]);
 
   const { scrollYProgress } = useScroll();
 
-  const standardNavLinks = navLinks.filter(item => !item.isCta);
-  const ctaLink = navLinks.find(item => item.isCta);
+  const standardNavLinks = navLinks.filter((item) => !item.isCta);
+  const ctaLink = navLinks.find((item) => item.isCta);
 
-  const handleCtaClick = useCallback((e) => {
-    e.preventDefault();
-    if (ctaLink) {
-      scrollToSection(ctaLink.id);
-    }
-  }, [ctaLink]);
+  const handleCtaClick = useCallback(
+    (e) => {
+      e.preventDefault();
+      if (ctaLink) {
+        scrollToSection(ctaLink.id);
+      }
+    },
+    [ctaLink],
+  );
 
   return (
     <>
-      <header 
+      <header
         className={`fixed top-0 z-50 w-full transition-all duration-300 ${
-          scrolled 
-            ? 'bg-zinc-950/85 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.7)] py-2.5' 
-            : 'bg-transparent py-4 sm:py-5'
-        }`} 
+          scrolled
+            ? "bg-zinc-950/85 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.7)] py-2.5"
+            : "bg-transparent py-4 sm:py-5"
+        }`}
         role="banner"
       >
         {/* Top Scroll Reading Progress Indicator */}
@@ -352,12 +381,12 @@ const Navbar = () => {
 
           {/* Right: Section Links + Controls + CTA */}
           <div className="hidden lg:flex items-center gap-2 xl:gap-2.5 shrink-0">
-            <nav 
-              className="flex items-center p-1 rounded-full bg-zinc-900/60 border border-white/10 shadow-sm backdrop-blur-md shrink-0" 
-              role="navigation" 
+            <nav
+              className="flex items-center p-1 rounded-full bg-zinc-900/60 border border-white/10 shadow-sm backdrop-blur-md shrink-0"
+              role="navigation"
               aria-label="Desktop nav"
             >
-              {standardNavLinks.map(item => (
+              {standardNavLinks.map((item) => (
                 <DesktopNavItem key={item.id} item={item} active={active} />
               ))}
             </nav>
@@ -380,7 +409,10 @@ const Navbar = () => {
                 aria-label="Contact Saksham"
               >
                 <span>{ctaLink.title}</span>
-                <ArrowUpRight size={13} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 shrink-0" />
+                <ArrowUpRight
+                  size={13}
+                  className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 shrink-0"
+                />
               </Motion.button>
             )}
           </div>
@@ -389,20 +421,20 @@ const Navbar = () => {
           <div className="flex items-center gap-1.5 sm:gap-2 lg:hidden shrink-0">
             <MoodSwitcher isMobile={true} />
             <SoundToggle isMobile={true} />
-            <Motion.button 
-              onClick={toggle} 
-              className="p-1.5 sm:p-2 rounded-xl bg-zinc-900 border border-white/15 text-white active:scale-95 transition-all shadow-sm shrink-0" 
-              whileTap={reduce ? {} : { scale: 0.9 }} 
-              aria-label={open ? 'Close menu' : 'Open menu'} 
-              aria-expanded={open} 
+            <Motion.button
+              onClick={toggle}
+              className="p-1.5 sm:p-2 rounded-xl bg-zinc-900 border border-white/15 text-white active:scale-95 transition-all shadow-sm shrink-0"
+              whileTap={reduce ? {} : { scale: 0.9 }}
+              aria-label={open ? "Close menu" : "Open menu"}
+              aria-expanded={open}
               aria-controls="mobile-menu"
             >
               <AnimatePresence mode="wait">
-                <Motion.div 
-                  key={open ? 'close' : 'menu'} 
-                  initial={{ rotate: -90, opacity: 0 }} 
-                  animate={{ rotate: 0, opacity: 1 }} 
-                  exit={{ rotate: 90, opacity: 0 }} 
+                <Motion.div
+                  key={open ? "close" : "menu"}
+                  initial={{ rotate: -90, opacity: 0 }}
+                  animate={{ rotate: 0, opacity: 1 }}
+                  exit={{ rotate: 90, opacity: 0 }}
                   transition={{ duration: 0.15 }}
                 >
                   {open ? <X size={18} /> : <Menu size={18} />}
@@ -416,23 +448,23 @@ const Navbar = () => {
       {/* Mobile Drawer Navigation */}
       <AnimatePresence>
         {open && (
-          <>  
-            <Motion.div 
-              initial={{ opacity: 0 }} 
-              animate={{ opacity: 1 }} 
-              exit={{ opacity: 0 }} 
+          <>
+            <Motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.2 }}
-              onClick={close} 
-              className="fixed inset-0 bg-black/85 backdrop-blur-xl z-40" 
+              onClick={close}
+              className="fixed inset-0 bg-black/85 backdrop-blur-xl z-40"
             />
-            <Motion.nav 
-              id="mobile-menu" 
+            <Motion.nav
+              id="mobile-menu"
               ref={menuRef}
-              initial={{ opacity: 0, y: -10, scale: 0.96 }} 
-              animate={{ opacity: 1, y: 0, scale: 1 }} 
-              exit={{ opacity: 0, y: -10, scale: 0.96 }} 
+              initial={{ opacity: 0, y: -10, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -10, scale: 0.96 }}
               transition={{ duration: 0.2 }}
-              className="fixed top-18 sm:top-20 right-3 left-3 sm:right-6 sm:left-auto sm:w-88 bg-zinc-950/95 backdrop-blur-2xl border border-white/15 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.95)] p-5 space-y-4 z-50 overflow-hidden max-h-[85vh] overflow-y-auto" 
+              className="fixed top-18 sm:top-20 right-3 left-3 sm:right-6 sm:left-auto sm:w-88 bg-zinc-950/95 backdrop-blur-2xl border border-white/15 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.95)] p-5 space-y-4 z-50 overflow-hidden max-h-[85vh] overflow-y-auto"
               role="navigation"
             >
               {/* Header inside drawer */}
@@ -441,7 +473,9 @@ const Navbar = () => {
                   <div className="w-6 h-6 rounded-lg bg-zinc-900 border border-cyan-400/40 flex items-center justify-center font-mono text-[10px] font-bold text-cyan-400">
                     SA
                   </div>
-                  <span className="font-bold text-sm text-white">Directory Menu</span>
+                  <span className="font-bold text-sm text-white">
+                    Directory Menu
+                  </span>
                 </div>
                 <button
                   onClick={close}
@@ -463,7 +497,12 @@ const Navbar = () => {
               {/* Navigation Links */}
               <div className="space-y-1 pt-1">
                 {navLinks.map((item) => (
-                  <MobileNavItem key={item.id} item={item} active={active} onClick={close} />
+                  <MobileNavItem
+                    key={item.id}
+                    item={item}
+                    active={active}
+                    onClick={close}
+                  />
                 ))}
               </div>
 

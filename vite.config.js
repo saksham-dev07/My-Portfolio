@@ -1,48 +1,62 @@
-import { defineConfig, loadEnv } from 'vite'
-import react from '@vitejs/plugin-react-swc'
-import { compression } from 'vite-plugin-compression2'
+import react from "@vitejs/plugin-react-swc";
+import { defineConfig, loadEnv } from "vite";
+import { compression } from "vite-plugin-compression2";
 
 // Vite dev server middleware to handle /api/send locally using Resend
 function resendLocalPlugin() {
   return {
-    name: 'resend-local-api',
+    name: "resend-local-api",
     configureServer(server) {
-      server.middlewares.use('/api/send', async (req, res) => {
-        if (req.method !== 'POST') {
+      server.middlewares.use("/api/send", async (req, res) => {
+        if (req.method !== "POST") {
           res.statusCode = 405;
-          res.setHeader('Content-Type', 'application/json');
-          res.end(JSON.stringify({ error: 'Method Not Allowed' }));
+          res.setHeader("Content-Type", "application/json");
+          res.end(JSON.stringify({ error: "Method Not Allowed" }));
           return;
         }
 
-        let body = '';
-        req.on('data', chunk => { body += chunk; });
-        req.on('end', async () => {
+        let body = "";
+        req.on("data", (chunk) => {
+          body += chunk;
+        });
+        req.on("end", async () => {
           try {
-            const { Resend } = await import('resend');
-            const env = loadEnv('development', process.cwd(), '');
-            const apiKey = env.RESEND_API_KEY || process.env.RESEND_API_KEY || '';
+            const { Resend } = await import("resend");
+            const env = loadEnv("development", process.cwd(), "");
+            const apiKey =
+              env.RESEND_API_KEY || process.env.RESEND_API_KEY || "";
             if (!apiKey) {
               res.statusCode = 500;
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({ error: 'RESEND_API_KEY is not defined in environment variables' }));
+              res.setHeader("Content-Type", "application/json");
+              res.end(
+                JSON.stringify({
+                  error:
+                    "RESEND_API_KEY is not defined in environment variables",
+                }),
+              );
               return;
             }
             const resend = new Resend(apiKey);
-            const data = JSON.parse(body || '{}');
+            const data = JSON.parse(body || "{}");
 
             if (!data.name || !data.reply_to || !data.message) {
               res.statusCode = 400;
-              res.setHeader('Content-Type', 'application/json');
-              res.end(JSON.stringify({ error: 'Missing required fields (name, email, message)' }));
+              res.setHeader("Content-Type", "application/json");
+              res.end(
+                JSON.stringify({
+                  error: "Missing required fields (name, email, message)",
+                }),
+              );
               return;
             }
 
-            const emailSubject = data.title ? `[Portfolio] ${data.title}` : `Portfolio Inquiry from ${data.name}`;
+            const emailSubject = data.title
+              ? `[Portfolio] ${data.title}`
+              : `Portfolio Inquiry from ${data.name}`;
 
             const result = await resend.emails.send({
-              from: 'Portfolio Inquiry <onboarding@resend.dev>',
-              to: ['sakmmm07@gmail.com'],
+              from: "Portfolio Inquiry <onboarding@resend.dev>",
+              to: ["sakmmm07@gmail.com"],
               replyTo: data.reply_to,
               subject: emailSubject,
               html: `
@@ -54,7 +68,7 @@ function resendLocalPlugin() {
                   <div style="background-color: #18181b; padding: 16px; border-radius: 8px; border: 1px solid #27272a; margin-bottom: 20px;">
                     <p style="margin: 0 0 8px 0; font-size: 13px; color: #a1a1aa;"><strong style="color: #ffffff;">Sender Name:</strong> ${data.name}</p>
                     <p style="margin: 0 0 8px 0; font-size: 13px; color: #a1a1aa;"><strong style="color: #ffffff;">Sender Email:</strong> <a href="mailto:${data.reply_to}" style="color: #22d3ee; text-decoration: none;">${data.reply_to}</a></p>
-                    <p style="margin: 0; font-size: 13px; color: #a1a1aa;"><strong style="color: #ffffff;">Subject / Opportunity:</strong> ${data.title || 'General Discussion'}</p>
+                    <p style="margin: 0; font-size: 13px; color: #a1a1aa;"><strong style="color: #ffffff;">Subject / Opportunity:</strong> ${data.title || "General Discussion"}</p>
                   </div>
                   <div style="margin-bottom: 24px;">
                     <p style="margin: 0 0 8px 0; font-size: 11px; font-family: monospace; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;">Message Body:</p>
@@ -64,34 +78,36 @@ function resendLocalPlugin() {
                     Dispatched securely via Resend API &bull; Saksham Agarwal Portfolio Gateway
                   </div>
                 </div>
-              `
+              `,
             });
 
             if (result.error) {
               res.statusCode = 400;
-              res.setHeader('Content-Type', 'application/json');
+              res.setHeader("Content-Type", "application/json");
               res.end(JSON.stringify(result));
               return;
             }
 
             res.statusCode = 200;
-            res.setHeader('Content-Type', 'application/json');
+            res.setHeader("Content-Type", "application/json");
             res.end(JSON.stringify({ success: true, id: result.data?.id }));
           } catch (err) {
             res.statusCode = 500;
-            res.setHeader('Content-Type', 'application/json');
-            res.end(JSON.stringify({ error: err.message || 'Internal Server Error' }));
+            res.setHeader("Content-Type", "application/json");
+            res.end(
+              JSON.stringify({ error: err.message || "Internal Server Error" }),
+            );
           }
         });
       });
-    }
+    },
   };
 }
 
 export default defineConfig({
   server: {
     watch: {
-      ignored: ['**/Components/**'],
+      ignored: ["**/Components/**"],
     },
   },
   plugins: [
@@ -100,22 +116,22 @@ export default defineConfig({
     // Pre-compress all assets with Brotli (best ratio) and Gzip (fallback)
     // Vercel serves pre-compressed files automatically when available
     compression({
-      algorithm: 'brotliCompress',
+      algorithm: "brotliCompress",
       exclude: [/\.(br|gz)$/i, /\.(png|jpg|jpeg|gif|webp|avif|svg|ico)$/i],
-      threshold: 1024,  // Only compress files > 1KB
+      threshold: 1024, // Only compress files > 1KB
     }),
     compression({
-      algorithm: 'gzip',
+      algorithm: "gzip",
       exclude: [/\.(br|gz)$/i, /\.(png|jpg|jpeg|gif|webp|avif|svg|ico)$/i],
       threshold: 1024,
     }),
   ],
   build: {
-    target: 'es2020',
-    minify: 'esbuild',
+    target: "es2020",
+    minify: "esbuild",
     esbuild: {
-      drop: ['console', 'debugger'],  // Strip console.log & debugger in production
-      legalComments: 'none',          // Remove license comments
+      drop: ["console", "debugger"], // Strip console.log & debugger in production
+      legalComments: "none", // Remove license comments
     },
     rollupOptions: {
       output: {
@@ -140,7 +156,7 @@ export default defineConfig({
       },
     },
     chunkSizeWarningLimit: 1200,
-    assetsInlineLimit: 4096,   // Inline tiny assets < 4KB as base64 (saves HTTP requests)
+    assetsInlineLimit: 4096, // Inline tiny assets < 4KB as base64 (saves HTTP requests)
     reportCompressedSize: true, // Show gzip sizes in build output
   },
-})
+});

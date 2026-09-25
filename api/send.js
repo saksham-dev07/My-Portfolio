@@ -1,16 +1,18 @@
-import { Resend } from 'resend';
+import { Resend } from "resend";
 
 export default async function handler(req, res) {
   // Only accept POST requests
-  if (req.method !== 'POST') {
-    res.setHeader('Allow', ['POST']);
-    return res.status(405).json({ error: 'Method Not Allowed' });
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).json({ error: "Method Not Allowed" });
   }
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    console.error('RESEND_API_KEY is not defined in environment variables');
-    return res.status(500).json({ error: 'Server configuration error: RESEND_API_KEY is not defined' });
+    console.error("RESEND_API_KEY is not defined in environment variables");
+    return res.status(500).json({
+      error: "Server configuration error: RESEND_API_KEY is not defined",
+    });
   }
 
   const resend = new Resend(apiKey);
@@ -19,14 +21,18 @@ export default async function handler(req, res) {
     const { name, reply_to, title, message } = req.body || {};
 
     if (!name || !reply_to || !message) {
-      return res.status(400).json({ error: 'Missing required fields (name, email, message)' });
+      return res
+        .status(400)
+        .json({ error: "Missing required fields (name, email, message)" });
     }
 
-    const emailSubject = title ? `[Portfolio] ${title}` : `Portfolio Inquiry from ${name}`;
+    const emailSubject = title
+      ? `[Portfolio] ${title}`
+      : `Portfolio Inquiry from ${name}`;
 
     const { data, error } = await resend.emails.send({
-      from: 'Portfolio Inquiry <onboarding@resend.dev>',
-      to: ['sakmmm07@gmail.com'],
+      from: "Portfolio Inquiry <onboarding@resend.dev>",
+      to: ["sakmmm07@gmail.com"],
       replyTo: reply_to,
       subject: emailSubject,
       html: `
@@ -39,7 +45,7 @@ export default async function handler(req, res) {
           <div style="background-color: #18181b; padding: 16px; border-radius: 8px; border: 1px solid #27272a; margin-bottom: 20px;">
             <p style="margin: 0 0 8px 0; font-size: 13px; color: #a1a1aa;"><strong style="color: #ffffff;">Sender Name:</strong> ${name}</p>
             <p style="margin: 0 0 8px 0; font-size: 13px; color: #a1a1aa;"><strong style="color: #ffffff;">Sender Email:</strong> <a href="mailto:${reply_to}" style="color: #22d3ee; text-decoration: none;">${reply_to}</a></p>
-            <p style="margin: 0; font-size: 13px; color: #a1a1aa;"><strong style="color: #ffffff;">Subject / Opportunity:</strong> ${title || 'General Discussion'}</p>
+            <p style="margin: 0; font-size: 13px; color: #a1a1aa;"><strong style="color: #ffffff;">Subject / Opportunity:</strong> ${title || "General Discussion"}</p>
           </div>
 
           <div style="margin-bottom: 24px;">
@@ -55,13 +61,17 @@ export default async function handler(req, res) {
     });
 
     if (error) {
-      console.error('Resend API Error:', error);
-      return res.status(400).json({ error: error.message || 'Resend delivery failed' });
+      console.error("Resend API Error:", error);
+      return res
+        .status(400)
+        .json({ error: error.message || "Resend delivery failed" });
     }
 
     return res.status(200).json({ success: true, id: data?.id });
   } catch (err) {
-    console.error('Server Handler Error:', err);
-    return res.status(500).json({ error: err.message || 'Internal Server Error' });
+    console.error("Server Handler Error:", err);
+    return res
+      .status(500)
+      .json({ error: err.message || "Internal Server Error" });
   }
 }

@@ -1,40 +1,54 @@
-import React, { memo, useCallback, useState } from "react";
-import { motion as Motion, AnimatePresence } from "framer-motion";
-import { toast } from "sonner";
-import { useForm } from "react-hook-form";
-import {
-  Loader,
-  Send,
-  CheckCircle,
-  Mail,
-  Copy,
-  Check,
-  Sparkles,
-  Github,
-  Linkedin,
-  MapPin,
-  Clock,
-  ArrowUpRight,
-  ExternalLink,
-  MessageSquare,
-  Zap,
-  GraduationCap,
-  Briefcase,
-  Cpu,
-  Coffee
-} from "lucide-react";
 import clsx from "clsx";
-
-
-import { SectionWrapper } from "../hoc";
+import { AnimatePresence, motion as Motion } from "framer-motion";
+import {
+  ArrowUpRight,
+  Briefcase,
+  Check,
+  CheckCircle,
+  Clock,
+  Coffee,
+  Copy,
+  Cpu,
+  ExternalLink,
+  Github,
+  GraduationCap,
+  Linkedin,
+  Loader,
+  Mail,
+  MapPin,
+  MessageSquare,
+  Send,
+  Sparkles,
+  Zap,
+} from "lucide-react";
+import React, { memo, useCallback, useState } from "react";
+import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { profile } from "../assets";
+import { SectionWrapper } from "../hoc";
 import DodgeButton from "./interactive/DodgeButton";
 
 const TOPIC_PRESETS = [
-  { icon: GraduationCap, label: "Internship", subject: "Internship Opportunity" },
-  { icon: Briefcase, label: "Full-Time Role", subject: "Full-Time Software Engineering Role" },
-  { icon: Cpu, label: "Applied AI / Systems Collab", subject: "Applied AI / Distributed Systems Project Collaboration" },
-  { icon: Coffee, label: "Engineering Chat", subject: "Engineering Coffee Chat / Technical Discussion" },
+  {
+    icon: GraduationCap,
+    label: "Internship",
+    subject: "Internship Opportunity",
+  },
+  {
+    icon: Briefcase,
+    label: "Full-Time Role",
+    subject: "Full-Time Software Engineering Role",
+  },
+  {
+    icon: Cpu,
+    label: "Applied AI / Systems Collab",
+    subject: "Applied AI / Distributed Systems Project Collaboration",
+  },
+  {
+    icon: Coffee,
+    label: "Engineering Chat",
+    subject: "Engineering Coffee Chat / Technical Discussion",
+  },
 ];
 
 const ContactForm = memo(() => {
@@ -52,7 +66,7 @@ const ContactForm = memo(() => {
       reply_to: "",
       title: "",
       message: "",
-    }
+    },
   });
 
   const [isSuccess, setIsSuccess] = useState(false);
@@ -62,86 +76,102 @@ const ContactForm = memo(() => {
   const currentTitle = watch("title", "");
   const messageLength = messageValue.length;
 
-  const handleSelectTopic = useCallback((subject) => {
-    setValue("title", subject, { shouldValidate: true, shouldDirty: true });
-  }, [setValue]);
+  const handleSelectTopic = useCallback(
+    (subject) => {
+      setValue("title", subject, { shouldValidate: true, shouldDirty: true });
+    },
+    [setValue],
+  );
 
   // Builds formatted direct mailto URL for resilient client-side fallback
   const buildMailtoUrl = useCallback((data) => {
-    const mailtoSubject = encodeURIComponent(data.title || "Portfolio Direct Inquiry");
+    const mailtoSubject = encodeURIComponent(
+      data.title || "Portfolio Direct Inquiry",
+    );
     const mailtoBody = encodeURIComponent(
-      `Hi Saksham,\n\n${data.message || ""}\n\nBest regards,\n${data.name || "Colleague / Recruiter"}\nContact Email: ${data.reply_to || "Not provided"}`
+      `Hi Saksham,\n\n${data.message || ""}\n\nBest regards,\n${data.name || "Colleague / Recruiter"}\nContact Email: ${data.reply_to || "Not provided"}`,
     );
     return `mailto:sakmmm07@gmail.com?subject=${mailtoSubject}&body=${mailtoBody}`;
   }, []);
 
   // Builds formatted Gmail Web composer URL
   const buildGmailUrl = useCallback((data) => {
-    const mailtoSubject = encodeURIComponent(data.title || "Portfolio Direct Inquiry");
+    const mailtoSubject = encodeURIComponent(
+      data.title || "Portfolio Direct Inquiry",
+    );
     const mailtoBody = encodeURIComponent(
-      `Hi Saksham,\n\n${data.message || ""}\n\nBest regards,\n${data.name || "Colleague / Recruiter"}\nContact Email: ${data.reply_to || "Not provided"}`
+      `Hi Saksham,\n\n${data.message || ""}\n\nBest regards,\n${data.name || "Colleague / Recruiter"}\nContact Email: ${data.reply_to || "Not provided"}`,
     );
     return `https://mail.google.com/mail/?view=cm&fs=1&to=sakmmm07@gmail.com&su=${mailtoSubject}&body=${mailtoBody}`;
   }, []);
 
   // Primary Submission: Transmits via Resend Gateway API (/api/send)
   // Falls back gracefully to mailto: if the API endpoint is unavailable (e.g., static hosting)
-  const onSubmit = useCallback(async (data) => {
-    setIsLoading(true);
+  const onSubmit = useCallback(
+    async (data) => {
+      setIsLoading(true);
 
-    const mailtoUrl = buildMailtoUrl(data);
+      const mailtoUrl = buildMailtoUrl(data);
 
-    // Graceful mailto fallback — opens pre-filled mail client so the message is never lost
-    const fallbackToMailClient = () => {
-      if (typeof window !== "undefined") {
-        const link = document.createElement("a");
-        link.href = mailtoUrl;
-        link.target = "_self";
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      }
+      // Graceful mailto fallback — opens pre-filled mail client so the message is never lost
+      const fallbackToMailClient = () => {
+        if (typeof window !== "undefined") {
+          const link = document.createElement("a");
+          link.href = mailtoUrl;
+          link.target = "_self";
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
 
-      setIsLoading(false);
-      toast.info("Opened pre-filled draft in your mail app. Click Send to deliver to sakmmm07@gmail.com!", {
-        icon: <Mail size={18} className="text-cyan-400" />,
-        duration: 6000,
-      });
-    };
+        setIsLoading(false);
+        toast.info(
+          "Opened pre-filled draft in your mail app. Click Send to deliver to sakmmm07@gmail.com!",
+          {
+            icon: <Mail size={18} className="text-cyan-400" />,
+            duration: 6000,
+          },
+        );
+      };
 
-    try {
-      const response = await fetch("/api/send", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(data),
-      });
-
-      const result = await response.json().catch(() => ({}));
-
-      if (response.ok && result.success) {
-        setIsSuccess(true);
-        toast.success("Message dispatched via Resend! Saksham has received your inquiry.", {
-          icon: <CheckCircle size={18} className="text-emerald-400" />,
-          duration: 5000,
+      try {
+        const response = await fetch("/api/send", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(data),
         });
 
-        reset();
-        setTimeout(() => {
-          setIsSuccess(false);
-          setIsLoading(false);
-        }, 3500);
-        return;
-      }
+        const result = await response.json().catch(() => ({}));
 
-      // If server responded with error, fall back to mail client
-      throw new Error(result.error || "Resend transmission error");
-    } catch {
-      // Silently fall back to native mail client — no error toast shown
-      fallbackToMailClient();
-    }
-  }, [buildMailtoUrl, reset]);
+        if (response.ok && result.success) {
+          setIsSuccess(true);
+          toast.success(
+            "Message dispatched via Resend! Saksham has received your inquiry.",
+            {
+              icon: <CheckCircle size={18} className="text-emerald-400" />,
+              duration: 5000,
+            },
+          );
+
+          reset();
+          setTimeout(() => {
+            setIsSuccess(false);
+            setIsLoading(false);
+          }, 3500);
+          return;
+        }
+
+        // If server responded with error, fall back to mail client
+        throw new Error(result.error || "Resend transmission error");
+      } catch {
+        // Silently fall back to native mail client — no error toast shown
+        fallbackToMailClient();
+      }
+    },
+    [buildMailtoUrl, reset],
+  );
 
   // Secondary Action: Open directly in Gmail in browser tab
   const handleOpenGmail = useCallback(() => {
@@ -181,10 +211,15 @@ const ContactForm = memo(() => {
                   "text-[11px] font-mono px-3 py-1.5 rounded-lg border transition-all cursor-pointer inline-flex items-center gap-1.5",
                   isSelected
                     ? "bg-cyan-400/15 border-cyan-400/50 text-cyan-300 font-semibold"
-                    : "bg-zinc-950/60 border-white/10 text-zinc-400 hover:text-zinc-200 hover:border-white/20"
+                    : "bg-zinc-950/60 border-white/10 text-zinc-400 hover:text-zinc-200 hover:border-white/20",
                 )}
               >
-                <Icon size={12} className={clsx(isSelected ? "text-cyan-300" : "text-zinc-400")} />
+                <Icon
+                  size={12}
+                  className={clsx(
+                    isSelected ? "text-cyan-300" : "text-zinc-400",
+                  )}
+                />
                 <span>{t.label}</span>
               </button>
             );
@@ -196,7 +231,10 @@ const ContactForm = memo(() => {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Name Field */}
         <div className="space-y-1.5">
-          <label htmlFor="contact-name" className="block text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">
+          <label
+            htmlFor="contact-name"
+            className="block text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider"
+          >
             Your Name <span className="text-cyan-400">*</span>
           </label>
           <input
@@ -205,23 +243,31 @@ const ContactForm = memo(() => {
             placeholder="Ada Lovelace"
             {...register("name", {
               required: "Name is required",
-              minLength: { value: 2, message: "Name must be at least 2 characters" }
+              minLength: {
+                value: 2,
+                message: "Name must be at least 2 characters",
+              },
             })}
             className={clsx(
               "w-full bg-zinc-950/80 border rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 transition-all font-mono outline-none",
               errors.name
                 ? "border-red-500/80 bg-red-500/10 focus:border-red-500"
-                : "border-white/10 hover:border-white/20 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20"
+                : "border-white/10 hover:border-white/20 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20",
             )}
           />
           {errors.name && (
-            <p className="text-[11px] font-mono text-red-400 mt-1">{errors.name.message}</p>
+            <p className="text-[11px] font-mono text-red-400 mt-1">
+              {errors.name.message}
+            </p>
           )}
         </div>
 
         {/* Email Field */}
         <div className="space-y-1.5">
-          <label htmlFor="contact-email" className="block text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">
+          <label
+            htmlFor="contact-email"
+            className="block text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider"
+          >
             Email Address <span className="text-cyan-400">*</span>
           </label>
           <input
@@ -232,25 +278,30 @@ const ContactForm = memo(() => {
               required: "Email address is required",
               pattern: {
                 value: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
-                message: "Please enter a valid email address"
-              }
+                message: "Please enter a valid email address",
+              },
             })}
             className={clsx(
               "w-full bg-zinc-950/80 border rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 transition-all font-mono outline-none",
               errors.reply_to
                 ? "border-red-500/80 bg-red-500/10 focus:border-red-500"
-                : "border-white/10 hover:border-white/20 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20"
+                : "border-white/10 hover:border-white/20 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20",
             )}
           />
           {errors.reply_to && (
-            <p className="text-[11px] font-mono text-red-400 mt-1">{errors.reply_to.message}</p>
+            <p className="text-[11px] font-mono text-red-400 mt-1">
+              {errors.reply_to.message}
+            </p>
           )}
         </div>
       </div>
 
       {/* Subject Field */}
       <div className="space-y-1.5">
-        <label htmlFor="contact-subject" className="block text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">
+        <label
+          htmlFor="contact-subject"
+          className="block text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider"
+        >
           Subject / Opportunity <span className="text-cyan-400">*</span>
         </label>
         <input
@@ -259,24 +310,32 @@ const ContactForm = memo(() => {
           placeholder="Summer 2025/2026 Internship &bull; Full-Stack &bull; Applied AI"
           {...register("title", {
             required: "Subject is required",
-            minLength: { value: 3, message: "Subject must be at least 3 characters" }
+            minLength: {
+              value: 3,
+              message: "Subject must be at least 3 characters",
+            },
           })}
           className={clsx(
             "w-full bg-zinc-950/80 border rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 transition-all font-mono outline-none",
             errors.title
               ? "border-red-500/80 bg-red-500/10 focus:border-red-500"
-              : "border-white/10 hover:border-white/20 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20"
+              : "border-white/10 hover:border-white/20 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20",
           )}
         />
         {errors.title && (
-          <p className="text-[11px] font-mono text-red-400 mt-1">{errors.title.message}</p>
+          <p className="text-[11px] font-mono text-red-400 mt-1">
+            {errors.title.message}
+          </p>
         )}
       </div>
 
       {/* Message Field */}
       <div className="space-y-1.5">
         <div className="flex items-center justify-between">
-          <label htmlFor="contact-message" className="block text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider">
+          <label
+            htmlFor="contact-message"
+            className="block text-xs font-mono font-semibold text-zinc-400 uppercase tracking-wider"
+          >
             Message <span className="text-cyan-400">*</span>
           </label>
           <span className="text-[10px] font-mono text-zinc-500">
@@ -289,18 +348,26 @@ const ContactForm = memo(() => {
           placeholder="Share role specifications, engineering project context, or collaboration ideas..."
           {...register("message", {
             required: "Message is required",
-            minLength: { value: 10, message: "Message must be at least 10 characters" },
-            maxLength: { value: 1000, message: "Message must be less than 1000 characters" }
+            minLength: {
+              value: 10,
+              message: "Message must be at least 10 characters",
+            },
+            maxLength: {
+              value: 1000,
+              message: "Message must be less than 1000 characters",
+            },
           })}
           className={clsx(
             "w-full bg-zinc-950/80 border rounded-xl px-4 py-3 text-sm text-zinc-100 placeholder:text-zinc-600 transition-all font-mono outline-none resize-none min-h-[120px]",
             errors.message
               ? "border-red-500/80 bg-red-500/10 focus:border-red-500"
-              : "border-white/10 hover:border-white/20 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20"
+              : "border-white/10 hover:border-white/20 focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/20",
           )}
         />
         {errors.message && (
-          <p className="text-[11px] font-mono text-red-400 mt-1">{errors.message.message}</p>
+          <p className="text-[11px] font-mono text-red-400 mt-1">
+            {errors.message.message}
+          </p>
         )}
       </div>
 
@@ -315,7 +382,7 @@ const ContactForm = memo(() => {
             isSuccess
               ? "bg-emerald-500 text-zinc-950 shadow-emerald-500/20"
               : "bg-white hover:bg-zinc-200 text-zinc-950 shadow-white/10",
-            "disabled:opacity-40 disabled:cursor-not-allowed"
+            "disabled:opacity-40 disabled:cursor-not-allowed",
           )}
         >
           <AnimatePresence mode="wait">
@@ -398,7 +465,7 @@ const Contact = memo(() => {
       setCopied(true);
       toast.success("Email copied to clipboard: sakmmm07@gmail.com", {
         duration: 2500,
-        icon: <Check size={16} className="text-emerald-400" />
+        icon: <Check size={16} className="text-emerald-400" />,
       });
       setTimeout(() => setCopied(false), 2000);
     }
@@ -418,7 +485,8 @@ const Contact = memo(() => {
             Hiring a 2027 Graduate?
           </h2>
           <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal">
-            Available for Summer 2025/2026 internships, full-time 2027 roles, and engineering collaborations.
+            Available for Summer 2025/2026 internships, full-time 2027 roles,
+            and engineering collaborations.
           </p>
         </div>
 
@@ -448,7 +516,10 @@ const Contact = memo(() => {
                   width={64}
                   height={64}
                 />
-                <span className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-zinc-950 animate-pulse" title="Available for 2027 Roles" />
+                <span
+                  className="absolute bottom-1 right-1 w-3.5 h-3.5 rounded-full bg-emerald-400 border-2 border-zinc-950 animate-pulse"
+                  title="Available for 2027 Roles"
+                />
               </div>
 
               <div className="space-y-0.5">
@@ -456,19 +527,29 @@ const Contact = memo(() => {
                   <Sparkles size={12} />
                   <span>Candidate Statement</span>
                 </div>
-                <h4 className="text-base font-bold text-white tracking-tight">Saksham Agarwal</h4>
-                <p className="text-xs font-mono text-zinc-400">B.Tech CSE &bull; Class of 2027</p>
+                <h4 className="text-base font-bold text-white tracking-tight">
+                  Saksham Agarwal
+                </h4>
+                <p className="text-xs font-mono text-zinc-400">
+                  B.Tech CSE &bull; Class of 2027
+                </p>
               </div>
             </div>
 
             <p className="text-sm text-zinc-300 leading-relaxed font-normal">
-              B.Tech Computer Science student specializing in applied machine learning, neural forensics, and high-throughput backend services. Seeking engineering roles where I can contribute to mission-critical infrastructure and scalable platforms.
+              B.Tech Computer Science student specializing in applied machine
+              learning, neural forensics, and high-throughput backend services.
+              Seeking engineering roles where I can contribute to
+              mission-critical infrastructure and scalable platforms.
             </p>
 
             <div className="space-y-2 pt-2 border-t border-white/10 text-xs font-mono text-zinc-400">
               <div className="flex items-center gap-2">
                 <MapPin size={13} className="text-cyan-400 shrink-0" />
-                <span>Farrukhabad, UP &bull; Currently at VIT Bhopal &bull; Open to Remote &amp; Relocation</span>
+                <span>
+                  Farrukhabad, UP &bull; Currently at VIT Bhopal &bull; Open to
+                  Remote &amp; Relocation
+                </span>
               </div>
               <div className="flex items-center gap-2">
                 <Clock size={13} className="text-emerald-400 shrink-0" />
@@ -487,7 +568,9 @@ const Contact = memo(() => {
                     <Mail size={18} />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">Direct Inbox</p>
+                    <p className="text-[11px] font-mono text-zinc-500 uppercase tracking-wider">
+                      Direct Inbox
+                    </p>
                     <a
                       href="mailto:sakmmm07@gmail.com"
                       className="text-xs sm:text-sm font-mono font-bold text-white group-hover:text-cyan-300 transition-colors truncate block"
@@ -503,7 +586,11 @@ const Contact = memo(() => {
                   className="px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/10 border border-white/10 text-xs font-mono text-zinc-300 hover:text-white transition-all flex items-center gap-1.5 shrink-0 cursor-pointer"
                   title="Copy email to clipboard"
                 >
-                  {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                  {copied ? (
+                    <Check size={12} className="text-emerald-400" />
+                  ) : (
+                    <Copy size={12} />
+                  )}
                   <span>{copied ? "Copied" : "Copy"}</span>
                 </button>
               </div>
@@ -541,7 +628,10 @@ const Contact = memo(() => {
                   <Linkedin size={16} className="text-blue-400" />
                   <span>LinkedIn</span>
                 </div>
-                <ArrowUpRight size={13} className="text-zinc-500 group-hover:text-blue-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                <ArrowUpRight
+                  size={13}
+                  className="text-zinc-500 group-hover:text-blue-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
+                />
               </a>
 
               <a
@@ -554,7 +644,10 @@ const Contact = memo(() => {
                   <Github size={16} className="text-zinc-300" />
                   <span>GitHub</span>
                 </div>
-                <ArrowUpRight size={13} className="text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" />
+                <ArrowUpRight
+                  size={13}
+                  className="text-zinc-500 group-hover:text-white group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all"
+                />
               </a>
             </div>
 
@@ -589,7 +682,8 @@ const Contact = memo(() => {
                 Send an Inquiry
               </h3>
               <p className="text-xs text-zinc-400 font-normal">
-                Dispatches immediately via high-delivery Resend email API to my primary inbox.
+                Dispatches immediately via high-delivery Resend email API to my
+                primary inbox.
               </p>
             </div>
 

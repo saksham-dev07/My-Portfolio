@@ -1,9 +1,9 @@
 import {
-  education,
-  projects,
   certifications,
+  education,
   hackathons,
   leadership,
+  projects,
 } from "../../../constants";
 
 /**
@@ -15,12 +15,15 @@ export function buildSignalRunTrack() {
 
   // 1. ZONE 01 — EDUCATION
   const eduFacts = [];
-  const vitEdu = education.find((e) => e.institution?.toLowerCase().includes("vit")) || education[0];
+  const vitEdu =
+    education.find((e) => e.institution?.toLowerCase().includes("vit")) ||
+    education[0];
   if (vitEdu) {
     eduFacts.push({
       id: "edu_vit_cgpa",
       tag: "DEGREE & TIMELINE",
-      headline: vitEdu.institution?.split(" - ")?.[0] || "VIT Bhopal University",
+      headline:
+        vitEdu.institution?.split(" - ")?.[0] || "VIT Bhopal University",
       detail: `${vitEdu.title} (${vitEdu.period}) • ${vitEdu.score}`,
     });
     if (vitEdu.description) {
@@ -33,12 +36,16 @@ export function buildSignalRunTrack() {
     }
   }
 
-  const schoolEdu = education.find((e) => e.id === 2 || e.title?.includes("Class XII"));
+  const schoolEdu = education.find(
+    (e) => e.id === 2 || e.title?.includes("Class XII"),
+  );
   if (schoolEdu) {
     eduFacts.push({
       id: "edu_school",
       tag: "ACADEMIC FOUNDATION",
-      headline: schoolEdu.institution?.split(" - ")?.[0] || "St. Anthony's Sr. Sec. School",
+      headline:
+        schoolEdu.institution?.split(" - ")?.[0] ||
+        "St. Anthony's Sr. Sec. School",
       detail: `${schoolEdu.title} (${schoolEdu.period}) • ${schoolEdu.score}`,
     });
   }
@@ -57,11 +64,18 @@ export function buildSignalRunTrack() {
   // 2. ZONE 02 — PROJECTS
   const projFacts = [];
   const featured = projects.filter((p) => p.featured);
-  const deepfake = featured.find((p) => p.id === "deepfake-forensics") || featured[0];
+  const deepfake =
+    featured.find((p) => p.id === "deepfake-forensics") || featured[0];
   if (deepfake) {
-    const accMetric = deepfake.metrics?.find((m) => m.label?.includes("accuracy"))?.value;
-    const sigMetric = deepfake.metrics?.find((m) => m.label?.includes("signal"))?.value;
-    const mapMetric = deepfake.metrics?.find((m) => m.label?.includes("explainability"))?.value;
+    const accMetric = deepfake.metrics?.find((m) =>
+      m.label?.includes("accuracy"),
+    )?.value;
+    const sigMetric = deepfake.metrics?.find((m) =>
+      m.label?.includes("signal"),
+    )?.value;
+    const mapMetric = deepfake.metrics?.find((m) =>
+      m.label?.includes("explainability"),
+    )?.value;
     projFacts.push({
       id: "proj_deepfake",
       tag: "FEATURED AI SYSTEM",
@@ -70,10 +84,15 @@ export function buildSignalRunTrack() {
     });
   }
 
-  const nlCompiler = featured.find((p) => p.id === "nl-app-compiler") || featured[1];
+  const nlCompiler =
+    featured.find((p) => p.id === "nl-app-compiler") || featured[1];
   if (nlCompiler) {
-    const stageMetric = nlCompiler.metrics?.find((m) => m.label?.includes("stage"))?.value;
-    const synthMetric = nlCompiler.metrics?.find((m) => m.label?.includes("schema"))?.value;
+    const stageMetric = nlCompiler.metrics?.find((m) =>
+      m.label?.includes("stage"),
+    )?.value;
+    const synthMetric = nlCompiler.metrics?.find((m) =>
+      m.label?.includes("schema"),
+    )?.value;
     projFacts.push({
       id: "proj_nl_compiler",
       tag: "GENERATIVE AI PIPELINE",
@@ -84,8 +103,12 @@ export function buildSignalRunTrack() {
 
   const docpilot = featured.find((p) => p.id === "docpilot") || featured[2];
   if (docpilot) {
-    const scribeMetric = docpilot.metrics?.find((m) => m.label?.includes("scribe"))?.value;
-    const roleMetric = docpilot.metrics?.find((m) => m.label?.includes("role"))?.value;
+    const scribeMetric = docpilot.metrics?.find((m) =>
+      m.label?.includes("scribe"),
+    )?.value;
+    const roleMetric = docpilot.metrics?.find((m) =>
+      m.label?.includes("role"),
+    )?.value;
     projFacts.push({
       id: "proj_docpilot",
       tag: "HEALTHCARE PLATFORM",
@@ -115,7 +138,9 @@ export function buildSignalRunTrack() {
       detail: `Spanning AWS Cloud & AI, IBM Watsonx, Google Cloud Skills, and NPTEL IIT Honors`,
     });
 
-    const awsAi = certifications.find((c) => c.title?.includes("AI Practitioner")) || certifications[0];
+    const awsAi =
+      certifications.find((c) => c.title?.includes("AI Practitioner")) ||
+      certifications[0];
     if (awsAi) {
       certFacts.push({
         id: "cert_aws_ai",
@@ -125,7 +150,10 @@ export function buildSignalRunTrack() {
       });
     }
 
-    const highCert = certifications.find((c) => c.issuer?.includes("L&T") || c.issuer?.includes("NPTEL")) || certifications[1];
+    const highCert =
+      certifications.find(
+        (c) => c.issuer?.includes("L&T") || c.issuer?.includes("NPTEL"),
+      ) || certifications[1];
     if (highCert) {
       certFacts.push({
         id: "cert_highlight",
@@ -262,7 +290,8 @@ export function buildSignalRunTrack() {
       const obstacleOffsets = [1100, 2300];
       obstacleOffsets.forEach((offset, oIdx) => {
         const obsWorldX = startX + offset;
-        const type = (zoneIdx + oIdx) % 2 === 0 ? "glitch_block" : "energy_gate";
+        const type =
+          (zoneIdx + oIdx) % 2 === 0 ? "glitch_block" : "energy_gate";
         if (type === "glitch_block") {
           allObstacles.push({
             id: `obs_${zoneIdx}_${oIdx}`,

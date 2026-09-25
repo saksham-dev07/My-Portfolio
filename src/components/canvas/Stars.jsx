@@ -1,6 +1,6 @@
-import { useState, useRef, Suspense, memo, useEffect } from "react";
+import { PointMaterial, Points, Preload } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
-import { Points, PointMaterial, Preload } from "@react-three/drei";
+import { memo, Suspense, useEffect, useRef, useState } from "react";
 
 const generateSpherePoints = (count = 2000, radius = 1.25) => {
   const points = new Float32Array(count);
@@ -50,7 +50,7 @@ const hasWebGL = () => {
     const canvas = document.createElement("canvas");
     return Boolean(
       window.WebGLRenderingContext &&
-        (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+        (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")),
     );
   } catch {
     return false;
@@ -69,7 +69,7 @@ const StarsCanvas = memo(() => {
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
 
     if (containerRef.current) {
@@ -82,8 +82,11 @@ const StarsCanvas = memo(() => {
   if (!canRenderWebGL) return null;
 
   return (
-    <div ref={containerRef} className="w-full h-auto absolute inset-0 z-[-1] pointer-events-none overflow-hidden">
-      <Canvas 
+    <div
+      ref={containerRef}
+      className="w-full h-auto absolute inset-0 z-[-1] pointer-events-none overflow-hidden"
+    >
+      <Canvas
         frameloop={isVisible ? "always" : "never"}
         camera={{ position: [0, 0, 1] }}
         dpr={[1, 1.2]}

@@ -1,4 +1,11 @@
-import React, { createContext, useContext, useState, useEffect, useRef, useCallback } from "react";
+import React, {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 
 const SoundContext = createContext({
   isMuted: true,
@@ -52,7 +59,10 @@ export const SoundProvider = ({ children }) => {
         // Ignore
       }
     };
-    window.addEventListener("pointerdown", unlock, { once: true, passive: true });
+    window.addEventListener("pointerdown", unlock, {
+      once: true,
+      passive: true,
+    });
     window.addEventListener("keydown", unlock, { once: true, passive: true });
     return () => {
       window.removeEventListener("pointerdown", unlock);
@@ -464,16 +474,21 @@ export const SoundProvider = ({ children }) => {
       if (e.target.closest("[data-sound-toggle]")) return;
 
       const interactive = e.target.closest(
-        "button, a, input[type='button'], input[type='submit'], [role='button'], [role='tab'], summary"
+        "button, a, input[type='button'], input[type='submit'], [role='button'], [role='tab'], summary",
       );
       if (interactive) {
         playClick();
       }
     };
 
-    document.addEventListener("click", handleGlobalClick, { capture: true, passive: true });
+    document.addEventListener("click", handleGlobalClick, {
+      capture: true,
+      passive: true,
+    });
     return () => {
-      document.removeEventListener("click", handleGlobalClick, { capture: true });
+      document.removeEventListener("click", handleGlobalClick, {
+        capture: true,
+      });
     };
   }, [isMuted, playClick]);
 

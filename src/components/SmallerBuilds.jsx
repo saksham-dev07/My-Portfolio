@@ -1,12 +1,13 @@
-import React, { memo } from "react";
 import { motion as Motion } from "framer-motion";
-import { ArrowUpRight, Github, ExternalLink, Code2 } from "lucide-react";
-import { SectionWrapper } from "../hoc";
+import { ArrowUpRight, Code2, ExternalLink, Github } from "lucide-react";
+import React, { memo } from "react";
 import { projects } from "../constants";
 import { useRole } from "../context/RoleContext";
+import { SectionWrapper } from "../hoc";
 
 const BuildRow = memo(({ project }) => {
-  const { name, role, period, description, tags, source_code_link, live_demo } = project;
+  const { name, role, period, description, tags, source_code_link, live_demo } =
+    project;
 
   const targetLink = live_demo || source_code_link;
 
@@ -26,9 +27,9 @@ const BuildRow = memo(({ project }) => {
           </span>
           <span className="text-base sm:text-lg font-bold text-white group-hover:text-cyan-400 transition-colors flex items-center gap-2">
             <span>{name}</span>
-            <ArrowUpRight 
-              size={15} 
-              className="opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-cyan-400" 
+            <ArrowUpRight
+              size={15}
+              className="opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-cyan-400"
             />
           </span>
         </div>
@@ -71,11 +72,12 @@ const SmallerBuilds = () => {
   const { activeRole } = useRole();
 
   // Non-featured projects
-  const smallerProjects = projects.filter(p => !p.featured);
+  const smallerProjects = projects.filter((p) => !p.featured);
 
-  const filteredProjects = activeRole === "all" 
-    ? smallerProjects 
-    : smallerProjects.filter(p => p.category === activeRole);
+  const filteredProjects =
+    activeRole === "all"
+      ? smallerProjects
+      : smallerProjects.filter((p) => p.category === activeRole);
 
   return (
     <div className="space-y-6 pt-4">
@@ -91,7 +93,8 @@ const SmallerBuilds = () => {
             Smaller Builds &amp; Experiments
           </h2>
           <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal">
-            Specialized engineering utilities, automated scrapers, and open-source explorations built with React, FastAPI, and TypeScript.
+            Specialized engineering utilities, automated scrapers, and
+            open-source explorations built with React, FastAPI, and TypeScript.
           </p>
         </div>
 
@@ -112,5 +115,8 @@ const SmallerBuilds = () => {
   );
 };
 
-const WrappedSmallerBuilds = SectionWrapper(memo(SmallerBuilds), "smaller-builds");
+const WrappedSmallerBuilds = SectionWrapper(
+  memo(SmallerBuilds),
+  "smaller-builds",
+);
 export default WrappedSmallerBuilds;

@@ -1,6 +1,6 @@
-import React, { memo } from "react";
 import { motion as Motion } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
+import React, { memo } from "react";
 import { useSound } from "../../context/SoundContext";
 
 const SoundToggle = memo(({ isMobile = false }) => {
@@ -28,7 +28,10 @@ const SoundToggle = memo(({ isMobile = false }) => {
         <>
           <Volume2 size={isMobile ? 12 : 15} className="shrink-0" />
           {/* Subtle live audio ripple rings */}
-          <span className="absolute inset-0 rounded-full border border-cyan-400/30 animate-ping pointer-events-none" style={{ animationDuration: '2s' }} />
+          <span
+            className="absolute inset-0 rounded-full border border-cyan-400/30 animate-ping pointer-events-none"
+            style={{ animationDuration: "2s" }}
+          />
         </>
       )}
     </Motion.button>

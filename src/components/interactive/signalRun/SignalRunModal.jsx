@@ -1,36 +1,30 @@
-import React, { useState, useEffect, useRef, useCallback, memo } from "react";
-import { motion as Motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion as Motion } from "framer-motion";
 import {
-  X,
-  RotateCcw,
-  Trophy,
-  Sparkles,
   ArrowRight,
-  Gamepad2,
-  Volume2,
-  VolumeX,
+  CheckCircle2,
   Clock,
-  Radio,
+  ExternalLink,
+  Gamepad2,
   Pause,
   Play,
+  Radio,
+  RotateCcw,
+  Sparkles,
+  Trophy,
+  Volume2,
+  VolumeX,
+  X,
   Zap,
-  CheckCircle2,
-  ExternalLink,
 } from "lucide-react";
-import { useSound } from "../../../context/SoundContext";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useArcade } from "../../../context/ArcadeContext";
+import { useSound } from "../../../context/SoundContext";
 import { buildSignalRunTrack } from "./signalRunData";
 
 const SignalRunModal = memo(() => {
   const { isSignalRunOpen, closeSignalRun } = useArcade();
-  const {
-    playJump,
-    playCoin,
-    playVictory,
-    playDodge,
-    isMuted,
-    toggleMute,
-  } = useSound();
+  const { playJump, playCoin, playVictory, playDodge, isMuted, toggleMute } =
+    useSound();
 
   const canvasRef = useRef(null);
   const containerRef = useRef(null);
@@ -255,7 +249,10 @@ const SignalRunModal = memo(() => {
       const logicalWidth = rect.width;
       const logicalHeight = rect.height;
 
-      if (canvas.width !== Math.floor(logicalWidth * dpr) || canvas.height !== Math.floor(logicalHeight * dpr)) {
+      if (
+        canvas.width !== Math.floor(logicalWidth * dpr) ||
+        canvas.height !== Math.floor(logicalHeight * dpr)
+      ) {
         canvas.width = Math.floor(logicalWidth * dpr);
         canvas.height = Math.floor(logicalHeight * dpr);
       }
@@ -267,7 +264,10 @@ const SignalRunModal = memo(() => {
       if (shakeTimeRef.current > 0 && !prefersReducedMotion) {
         shakeTimeRef.current -= dt;
         const shakeMag = shakeTimeRef.current * 8;
-        ctx.translate((Math.random() - 0.5) * shakeMag, (Math.random() - 0.5) * shakeMag);
+        ctx.translate(
+          (Math.random() - 0.5) * shakeMag,
+          (Math.random() - 0.5) * shakeMag,
+        );
       }
 
       const groundY = logicalHeight * 0.72;
@@ -277,11 +277,16 @@ const SignalRunModal = memo(() => {
       if (track) {
         // Find current zone based on worldX
         const currentZone =
-          track.zones.find((z) => worldXRef.current >= z.startX && worldXRef.current < z.endX) ||
-          track.zones[track.zones.length - 1];
+          track.zones.find(
+            (z) => worldXRef.current >= z.startX && worldXRef.current < z.endX,
+          ) || track.zones[track.zones.length - 1];
 
         // Trigger zone banner on first entry
-        if (currentZone && !currentZone.bannerShown && gameStateRef.current === "RUNNING") {
+        if (
+          currentZone &&
+          !currentZone.bannerShown &&
+          gameStateRef.current === "RUNNING"
+        ) {
           currentZone.bannerShown = true;
           setActiveZone(currentZone);
           setZoneBanner({
@@ -377,7 +382,8 @@ const SignalRunModal = memo(() => {
                 color: col.color,
               });
 
-              if (toastTimeoutRef.current) clearTimeout(toastTimeoutRef.current);
+              if (toastTimeoutRef.current)
+                clearTimeout(toastTimeoutRef.current);
               toastTimeoutRef.current = setTimeout(() => {
                 setActiveToast(null);
               }, 4800);
@@ -445,17 +451,24 @@ const SignalRunModal = memo(() => {
 
             // Save best score to localStorage
             try {
-              const prevBest = localStorage.getItem("portfolio_signal_run_best");
+              const prevBest = localStorage.getItem(
+                "portfolio_signal_run_best",
+              );
               const currentTotal = track.totalCollectiblesCount;
-              const currentCollected = track.collectibles.filter((c) => c.collected).length;
-              if (!prevBest || currentCollected > JSON.parse(prevBest).signals) {
+              const currentCollected = track.collectibles.filter(
+                (c) => c.collected,
+              ).length;
+              if (
+                !prevBest ||
+                currentCollected > JSON.parse(prevBest).signals
+              ) {
                 localStorage.setItem(
                   "portfolio_signal_run_best",
                   JSON.stringify({
                     signals: currentCollected,
                     total: currentTotal,
                     date: new Date().toISOString(),
-                  })
+                  }),
                 );
               }
             } catch {
@@ -477,7 +490,7 @@ const SignalRunModal = memo(() => {
           20,
           logicalWidth * 0.5,
           logicalHeight * 0.4,
-          logicalWidth * 0.6
+          logicalWidth * 0.6,
         );
         bgGlow.addColorStop(0, `${zoneColor}18`);
         bgGlow.addColorStop(1, "transparent");
@@ -491,7 +504,7 @@ const SignalRunModal = memo(() => {
         for (let i = 0; i < 40; i++) {
           const sx = (i * 47 - starOffset + logicalWidth) % logicalWidth;
           const sy = (i * 29) % (groundY * 0.7);
-          const sRad = (i % 3 === 0) ? 1.5 : 1;
+          const sRad = i % 3 === 0 ? 1.5 : 1;
           ctx.beginPath();
           ctx.arc(sx, sy, sRad, 0, Math.PI * 2);
           ctx.fill();
@@ -544,7 +557,12 @@ const SignalRunModal = memo(() => {
         }
 
         // Below track dark gradient fill
-        const subTrackGrad = ctx.createLinearGradient(0, groundY, 0, logicalHeight);
+        const subTrackGrad = ctx.createLinearGradient(
+          0,
+          groundY,
+          0,
+          logicalHeight,
+        );
         subTrackGrad.addColorStop(0, "rgba(9, 9, 11, 0.95)");
         subTrackGrad.addColorStop(1, "#050508");
         ctx.fillStyle = subTrackGrad;
@@ -578,7 +596,7 @@ const SignalRunModal = memo(() => {
               2,
               colScreenX,
               curY,
-              col.radius
+              col.radius,
             );
             orbGrad.addColorStop(0, "#ffffff");
             orbGrad.addColorStop(0.4, col.color);
@@ -642,7 +660,13 @@ const SignalRunModal = memo(() => {
 
             // Gate beam arch
             ctx.beginPath();
-            ctx.arc(obsScreenX + obs.w / 2, obsScreenY + 12, obs.w / 2, Math.PI, 0);
+            ctx.arc(
+              obsScreenX + obs.w / 2,
+              obsScreenY + 12,
+              obs.w / 2,
+              Math.PI,
+              0,
+            );
             ctx.lineTo(obsScreenX + obs.w, obsScreenY + obs.h);
             ctx.lineTo(obsScreenX, obsScreenY + obs.h);
             ctx.closePath();
@@ -663,7 +687,8 @@ const SignalRunModal = memo(() => {
         // 6. Draw Finish Line Quantum Gateway Portal
         const finishZone = track.zones.find((z) => z.id === "finish");
         if (finishZone) {
-          const portalScreenX = finishZone.portalX - worldXRef.current + screenRunnerX;
+          const portalScreenX =
+            finishZone.portalX - worldXRef.current + screenRunnerX;
           if (portalScreenX > -100 && portalScreenX < logicalWidth + 200) {
             const portalY = groundY - 70;
             const pRadius = 55;
@@ -686,7 +711,14 @@ const SignalRunModal = memo(() => {
             // Inner rotating energy vortex
             ctx.translate(portalScreenX, portalY);
             ctx.rotate(currentTime * 0.002);
-            const portalGrad = ctx.createRadialGradient(0, 0, 5, 0, 0, pRadius * 0.85);
+            const portalGrad = ctx.createRadialGradient(
+              0,
+              0,
+              5,
+              0,
+              0,
+              pRadius * 0.85,
+            );
             portalGrad.addColorStop(0, "#ffffff");
             portalGrad.addColorStop(0.3, "#ec4899");
             portalGrad.addColorStop(0.7, "#8b5cf6");
@@ -701,7 +733,11 @@ const SignalRunModal = memo(() => {
             ctx.fillStyle = "#ffffff";
             ctx.font = "bold 11px 'Fira Code', monospace";
             ctx.textAlign = "center";
-            ctx.fillText("GATEWAY // 2027", portalScreenX, portalY - pRadius - 12);
+            ctx.fillText(
+              "GATEWAY // 2027",
+              portalScreenX,
+              portalY - pRadius - 12,
+            );
             ctx.shadowBlur = 0;
           }
         }
@@ -737,7 +773,13 @@ const SignalRunModal = memo(() => {
         ctx.strokeStyle = "rgba(255, 255, 255, 0.9)";
         ctx.lineWidth = 1.5;
         ctx.beginPath();
-        ctx.arc(screenRunnerX, runnerCenterY, runnerRadius + pulse, 0, Math.PI * 2);
+        ctx.arc(
+          screenRunnerX,
+          runnerCenterY,
+          runnerRadius + pulse,
+          0,
+          Math.PI * 2,
+        );
         ctx.stroke();
 
         // Runner Core Nucleus
@@ -747,7 +789,7 @@ const SignalRunModal = memo(() => {
           2,
           screenRunnerX,
           runnerCenterY,
-          runnerRadius
+          runnerRadius,
         );
         coreGrad.addColorStop(0, "#ffffff");
         coreGrad.addColorStop(0.3, "#38bdf8");
@@ -763,7 +805,15 @@ const SignalRunModal = memo(() => {
           const shadowScale = Math.max(0.2, 1 + runnerYRef.current / 150);
           ctx.fillStyle = "rgba(0, 0, 0, 0.5)";
           ctx.beginPath();
-          ctx.ellipse(screenRunnerX, groundY + 2, runnerRadius * shadowScale, 3 * shadowScale, 0, 0, Math.PI * 2);
+          ctx.ellipse(
+            screenRunnerX,
+            groundY + 2,
+            runnerRadius * shadowScale,
+            3 * shadowScale,
+            0,
+            0,
+            Math.PI * 2,
+          );
           ctx.fill();
         }
 
@@ -813,7 +863,11 @@ const SignalRunModal = memo(() => {
             <div className="flex items-center gap-2">
               <Gamepad2 size={16} className="text-cyan-400 shrink-0" />
               <span className="text-xs sm:text-sm font-bold text-white tracking-tight">
-                SIGNAL RUN<span className="hidden sm:inline text-zinc-400"> // TIMELINE</span>
+                SIGNAL RUN
+                <span className="hidden sm:inline text-zinc-400">
+                  {" "}
+                  // TIMELINE
+                </span>
               </span>
             </div>
           </div>
@@ -856,7 +910,11 @@ const SignalRunModal = memo(() => {
               title={isMuted ? "Unmute Sound" : "Mute Sound"}
               aria-label={isMuted ? "Unmute Sound" : "Mute Sound"}
             >
-              {isMuted ? <VolumeX size={15} /> : <Volume2 size={15} className="text-cyan-400" />}
+              {isMuted ? (
+                <VolumeX size={15} />
+              ) : (
+                <Volume2 size={15} className="text-cyan-400" />
+              )}
             </button>
 
             {/* Restart Button */}
@@ -894,8 +952,12 @@ const SignalRunModal = memo(() => {
 
           {/* Screen Reader Live Region */}
           <div className="sr-only" role="status" aria-live="polite">
-            {activeToast ? `${activeToast.headline}: ${activeToast.detail}` : ""}
-            {zoneBanner ? `Entered ${zoneBanner.name}: ${zoneBanner.subtitle}` : ""}
+            {activeToast
+              ? `${activeToast.headline}: ${activeToast.detail}`
+              : ""}
+            {zoneBanner
+              ? `Entered ${zoneBanner.name}: ${zoneBanner.subtitle}`
+              : ""}
           </div>
 
           {/* In-Game Fact Toast Overlay */}
@@ -984,8 +1046,9 @@ const SignalRunModal = memo(() => {
                   SIGNAL RUN: THE RESUME RUNNER
                 </h3>
                 <p className="text-xs text-zinc-400 font-sans leading-relaxed">
-                  Guide the signal node through Saksham's timeline. Collect glowing
-                  signals to unlock verified achievements from education to featured projects.
+                  Guide the signal node through Saksham's timeline. Collect
+                  glowing signals to unlock verified achievements from education
+                  to featured projects.
                 </p>
                 <div className="pt-2">
                   <span className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-cyan-400 hover:bg-cyan-300 text-zinc-950 font-bold text-xs shadow-lg animate-pulse">
@@ -1053,19 +1116,25 @@ const SignalRunModal = memo(() => {
                 {/* Score Stats Grid */}
                 <div className="grid grid-cols-3 gap-2 sm:gap-3 p-3 rounded-2xl bg-zinc-950 border border-white/10 text-left font-mono">
                   <div className="p-2 sm:p-3 rounded-xl bg-white/5">
-                    <span className="text-[10px] text-zinc-400 block uppercase">Signals</span>
+                    <span className="text-[10px] text-zinc-400 block uppercase">
+                      Signals
+                    </span>
                     <span className="text-base sm:text-lg font-bold text-cyan-300">
                       {signalsCount} / {totalDenom}
                     </span>
                   </div>
                   <div className="p-2 sm:p-3 rounded-xl bg-white/5">
-                    <span className="text-[10px] text-zinc-400 block uppercase">Time</span>
+                    <span className="text-[10px] text-zinc-400 block uppercase">
+                      Time
+                    </span>
                     <span className="text-base sm:text-lg font-bold text-emerald-300">
                       {runTime.toFixed(1)}s
                     </span>
                   </div>
                   <div className="p-2 sm:p-3 rounded-xl bg-white/5">
-                    <span className="text-[10px] text-zinc-400 block uppercase">Stumbles</span>
+                    <span className="text-[10px] text-zinc-400 block uppercase">
+                      Stumbles
+                    </span>
                     <span className="text-base sm:text-lg font-bold text-amber-300">
                       {stumblesCount}
                     </span>
@@ -1074,7 +1143,8 @@ const SignalRunModal = memo(() => {
 
                 {/* One-Line Run Report Built Only From Actual Run Data */}
                 <div className="p-3 rounded-xl bg-cyan-950/30 border border-cyan-500/30 text-xs text-cyan-200 font-mono text-center">
-                  RUN REPORT: 5/5 Zones Cleared • {signalsCount} of {totalDenom} Signals Synchronized • {runTime.toFixed(1)}s Duration
+                  RUN REPORT: 5/5 Zones Cleared • {signalsCount} of {totalDenom}{" "}
+                  Signals Synchronized • {runTime.toFixed(1)}s Duration
                 </div>
 
                 {/* Call to Actions */}

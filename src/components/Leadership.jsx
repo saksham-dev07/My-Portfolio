@@ -1,11 +1,27 @@
+import {
+  Calendar,
+  ChevronRight,
+  Palette,
+  ShieldCheck,
+  Sparkles,
+  Users,
+} from "lucide-react";
 import React, { memo } from "react";
-import { Users, Calendar, Palette, Sparkles, ChevronRight, ShieldCheck } from "lucide-react";
-import { SectionWrapper } from "../hoc";
 import { leadership } from "../constants";
+import { SectionWrapper } from "../hoc";
 
 const leadershipTags = {
-  1: ["Visual Identity", "Event Collateral", "Fintech Workshops", "Brand Architecture"],
-  2: ["UI Deliverables", "Competitive Recruitment", "Cross-Functional Collaboration"]
+  1: [
+    "Visual Identity",
+    "Event Collateral",
+    "Fintech Workshops",
+    "Brand Architecture",
+  ],
+  2: [
+    "UI Deliverables",
+    "Competitive Recruitment",
+    "Cross-Functional Collaboration",
+  ],
 };
 
 const LeadershipCard = memo(({ item }) => {
@@ -13,9 +29,7 @@ const LeadershipCard = memo(({ item }) => {
   const tags = leadershipTags[id] || ["Design Direction", "Community Impact"];
 
   return (
-    <div
-      className="group relative rounded-3xl bg-zinc-900/60 border border-white/10 p-4 sm:p-8 backdrop-blur-xl hover:border-cyan-400/40 transition-all duration-300 shadow-2xl overflow-hidden flex flex-col justify-between"
-    >
+    <div className="group relative rounded-3xl bg-zinc-900/60 border border-white/10 p-4 sm:p-8 backdrop-blur-xl hover:border-cyan-400/40 transition-all duration-300 shadow-2xl overflow-hidden flex flex-col justify-between">
       {/* Specular top reflection line */}
       <div className="absolute inset-x-0 top-0 h-[1px] bg-gradient-to-r from-transparent via-white/20 to-transparent pointer-events-none" />
 
@@ -85,7 +99,10 @@ const LeadershipCard = memo(({ item }) => {
         {/* Deliverables / Highlights List */}
         <div className="space-y-2.5 pt-2 border-t border-white/10">
           {highlights.map((highlight, idx) => (
-            <div key={idx} className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal">
+            <div
+              key={idx}
+              className="flex items-start gap-2.5 text-xs sm:text-sm text-zinc-300 leading-relaxed font-normal"
+            >
               <span className="text-cyan-400 font-mono font-bold mt-0.5 shrink-0 select-none">
                 ›
               </span>
@@ -124,7 +141,8 @@ const Leadership = () => {
             Leadership &amp; Community Direction
           </h2>
           <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal">
-            Creative direction, visual branding architecture for student fintech organizations, and campus initiatives.
+            Creative direction, visual branding architecture for student fintech
+            organizations, and campus initiatives.
           </p>
         </div>
       </div>

@@ -18,7 +18,12 @@ export const textVariant = (delay = 0) => ({
   },
 });
 
-export const fadeIn = (direction = "up", type = "tween", delay = 0, duration = 0.45) => ({
+export const fadeIn = (
+  direction = "up",
+  type = "tween",
+  delay = 0,
+  duration = 0.45,
+) => ({
   hidden: {
     x: direction === "left" ? 20 : direction === "right" ? -20 : 0,
     y: direction === "up" ? 20 : direction === "down" ? -20 : 0,
@@ -69,7 +74,10 @@ export const skillTagVariant = (index = 0) => ({
   },
 });
 
-export const staggerContainer = (staggerChildren = 0.06, delayChildren = 0.04) => ({
+export const staggerContainer = (
+  staggerChildren = 0.06,
+  delayChildren = 0.04,
+) => ({
   hidden: {},
   show: {
     transition: {

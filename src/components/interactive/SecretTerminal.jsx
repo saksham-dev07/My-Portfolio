@@ -1,6 +1,11 @@
-import React, { useState, useEffect, useRef, memo } from "react";
-import { motion as Motion, AnimatePresence } from "framer-motion";
-import { Terminal as TerminalIcon, X, Maximize2, Minimize2 } from "lucide-react";
+import { AnimatePresence, motion as Motion } from "framer-motion";
+import {
+  Maximize2,
+  Minimize2,
+  Terminal as TerminalIcon,
+  X,
+} from "lucide-react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { useSound } from "../../context/SoundContext";
 
 const KONAMI_CODE = [
@@ -64,7 +69,10 @@ const SecretTerminal = memo(() => {
           setKonamiProgress(0);
           setHistory((prev) => [
             ...prev,
-            { type: "success", text: "[UNLOCKED] Konami sequence verified. Welcome to the Secret Matrix Terminal." },
+            {
+              type: "success",
+              text: "[UNLOCKED] Konami sequence verified. Welcome to the Secret Matrix Terminal.",
+            },
           ]);
         } else {
           setKonamiProgress(nextProgress);
@@ -91,7 +99,10 @@ const SecretTerminal = memo(() => {
     if (!cmd) return;
 
     playClick();
-    const newEntry = { type: "input", text: `guest@saksham-portfolio:~$ ${cmd}` };
+    const newEntry = {
+      type: "input",
+      text: `guest@saksham-portfolio:~$ ${cmd}`,
+    };
     const lower = cmd.toLowerCase();
 
     let response = [];
@@ -101,46 +112,100 @@ const SecretTerminal = memo(() => {
         response = [
           { type: "output", text: "Available commands:" },
           { type: "output", text: "  help          - View this manual" },
-          { type: "output", text: "  skills        - List primary engineering arsenal" },
-          { type: "output", text: "  projects      - List flagship case studies" },
-          { type: "output", text: "  sudo hire     - Process direct recruitment authorization" },
-          { type: "output", text: "  joke          - Receive a developer joke" },
+          {
+            type: "output",
+            text: "  skills        - List primary engineering arsenal",
+          },
+          {
+            type: "output",
+            text: "  projects      - List flagship case studies",
+          },
+          {
+            type: "output",
+            text: "  sudo hire     - Process direct recruitment authorization",
+          },
+          {
+            type: "output",
+            text: "  joke          - Receive a developer joke",
+          },
           { type: "output", text: "  clear         - Flush terminal buffer" },
-          { type: "output", text: "  exit          - Terminate session and return to UI" },
+          {
+            type: "output",
+            text: "  exit          - Terminate session and return to UI",
+          },
         ];
         break;
 
       case "skills":
         response = [
-          { type: "output", text: "Core Stack: Python, TypeScript, React 19, FastAPI, PyTorch, Docker" },
-          { type: "output", text: "Applied AI: Grad-CAM Neural Forensics, LLM AST Compilers, OpenCV" },
-          { type: "output", text: "Infrastructure: AWS, Redis, PostgreSQL, WebSockets, Linux Systems" },
+          {
+            type: "output",
+            text: "Core Stack: Python, TypeScript, React 19, FastAPI, PyTorch, Docker",
+          },
+          {
+            type: "output",
+            text: "Applied AI: Grad-CAM Neural Forensics, LLM AST Compilers, OpenCV",
+          },
+          {
+            type: "output",
+            text: "Infrastructure: AWS, Redis, PostgreSQL, WebSockets, Linux Systems",
+          },
         ];
         break;
 
       case "projects":
         response = [
-          { type: "output", text: "[01] Deepfake Detection — Grad-CAM Forensics & MesoNet (94.2% Acc)" },
-          { type: "output", text: "[02] NL to Web App — Deterministic LLM Compiler (Zero Hallucination)" },
-          { type: "output", text: "[03] DocPilot — Clinical AI Workflow with 82% Summary Compression" },
-          { type: "output", text: "[04] NexusBoard — Collaborative CRDT Whiteboard (< 20ms Sync)" },
+          {
+            type: "output",
+            text: "[01] Deepfake Detection — Grad-CAM Forensics & MesoNet (94.2% Acc)",
+          },
+          {
+            type: "output",
+            text: "[02] NL to Web App — Deterministic LLM Compiler (Zero Hallucination)",
+          },
+          {
+            type: "output",
+            text: "[03] DocPilot — Clinical AI Workflow with 82% Summary Compression",
+          },
+          {
+            type: "output",
+            text: "[04] NexusBoard — Collaborative CRDT Whiteboard (< 20ms Sync)",
+          },
         ];
         break;
 
       case "sudo hire":
       case "sudo hire saksham":
         response = [
-          { type: "success", text: "═════════════════════════════════════════════════" },
-          { type: "success", text: " [ACCESS GRANTED] OFFER VERIFIED & CONFIRMED [OK]" },
-          { type: "success", text: " Candidate: Saksham Agarwal (B.Tech CSE '27)     " },
-          { type: "success", text: " Delivering confirmation email to sakmmm07@gmail.com" },
-          { type: "success", text: "═════════════════════════════════════════════════" },
+          {
+            type: "success",
+            text: "═════════════════════════════════════════════════",
+          },
+          {
+            type: "success",
+            text: " [ACCESS GRANTED] OFFER VERIFIED & CONFIRMED [OK]",
+          },
+          {
+            type: "success",
+            text: " Candidate: Saksham Agarwal (B.Tech CSE '27)     ",
+          },
+          {
+            type: "success",
+            text: " Delivering confirmation email to sakmmm07@gmail.com",
+          },
+          {
+            type: "success",
+            text: "═════════════════════════════════════════════════",
+          },
         ];
         break;
 
       case "joke":
         response = [
-          { type: "output", text: JOKES[Math.floor(Math.random() * JOKES.length)] },
+          {
+            type: "output",
+            text: JOKES[Math.floor(Math.random() * JOKES.length)],
+          },
         ];
         break;
 
@@ -156,7 +221,10 @@ const SecretTerminal = memo(() => {
 
       default:
         response = [
-          { type: "error", text: `Command not found: '${cmd}'. Type 'help' for instructions.` },
+          {
+            type: "error",
+            text: `Command not found: '${cmd}'. Type 'help' for instructions.`,
+          },
         ];
     }
 
@@ -177,7 +245,10 @@ const SecretTerminal = memo(() => {
         title="Open Secret Hacker Terminal (or press `~`)"
         aria-label="Open Secret Terminal"
       >
-        <TerminalIcon size={16} className="group-hover:scale-110 transition-transform" />
+        <TerminalIcon
+          size={16}
+          className="group-hover:scale-110 transition-transform"
+        />
       </button>
 
       {/* Terminal Modal Overlay */}
@@ -198,14 +269,21 @@ const SecretTerminal = memo(() => {
                   <span className="w-3 h-3 rounded-full bg-yellow-500/80 inline-block shrink-0" />
                   <span className="w-3 h-3 rounded-full bg-emerald-500/80 inline-block shrink-0" />
                   <span className="ml-1 sm:ml-2 text-xs text-zinc-300 font-semibold flex items-center gap-1.5 truncate">
-                    <TerminalIcon size={13} className="text-emerald-400 shrink-0" />
-                    <span className="hidden xs:inline">bash - saksham-os v2.4 (secret mode)</span>
+                    <TerminalIcon
+                      size={13}
+                      className="text-emerald-400 shrink-0"
+                    />
+                    <span className="hidden xs:inline">
+                      bash - saksham-os v2.4 (secret mode)
+                    </span>
                     <span className="xs:hidden">saksham-os</span>
                   </span>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <span className="text-[10px] text-zinc-500 hidden sm:inline">Press `~` or type 'exit'</span>
+                  <span className="text-[10px] text-zinc-500 hidden sm:inline">
+                    Press `~` or type 'exit'
+                  </span>
                   <button
                     type="button"
                     onClick={() => setIsOpen(false)}
@@ -225,10 +303,10 @@ const SecretTerminal = memo(() => {
                       h.type === "input"
                         ? "text-zinc-200 font-semibold"
                         : h.type === "error"
-                        ? "text-rose-400"
-                        : h.type === "success"
-                        ? "text-cyan-300 font-bold"
-                        : "text-emerald-400"
+                          ? "text-rose-400"
+                          : h.type === "success"
+                            ? "text-cyan-300 font-bold"
+                            : "text-emerald-400"
                     }`}
                   >
                     {h.text}
@@ -238,9 +316,16 @@ const SecretTerminal = memo(() => {
               </div>
 
               {/* Terminal Input Row */}
-              <form onSubmit={handleCommand} className="flex items-center gap-2 p-3 bg-zinc-900/70 border-t border-white/10">
-                <span className="text-xs text-emerald-400 font-bold select-none hidden xs:inline shrink-0">guest@portfolio:~$</span>
-                <span className="text-xs text-emerald-400 font-bold select-none xs:hidden shrink-0">&gt;</span>
+              <form
+                onSubmit={handleCommand}
+                className="flex items-center gap-2 p-3 bg-zinc-900/70 border-t border-white/10"
+              >
+                <span className="text-xs text-emerald-400 font-bold select-none hidden xs:inline shrink-0">
+                  guest@portfolio:~$
+                </span>
+                <span className="text-xs text-emerald-400 font-bold select-none xs:hidden shrink-0">
+                  &gt;
+                </span>
                 <input
                   ref={inputRef}
                   type="text"

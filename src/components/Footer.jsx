@@ -1,29 +1,29 @@
-import React, { memo, useCallback, useState, useEffect, useRef } from "react";
 import { motion as Motion, useInView } from "framer-motion";
-import { toast } from "sonner";
-import { 
-  ArrowUp, 
-  ArrowUpRight,
-  Github, 
-  Linkedin, 
-  Mail, 
-  Copy, 
-  Check, 
-  FileText, 
-  Code2, 
-  Radio, 
+import {
   Activity,
-  Sun,
-  Moon,
-  Sparkles,
-  Compass,
-  Cpu,
-  Layers,
+  ArrowUp,
+  ArrowUpRight,
   Award,
+  Check,
+  Code2,
+  Compass,
+  Copy,
+  Cpu,
+  FileText,
   GitBranch,
+  Github,
+  Heart,
+  Layers,
+  Linkedin,
+  Mail,
+  Moon,
+  Radio,
+  Sparkles,
+  Sun,
   Zap,
-  Heart
 } from "lucide-react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import { profile, resume } from "../assets";
 
 /* ── Static Data ── */
@@ -39,16 +39,43 @@ const DIRECTORY = [
 ];
 
 const CASE_STUDIES = [
-  { name: "Deepfake Forensics", tag: "XAI / MesoNet / Grad-CAM", target: "projects" },
-  { name: "NL App Compiler", tag: "Deterministic AST & UI Synth", target: "projects" },
-  { name: "DocPilot Clinical AI", tag: "16kHz Audio & HIPAA Scribe", target: "projects" },
-  { name: "NexusBoard CRDT", tag: "Vector Clocks & Canvas Sync", target: "projects" },
-  { name: "Systems & Cloud Lab", tag: "HTTP/3, gRPC & Inference", target: "systems-lab" },
+  {
+    name: "Deepfake Forensics",
+    tag: "XAI / MesoNet / Grad-CAM",
+    target: "projects",
+  },
+  {
+    name: "NL App Compiler",
+    tag: "Deterministic AST & UI Synth",
+    target: "projects",
+  },
+  {
+    name: "DocPilot Clinical AI",
+    tag: "16kHz Audio & HIPAA Scribe",
+    target: "projects",
+  },
+  {
+    name: "NexusBoard CRDT",
+    tag: "Vector Clocks & Canvas Sync",
+    target: "projects",
+  },
+  {
+    name: "Systems & Cloud Lab",
+    tag: "HTTP/3, gRPC & Inference",
+    target: "systems-lab",
+  },
 ];
 
 const MARQUEE_TECH = [
-  "React 19", "Tailwind CSS", "Vite 8", "Framer Motion", "Lenis Scroll",
-  "Resend API", "Vercel Edge", "Three.js", "React Three Fiber",
+  "React 19",
+  "Tailwind CSS",
+  "Vite 8",
+  "Framer Motion",
+  "Lenis Scroll",
+  "Resend API",
+  "Vercel Edge",
+  "Three.js",
+  "React Three Fiber",
 ];
 
 const STATS = [
@@ -71,7 +98,7 @@ function useCounter(end, inView, duration = 1800) {
       const elapsed = now - startTime;
       const progress = Math.min(elapsed / duration, 1);
       // Ease-out cubic
-      const eased = 1 - Math.pow(1 - progress, 3);
+      const eased = 1 - (1 - progress) ** 3;
       setCount(Math.round(eased * end));
       if (progress < 1) requestAnimationFrame(tick);
     };
@@ -87,12 +114,17 @@ const StatCard = memo(({ stat, inView }) => {
   const Icon = stat.icon;
   return (
     <div className="flex flex-col items-center gap-1.5 px-4 py-3 rounded-2xl bg-white/[0.02] border border-white/[0.06] hover:border-white/15 hover:bg-white/[0.04] transition-all duration-300 group">
-      <Icon size={16} className="text-cyan-400 group-hover:text-cyan-300 transition-colors" />
+      <Icon
+        size={16}
+        className="text-cyan-400 group-hover:text-cyan-300 transition-colors"
+      />
       <span className="text-2xl sm:text-3xl font-black text-white tabular-nums tracking-tight">
         {count}
         <span className="text-cyan-400">+</span>
       </span>
-      <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">{stat.label}</span>
+      <span className="text-[10px] font-mono text-zinc-500 uppercase tracking-wider">
+        {stat.label}
+      </span>
     </div>
   );
 });
@@ -125,13 +157,21 @@ const containerVariants = {
 };
 const itemVariants = {
   hidden: { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] } },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+  },
 };
 
 /* ── Main Footer ── */
 const Footer = memo(() => {
   const [currentTime, setCurrentTime] = useState("");
-  const [presence, setPresence] = useState({ isAwake: true, label: "Online / Building", detail: "Avg reply: < 2h" });
+  const [presence, setPresence] = useState({
+    isAwake: true,
+    label: "Online / Building",
+    detail: "Avg reply: < 2h",
+  });
   const [latency, setLatency] = useState(13);
   const [copied, setCopied] = useState(false);
   const [mousePos, setMousePos] = useState({ x: 0, y: 0, active: false });
@@ -161,7 +201,7 @@ const Footer = memo(() => {
             hour: "numeric",
             hour12: false,
           }).format(now),
-          10
+          10,
         );
 
         const isAwake = istHour >= 8 && istHour < 24;
@@ -172,7 +212,11 @@ const Footer = memo(() => {
         });
       } catch {
         setCurrentTime("17:00:00 IST");
-        setPresence({ isAwake: true, label: "Online / Building", detail: "Avg reply: < 2h" });
+        setPresence({
+          isAwake: true,
+          label: "Online / Building",
+          detail: "Avg reply: < 2h",
+        });
       }
     };
 
@@ -223,7 +267,11 @@ const Footer = memo(() => {
 
   const handleMouseMove = useCallback((e) => {
     const rect = e.currentTarget.getBoundingClientRect();
-    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top, active: true });
+    setMousePos({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top,
+      active: true,
+    });
   }, []);
 
   const handleMouseLeave = useCallback(() => {
@@ -231,7 +279,10 @@ const Footer = memo(() => {
   }, []);
 
   return (
-    <footer ref={footerRef} className="relative bg-zinc-950 border-t border-white/10 text-zinc-400 pt-16 sm:pt-20 pb-10 px-4 sm:px-12 overflow-hidden">
+    <footer
+      ref={footerRef}
+      className="relative bg-zinc-950 border-t border-white/10 text-zinc-400 pt-16 sm:pt-20 pb-10 px-4 sm:px-12 overflow-hidden"
+    >
       {/* Specular Top Line */}
       <div className="absolute top-0 inset-x-0 h-[1px] bg-gradient-to-r from-transparent via-cyan-400/50 via-blue-500/40 to-transparent pointer-events-none" />
 
@@ -239,7 +290,14 @@ const Footer = memo(() => {
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-44 bg-cyan-500/5 blur-[130px] rounded-full pointer-events-none" />
 
       {/* Subtle Noise Texture Overlay */}
-      <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`, backgroundRepeat: "repeat", backgroundSize: "128px" }} />
+      <div
+        className="absolute inset-0 opacity-[0.03] pointer-events-none"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E")`,
+          backgroundRepeat: "repeat",
+          backgroundSize: "128px",
+        }}
+      />
 
       <Motion.div
         className="container mx-auto max-w-7xl relative z-10"
@@ -247,12 +305,13 @@ const Footer = memo(() => {
         initial="hidden"
         animate={isInView ? "visible" : "hidden"}
       >
-
         {/* ═══ Row 1: 4-Column Directory ═══ */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-8 lg:gap-10 pb-12 border-b border-white/10">
-          
           {/* Col 1: Identity & Quick Actions */}
-          <Motion.div className="lg:col-span-4 space-y-4" variants={itemVariants}>
+          <Motion.div
+            className="lg:col-span-4 space-y-4"
+            variants={itemVariants}
+          >
             <div className="flex items-center gap-3">
               <div className="relative w-12 h-12 rounded-2xl overflow-hidden border border-cyan-400/40 bg-zinc-900 shadow-[0_0_20px_rgba(6,182,212,0.25)] shrink-0 group">
                 <img
@@ -266,15 +325,21 @@ const Footer = memo(() => {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-base font-bold text-white tracking-tight">Saksham Agarwal</h3>
+                  <h3 className="text-base font-bold text-white tracking-tight">
+                    Saksham Agarwal
+                  </h3>
                   <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
                 </div>
-                <p className="text-xs font-mono text-zinc-400">Software &amp; Applied AI Engineer</p>
+                <p className="text-xs font-mono text-zinc-400">
+                  Software &amp; Applied AI Engineer
+                </p>
               </div>
             </div>
 
             <p className="text-xs sm:text-sm text-zinc-400 leading-relaxed font-normal">
-              B.Tech Computer Science undergraduate at VIT Bhopal. Specializing in explainable neural forensics, deterministic LLM compilers, and distributed real-time cloud architectures.
+              B.Tech Computer Science undergraduate at VIT Bhopal. Specializing
+              in explainable neural forensics, deterministic LLM compilers, and
+              distributed real-time cloud architectures.
             </p>
 
             {/* Quick Actions */}
@@ -296,7 +361,11 @@ const Footer = memo(() => {
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-mono text-zinc-300 hover:text-white transition-all cursor-pointer active:scale-95"
                 title="Copy sakmmm07@gmail.com"
               >
-                {copied ? <Check size={12} className="text-emerald-400" /> : <Copy size={12} />}
+                {copied ? (
+                  <Check size={12} className="text-emerald-400" />
+                ) : (
+                  <Copy size={12} />
+                )}
                 <span>{copied ? "Copied" : "Copy Email"}</span>
               </button>
 
@@ -311,7 +380,10 @@ const Footer = memo(() => {
           </Motion.div>
 
           {/* Col 2: Section Directory */}
-          <Motion.div className="lg:col-span-2 space-y-3" variants={itemVariants}>
+          <Motion.div
+            className="lg:col-span-2 space-y-3"
+            variants={itemVariants}
+          >
             <span className="text-xs font-mono uppercase tracking-wider text-zinc-500 font-semibold flex items-center gap-1.5">
               <Compass size={12} className="text-cyan-400" />
               <span>Directory</span>
@@ -324,9 +396,13 @@ const Footer = memo(() => {
                     onClick={(e) => handleNavClick(e, item.id)}
                     className="group flex items-center gap-2 text-zinc-400 hover:text-cyan-300 transition-all py-0.5 rounded-md hover:bg-white/[0.02] px-1.5 -mx-1.5"
                   >
-                    <span className="text-[10px] text-zinc-600 group-hover:text-cyan-400 font-semibold transition-colors w-4">{item.num}</span>
+                    <span className="text-[10px] text-zinc-600 group-hover:text-cyan-400 font-semibold transition-colors w-4">
+                      {item.num}
+                    </span>
                     <span className="w-1 h-[1px] bg-zinc-700 group-hover:bg-cyan-500 group-hover:w-3 transition-all duration-300" />
-                    <span className="group-hover:translate-x-0.5 transition-transform duration-200">{item.title}</span>
+                    <span className="group-hover:translate-x-0.5 transition-transform duration-200">
+                      {item.title}
+                    </span>
                   </a>
                 </li>
               ))}
@@ -334,7 +410,10 @@ const Footer = memo(() => {
           </Motion.div>
 
           {/* Col 3: Case Studies */}
-          <Motion.div className="lg:col-span-2 space-y-3" variants={itemVariants}>
+          <Motion.div
+            className="lg:col-span-2 space-y-3"
+            variants={itemVariants}
+          >
             <span className="text-xs font-mono uppercase tracking-wider text-zinc-500 font-semibold flex items-center gap-1.5">
               <Code2 size={12} className="text-purple-400" />
               <span>Case Studies</span>
@@ -349,7 +428,10 @@ const Footer = memo(() => {
                   >
                     <span className="text-zinc-300 group-hover:text-white transition-colors font-medium flex items-center gap-1">
                       <span>{study.name}</span>
-                      <ArrowUpRight size={10} className="text-zinc-600 group-hover:text-cyan-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0" />
+                      <ArrowUpRight
+                        size={10}
+                        className="text-zinc-600 group-hover:text-cyan-400 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all shrink-0"
+                      />
                     </span>
                     <span className="text-[10px] text-zinc-500 group-hover:text-purple-400 transition-colors">
                       {study.tag}
@@ -361,7 +443,10 @@ const Footer = memo(() => {
           </Motion.div>
 
           {/* Col 4: Live Operations & Telemetry */}
-          <Motion.div className="lg:col-span-4 space-y-3 lg:text-right flex flex-col lg:items-end" variants={itemVariants}>
+          <Motion.div
+            className="lg:col-span-4 space-y-3 lg:text-right flex flex-col lg:items-end"
+            variants={itemVariants}
+          >
             <span className="text-xs font-mono uppercase tracking-wider text-zinc-500 font-semibold flex items-center gap-1.5">
               <Radio size={12} className="text-emerald-400 animate-pulse" />
               <span>Live Operations</span>
@@ -370,9 +455,13 @@ const Footer = memo(() => {
             <div className="space-y-2.5 font-mono text-xs text-zinc-400 w-full lg:w-auto flex flex-col lg:items-end">
               {/* Presence Pill */}
               <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900/90 border border-white/10 text-zinc-200 whitespace-nowrap shrink-0">
-                <span className={`w-2 h-2 rounded-full shrink-0 ${presence.isAwake ? "bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]"}`} />
+                <span
+                  className={`w-2 h-2 rounded-full shrink-0 ${presence.isAwake ? "bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]"}`}
+                />
                 <span className="shrink-0">{presence.label}</span>
-                <span className="text-zinc-500 text-[10px] shrink-0">({presence.detail})</span>
+                <span className="text-zinc-500 text-[10px] shrink-0">
+                  ({presence.detail})
+                </span>
               </div>
 
               {/* Clock */}
@@ -445,7 +534,7 @@ const Footer = memo(() => {
           <div className="text-[8.5vw] sm:text-[11vw] md:text-[12vw] font-black tracking-tighter leading-[0.8] text-transparent bg-clip-text bg-gradient-to-b from-zinc-600/70 via-zinc-800/40 to-zinc-950 font-sans transition-all duration-700 hover:from-cyan-400/35 hover:via-zinc-700/55 hover:to-zinc-900">
             SAKSHAM AGARWAL
           </div>
-          
+
           <div className="pt-5 flex items-center justify-center gap-2 sm:gap-4 flex-wrap text-[10px] sm:text-xs font-mono uppercase tracking-[0.2em] text-zinc-500">
             <span>Neural Forensics</span>
             <span className="text-zinc-700">&bull;</span>
@@ -456,7 +545,10 @@ const Footer = memo(() => {
         </Motion.div>
 
         {/* ═══ Row 4: Infinite Scrolling Tech Marquee ═══ */}
-        <Motion.div className="border-y border-white/[0.06]" variants={itemVariants}>
+        <Motion.div
+          className="border-y border-white/[0.06]"
+          variants={itemVariants}
+        >
           <InfiniteMarquee />
         </Motion.div>
 
@@ -476,7 +568,8 @@ const Footer = memo(() => {
               />
             </div>
             <span className="flex items-center gap-1 text-center sm:text-left">
-              &copy; {new Date().getFullYear()} Saksham Agarwal &bull; B.Tech CSE Class of 2027
+              &copy; {new Date().getFullYear()} Saksham Agarwal &bull; B.Tech
+              CSE Class of 2027
             </span>
           </div>
 
@@ -484,15 +577,34 @@ const Footer = memo(() => {
           <div className="flex items-center gap-3 flex-wrap justify-center">
             <div className="flex items-center gap-2">
               {[
-                { href: "https://github.com/saksham-dev07", label: "GitHub", icon: <Github size={14} />, title: "@saksham-dev07" },
-                { href: "https://www.linkedin.com/in/saksham-agarwal-b44910289/", label: "LinkedIn", icon: <Linkedin size={14} />, title: "LinkedIn Profile" },
-                { href: "mailto:sakmmm07@gmail.com", label: "Email", icon: <Mail size={14} />, title: "sakmmm07@gmail.com" },
+                {
+                  href: "https://github.com/saksham-dev07",
+                  label: "GitHub",
+                  icon: <Github size={14} />,
+                  title: "@saksham-dev07",
+                },
+                {
+                  href: "https://www.linkedin.com/in/saksham-agarwal-b44910289/",
+                  label: "LinkedIn",
+                  icon: <Linkedin size={14} />,
+                  title: "LinkedIn Profile",
+                },
+                {
+                  href: "mailto:sakmmm07@gmail.com",
+                  label: "Email",
+                  icon: <Mail size={14} />,
+                  title: "sakmmm07@gmail.com",
+                },
               ].map((link) => (
                 <a
                   key={link.label}
                   href={link.href}
                   target={link.href.startsWith("mailto") ? undefined : "_blank"}
-                  rel={link.href.startsWith("mailto") ? undefined : "noopener noreferrer"}
+                  rel={
+                    link.href.startsWith("mailto")
+                      ? undefined
+                      : "noopener noreferrer"
+                  }
                   aria-label={`${link.label} Profile`}
                   className="relative p-2 rounded-lg bg-zinc-900 border border-white/10 text-zinc-400 hover:text-white hover:border-cyan-400/40 transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(6,182,212,0.1)]"
                   title={link.title}
@@ -523,7 +635,6 @@ const Footer = memo(() => {
           <Heart size={10} className="text-rose-500/60" />
           <span>in India</span>
         </div>
-
       </Motion.div>
     </footer>
   );

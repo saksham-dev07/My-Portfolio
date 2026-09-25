@@ -1,9 +1,9 @@
-import React, { Suspense, useEffect, useState, useMemo, useRef } from "react";
-import * as THREE from "three";
+import { Float, OrbitControls, Preload, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import { OrbitControls, Preload, useGLTF, Float } from "@react-three/drei";
-import CanvasLoader from "../Loader";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import * as THREE from "three";
 import { useThemeMood } from "../../context/ThemeMoodContext";
+import CanvasLoader from "../Loader";
 
 // Custom hook to detect device type based on screen width
 const useDeviceType = () => {
@@ -32,7 +32,10 @@ const Computers = ({ device, mood = "cyber" }) => {
   useMemo(() => {
     gltf.scene.traverse((child) => {
       if (child.isMesh && child.geometry) {
-        if (!child.geometry.boundingSphere || isNaN(child.geometry.boundingSphere.radius)) {
+        if (
+          !child.geometry.boundingSphere ||
+          isNaN(child.geometry.boundingSphere.radius)
+        ) {
           child.geometry.computeBoundingBox();
           child.geometry.computeBoundingSphere();
         }
@@ -151,7 +154,7 @@ const ComputersCanvas = () => {
       ([entry]) => {
         setIsVisible(entry.isIntersecting);
       },
-      { threshold: 0.05 }
+      { threshold: 0.05 },
     );
 
     if (containerRef.current) {
@@ -174,15 +177,18 @@ const ComputersCanvas = () => {
         shadows={false}
         dpr={[1, 1.5]}
         camera={{ position: cameraPos, fov: 25 }}
-        gl={{ 
-          powerPreference: "high-performance", 
+        gl={{
+          powerPreference: "high-performance",
           antialias: false,
           stencil: false,
           alpha: true,
         }}
-        style={{ touchAction: 'pan-y', pointerEvents: device === 'mobile' ? 'none' : 'auto' }}
+        style={{
+          touchAction: "pan-y",
+          pointerEvents: device === "mobile" ? "none" : "auto",
+        }}
       >
-        <Suspense fallback={<CanvasLoader />}>  
+        <Suspense fallback={<CanvasLoader />}>
           <OrbitControls
             enableZoom={false}
             enablePan={false}

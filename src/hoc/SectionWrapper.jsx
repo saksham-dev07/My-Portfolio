@@ -1,10 +1,11 @@
-import React, { forwardRef, memo, useState } from "react";
 import { motion as Motion } from "framer-motion";
+import React, { forwardRef, memo, useState } from "react";
 import { styles } from "../styles";
 import { staggerContainer } from "../utils/motion";
 
 // Detect mobile once at module level to avoid per-component checks
-const getIsMobile = () => typeof window !== "undefined" && window.innerWidth < 768;
+const getIsMobile = () =>
+  typeof window !== "undefined" && window.innerWidth < 768;
 
 const SectionWrapper = (Component, idName, options = {}) => {
   const {
@@ -17,7 +18,8 @@ const SectionWrapper = (Component, idName, options = {}) => {
     passRef = false,
   } = options;
 
-  const combinedClassName = `${padding} ${maxWidth} mx-auto relative z-0 ${className}`.trim();
+  const combinedClassName =
+    `${padding} ${maxWidth} mx-auto relative z-0 ${className}`.trim();
 
   const WrappedComponent = forwardRef((props, ref) => {
     const [isMobile] = useState(getIsMobile);

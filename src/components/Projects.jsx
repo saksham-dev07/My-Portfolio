@@ -1,27 +1,34 @@
-import React, { useState, useMemo, memo, useRef, useEffect, useCallback } from "react";
-import { motion as Motion, AnimatePresence } from "framer-motion";
-import { 
-  ExternalLink, 
-  Github, 
-  Code2, 
-  ShieldCheck, 
-  Cpu, 
-  Sparkles, 
-  CheckCircle2, 
-  Activity, 
-  FileCode,
-  Layers,
+import { AnimatePresence, motion as Motion } from "framer-motion";
+import {
+  Activity,
   ArrowRight,
-  RotateCcw,
-  Trash2,
-  PenTool,
+  CheckCircle2,
+  Code2,
+  Cpu,
   Eraser,
+  ExternalLink,
+  FileCode,
+  Github,
+  Layers,
+  PenTool,
   Radio,
-  Users
+  RotateCcw,
+  ShieldCheck,
+  Sparkles,
+  Trash2,
+  Users,
 } from "lucide-react";
-import { SectionWrapper } from "../hoc";
+import React, {
+  memo,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { projects } from "../constants";
 import { useRole } from "../context/RoleContext";
+import { SectionWrapper } from "../hoc";
 
 // Interactive Widget for Deepfake Forensics & Explainable AI (Grad-CAM)
 const DeepfakeVisual = memo(({ image }) => {
@@ -30,43 +37,46 @@ const DeepfakeVisual = memo(({ image }) => {
   const [selectedLayer, setSelectedLayer] = useState("conv_head"); // "conv_head" | "block6a"
 
   // Layer-specific spatial attribution configurations
-  const layerConfig = selectedLayer === "conv_head" ? {
-    cx: "50%",
-    cy: "66%",
-    r: "34%",
-    ellipseCx: 100,
-    ellipseCy: 158,
-    rx: 54,
-    ry: 34,
-    boxX: 42,
-    boxY: 132,
-    boxW: 116,
-    boxH: 54,
-    tagX: 44,
-    tagY: 134,
-    tagText: "BLEND_SEAM: 0.942",
-    textX: 47,
-    textY: 142.5,
-    target: "Target: Perioral Seam (conv_head)",
-  } : {
-    cx: "38%",
-    cy: "52%",
-    r: "28%",
-    ellipseCx: 76,
-    ellipseCy: 125,
-    rx: 38,
-    ry: 46,
-    boxX: 46,
-    boxY: 96,
-    boxW: 58,
-    boxH: 60,
-    tagX: 48,
-    tagY: 98,
-    tagText: "FREQ_RES: 0.871",
-    textX: 51,
-    textY: 106.5,
-    target: "Target: Lateral Seam (block6a)",
-  };
+  const layerConfig =
+    selectedLayer === "conv_head"
+      ? {
+          cx: "50%",
+          cy: "66%",
+          r: "34%",
+          ellipseCx: 100,
+          ellipseCy: 158,
+          rx: 54,
+          ry: 34,
+          boxX: 42,
+          boxY: 132,
+          boxW: 116,
+          boxH: 54,
+          tagX: 44,
+          tagY: 134,
+          tagText: "BLEND_SEAM: 0.942",
+          textX: 47,
+          textY: 142.5,
+          target: "Target: Perioral Seam (conv_head)",
+        }
+      : {
+          cx: "38%",
+          cy: "52%",
+          r: "28%",
+          ellipseCx: 76,
+          ellipseCy: 125,
+          rx: 38,
+          ry: 46,
+          boxX: 46,
+          boxY: 96,
+          boxW: 58,
+          boxH: 60,
+          tagX: 48,
+          tagY: 98,
+          tagText: "FREQ_RES: 0.871",
+          textX: 51,
+          textY: 106.5,
+          target: "Target: Lateral Seam (block6a)",
+        };
 
   return (
     <div className="deepfake-card w-full flex flex-col rounded-2xl bg-zinc-950/90 border border-white/10 overflow-hidden shadow-2xl">
@@ -74,14 +84,18 @@ const DeepfakeVisual = memo(({ image }) => {
       <div className="deepfake-header flex items-center justify-between px-3 sm:px-4 py-2.5 bg-white/[0.03] border-b border-white/10 text-xs gap-2 overflow-x-auto">
         <div className="flex items-center gap-2 text-zinc-300 font-mono min-w-0 shrink-0">
           <Activity size={14} className="text-cyan-400 shrink-0" />
-          <span className="hidden sm:inline truncate">Forensic Inspector &bull; Live Telemetry</span>
+          <span className="hidden sm:inline truncate">
+            Forensic Inspector &bull; Live Telemetry
+          </span>
           <span className="sm:hidden truncate">XAI Inspector</span>
         </div>
         <div className="flex items-center gap-1 shrink-0">
           <button
             onClick={() => setMode("raw")}
             className={`deepfake-tab-btn px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-mono transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-              mode === "raw" ? "bg-white/20 text-white font-semibold deepfake-tab-active" : "text-zinc-400 hover:text-zinc-200 deepfake-tab-inactive"
+              mode === "raw"
+                ? "bg-white/20 text-white font-semibold deepfake-tab-active"
+                : "text-zinc-400 hover:text-zinc-200 deepfake-tab-inactive"
             }`}
           >
             Studio
@@ -89,7 +103,9 @@ const DeepfakeVisual = memo(({ image }) => {
           <button
             onClick={() => setMode("gradcam")}
             className={`deepfake-tab-btn px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-mono transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-              mode === "gradcam" ? "bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/40 shadow-sm deepfake-tab-active" : "text-zinc-400 hover:text-zinc-200 deepfake-tab-inactive"
+              mode === "gradcam"
+                ? "bg-cyan-500/20 text-cyan-300 font-semibold border border-cyan-500/40 shadow-sm deepfake-tab-active"
+                : "text-zinc-400 hover:text-zinc-200 deepfake-tab-inactive"
             }`}
           >
             Grad-CAM
@@ -97,7 +113,9 @@ const DeepfakeVisual = memo(({ image }) => {
           <button
             onClick={() => setMode("signals")}
             className={`deepfake-tab-btn px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-mono transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-              mode === "signals" ? "bg-purple-500/20 text-purple-300 font-semibold border border-purple-500/40 shadow-sm deepfake-tab-active" : "text-zinc-400 hover:text-zinc-200 deepfake-tab-inactive"
+              mode === "signals"
+                ? "bg-purple-500/20 text-purple-300 font-semibold border border-purple-500/40 shadow-sm deepfake-tab-active"
+                : "text-zinc-400 hover:text-zinc-200 deepfake-tab-inactive"
             }`}
           >
             Signals
@@ -109,9 +127,9 @@ const DeepfakeVisual = memo(({ image }) => {
       <div className="relative aspect-[1024/466] bg-zinc-900/60 overflow-hidden flex items-center justify-center p-2.5 sm:p-3">
         {mode === "raw" && (
           <div className="relative w-full h-full rounded-xl overflow-hidden border border-white/10 bg-zinc-950">
-            <img 
-              src={image} 
-              alt="Deep Forensics studio dashboard preview" 
+            <img
+              src={image}
+              alt="Deep Forensics studio dashboard preview"
               className="w-full h-full object-cover object-top"
             />
           </div>
@@ -123,8 +141,12 @@ const DeepfakeVisual = memo(({ image }) => {
             <div className="flex items-center justify-between pb-1.5 border-b border-white/10 text-[10px] text-zinc-400">
               <div className="flex items-center gap-2 truncate">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shrink-0" />
-                <span className="text-zinc-200 font-semibold">SAMPLE #0418:</span>
-                <span className="truncate">Synthesized Face-Swap (Frame 142)</span>
+                <span className="text-zinc-200 font-semibold">
+                  SAMPLE #0418:
+                </span>
+                <span className="truncate">
+                  Synthesized Face-Swap (Frame 142)
+                </span>
               </div>
               <span className="deepfake-anomaly-badge px-1.5 py-0.5 rounded bg-red-500/15 text-red-400 border border-red-500/30 text-[9px] font-bold shrink-0">
                 88.4% ANOMALY
@@ -136,60 +158,215 @@ const DeepfakeVisual = memo(({ image }) => {
               {/* Left Column: Biometric Saliency Viewport */}
               <div className="deepfake-face-viewport col-span-6 relative h-full flex items-center justify-center bg-zinc-900/50 rounded-lg border border-white/10 overflow-hidden">
                 {/* Crosshair reticles */}
-                <span className="absolute top-1 left-1.5 text-[8px] text-cyan-400/40 select-none">+</span>
-                <span className="absolute top-1 right-1.5 text-[8px] text-cyan-400/40 select-none">+</span>
-                <span className="absolute bottom-1 left-1.5 text-[8px] text-cyan-400/40 select-none">+</span>
-                <span className="absolute bottom-1 right-1.5 text-[8px] text-cyan-400/40 select-none">+</span>
+                <span className="absolute top-1 left-1.5 text-[8px] text-cyan-400/40 select-none">
+                  +
+                </span>
+                <span className="absolute top-1 right-1.5 text-[8px] text-cyan-400/40 select-none">
+                  +
+                </span>
+                <span className="absolute bottom-1 left-1.5 text-[8px] text-cyan-400/40 select-none">
+                  +
+                </span>
+                <span className="absolute bottom-1 right-1.5 text-[8px] text-cyan-400/40 select-none">
+                  +
+                </span>
 
                 {/* Biometric Face Wireframe & Localized Heatmap SVG */}
-                <svg className="w-full h-full max-h-[160px]" viewBox="0 0 200 240" fill="none">
+                <svg
+                  className="w-full h-full max-h-[160px]"
+                  viewBox="0 0 200 240"
+                  fill="none"
+                >
                   <defs>
-                    <radialGradient id="infernoGrad" cx={layerConfig.cx} cy={layerConfig.cy} r={layerConfig.r}>
-                      <stop offset="0%" stopColor="#fef08a" stopOpacity={0.94 * (camBlend / 100)} />
-                      <stop offset="30%" stopColor="#f97316" stopOpacity={0.84 * (camBlend / 100)} />
-                      <stop offset="60%" stopColor="#c026d3" stopOpacity={0.62 * (camBlend / 100)} />
-                      <stop offset="85%" stopColor="#3b0764" stopOpacity={0.32 * (camBlend / 100)} />
+                    <radialGradient
+                      id="infernoGrad"
+                      cx={layerConfig.cx}
+                      cy={layerConfig.cy}
+                      r={layerConfig.r}
+                    >
+                      <stop
+                        offset="0%"
+                        stopColor="#fef08a"
+                        stopOpacity={0.94 * (camBlend / 100)}
+                      />
+                      <stop
+                        offset="30%"
+                        stopColor="#f97316"
+                        stopOpacity={0.84 * (camBlend / 100)}
+                      />
+                      <stop
+                        offset="60%"
+                        stopColor="#c026d3"
+                        stopOpacity={0.62 * (camBlend / 100)}
+                      />
+                      <stop
+                        offset="85%"
+                        stopColor="#3b0764"
+                        stopOpacity={0.32 * (camBlend / 100)}
+                      />
                       <stop offset="100%" stopColor="#09090b" stopOpacity="0" />
                     </radialGradient>
                   </defs>
 
                   {/* Facial Contour & Landmarks */}
-                  <ellipse cx="100" cy="115" rx="54" ry="74" stroke="#27272a" strokeWidth="1.5" />
-                  <path d="M 65 84 Q 80 80 92 85" stroke="#3f3f46" strokeWidth="1.5" />
-                  <path d="M 108 85 Q 120 80 135 84" stroke="#3f3f46" strokeWidth="1.5" />
-                  
+                  <ellipse
+                    cx="100"
+                    cy="115"
+                    rx="54"
+                    ry="74"
+                    stroke="#27272a"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M 65 84 Q 80 80 92 85"
+                    stroke="#3f3f46"
+                    strokeWidth="1.5"
+                  />
+                  <path
+                    d="M 108 85 Q 120 80 135 84"
+                    stroke="#3f3f46"
+                    strokeWidth="1.5"
+                  />
+
                   {/* Eyes & Gaze Tracking */}
-                  <ellipse cx="78" cy="95" rx="10" ry="5" stroke="#52525b" strokeWidth="1.2" />
+                  <ellipse
+                    cx="78"
+                    cy="95"
+                    rx="10"
+                    ry="5"
+                    stroke="#52525b"
+                    strokeWidth="1.2"
+                  />
                   <circle cx="78" cy="95" r="2.5" fill="#22d3ee" />
-                  <ellipse cx="122" cy="95" rx="10" ry="5" stroke="#52525b" strokeWidth="1.2" />
+                  <ellipse
+                    cx="122"
+                    cy="95"
+                    rx="10"
+                    ry="5"
+                    stroke="#52525b"
+                    strokeWidth="1.2"
+                  />
                   <circle cx="122" cy="95" r="2.5" fill="#22d3ee" />
 
                   {/* Nose Bridge */}
-                  <path d="M 100 95 L 98 122 L 94 127 L 106 127 L 102 122" stroke="#52525b" strokeWidth="1.2" />
+                  <path
+                    d="M 100 95 L 98 122 L 94 127 L 106 127 L 102 122"
+                    stroke="#52525b"
+                    strokeWidth="1.2"
+                  />
 
                   {/* Synthesized Mouth & Jaw Region */}
-                  <path d="M 76 150 Q 100 144 124 150 Q 100 162 76 150 Z" stroke="#71717a" strokeWidth="1.5" />
-                  <line x1="76" y1="150" x2="124" y2="150" stroke="#71717a" strokeWidth="1" />
-                  <path d="M 50 115 Q 60 170 100 188 Q 140 170 150 115" stroke="#3f3f46" strokeWidth="1.5" />
+                  <path
+                    d="M 76 150 Q 100 144 124 150 Q 100 162 76 150 Z"
+                    stroke="#71717a"
+                    strokeWidth="1.5"
+                  />
+                  <line
+                    x1="76"
+                    y1="150"
+                    x2="124"
+                    y2="150"
+                    stroke="#71717a"
+                    strokeWidth="1"
+                  />
+                  <path
+                    d="M 50 115 Q 60 170 100 188 Q 140 170 150 115"
+                    stroke="#3f3f46"
+                    strokeWidth="1.5"
+                  />
 
                   {/* Triangulation Mesh */}
-                  <path d="M 78 95 L 100 127 L 122 95 M 94 127 L 76 150 M 106 127 L 124 150 M 76 150 L 100 188 L 124 150" stroke="#3f3f46" strokeWidth="0.8" strokeDasharray="2,2" opacity="0.6" />
+                  <path
+                    d="M 78 95 L 100 127 L 122 95 M 94 127 L 76 150 M 106 127 L 124 150 M 76 150 L 100 188 L 124 150"
+                    stroke="#3f3f46"
+                    strokeWidth="0.8"
+                    strokeDasharray="2,2"
+                    opacity="0.6"
+                  />
 
                   {/* Key Tracking Points */}
-                  <circle cx="65" cy="84" r="1.5" fill="#22d3ee" opacity="0.7" />
-                  <circle cx="135" cy="84" r="1.5" fill="#22d3ee" opacity="0.7" />
-                  <circle cx="100" cy="127" r="1.5" fill="#22d3ee" opacity="0.7" />
-                  <circle cx="76" cy="150" r="1.5" fill="#22d3ee" opacity="0.7" />
-                  <circle cx="124" cy="150" r="1.5" fill="#22d3ee" opacity="0.7" />
-                  <circle cx="100" cy="188" r="1.5" fill="#22d3ee" opacity="0.7" />
+                  <circle
+                    cx="65"
+                    cy="84"
+                    r="1.5"
+                    fill="#22d3ee"
+                    opacity="0.7"
+                  />
+                  <circle
+                    cx="135"
+                    cy="84"
+                    r="1.5"
+                    fill="#22d3ee"
+                    opacity="0.7"
+                  />
+                  <circle
+                    cx="100"
+                    cy="127"
+                    r="1.5"
+                    fill="#22d3ee"
+                    opacity="0.7"
+                  />
+                  <circle
+                    cx="76"
+                    cy="150"
+                    r="1.5"
+                    fill="#22d3ee"
+                    opacity="0.7"
+                  />
+                  <circle
+                    cx="124"
+                    cy="150"
+                    r="1.5"
+                    fill="#22d3ee"
+                    opacity="0.7"
+                  />
+                  <circle
+                    cx="100"
+                    cy="188"
+                    r="1.5"
+                    fill="#22d3ee"
+                    opacity="0.7"
+                  />
 
                   {/* Localized Grad-CAM Inferno Heatmap dynamically placed by layer */}
-                  <ellipse cx={layerConfig.ellipseCx} cy={layerConfig.ellipseCy} rx={layerConfig.rx} ry={layerConfig.ry} fill="url(#infernoGrad)" className="deepfake-heatmap-ellipse" />
+                  <ellipse
+                    cx={layerConfig.ellipseCx}
+                    cy={layerConfig.ellipseCy}
+                    rx={layerConfig.rx}
+                    ry={layerConfig.ry}
+                    fill="url(#infernoGrad)"
+                    className="deepfake-heatmap-ellipse"
+                  />
 
                   {/* Anomaly Detection Bounding Box dynamically placed */}
-                  <rect x={layerConfig.boxX} y={layerConfig.boxY} width={layerConfig.boxW} height={layerConfig.boxH} rx="4" fill="rgba(239, 68, 68, 0.08)" stroke="#ef4444" strokeWidth="1.2" strokeDasharray="3,3" />
-                  <rect x={layerConfig.tagX} y={layerConfig.tagY} width={layerConfig.boxW - 4} height="12" rx="2" fill="#ef4444" />
-                  <text x={layerConfig.textX} y={layerConfig.textY} fill="#09090b" fontSize="7.5" fontWeight="bold">{layerConfig.tagText}</text>
+                  <rect
+                    x={layerConfig.boxX}
+                    y={layerConfig.boxY}
+                    width={layerConfig.boxW}
+                    height={layerConfig.boxH}
+                    rx="4"
+                    fill="rgba(239, 68, 68, 0.08)"
+                    stroke="#ef4444"
+                    strokeWidth="1.2"
+                    strokeDasharray="3,3"
+                  />
+                  <rect
+                    x={layerConfig.tagX}
+                    y={layerConfig.tagY}
+                    width={layerConfig.boxW - 4}
+                    height="12"
+                    rx="2"
+                    fill="#ef4444"
+                  />
+                  <text
+                    x={layerConfig.textX}
+                    y={layerConfig.textY}
+                    fill="#09090b"
+                    fontSize="7.5"
+                    fontWeight="bold"
+                  >
+                    {layerConfig.tagText}
+                  </text>
                 </svg>
 
                 {/* Subtitle tag */}
@@ -204,7 +381,11 @@ const DeepfakeVisual = memo(({ image }) => {
                 <div className="space-y-1">
                   <div className="text-[10px] text-zinc-400 flex items-center justify-between">
                     <span>Conv Layer Focus:</span>
-                    <span className="text-cyan-400 font-bold">{selectedLayer === "conv_head" ? "512 × 7 × 7" : "192 × 14 × 14"}</span>
+                    <span className="text-cyan-400 font-bold">
+                      {selectedLayer === "conv_head"
+                        ? "512 × 7 × 7"
+                        : "192 × 14 × 14"}
+                    </span>
                   </div>
                   <div className="grid grid-cols-2 gap-1">
                     <button
@@ -235,7 +416,9 @@ const DeepfakeVisual = memo(({ image }) => {
                 {/* Attribution Metrics */}
                 <div className="deepfake-metrics-box space-y-1 text-[10px] bg-zinc-900/60 p-1.5 rounded-lg border border-white/10">
                   <div className="flex justify-between">
-                    <span className="text-zinc-400">&part;Y_fake / &part;A_k:</span>
+                    <span className="text-zinc-400">
+                      &part;Y_fake / &part;A_k:
+                    </span>
                     <span className="text-amber-400 font-bold">
                       {selectedLayer === "conv_head" ? "+0.942" : "+0.871"}
                     </span>
@@ -243,7 +426,9 @@ const DeepfakeVisual = memo(({ image }) => {
                   <div className="flex justify-between">
                     <span className="text-zinc-400">Artifact Type:</span>
                     <span className="text-red-400 font-bold">
-                      {selectedLayer === "conv_head" ? "Perioral Seam" : "Freq Residual"}
+                      {selectedLayer === "conv_head"
+                        ? "Perioral Seam"
+                        : "Freq Residual"}
                     </span>
                   </div>
                 </div>
@@ -267,9 +452,13 @@ const DeepfakeVisual = memo(({ image }) => {
 
                 {/* Colormap Legend */}
                 <div className="flex items-center gap-1.5 pt-0.5">
-                  <span className="text-[8px] text-zinc-500 shrink-0">0.0 (Authentic)</span>
+                  <span className="text-[8px] text-zinc-500 shrink-0">
+                    0.0 (Authentic)
+                  </span>
                   <div className="flex-1 h-1.5 rounded-full bg-gradient-to-r from-zinc-900 via-purple-700 via-red-500 to-yellow-300 border border-white/10" />
-                  <span className="text-[8px] text-amber-400 font-bold shrink-0">1.0 (Anomaly)</span>
+                  <span className="text-[8px] text-amber-400 font-bold shrink-0">
+                    1.0 (Anomaly)
+                  </span>
                 </div>
               </div>
             </div>
@@ -279,8 +468,12 @@ const DeepfakeVisual = memo(({ image }) => {
         {mode === "signals" && (
           <div className="w-full h-full flex flex-col justify-center p-4 bg-zinc-950 font-mono text-xs space-y-2.5">
             <div className="flex justify-between text-zinc-400 whitespace-nowrap gap-2">
-              <span className="truncate">EfficientNet-B4 Spatial Confidence:</span>
-              <span className="text-emerald-400 font-semibold shrink-0">96.8% Authenticated</span>
+              <span className="truncate">
+                EfficientNet-B4 Spatial Confidence:
+              </span>
+              <span className="text-emerald-400 font-semibold shrink-0">
+                96.8% Authenticated
+              </span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden">
               <div className="h-full bg-emerald-400 rounded-full w-[96.8%]" />
@@ -288,7 +481,9 @@ const DeepfakeVisual = memo(({ image }) => {
 
             <div className="flex justify-between text-zinc-400 pt-1 whitespace-nowrap gap-2">
               <span className="truncate">SyncNet Lip-Audio Synchrony:</span>
-              <span className="text-cyan-400 font-semibold shrink-0">0.984 Cosine Sim</span>
+              <span className="text-cyan-400 font-semibold shrink-0">
+                0.984 Cosine Sim
+              </span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden">
               <div className="h-full bg-cyan-400 rounded-full w-[98.4%]" />
@@ -296,7 +491,9 @@ const DeepfakeVisual = memo(({ image }) => {
 
             <div className="flex justify-between text-zinc-400 pt-1 whitespace-nowrap gap-2">
               <span className="truncate">FFT High-Frequency Residuals:</span>
-              <span className="text-purple-400 font-semibold shrink-0">&lt; 0.012 (No GAN Grid)</span>
+              <span className="text-purple-400 font-semibold shrink-0">
+                &lt; 0.012 (No GAN Grid)
+              </span>
             </div>
             <div className="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden">
               <div className="h-full bg-purple-400 rounded-full w-[94%]" />
@@ -314,7 +511,8 @@ const COMPILER_PRESETS = [
   {
     id: "invoicing",
     name: "SaaS Invoicing",
-    prompt: "Invoice tracker with client management, Prisma models, and React cards",
+    prompt:
+      "Invoice tracker with client management, Prisma models, and React cards",
     stages: [
       {
         stage: 1,
@@ -330,7 +528,7 @@ const COMPILER_PRESETS = [
     "Invoice.hasOne": "PaymentRecord"
   },
   "telemetry": { "auditLog": true, "realtimeSync": true }
-}`
+}`,
       },
       {
         stage: 2,
@@ -352,7 +550,7 @@ model Invoice {
   amount    Float
   status    InvoiceStatus @default(PENDING)
   createdAt DateTime      @default(now())
-}`
+}`,
       },
       {
         stage: 3,
@@ -371,7 +569,7 @@ export const InvoiceFeed = ({ invoices, onPay }: InvoiceFeedProps) => {
       ))}
     </div>
   );
-};`
+};`,
       },
       {
         stage: 4,
@@ -385,14 +583,15 @@ export const InvoiceFeed = ({ invoices, onPay }: InvoiceFeedProps) => {
     ├── app/invoices/page.tsx (React 19 Server Component)
     ├── prisma/schema.prisma (PostgreSQL Engine)
     └── app/api/invoices/route.ts (Edge API Handler)
-// Total Compilation Time: 420ms • AST Depth: 4 • 0 Syntax Errors`
-      }
-    ]
+// Total Compilation Time: 420ms • AST Depth: 4 • 0 Syntax Errors`,
+      },
+    ],
   },
   {
     id: "canvas",
     name: "CRDT Whiteboard",
-    prompt: "Collaborative whiteboard with CRDT sync, WebSocket bus, and peer presence",
+    prompt:
+      "Collaborative whiteboard with CRDT sync, WebSocket bus, and peer presence",
     stages: [
       {
         stage: 1,
@@ -405,7 +604,7 @@ export const InvoiceFeed = ({ invoices, onPay }: InvoiceFeedProps) => {
   "models": ["CanvasBoard", "StrokeDelta", "PeerCursor"],
   "sync": { "conflictResolution": "LastWriteWins", "batchMs": 15 },
   "security": { "roomIsolation": true, "maxPeers": 32 }
-}`
+}`,
       },
       {
         stage: 2,
@@ -427,7 +626,7 @@ model StrokeDelta {
   peerId      String
   lamportClock BigInt
   payloadJson Json
-}`
+}`,
       },
       {
         stage: 3,
@@ -444,7 +643,7 @@ export const CollaborativeCanvas = ({ boardId, peers }: CanvasProps) => {
       ))}
     </div>
   );
-};`
+};`,
       },
       {
         stage: 4,
@@ -458,14 +657,15 @@ export const CollaborativeCanvas = ({ boardId, peers }: CanvasProps) => {
     ├── hooks/useCRDTSync.ts (LWW-Element-Set Hook)
     ├── server/ws-gateway.ts (High-Throughput Node WS Handler)
     └── components/CanvasViewport.tsx (HTML5 Canvas Engine)
-// Total Compilation Time: 380ms • AST Depth: 3 • 0 Convergence Conflicts`
-      }
-    ]
+// Total Compilation Time: 380ms • AST Depth: 3 • 0 Convergence Conflicts`,
+      },
+    ],
   },
   {
     id: "scribe",
     name: "Clinical Scribe",
-    prompt: "Doctor consultation scribe with ambient audio speech-to-SOAP and HIPAA encryption",
+    prompt:
+      "Doctor consultation scribe with ambient audio speech-to-SOAP and HIPAA encryption",
     stages: [
       {
         stage: 1,
@@ -477,7 +677,7 @@ export const CollaborativeCanvas = ({ boardId, peers }: CanvasProps) => {
   "audioStream": { "sampleRate": 16000, "codec": "Opus", "vad": true },
   "nlpExtractor": { "model": "Gemini-Medical-Scribe", "schema": "SOAP" },
   "compliance": { "hipaaPhiMasking": true, "encryption": "AES-256" }
-}`
+}`,
       },
       {
         stage: 2,
@@ -494,7 +694,7 @@ model Consultation {
   soapAssessment String
   soapPlan       String
   verifiedAt    DateTime?
-}`
+}`,
       },
       {
         stage: 3,
@@ -509,7 +709,7 @@ export const ScribeSession = ({ consultId }: ScribeProps) => {
       <SOAPNoteEditor note={soapNote} onDoctorSign={handleSign} />
     </div>
   );
-};`
+};`,
       },
       {
         stage: 4,
@@ -523,18 +723,20 @@ export const ScribeSession = ({ consultId }: ScribeProps) => {
     ├── app/consultations/[id]/soap/page.tsx (Clinical Interface)
     ├── lib/gemini-scribe.ts (Ambient AI Scribe Pipeline)
     └── prisma/migrations/2026_hipaa_phi_vault.sql
-// Total Compilation Time: 495ms • AST Depth: 5 • 0 PHI Leaks`
-      }
-    ]
-  }
+// Total Compilation Time: 495ms • AST Depth: 5 • 0 PHI Leaks`,
+      },
+    ],
+  },
 ];
 
 const NLCompilerVisual = memo(() => {
   const [activePreset, setActivePreset] = useState("invoicing");
   const [activeStage, setActiveStage] = useState(1);
 
-  const preset = COMPILER_PRESETS.find(p => p.id === activePreset) || COMPILER_PRESETS[0];
-  const currentStage = preset.stages.find(s => s.stage === activeStage) || preset.stages[0];
+  const preset =
+    COMPILER_PRESETS.find((p) => p.id === activePreset) || COMPILER_PRESETS[0];
+  const currentStage =
+    preset.stages.find((s) => s.stage === activeStage) || preset.stages[0];
 
   return (
     <div className="nl-compiler-card w-full flex flex-col rounded-2xl bg-zinc-950/90 border border-white/10 overflow-hidden shadow-2xl">
@@ -550,8 +752,8 @@ const NLCompilerVisual = memo(() => {
               key={s.stage}
               onClick={() => setActiveStage(s.stage)}
               className={`px-2 sm:px-2.5 py-1 rounded-md text-[10px] sm:text-[11px] font-mono transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-                activeStage === s.stage 
-                  ? "bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 shadow-sm nl-tab-active" 
+                activeStage === s.stage
+                  ? "bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 shadow-sm nl-tab-active"
                   : "text-zinc-400 hover:text-zinc-200 nl-tab-inactive"
               }`}
             >
@@ -564,7 +766,9 @@ const NLCompilerVisual = memo(() => {
       {/* Preset Selector Banner */}
       <div className="nl-compiler-subbar px-3.5 sm:px-4 py-2 bg-zinc-900/80 border-b border-white/10 flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-1.5">
-          <span className="text-[10px] font-mono text-zinc-400 uppercase">Input Prompt:</span>
+          <span className="text-[10px] font-mono text-zinc-400 uppercase">
+            Input Prompt:
+          </span>
           {COMPILER_PRESETS.map((p) => (
             <button
               key={p.id}
@@ -579,12 +783,17 @@ const NLCompilerVisual = memo(() => {
             </button>
           ))}
         </div>
-        <span className="nl-syntax-pill text-[10px] font-mono text-emerald-400 hidden md:inline">&bull; 0 Syntax Errors</span>
+        <span className="nl-syntax-pill text-[10px] font-mono text-emerald-400 hidden md:inline">
+          &bull; 0 Syntax Errors
+        </span>
       </div>
 
       {/* Input Prompt Display */}
       <div className="nl-compiler-synthesis px-3.5 sm:px-4 py-1.5 bg-zinc-900/40 border-b border-white/5 text-[10px] font-mono text-zinc-400 truncate">
-        <strong className="nl-synthesis-label text-emerald-300">SYNTHESIS:</strong> &ldquo;{preset.prompt}&rdquo;
+        <strong className="nl-synthesis-label text-emerald-300">
+          SYNTHESIS:
+        </strong>{" "}
+        &ldquo;{preset.prompt}&rdquo;
       </div>
 
       {/* Code Inspector */}
@@ -611,7 +820,8 @@ const ENCOUNTERS = {
       a: "Acute seasonal allergic rhinitis (ICD-10: J30.9). Stable.",
       p: "Cetirizine 10mg PO qPM prn; saline nasal rinse. Follow-up 14d.",
     },
-    patientSummary: "You were evaluated for seasonal allergies. Your vitals are healthy. Start Cetirizine 10mg once daily in the evening.",
+    patientSummary:
+      "You were evaluated for seasonal allergies. Your vitals are healthy. Start Cetirizine 10mg once daily in the evening.",
     rx: "Cetirizine 10mg (30-day supply)",
   },
   marcus: {
@@ -625,9 +835,10 @@ const ENCOUNTERS = {
       a: "Essential Primary Hypertension, Stage 1 (ICD-10: I10).",
       p: "Initiate Amlodipine 5mg PO daily. Home BP log twice daily. Repeat chem panel in 4w.",
     },
-    patientSummary: "Blood pressure is mildly elevated at 138/88. Starting low-dose Amlodipine 5mg once daily. Track BP at home twice a day.",
+    patientSummary:
+      "Blood pressure is mildly elevated at 138/88. Starting low-dose Amlodipine 5mg once daily. Track BP at home twice a day.",
     rx: "Amlodipine 5mg (90-day supply with refills)",
-  }
+  },
 };
 
 const DocPilotVisual = memo(() => {
@@ -643,14 +854,16 @@ const DocPilotVisual = memo(() => {
       <div className="flex items-center justify-between px-3.5 sm:px-4 py-2.5 bg-white/[0.03] border-b border-white/10 text-xs gap-2">
         <div className="flex items-center gap-2 text-zinc-300 font-mono min-w-0">
           <ShieldCheck size={14} className="text-blue-400 shrink-0" />
-          <span className="truncate">DocPilot &bull; Role-Based Healthcare</span>
+          <span className="truncate">
+            DocPilot &bull; Role-Based Healthcare
+          </span>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
           <button
             onClick={() => setActiveTab("doctor")}
             className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-              activeTab === "doctor" 
-                ? "bg-blue-500/20 text-blue-300 font-bold border border-blue-500/40 shadow-sm" 
+              activeTab === "doctor"
+                ? "bg-blue-500/20 text-blue-300 font-bold border border-blue-500/40 shadow-sm"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
@@ -659,8 +872,8 @@ const DocPilotVisual = memo(() => {
           <button
             onClick={() => setActiveTab("patient")}
             className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-              activeTab === "patient" 
-                ? "bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 shadow-sm" 
+              activeTab === "patient"
+                ? "bg-emerald-500/20 text-emerald-300 font-bold border border-emerald-500/40 shadow-sm"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
@@ -669,8 +882,8 @@ const DocPilotVisual = memo(() => {
           <button
             onClick={() => setActiveTab("security")}
             className={`px-2.5 py-1 rounded-md text-[11px] font-mono transition-colors whitespace-nowrap shrink-0 cursor-pointer ${
-              activeTab === "security" 
-                ? "bg-purple-500/20 text-purple-300 font-bold border border-purple-500/40 shadow-sm" 
+              activeTab === "security"
+                ? "bg-purple-500/20 text-purple-300 font-bold border border-purple-500/40 shadow-sm"
                 : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
@@ -686,7 +899,9 @@ const DocPilotVisual = memo(() => {
           <button
             onClick={() => setActivePatient("eleanor")}
             className={`px-2 py-0.5 rounded cursor-pointer ${
-              activePatient === "eleanor" ? "bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30" : "text-zinc-400 hover:text-zinc-200"
+              activePatient === "eleanor"
+                ? "bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
             Eleanor (Rhinitis)
@@ -694,7 +909,9 @@ const DocPilotVisual = memo(() => {
           <button
             onClick={() => setActivePatient("marcus")}
             className={`px-2 py-0.5 rounded cursor-pointer ${
-              activePatient === "marcus" ? "bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30" : "text-zinc-400 hover:text-zinc-200"
+              activePatient === "marcus"
+                ? "bg-blue-500/20 text-blue-300 font-bold border border-blue-500/30"
+                : "text-zinc-400 hover:text-zinc-200"
             }`}
           >
             Marcus (Hypertension)
@@ -704,12 +921,18 @@ const DocPilotVisual = memo(() => {
         <button
           onClick={() => setIsDictating(!isDictating)}
           className={`flex items-center gap-1.5 px-2 py-0.5 rounded cursor-pointer ${
-            isDictating ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20" : "text-zinc-500"
+            isDictating
+              ? "text-emerald-400 bg-emerald-500/10 border border-emerald-500/20"
+              : "text-zinc-500"
           }`}
           title="Toggle Ambient Audio Dictation Simulator"
         >
-          <span className={`w-1.5 h-1.5 rounded-full ${isDictating ? "bg-emerald-400 animate-pulse" : "bg-zinc-600"}`} />
-          <span>{isDictating ? "Ambient Stream: Active" : "Stream: Paused"}</span>
+          <span
+            className={`w-1.5 h-1.5 rounded-full ${isDictating ? "bg-emerald-400 animate-pulse" : "bg-zinc-600"}`}
+          />
+          <span>
+            {isDictating ? "Ambient Stream: Active" : "Stream: Paused"}
+          </span>
         </button>
       </div>
 
@@ -719,30 +942,40 @@ const DocPilotVisual = memo(() => {
           <div className="space-y-2.5">
             {/* Encounter Metadata Bar */}
             <div className="flex items-center justify-between pb-2 border-b border-white/10 text-[10px] text-zinc-400">
-              <span className="truncate">Patient: {enc.patient} &bull; Encounter {enc.encounter}</span>
-              <span className="text-cyan-400 font-mono shrink-0">{enc.audioQuality}</span>
+              <span className="truncate">
+                Patient: {enc.patient} &bull; Encounter {enc.encounter}
+              </span>
+              <span className="text-cyan-400 font-mono shrink-0">
+                {enc.audioQuality}
+              </span>
             </div>
 
             {/* Structured SOAP Note */}
             <div className="space-y-1.5 text-zinc-300 text-[11px]">
               <div>
-                <strong className="text-blue-400">[Subjective]:</strong> {enc.soap.s}
+                <strong className="text-blue-400">[Subjective]:</strong>{" "}
+                {enc.soap.s}
               </div>
               <div>
-                <strong className="text-blue-400">[Objective]:</strong> {enc.soap.o}
+                <strong className="text-blue-400">[Objective]:</strong>{" "}
+                {enc.soap.o}
               </div>
               <div>
-                <strong className="text-blue-400">[Assessment]:</strong> {enc.soap.a}
+                <strong className="text-blue-400">[Assessment]:</strong>{" "}
+                {enc.soap.a}
               </div>
               <div>
-                <strong className="text-blue-400">[Plan &amp; Rx]:</strong> {enc.soap.p}
+                <strong className="text-blue-400">[Plan &amp; Rx]:</strong>{" "}
+                {enc.soap.p}
               </div>
             </div>
 
             {/* Validation Badge */}
             <div className="pt-1 flex items-center justify-between text-[10px] text-zinc-500 border-t border-white/5">
               <span>Gemini Medical Scribe Engine</span>
-              <span className="text-cyan-400 font-semibold">98.6% Synthesis Confidence</span>
+              <span className="text-cyan-400 font-semibold">
+                98.6% Synthesis Confidence
+              </span>
             </div>
           </div>
         )}
@@ -751,11 +984,15 @@ const DocPilotVisual = memo(() => {
           <div className="space-y-2.5">
             <div className="flex items-center justify-between pb-2 border-b border-white/10 text-[10px] text-zinc-400">
               <span>Care Team: {enc.doctor}</span>
-              <span className="text-emerald-400 font-semibold">Visit Verified</span>
+              <span className="text-emerald-400 font-semibold">
+                Visit Verified
+              </span>
             </div>
 
             <div className="p-2.5 rounded-lg bg-zinc-900/60 border border-white/10 space-y-1.5 text-[11px] text-zinc-300">
-              <div className="text-emerald-300 font-semibold text-xs">Summary for Patient:</div>
+              <div className="text-emerald-300 font-semibold text-xs">
+                Summary for Patient:
+              </div>
               <p className="text-zinc-400 text-[10px] leading-relaxed">
                 {enc.patientSummary}
               </p>
@@ -877,14 +1114,30 @@ const NexusBoardVisual = memo(() => {
     const nodeH = 44;
     const yMid = height / 2 - 24;
 
-    const spacing = (width - (nodeW * 3)) / 4;
+    const spacing = (width - nodeW * 3) / 4;
     const x1 = Math.max(12, spacing);
     const x2 = spacing * 2 + nodeW;
     const x3 = width - nodeW - Math.max(12, spacing);
 
     drawNode(x1, yMid, nodeW, nodeH, "Client Node", "CRDT State v4", "#22d3ee");
-    drawNode(x2, yMid, nodeW, nodeH, "WebSocket Bus", "sub-15ms sync", "#c084fc");
-    drawNode(x3, yMid, nodeW, nodeH, "Peer Reconcile", "State In Sync", "#34d399");
+    drawNode(
+      x2,
+      yMid,
+      nodeW,
+      nodeH,
+      "WebSocket Bus",
+      "sub-15ms sync",
+      "#c084fc",
+    );
+    drawNode(
+      x3,
+      yMid,
+      nodeW,
+      nodeH,
+      "Peer Reconcile",
+      "State In Sync",
+      "#34d399",
+    );
 
     // Connect with smooth dashed arrows
     ctx.save();
@@ -978,7 +1231,7 @@ const NexusBoardVisual = memo(() => {
     ctx.beginPath();
     ctx.moveTo(x, y);
 
-    setLamportClock(c => {
+    setLamportClock((c) => {
       const next = c + 1;
       setLastOp(`INSERT_STROKE(clock: ${next}, tool: '${activeTool}')`);
       return next;
@@ -1012,7 +1265,7 @@ const NexusBoardVisual = memo(() => {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.clearRect(0, 0, rect.width, rect.height);
 
-    setLamportClock(c => {
+    setLamportClock((c) => {
       const next = c + 1;
       setLastOp(`CLEAR_CANVAS_TOMBSTONE(clock: ${next})`);
       return next;
@@ -1041,7 +1294,9 @@ const NexusBoardVisual = memo(() => {
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 text-[10px] font-mono border border-emerald-500/20 whitespace-nowrap shrink-0">
             <Radio size={10} className="animate-pulse shrink-0" />
-            <span>{latency}ms &bull; {peers} Peers</span>
+            <span>
+              {latency}ms &bull; {peers} Peers
+            </span>
           </span>
           <button
             type="button"
@@ -1071,7 +1326,8 @@ const NexusBoardVisual = memo(() => {
         ref={containerRef}
         className="nexusboard-canvas-viewport relative w-full h-56 sm:h-64 cursor-crosshair overflow-hidden select-none bg-zinc-950"
         style={{
-          backgroundImage: "radial-gradient(circle, rgba(255, 255, 255, 0.12) 1px, transparent 1px)",
+          backgroundImage:
+            "radial-gradient(circle, rgba(255, 255, 255, 0.12) 1px, transparent 1px)",
           backgroundSize: "18px 18px",
         }}
       >
@@ -1089,7 +1345,11 @@ const NexusBoardVisual = memo(() => {
           className="absolute pointer-events-none transition-all duration-300 ease-out z-10 flex flex-col items-start"
           style={{ left: `${peer1Pos.x}%`, top: `${peer1Pos.y}%` }}
         >
-          <svg className="w-4 h-4 text-cyan-400 drop-shadow" viewBox="0 0 24 24" fill="currentColor">
+          <svg
+            className="w-4 h-4 text-cyan-400 drop-shadow"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
             <path d="M3 3l7 18 3-7 7-3L3 3z" />
           </svg>
           <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-cyan-500/90 text-zinc-950 shadow-md -mt-1 ml-3 whitespace-nowrap">
@@ -1102,7 +1362,11 @@ const NexusBoardVisual = memo(() => {
           className="absolute pointer-events-none transition-all duration-300 ease-out z-10 flex flex-col items-start"
           style={{ left: `${peer2Pos.x}%`, top: `${peer2Pos.y}%` }}
         >
-          <svg className="w-4 h-4 text-purple-400 drop-shadow" viewBox="0 0 24 24" fill="currentColor">
+          <svg
+            className="w-4 h-4 text-purple-400 drop-shadow"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+          >
             <path d="M3 3l7 18 3-7 7-3L3 3z" />
           </svg>
           <span className="px-1.5 py-0.5 rounded text-[9px] font-mono font-bold bg-purple-500/90 text-zinc-950 shadow-md -mt-1 ml-3 whitespace-nowrap">
@@ -1118,7 +1382,9 @@ const NexusBoardVisual = memo(() => {
               type="button"
               onClick={() => setActiveTool("pen")}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                activeTool === "pen" ? "bg-white/20 text-white shadow-sm" : "text-zinc-400 hover:text-zinc-200"
+                activeTool === "pen"
+                  ? "bg-white/20 text-white shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-200"
               }`}
               title="Pen Tool"
               aria-label="Pen Tool"
@@ -1129,7 +1395,9 @@ const NexusBoardVisual = memo(() => {
               type="button"
               onClick={() => setActiveTool("eraser")}
               className={`p-1.5 rounded-lg transition-colors cursor-pointer ${
-                activeTool === "eraser" ? "bg-white/20 text-white shadow-sm" : "text-zinc-400 hover:text-zinc-200"
+                activeTool === "eraser"
+                  ? "bg-white/20 text-white shadow-sm"
+                  : "text-zinc-400 hover:text-zinc-200"
               }`}
               title="Eraser Tool"
               aria-label="Eraser Tool"
@@ -1170,7 +1438,9 @@ const NexusBoardVisual = memo(() => {
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shrink-0" />
           <span className="text-zinc-200 font-semibold">Lamport Clock:</span>
           <span className="text-cyan-400 font-bold">L-{lamportClock}</span>
-          <span className="text-zinc-500 hidden sm:inline">&bull; LWW-Element-Set</span>
+          <span className="text-zinc-500 hidden sm:inline">
+            &bull; LWW-Element-Set
+          </span>
         </div>
         <div className="truncate text-zinc-400">
           <span className="text-zinc-500">CRDT Delta: </span>
@@ -1184,7 +1454,18 @@ NexusBoardVisual.displayName = "NexusBoardVisual";
 
 // Stacked Case Study Panel (abhyudaytomar.com inspiration)
 const CaseStudyPanel = memo(({ project }) => {
-  const { name, role, period, description, metrics, tags, live_demo, source_code_link, image, id } = project;
+  const {
+    name,
+    role,
+    period,
+    description,
+    metrics,
+    tags,
+    live_demo,
+    source_code_link,
+    image,
+    id,
+  } = project;
 
   // Render appropriate interactive visual
   const renderVisual = () => {
@@ -1200,7 +1481,11 @@ const CaseStudyPanel = memo(({ project }) => {
       default:
         return (
           <div className="w-full rounded-2xl overflow-hidden border border-white/10 bg-zinc-900 shadow-2xl">
-            <img src={image} alt={name} className="w-full h-auto object-cover" />
+            <img
+              src={image}
+              alt={name}
+              className="w-full h-auto object-cover"
+            />
           </div>
         );
     }
@@ -1225,7 +1510,7 @@ const CaseStudyPanel = memo(({ project }) => {
           </div>
 
           {/* Project Title */}
-          <h3 
+          <h3
             id={`project-${id}`}
             className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight"
           >
@@ -1293,9 +1578,7 @@ const CaseStudyPanel = memo(({ project }) => {
         </div>
 
         {/* Right Column: High-Craft Interactive Visual */}
-        <div className="lg:col-span-6 w-full">
-          {renderVisual()}
-        </div>
+        <div className="lg:col-span-6 w-full">{renderVisual()}</div>
       </div>
     </article>
   );
@@ -1308,9 +1591,11 @@ const Projects = () => {
 
   // Filter top featured projects
   const featuredProjects = useMemo(() => {
-    const list = projects.filter(p => p.featured);
+    const list = projects.filter((p) => p.featured);
     if (activeRole === "all") return list;
-    return list.filter(p => p.category === activeRole || activeRole === "all");
+    return list.filter(
+      (p) => p.category === activeRole || activeRole === "all",
+    );
   }, [activeRole]);
 
   return (
@@ -1327,7 +1612,8 @@ const Projects = () => {
             Featured Engineering
           </h2>
           <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal">
-            Deep-dive architecture case studies across multi-modal AI forensics, generative LLM compilers, and real-time distributed platforms.
+            Deep-dive architecture case studies across multi-modal AI forensics,
+            generative LLM compilers, and real-time distributed platforms.
           </p>
         </div>
 

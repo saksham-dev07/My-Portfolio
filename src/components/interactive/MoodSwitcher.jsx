@@ -1,16 +1,9 @@
-import React, { useState, useEffect, useRef, memo } from "react";
-import { motion as Motion, AnimatePresence } from "framer-motion";
-import { 
-  Cpu, 
-  Sun,
-  Terminal, 
-  Coffee, 
-  Flame,
-  ChevronDown
-} from "lucide-react";
-import { useThemeMood } from "../../context/ThemeMoodContext";
+import { AnimatePresence, motion as Motion } from "framer-motion";
+import { ChevronDown, Coffee, Cpu, Flame, Sun, Terminal } from "lucide-react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { MOODS } from "../../constants/moods";
 import { useSound } from "../../context/SoundContext";
+import { useThemeMood } from "../../context/ThemeMoodContext";
 
 const ICONS = {
   Cpu,
@@ -22,11 +15,36 @@ const ICONS = {
 
 // Theme-specific accent colors for the active indicator and icon
 const MOOD_COLORS = {
-  cyber: { bg: "bg-cyan-500/20", border: "border-cyan-400/50", glow: "shadow-[0_0_12px_rgba(6,182,212,0.4)]", text: "text-cyan-400" },
-  light: { bg: "bg-amber-400/20", border: "border-amber-400/50", glow: "shadow-[0_0_12px_rgba(251,191,36,0.4)]", text: "text-amber-500" },
-  hacker: { bg: "bg-green-500/20", border: "border-green-400/50", glow: "shadow-[0_0_12px_rgba(34,197,94,0.4)]", text: "text-green-400" },
-  chill: { bg: "bg-orange-400/20", border: "border-orange-400/50", glow: "shadow-[0_0_12px_rgba(251,146,60,0.4)]", text: "text-orange-400" },
-  chaotic: { bg: "bg-fuchsia-500/20", border: "border-fuchsia-400/50", glow: "shadow-[0_0_12px_rgba(217,70,239,0.4)]", text: "text-fuchsia-400" },
+  cyber: {
+    bg: "bg-cyan-500/20",
+    border: "border-cyan-400/50",
+    glow: "shadow-[0_0_12px_rgba(6,182,212,0.4)]",
+    text: "text-cyan-400",
+  },
+  light: {
+    bg: "bg-amber-400/20",
+    border: "border-amber-400/50",
+    glow: "shadow-[0_0_12px_rgba(251,191,36,0.4)]",
+    text: "text-amber-500",
+  },
+  hacker: {
+    bg: "bg-green-500/20",
+    border: "border-green-400/50",
+    glow: "shadow-[0_0_12px_rgba(34,197,94,0.4)]",
+    text: "text-green-400",
+  },
+  chill: {
+    bg: "bg-orange-400/20",
+    border: "border-orange-400/50",
+    glow: "shadow-[0_0_12px_rgba(251,146,60,0.4)]",
+    text: "text-orange-400",
+  },
+  chaotic: {
+    bg: "bg-fuchsia-500/20",
+    border: "border-fuchsia-400/50",
+    glow: "shadow-[0_0_12px_rgba(217,70,239,0.4)]",
+    text: "text-fuchsia-400",
+  },
 };
 
 const MoodSwitcher = memo(({ isMobile = false }) => {
@@ -161,7 +179,9 @@ const MoodSwitcher = memo(({ isMobile = false }) => {
                   className={`mood-icon-btn relative z-10 flex items-center justify-center ${
                     isMobile ? "w-6 h-6" : "w-7 h-7"
                   } rounded-full transition-colors duration-200 outline-none cursor-pointer shrink-0 ${
-                    isSelected ? itemColors.text : "text-zinc-400 hover:text-zinc-100"
+                    isSelected
+                      ? itemColors.text
+                      : "text-zinc-400 hover:text-zinc-100"
                   }`}
                   aria-label={`Switch to ${m.label} theme`}
                   aria-pressed={isSelected}
@@ -171,10 +191,17 @@ const MoodSwitcher = memo(({ isMobile = false }) => {
                     <Motion.div
                       layoutId="expanded-mood-active-indicator"
                       className={`absolute inset-0 rounded-full ${itemColors.bg} ${itemColors.border} border ${itemColors.glow} backdrop-blur-md`}
-                      transition={{ type: "spring", stiffness: 450, damping: 30 }}
+                      transition={{
+                        type: "spring",
+                        stiffness: 450,
+                        damping: 30,
+                      }}
                     />
                   )}
-                  <ItemIcon size={isMobile ? 12 : 14} className="relative z-10 shrink-0" />
+                  <ItemIcon
+                    size={isMobile ? 12 : 14}
+                    className="relative z-10 shrink-0"
+                  />
 
                   {/* Tooltip per individual theme icon in expanded state */}
                   <AnimatePresence>

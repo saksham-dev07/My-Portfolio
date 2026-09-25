@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, memo } from "react";
+import React, { memo, useEffect, useRef } from "react";
 import { useThemeMood } from "../../context/ThemeMoodContext";
 
 const THEME_COLORS = {
@@ -17,9 +17,13 @@ const CursorTrail = memo(() => {
 
   useEffect(() => {
     // Disable on touch devices, small screens, or reduced motion
-    const isTouch = typeof window !== "undefined" && ("ontouchstart" in window || navigator.maxTouchPoints > 0);
+    const isTouch =
+      typeof window !== "undefined" &&
+      ("ontouchstart" in window || navigator.maxTouchPoints > 0);
     const isSmall = typeof window !== "undefined" && window.innerWidth < 768;
-    const isReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     if (isTouch || isSmall || isReducedMotion) return;
 

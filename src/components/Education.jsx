@@ -1,18 +1,18 @@
-import React, { memo } from "react";
-import { 
-  GraduationCap, 
-  Calendar, 
-  Award, 
-  Building2, 
-  Trophy, 
-  Sparkles, 
-  CheckCircle2, 
-  BookOpen, 
-  MapPin, 
-  TrendingUp 
+import {
+  Award,
+  BookOpen,
+  Building2,
+  Calendar,
+  CheckCircle2,
+  GraduationCap,
+  MapPin,
+  Sparkles,
+  TrendingUp,
+  Trophy,
 } from "lucide-react";
-import { SectionWrapper } from "../hoc";
+import React, { memo } from "react";
 import { education, hackathons } from "../constants";
+import { SectionWrapper } from "../hoc";
 
 const vitCoursework = [
   "Data Structures & Algorithms",
@@ -22,15 +22,14 @@ const vitCoursework = [
   "Object-Oriented Programming (Java/C++)",
   "Applied Machine Learning",
   "Deep Learning & Computer Vision",
-  "Cloud Architecture (AWS)"
+  "Cloud Architecture (AWS)",
 ];
 
 const Education = () => {
-
   // Primary degree (VIT Bhopal)
-  const undergrad = education.find(item => item.id === 1) || education[0];
+  const undergrad = education.find((item) => item.id === 1) || education[0];
   // Secondary schooling
-  const schooling = education.filter(item => item.id !== 1);
+  const schooling = education.filter((item) => item.id !== 1);
 
   return (
     <div className="space-y-12" id="education">
@@ -46,7 +45,8 @@ const Education = () => {
             Education &amp; Academic Honors
           </h2>
           <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal">
-            Undergraduate engineering curriculum at VIT Bhopal, specializations in AI/ML & systems, and foundational schooling.
+            Undergraduate engineering curriculum at VIT Bhopal, specializations
+            in AI/ML & systems, and foundational schooling.
           </p>
         </div>
 
@@ -128,7 +128,9 @@ const Education = () => {
                 </span>
                 <span className="text-xs font-mono text-zinc-500">/ 10.0</span>
               </div>
-              <p className="text-[11px] text-zinc-500 font-mono">Consolidated B.Tech Standing</p>
+              <p className="text-[11px] text-zinc-500 font-mono">
+                Consolidated B.Tech Standing
+              </p>
             </div>
 
             {/* Metric 2: Specialization */}
@@ -138,7 +140,8 @@ const Education = () => {
                 Core Engineering Focus
               </span>
               <p className="text-sm font-bold text-zinc-100">
-                Artificial Intelligence, Machine Learning &amp; Distributed Systems
+                Artificial Intelligence, Machine Learning &amp; Distributed
+                Systems
               </p>
               <p className="text-xs text-zinc-400 leading-relaxed font-normal">
                 {undergrad.description}

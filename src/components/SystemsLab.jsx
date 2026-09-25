@@ -1,19 +1,19 @@
-import React, { useState, memo } from "react";
-import { motion as Motion, AnimatePresence } from "framer-motion";
-import { 
-  Server, 
-  Cpu, 
-  Database, 
-  ShieldCheck, 
-  Globe, 
-  Activity, 
-  CheckCircle2, 
+import { AnimatePresence, motion as Motion } from "framer-motion";
+import {
+  Activity,
   ArrowRight,
-  Zap,
+  CheckCircle2,
+  Cpu,
+  Database,
   Gauge,
+  Globe,
   HardDrive,
-  Radio
+  Radio,
+  Server,
+  ShieldCheck,
+  Zap,
 } from "lucide-react";
+import React, { memo, useState } from "react";
 import { SectionWrapper } from "../hoc";
 
 const NODES = [
@@ -22,15 +22,31 @@ const NODES = [
     name: "Edge Client Tier",
     category: "Frontend & Web Tier",
     host: "Vercel Edge Global CDN",
-    specs: ["Next.js 14 & React 19", "HTTP/3 & Brotli Compression", "Sub-15ms Edge Routing"],
+    specs: [
+      "Next.js 14 & React 19",
+      "HTTP/3 & Brotli Compression",
+      "Sub-15ms Edge Routing",
+    ],
     icon: Globe,
     accent: "#38bdf8",
     flow: "Streams user prompts, video frames and canvas strokes with edge hydration and optimistic state caching.",
     services: [
-      { name: "Next.js Edge Renderer", purpose: "Instant SSR & micro-frontend hydration" },
-      { name: "WebSocket Client", purpose: "Sub-20ms bidirectional delta sync" },
-      { name: "Local State Cache", purpose: "Optimistic UI mutations & indexedDB" },
-      { name: "Client-side Guard", purpose: "Sanitization & input boundary validation" },
+      {
+        name: "Next.js Edge Renderer",
+        purpose: "Instant SSR & micro-frontend hydration",
+      },
+      {
+        name: "WebSocket Client",
+        purpose: "Sub-20ms bidirectional delta sync",
+      },
+      {
+        name: "Local State Cache",
+        purpose: "Optimistic UI mutations & indexedDB",
+      },
+      {
+        name: "Client-side Guard",
+        purpose: "Sanitization & input boundary validation",
+      },
     ],
   },
   {
@@ -38,15 +54,31 @@ const NODES = [
     name: "FastAPI Gateway",
     category: "Microservice Routing & Auth",
     host: "Linux Cloud VM / Docker",
-    specs: ["FastAPI Async Event Loop", "JWT Token Inspection & RBAC", "Redis Sliding-Window Rate Limit"],
+    specs: [
+      "FastAPI Async Event Loop",
+      "JWT Token Inspection & RBAC",
+      "Redis Sliding-Window Rate Limit",
+    ],
     icon: Server,
     accent: "#34d399",
     flow: "Authenticates requests, enforces rate limits, validates RBAC tokens, and dispatches tasks to AI workers.",
     services: [
-      { name: "Uvicorn ASGI Cluster", purpose: "High-throughput async request routing" },
-      { name: "RBAC Security Gate", purpose: "Role validation (Doctor, Patient, Admin)" },
-      { name: "Rate Limiting Daemon", purpose: "Prevents API denial of service" },
-      { name: "CORS & Request Scribe", purpose: "Structured JSON logging & telemetry" },
+      {
+        name: "Uvicorn ASGI Cluster",
+        purpose: "High-throughput async request routing",
+      },
+      {
+        name: "RBAC Security Gate",
+        purpose: "Role validation (Doctor, Patient, Admin)",
+      },
+      {
+        name: "Rate Limiting Daemon",
+        purpose: "Prevents API denial of service",
+      },
+      {
+        name: "CORS & Request Scribe",
+        purpose: "Structured JSON logging & telemetry",
+      },
     ],
   },
   {
@@ -54,15 +86,31 @@ const NODES = [
     name: "AI Inference Core",
     category: "Neural Computing & Forensics",
     host: "PyTorch & Gemini API Runtime",
-    specs: ["EfficientNet-B4 Visual Classifier", "SyncNet Lip-Audio Alignment", "Grad-CAM & SHAP Heatmap Generator"],
+    specs: [
+      "EfficientNet-B4 Visual Classifier",
+      "SyncNet Lip-Audio Alignment",
+      "Grad-CAM & SHAP Heatmap Generator",
+    ],
     icon: Cpu,
     accent: "#a855f7",
     flow: "Executes deep learning inference across 15 fused forensic detection signals with GPU-accelerated attributions.",
     services: [
-      { name: "EfficientNet-B4 Core", purpose: "Spatial feature & artifact classifier" },
-      { name: "SyncNet Analyzer", purpose: "Audio-visual lip-synchronization scoring" },
-      { name: "Grad-CAM Engine", purpose: "Visual attribution heatmaps generation" },
-      { name: "Gemini Compiler LLM", purpose: "4-stage AST synthesis & medical notes" },
+      {
+        name: "EfficientNet-B4 Core",
+        purpose: "Spatial feature & artifact classifier",
+      },
+      {
+        name: "SyncNet Analyzer",
+        purpose: "Audio-visual lip-synchronization scoring",
+      },
+      {
+        name: "Grad-CAM Engine",
+        purpose: "Visual attribution heatmaps generation",
+      },
+      {
+        name: "Gemini Compiler LLM",
+        purpose: "4-stage AST synthesis & medical notes",
+      },
     ],
   },
   {
@@ -70,15 +118,31 @@ const NODES = [
     name: "Data & Storage Hub",
     category: "Persistence & Object Storage",
     host: "PostgreSQL & AWS S3 & Appwrite",
-    specs: ["PostgreSQL Relational DB", "AWS S3 Encrypted Storage", "Appwrite Real-time CDC Engine"],
+    specs: [
+      "PostgreSQL Relational DB",
+      "AWS S3 Encrypted Storage",
+      "Appwrite Real-time CDC Engine",
+    ],
     icon: Database,
     accent: "#f59e0b",
     flow: "Persists immutable forensic audit trails, user records, and generated assets with ACID transactional guarantees.",
     services: [
-      { name: "PostgreSQL Cluster", purpose: "ACID transactions & append-only history" },
-      { name: "AWS S3 Bucket", purpose: "High-res media & forensic PDF reports" },
-      { name: "Appwrite Realtime Engine", purpose: "Instant clinical consultation sync" },
-      { name: "Firebase Auth Store", purpose: "Secure identity provider & credential tokens" },
+      {
+        name: "PostgreSQL Cluster",
+        purpose: "ACID transactions & append-only history",
+      },
+      {
+        name: "AWS S3 Bucket",
+        purpose: "High-res media & forensic PDF reports",
+      },
+      {
+        name: "Appwrite Realtime Engine",
+        purpose: "Instant clinical consultation sync",
+      },
+      {
+        name: "Firebase Auth Store",
+        purpose: "Secure identity provider & credential tokens",
+      },
     ],
   },
   {
@@ -86,68 +150,110 @@ const NODES = [
     name: "Sentinel Watchdog",
     category: "Security Forensics & Uptime",
     host: "Automated POSIX Background Daemon",
-    specs: ["Custom YARA Inspection Rules", "PE Header & Entropy Analyzer", "60s Synthetic Health Checks"],
+    specs: [
+      "Custom YARA Inspection Rules",
+      "PE Header & Entropy Analyzer",
+      "60s Synthetic Health Checks",
+    ],
     icon: ShieldCheck,
     accent: "#f43f5e",
     flow: "Monitors node liveness, flags anomalous payloads, and records telemetry across all infrastructure endpoints.",
     services: [
-      { name: "YARA Rule Matcher", purpose: "Heuristic binary malware detection" },
-      { name: "PE Structure Inspector", purpose: "Section header anomaly & entropy checking" },
-      { name: "Heartbeat Watchdog", purpose: "Automated latency checks across all nodes" },
-      { name: "Alert Webhook Dispatcher", purpose: "Instant degradation notifications" },
+      {
+        name: "YARA Rule Matcher",
+        purpose: "Heuristic binary malware detection",
+      },
+      {
+        name: "PE Structure Inspector",
+        purpose: "Section header anomaly & entropy checking",
+      },
+      {
+        name: "Heartbeat Watchdog",
+        purpose: "Automated latency checks across all nodes",
+      },
+      {
+        name: "Alert Webhook Dispatcher",
+        purpose: "Instant degradation notifications",
+      },
     ],
   },
 ];
 
 const FLOWS = [
-  { 
-    id: "inference", 
-    label: "Model Inference", 
+  {
+    id: "inference",
+    label: "Model Inference",
     tag: "Multi-Modal AI Pipeline",
-    desc: "Frame vectors streamed from Edge Client -> Authenticated at FastAPI Gateway -> Ingested by PyTorch EfficientNet-B4 & SyncNet for multi-signal fusion.", 
+    desc: "Frame vectors streamed from Edge Client -> Authenticated at FastAPI Gateway -> Ingested by PyTorch EfficientNet-B4 & SyncNet for multi-signal fusion.",
     color: "text-purple-400",
     nodes: ["edge-client", "api-gateway", "inference-engine"],
     packetMetric: "42ms roundtrip • 45 fps",
     steps: [
-      { from: "Edge Client", to: "FastAPI Gateway", protocol: "HTTP/3 • TLS 1.3" },
-      { from: "FastAPI Gateway", to: "AI Inference Core", protocol: "Async gRPC (CUDA Worker)" },
-    ]
+      {
+        from: "Edge Client",
+        to: "FastAPI Gateway",
+        protocol: "HTTP/3 • TLS 1.3",
+      },
+      {
+        from: "FastAPI Gateway",
+        to: "AI Inference Core",
+        protocol: "Async gRPC (CUDA Worker)",
+      },
+    ],
   },
-  { 
-    id: "websockets", 
-    label: "WebSocket Sync", 
+  {
+    id: "websockets",
+    label: "WebSocket Sync",
     tag: "Real-Time Canvas Bus",
-    desc: "Bidirectional binary Protobuf CRDT delta broadcast between connected collaborative peers with sub-15ms reconciliation.", 
+    desc: "Bidirectional binary Protobuf CRDT delta broadcast between connected collaborative peers with sub-15ms reconciliation.",
     color: "text-cyan-400",
     nodes: ["edge-client", "api-gateway"],
     packetMetric: "14ms broadcast • 0 conflicts",
     steps: [
-      { from: "Client Canvas", to: "WebSocket Gateway", protocol: "WSS Protobuf (Redis PubSub)" },
-    ]
+      {
+        from: "Client Canvas",
+        to: "WebSocket Gateway",
+        protocol: "WSS Protobuf (Redis PubSub)",
+      },
+    ],
   },
-  { 
-    id: "database", 
-    label: "State Persistence", 
+  {
+    id: "database",
+    label: "State Persistence",
     tag: "ACID Storage Mesh",
-    desc: "Relational mutations committed to PostgreSQL with pooled transactions; media binaries piped to encrypted AWS S3 buckets.", 
+    desc: "Relational mutations committed to PostgreSQL with pooled transactions; media binaries piped to encrypted AWS S3 buckets.",
     color: "text-amber-400",
     nodes: ["api-gateway", "database-cluster"],
     packetMetric: "3.2ms write lock • ACID verified",
     steps: [
-      { from: "FastAPI Gateway", to: "Database Hub", protocol: "TCP Pool (PostgreSQL & S3)" },
-    ]
+      {
+        from: "FastAPI Gateway",
+        to: "Database Hub",
+        protocol: "TCP Pool (PostgreSQL & S3)",
+      },
+    ],
   },
-  { 
-    id: "telemetry", 
-    label: "Sentinel Watch", 
+  {
+    id: "telemetry",
+    label: "Sentinel Watch",
     tag: "Automated POSIX Daemon",
-    desc: "Autonomous background agent executes 60-second heuristic YARA scans, entropy checks, and synthetic ping sweeps across all nodes.", 
+    desc: "Autonomous background agent executes 60-second heuristic YARA scans, entropy checks, and synthetic ping sweeps across all nodes.",
     color: "text-rose-400",
-    nodes: ["security-sentinel", "edge-client", "api-gateway", "inference-engine", "database-cluster"],
+    nodes: [
+      "security-sentinel",
+      "edge-client",
+      "api-gateway",
+      "inference-engine",
+      "database-cluster",
+    ],
     packetMetric: "60s sweep • 100% clean",
     steps: [
-      { from: "Sentinel Daemon", to: "Active Nodes", protocol: "POSIX IPC Ping" },
-    ]
+      {
+        from: "Sentinel Daemon",
+        to: "Active Nodes",
+        protocol: "POSIX IPC Ping",
+      },
+    ],
   },
 ];
 
@@ -203,9 +309,10 @@ const SystemsLab = memo(() => {
   const [selectedNodeId, setSelectedNodeId] = useState("inference-engine");
   const [activeFlow, setActiveFlow] = useState("inference");
 
-  const currentNode = NODES.find(n => n.id === selectedNodeId) || NODES[2];
-  const currentFlow = FLOWS.find(f => f.id === activeFlow) || FLOWS[0];
-  const metrics = NODE_METRICS[selectedNodeId] || NODE_METRICS["inference-engine"];
+  const currentNode = NODES.find((n) => n.id === selectedNodeId) || NODES[2];
+  const currentFlow = FLOWS.find((f) => f.id === activeFlow) || FLOWS[0];
+  const metrics =
+    NODE_METRICS[selectedNodeId] || NODE_METRICS["inference-engine"];
 
   return (
     <div className="space-y-10" id="systems-lab">
@@ -221,7 +328,8 @@ const SystemsLab = memo(() => {
             Systems &amp; Inference Lab
           </h2>
           <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal">
-            Interactive topology of my distributed AI inference pipeline, async API gateway, and cloud storage mesh.
+            Interactive topology of my distributed AI inference pipeline, async
+            API gateway, and cloud storage mesh.
           </p>
         </div>
 
@@ -229,26 +337,29 @@ const SystemsLab = memo(() => {
         <div className="flex items-center gap-3 px-4 py-2 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono backdrop-blur-md self-start md:self-auto">
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_10px_rgba(52,211,153,0.8)]" />
           <div className="flex flex-col">
-            <span className="font-semibold text-white">All Systems Operational</span>
-            <span className="text-[11px] text-emerald-300/80">Avg. Latency: 14ms &bull; 99.98% Uptime</span>
+            <span className="font-semibold text-white">
+              All Systems Operational
+            </span>
+            <span className="text-[11px] text-emerald-300/80">
+              Avg. Latency: 14ms &bull; 99.98% Uptime
+            </span>
           </div>
         </div>
       </div>
 
       {/* Main Grid: Interactive Map & Node Detail */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
         {/* Left Column: Interactive Topology Mesh (7 cols) */}
         <div className="lg:col-span-7 flex flex-col space-y-4">
-          
           {/* Topology Canvas Container */}
           <div className="relative p-4 sm:p-7 rounded-3xl bg-zinc-900/70 border border-white/10 backdrop-blur-xl shadow-2xl overflow-hidden flex flex-col justify-between">
             {/* Ambient background grid */}
-            <div 
+            <div
               className="absolute inset-0 opacity-[0.06] pointer-events-none"
               style={{
-                backgroundImage: "radial-gradient(#38bdf8 1px, transparent 1px)",
-                backgroundSize: "22px 22px"
+                backgroundImage:
+                  "radial-gradient(#38bdf8 1px, transparent 1px)",
+                backgroundSize: "22px 22px",
               }}
             />
 
@@ -258,7 +369,9 @@ const SystemsLab = memo(() => {
                 <span className="text-zinc-400 font-semibold uppercase tracking-wider">
                   Active Protocol Flow:
                 </span>
-                <span className="text-cyan-400 font-bold">{currentFlow.tag}</span>
+                <span className="text-cyan-400 font-bold">
+                  {currentFlow.tag}
+                </span>
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
@@ -288,21 +401,23 @@ const SystemsLab = memo(() => {
                     <Radio size={12} className="text-cyan-400 animate-pulse" />
                     <span className="font-semibold">Pipeline Data Stream:</span>
                   </div>
-                  <span className="text-emerald-400 font-bold">{currentFlow.packetMetric}</span>
+                  <span className="text-emerald-400 font-bold">
+                    {currentFlow.packetMetric}
+                  </span>
                 </div>
 
                 {/* Animated Pipeline Path */}
                 <div className="flex items-center gap-1.5 text-[11px] font-mono overflow-x-auto py-1">
                   {currentFlow.nodes.map((nodeId, idx) => {
-                    const node = NODES.find(n => n.id === nodeId);
+                    const node = NODES.find((n) => n.id === nodeId);
                     const isLast = idx === currentFlow.nodes.length - 1;
                     return (
                       <React.Fragment key={nodeId}>
-                        <span 
+                        <span
                           onClick={() => setSelectedNodeId(nodeId)}
                           className={`px-2 py-0.5 rounded cursor-pointer whitespace-nowrap transition-colors ${
-                            selectedNodeId === nodeId 
-                              ? "bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40" 
+                            selectedNodeId === nodeId
+                              ? "bg-cyan-500/20 text-cyan-300 font-bold border border-cyan-500/40"
                               : "bg-white/5 text-zinc-300 hover:text-white"
                           }`}
                         >
@@ -328,7 +443,9 @@ const SystemsLab = memo(() => {
             <div className="relative z-10 space-y-3 pt-5">
               <div className="text-xs font-mono text-zinc-400 flex items-center justify-between">
                 <span>Infrastructure Topology ({NODES.length} Nodes):</span>
-                <span className="text-cyan-400 text-[11px]">Click node for telemetry</span>
+                <span className="text-cyan-400 text-[11px]">
+                  Click node for telemetry
+                </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -346,8 +463,8 @@ const SystemsLab = memo(() => {
                         isSelected
                           ? "system-node-selected bg-zinc-800/90 border-cyan-400/60 shadow-[0_0_25px_rgba(6,182,212,0.3)] ring-1 ring-cyan-400/40"
                           : isParticipating
-                          ? "system-node-unselected bg-zinc-950/80 border-white/20 hover:border-white/40 shadow-sm"
-                          : "system-node-unselected bg-zinc-950/40 border-white/5 opacity-45 hover:opacity-80"
+                            ? "system-node-unselected bg-zinc-950/80 border-white/20 hover:border-white/40 shadow-sm"
+                            : "system-node-unselected bg-zinc-950/40 border-white/5 opacity-45 hover:opacity-80"
                       }`}
                     >
                       {/* Active Pipeline Step Badge */}
@@ -357,12 +474,12 @@ const SystemsLab = memo(() => {
                         </span>
                       )}
 
-                      <div 
+                      <div
                         className="p-2 rounded-xl border flex items-center justify-center shrink-0 mt-0.5"
                         style={{
                           backgroundColor: `${node.accent}15`,
                           borderColor: `${node.accent}30`,
-                          color: node.accent
+                          color: node.accent,
                         }}
                       >
                         <Icon size={16} />
@@ -370,7 +487,9 @@ const SystemsLab = memo(() => {
                       <div className="flex flex-col min-w-0 pr-4">
                         <span className="text-sm font-bold text-white tracking-tight flex items-center gap-1.5 truncate">
                           {node.name}
-                          {isSelected && <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shrink-0" />}
+                          {isSelected && (
+                            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse shrink-0" />
+                          )}
                         </span>
                         <span className="text-[11px] font-mono text-zinc-400 truncate">
                           {node.category}
@@ -384,7 +503,6 @@ const SystemsLab = memo(() => {
                 })}
               </div>
             </div>
-
           </div>
         </div>
 
@@ -404,12 +522,12 @@ const SystemsLab = memo(() => {
                   {currentNode.name}
                 </h3>
               </div>
-              <div 
+              <div
                 className="w-10 h-10 rounded-2xl flex items-center justify-center border shrink-0"
                 style={{
                   backgroundColor: `${currentNode.accent}15`,
                   borderColor: `${currentNode.accent}40`,
-                  color: currentNode.accent
+                  color: currentNode.accent,
                 }}
               >
                 {React.createElement(currentNode.icon, { size: 20 })}
@@ -420,7 +538,9 @@ const SystemsLab = memo(() => {
             <div className="py-3 border-b border-white/10 space-y-2.5">
               <div className="flex items-center justify-between text-[11px] font-mono text-zinc-400">
                 <span className="uppercase">Runtime Load &amp; Health:</span>
-                <span className="text-emerald-400 font-bold">{metrics.status}</span>
+                <span className="text-emerald-400 font-bold">
+                  {metrics.status}
+                </span>
               </div>
 
               {/* Progress Meters */}
@@ -430,12 +550,14 @@ const SystemsLab = memo(() => {
                     <Gauge size={11} className="text-cyan-400" />
                     Compute Utilization:
                   </span>
-                  <span className="text-zinc-200 font-bold">{metrics.cpuLabel}</span>
+                  <span className="text-zinc-200 font-bold">
+                    {metrics.cpuLabel}
+                  </span>
                 </div>
                 <div className="w-full h-1.5 rounded-full bg-zinc-800 overflow-hidden">
-                  <div 
-                    className="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 rounded-full transition-all duration-500" 
-                    style={{ width: `${metrics.cpu}%` }} 
+                  <div
+                    className="h-full bg-gradient-to-r from-cyan-500 to-emerald-400 rounded-full transition-all duration-500"
+                    style={{ width: `${metrics.cpu}%` }}
                   />
                 </div>
               </div>
@@ -443,19 +565,27 @@ const SystemsLab = memo(() => {
               <div className="grid grid-cols-2 gap-2 pt-1 font-mono text-[10px]">
                 <div className="p-2 rounded-lg bg-zinc-950/60 border border-white/5">
                   <span className="text-zinc-500 block">Memory / Heap:</span>
-                  <span className="text-zinc-200 font-bold truncate block">{metrics.memory}</span>
+                  <span className="text-zinc-200 font-bold truncate block">
+                    {metrics.memory}
+                  </span>
                 </div>
                 <div className="p-2 rounded-lg bg-zinc-950/60 border border-white/5">
                   <span className="text-zinc-500 block">p99 Latency:</span>
-                  <span className="text-cyan-300 font-bold block">{metrics.ttfb}</span>
+                  <span className="text-cyan-300 font-bold block">
+                    {metrics.ttfb}
+                  </span>
                 </div>
                 <div className="p-2 rounded-lg bg-zinc-950/60 border border-white/5">
                   <span className="text-zinc-500 block">Throughput:</span>
-                  <span className="text-purple-300 font-bold block">{metrics.traffic}</span>
+                  <span className="text-purple-300 font-bold block">
+                    {metrics.traffic}
+                  </span>
                 </div>
                 <div className="p-2 rounded-lg bg-zinc-950/60 border border-white/5">
                   <span className="text-zinc-500 block">Connections:</span>
-                  <span className="text-emerald-300 font-bold block truncate">{metrics.conns}</span>
+                  <span className="text-emerald-300 font-bold block truncate">
+                    {metrics.conns}
+                  </span>
                 </div>
               </div>
             </div>
@@ -473,7 +603,10 @@ const SystemsLab = memo(() => {
               <ul className="space-y-1 text-xs font-mono text-zinc-300">
                 {currentNode.specs.map((s, idx) => (
                   <li key={idx} className="flex items-center gap-2">
-                    <CheckCircle2 size={12} className="text-emerald-400 shrink-0" />
+                    <CheckCircle2
+                      size={12}
+                      className="text-emerald-400 shrink-0"
+                    />
                     <span>{s}</span>
                   </li>
                 ))}
@@ -488,7 +621,7 @@ const SystemsLab = memo(() => {
               </span>
               <ul className="space-y-1.5">
                 {currentNode.services.map((svc, idx) => (
-                  <li 
+                  <li
                     key={idx}
                     className="p-2 rounded-xl bg-white/[0.02] border border-white/5 hover:border-white/15 transition-colors"
                   >
@@ -503,10 +636,8 @@ const SystemsLab = memo(() => {
                 ))}
               </ul>
             </div>
-
           </article>
         </div>
-
       </div>
     </div>
   );

@@ -1,6 +1,6 @@
-import React, { useState, useRef, useCallback, memo } from "react";
-import { motion as Motion, AnimatePresence } from "framer-motion";
-import { Zap, Sparkles, CheckCircle2, Mail } from "lucide-react";
+import { AnimatePresence, motion as Motion } from "framer-motion";
+import { CheckCircle2, Mail, Sparkles, Zap } from "lucide-react";
+import React, { memo, useCallback, useRef, useState } from "react";
 import { useSound } from "../../context/SoundContext";
 
 const QUIPS = [
@@ -51,11 +51,15 @@ const DodgeButton = memo(() => {
       return;
     }
     // Already caught: Open direct email
-    window.location.href = "mailto:sakmmm07@gmail.com?subject=I%20Caught%20Your%20Dodge%20Button!%20Let's%20Talk";
+    window.location.href =
+      "mailto:sakmmm07@gmail.com?subject=I%20Caught%20Your%20Dodge%20Button!%20Let's%20Talk";
   };
 
   return (
-    <div ref={containerRef} className="relative inline-flex items-center justify-center p-2">
+    <div
+      ref={containerRef}
+      className="relative inline-flex items-center justify-center p-2"
+    >
       <Motion.button
         type="button"
         animate={{
@@ -74,8 +78,8 @@ const DodgeButton = memo(() => {
           isCaught
             ? "bg-gradient-to-r from-emerald-500 to-teal-400 text-zinc-950 shadow-emerald-500/30 shadow-lg scale-105"
             : dodgeCount > 0
-            ? "bg-zinc-900 border border-amber-400/50 text-amber-300 shadow-[0_0_20px_rgba(251,191,36,0.25)]"
-            : "bg-zinc-900/90 hover:bg-zinc-800 border border-cyan-400/40 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.2)]"
+              ? "bg-zinc-900 border border-amber-400/50 text-amber-300 shadow-[0_0_20px_rgba(251,191,36,0.25)]"
+              : "bg-zinc-900/90 hover:bg-zinc-800 border border-cyan-400/40 text-cyan-300 shadow-[0_0_15px_rgba(6,182,212,0.2)]"
         }`}
         aria-label="Playful instant hire button"
       >
@@ -89,7 +93,10 @@ const DodgeButton = memo(() => {
             {dodgeCount > 0 ? (
               <Sparkles size={14} className="text-amber-400 animate-spin" />
             ) : (
-              <Zap size={14} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+              <Zap
+                size={14}
+                className="text-cyan-400 group-hover:scale-110 transition-transform"
+              />
             )}
             <span>{QUIPS[Math.min(dodgeCount, QUIPS.length - 1)]}</span>
           </>

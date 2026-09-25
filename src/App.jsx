@@ -1,20 +1,28 @@
-import { useEffect, useLayoutEffect, useRef, useState, lazy, Suspense } from "react";
 import Lenis from "lenis";
-import { RoleProvider } from "./context/RoleContext";
-import { ThemeMoodProvider } from "./context/ThemeMoodContext";
-import { SoundProvider } from "./context/SoundContext";
-import { ArcadeProvider } from "./context/ArcadeContext";
-
+import {
+  lazy,
+  Suspense,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+import { Toaster } from "sonner";
 import Hero from "./components/Hero";
-import Navbar from "./components/Navbar";
-import SentinelObserver from "./components/interactive/SentinelObserver";
-import SecretTerminal from "./components/interactive/SecretTerminal";
 import CursorTrail from "./components/interactive/CursorTrail";
 import KonamiCelebration from "./components/interactive/KonamiCelebration";
-import { Toaster } from "sonner";
+import SecretTerminal from "./components/interactive/SecretTerminal";
+import SentinelObserver from "./components/interactive/SentinelObserver";
+import Navbar from "./components/Navbar";
+import { ArcadeProvider } from "./context/ArcadeContext";
+import { RoleProvider } from "./context/RoleContext";
+import { SoundProvider } from "./context/SoundContext";
+import { ThemeMoodProvider } from "./context/ThemeMoodContext";
 
 // Lazy load below-the-fold components and easter egg mini-game for optimal initial bundle size
-const SignalRun = lazy(() => import("./components/interactive/signalRun/SignalRunModal"));
+const SignalRun = lazy(
+  () => import("./components/interactive/signalRun/SignalRunModal"),
+);
 const Works = lazy(() => import("./components/Projects"));
 const SmallerBuilds = lazy(() => import("./components/SmallerBuilds"));
 const SystemsLab = lazy(() => import("./components/SystemsLab"));
@@ -42,7 +50,7 @@ const DeferredStarsCanvas = () => {
           observer.disconnect();
         }
       },
-      { rootMargin: "400px" }
+      { rootMargin: "400px" },
     );
 
     if (containerRef.current) {
@@ -53,7 +61,10 @@ const DeferredStarsCanvas = () => {
   }, []);
 
   return (
-    <div ref={containerRef} className="absolute inset-0 z-[-1] pointer-events-none">
+    <div
+      ref={containerRef}
+      className="absolute inset-0 z-[-1] pointer-events-none"
+    >
       {shouldRender ? <StarsCanvas /> : null}
     </div>
   );
@@ -207,7 +218,8 @@ const App = () => {
                     color: "#f4f4f5",
                     borderRadius: "16px",
                     border: "1px solid rgba(255, 255, 255, 0.15)",
-                    boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.15)",
+                    boxShadow:
+                      "0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.15)",
                     fontFamily: "monospace",
                     fontSize: "12px",
                   },

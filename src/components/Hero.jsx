@@ -1,25 +1,40 @@
-import React, { Suspense, lazy, useCallback, useState, useEffect, memo } from "react";
 import { motion as Motion } from "framer-motion";
-import { ArrowUpRight, ArrowDown, Github, Linkedin, Mail, Sparkles, Terminal } from "lucide-react";
-import { resume, profile } from "../assets";
-import { useRole } from "../context/RoleContext";
 import {
+  ArrowDown,
+  ArrowUpRight,
+  Github,
+  Linkedin,
+  Mail,
+  Sparkles,
+  Terminal,
+} from "lucide-react";
+import React, {
+  lazy,
+  memo,
+  Suspense,
+  useCallback,
+  useEffect,
+  useState,
+} from "react";
+import { profile, resume } from "../assets";
+import {
+  AwsIcon,
+  DockerIcon,
+  FastapiIcon,
+  FirebaseIcon,
+  GcpIcon,
+  LinuxIcon,
+  NextIcon,
+  NodeIcon,
+  OpencvIcon,
+  PostgresIcon,
   PythonIcon,
   PytorchIcon,
   ReactIcon,
-  NextIcon,
-  FastapiIcon,
-  NodeIcon,
-  DockerIcon,
-  PostgresIcon,
-  OpencvIcon,
-  AwsIcon,
-  GcpIcon,
-  TsIcon,
-  LinuxIcon,
-  FirebaseIcon,
   TailwindIcon,
+  TsIcon,
 } from "../assets/techIcons";
+import { useRole } from "../context/RoleContext";
 
 // Lazy load 3D workstation
 const ComputersCanvas = lazy(() =>
@@ -30,7 +45,7 @@ const ComputersCanvas = lazy(() =>
         <p className="text-xs font-mono text-zinc-400">Interactive 3D Engine</p>
       </div>
     ),
-  }))
+  })),
 );
 
 // Ticker items with official SVG icons
@@ -84,7 +99,8 @@ const Hero = memo(() => {
         const canvas = document.createElement("canvas");
         return Boolean(
           window.WebGLRenderingContext &&
-            (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"))
+            (canvas.getContext("webgl") ||
+              canvas.getContext("experimental-webgl")),
         );
       } catch {
         return false;
@@ -118,7 +134,6 @@ const Hero = memo(() => {
 
   const narrative = ROLE_NARRATIVES[activeRole] || ROLE_NARRATIVES.all;
 
-
   return (
     <section
       className="relative w-full min-h-[92vh] sm:min-h-screen flex flex-col justify-between overflow-hidden bg-primary pt-20 sm:pt-28 pb-3 sm:pb-4"
@@ -130,7 +145,6 @@ const Hero = memo(() => {
 
       {/* Main Content Container */}
       <div className="container mx-auto max-w-7xl px-4 sm:px-12 relative z-10 flex-1 flex flex-col justify-center">
-        
         {/* Eyebrow Status Badge with Avatar (Single-line on mobile, no awkward wrapping) */}
         <div className="flex items-center gap-2.5 sm:gap-3 mb-3.5 sm:mb-6">
           <div className="w-9 h-9 sm:w-10 sm:h-10 min-w-[36px] min-h-[36px] sm:min-w-[40px] sm:min-h-[40px] rounded-full overflow-hidden border-2 border-cyan-400/50 shadow-[0_0_15px_rgba(6,182,212,0.35)] shrink-0 bg-zinc-950">
@@ -165,18 +179,27 @@ const Hero = memo(() => {
             animate="visible"
             variants={{
               hidden: {},
-              visible: { transition: { staggerChildren: 0.03, delayChildren: 0.2 } },
+              visible: {
+                transition: { staggerChildren: 0.03, delayChildren: 0.2 },
+              },
             }}
           >
             {["Saksham", "Agarwal"].map((word, wordIndex) => (
-              <span key={wordIndex} className="inline-flex whitespace-nowrap mr-3 sm:mr-5">
+              <span
+                key={wordIndex}
+                className="inline-flex whitespace-nowrap mr-3 sm:mr-5"
+              >
                 {word.split("").map((char, charIndex) => (
                   <Motion.span
                     key={charIndex}
                     className="inline-block hover:text-cyan-400 transition-colors duration-200"
                     variants={{
                       hidden: { opacity: 0, y: 20 },
-                      visible: { opacity: 1, y: 0, transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] } },
+                      visible: {
+                        opacity: 1,
+                        y: 0,
+                        transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
+                      },
                     }}
                   >
                     {char}
@@ -210,7 +233,10 @@ const Hero = memo(() => {
               className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-white text-zinc-950 font-bold text-xs sm:text-sm shadow-[0_0_25px_rgba(255,255,255,0.25)] hover:bg-zinc-100 hover:shadow-[0_0_35px_rgba(255,255,255,0.45)] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
             >
               <span>Resume</span>
-              <ArrowUpRight size={15} className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+              <ArrowUpRight
+                size={15}
+                className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              />
             </a>
 
             {/* Secondary Ghost CTA: Contact */}
@@ -219,7 +245,10 @@ const Hero = memo(() => {
               className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4.5 sm:px-5 py-2.5 sm:py-3 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-white font-semibold text-xs sm:text-sm border border-white/15 hover:border-white/30 shadow-sm hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer backdrop-blur-md"
             >
               <span>Contact</span>
-              <ArrowDown size={14} className="transition-transform duration-200 group-hover:translate-y-0.5" />
+              <ArrowDown
+                size={14}
+                className="transition-transform duration-200 group-hover:translate-y-0.5"
+              />
             </button>
           </div>
 
@@ -253,7 +282,6 @@ const Hero = memo(() => {
             </a>
           </div>
         </div>
-
       </div>
 
       {/* Background 3D Workstation Canvas (desktop only, non-blocking) */}
@@ -268,7 +296,7 @@ const Hero = memo(() => {
       </div>
 
       {/* Infinite Tech Marquee Ticker (abhyudaytomar.com signature feature) */}
-      <div 
+      <div
         className="relative w-full overflow-hidden border-y border-white/10 bg-zinc-950/70 backdrop-blur-md py-3.5 z-20"
         role="region"
         aria-label="Core technologies and toolset"

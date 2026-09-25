@@ -1,21 +1,21 @@
-import React, { memo, useState, useCallback, useMemo, useEffect } from "react";
-import { motion as Motion, AnimatePresence } from "framer-motion";
-import { 
-  Award, 
-  ExternalLink, 
-  Copy, 
-  Check, 
-  RotateCw, 
-  Eye, 
+import { AnimatePresence, motion as Motion } from "framer-motion";
+import {
+  Award,
+  Check,
+  CheckCircle2,
+  Copy,
+  ExternalLink,
+  Eye,
+  QrCode,
+  RotateCw,
+  Scan,
+  ShieldCheck,
   Sparkles,
   X,
-  ShieldCheck,
-  CheckCircle2,
-  QrCode,
-  Scan
 } from "lucide-react";
-import { SectionWrapper } from "../hoc";
+import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { certifications } from "../constants";
+import { SectionWrapper } from "../hoc";
 
 // Helper to categorize certifications
 const getCategory = (cert) => {
@@ -52,11 +52,11 @@ const CredentialCard = memo(({ cert, index, isFlippedAll, onViewImage }) => {
   };
 
   return (
-    <div 
+    <div
       className="relative h-[310px] w-full [perspective:1000px] cursor-pointer group"
       onClick={handleToggleFlip}
     >
-      <div 
+      <div
         className={`relative w-full h-full rounded-2xl transition-transform duration-700 [transform-style:preserve-3d] ${
           isCardFlipped ? "[transform:rotateY(180deg)]" : ""
         }`}
@@ -90,9 +90,7 @@ const CredentialCard = memo(({ cert, index, isFlippedAll, onViewImage }) => {
             <h4 className="text-base font-bold text-white tracking-tight leading-snug line-clamp-2 group-hover:text-cyan-300 transition-colors">
               {cert.title}
             </h4>
-            <p className="text-xs text-zinc-400 font-mono">
-              {cert.issuer}
-            </p>
+            <p className="text-xs text-zinc-400 font-mono">{cert.issuer}</p>
             <p className="text-[11px] text-zinc-500 font-mono">
               Issued: {cert.date}
             </p>
@@ -215,7 +213,11 @@ const CredentialCard = memo(({ cert, index, isFlippedAll, onViewImage }) => {
                   className={`p-1.5 rounded-xl bg-white border border-white/20 shadow-md inline-block transition-transform hover:scale-105 ${
                     cert.credentialUrl ? "cursor-pointer" : "cursor-default"
                   }`}
-                  title={cert.credentialUrl ? "Click to open verification portal or scan with camera" : "Scan with camera to verify"}
+                  title={
+                    cert.credentialUrl
+                      ? "Click to open verification portal or scan with camera"
+                      : "Scan with camera to verify"
+                  }
                 >
                   <img
                     src={cert.qrCode}
@@ -248,7 +250,11 @@ const CredentialCard = memo(({ cert, index, isFlippedAll, onViewImage }) => {
                 className="cert-id-badge text-[10px] font-mono text-zinc-300 hover:text-white bg-black/60 hover:bg-black/90 py-1.5 px-3 rounded-lg border border-white/10 break-all select-all font-semibold inline-flex items-center gap-1.5 transition-colors cursor-pointer"
               >
                 <span>ID: {cert.validationNumber}</span>
-                {copied ? <Check size={10} className="text-emerald-400 shrink-0" /> : <Copy size={10} className="text-zinc-500 shrink-0" />}
+                {copied ? (
+                  <Check size={10} className="text-emerald-400 shrink-0" />
+                ) : (
+                  <Copy size={10} className="text-zinc-500 shrink-0" />
+                )}
               </button>
             )}
 
@@ -292,7 +298,6 @@ const CredentialCard = memo(({ cert, index, isFlippedAll, onViewImage }) => {
             </button>
           </div>
         </div>
-
       </div>
     </div>
   );
@@ -359,7 +364,12 @@ const CertificateModal = memo(({ cert, onClose }) => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-3 border-t border-white/10 text-xs">
             <div className="font-mono text-zinc-400 flex flex-wrap items-center gap-3">
               {cert.validationNumber && (
-                <span>Verification ID: <span className="text-cyan-300 font-semibold">{cert.validationNumber}</span></span>
+                <span>
+                  Verification ID:{" "}
+                  <span className="text-cyan-300 font-semibold">
+                    {cert.validationNumber}
+                  </span>
+                </span>
               )}
               {cert.qrCode && (
                 <span className="inline-flex items-center gap-1 text-[11px] text-cyan-400 font-mono bg-cyan-950/40 border border-cyan-500/30 px-2 py-0.5 rounded-full">
@@ -394,7 +404,7 @@ const Certifications = () => {
 
   const filteredCerts = useMemo(() => {
     if (activeTab === "all") return certifications;
-    return certifications.filter(c => getCategory(c) === activeTab);
+    return certifications.filter((c) => getCategory(c) === activeTab);
   }, [activeTab]);
 
   const handleFlipAll = useCallback(() => {
@@ -423,7 +433,8 @@ const Certifications = () => {
             Certifications &amp; Credentials
           </h2>
           <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal">
-            All 12 industry cloud certifications, AI practitioner honors, IIT / NPTEL honors, and university recognitions.
+            All 12 industry cloud certifications, AI practitioner honors, IIT /
+            NPTEL honors, and university recognitions.
           </p>
         </div>
 
@@ -452,9 +463,13 @@ const Certifications = () => {
             }`}
           >
             <span>{tab.label}</span>
-            <span className={`px-1.5 py-0.2 rounded-full text-[10px] ${
-              activeTab === tab.id ? "bg-zinc-200 text-zinc-900" : "bg-white/10 text-zinc-400"
-            }`}>
+            <span
+              className={`px-1.5 py-0.2 rounded-full text-[10px] ${
+                activeTab === tab.id
+                  ? "bg-zinc-200 text-zinc-900"
+                  : "bg-white/10 text-zinc-400"
+              }`}
+            >
               {tab.count}
             </span>
           </button>
@@ -476,8 +491,13 @@ const Certifications = () => {
 
       {/* Footer Info Ticker */}
       <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 text-xs font-mono text-zinc-500 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <span>Click any card to flip and inspect cryptographic authenticity &bull; Showing {filteredCerts.length} of 12 verified credentials</span>
-        <span className="text-cyan-400 font-semibold">AWS &bull; IBM &bull; Google &bull; L&amp;T &bull; NPTEL</span>
+        <span>
+          Click any card to flip and inspect cryptographic authenticity &bull;
+          Showing {filteredCerts.length} of 12 verified credentials
+        </span>
+        <span className="text-cyan-400 font-semibold">
+          AWS &bull; IBM &bull; Google &bull; L&amp;T &bull; NPTEL
+        </span>
       </div>
 
       {/* Certificate Modal */}
@@ -486,5 +506,8 @@ const Certifications = () => {
   );
 };
 
-const WrappedCertifications = SectionWrapper(memo(Certifications), "credentials");
+const WrappedCertifications = SectionWrapper(
+  memo(Certifications),
+  "credentials",
+);
 export default WrappedCertifications;

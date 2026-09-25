@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef, memo } from "react";
-import { motion as Motion, AnimatePresence } from "framer-motion";
-import { Trophy, Gamepad2, X, Sparkles } from "lucide-react";
-import { useSound } from "../../context/SoundContext";
+import { AnimatePresence, motion as Motion } from "framer-motion";
+import { Gamepad2, Sparkles, Trophy, X } from "lucide-react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { useArcade } from "../../context/ArcadeContext";
+import { useSound } from "../../context/SoundContext";
 
 const KONAMI_SEQUENCE = [
   "ArrowUp",
@@ -74,7 +74,15 @@ const KonamiCelebration = memo(() => {
     };
     window.addEventListener("resize", handleResize);
 
-    const COLORS = ["#06b6d4", "#3b82f6", "#10b981", "#f59e0b", "#ec4899", "#8b5cf6", "#ffffff"];
+    const COLORS = [
+      "#06b6d4",
+      "#3b82f6",
+      "#10b981",
+      "#f59e0b",
+      "#ec4899",
+      "#8b5cf6",
+      "#ffffff",
+    ];
     const particles = [];
 
     // Spawn 120 confetti pieces bursting from corners & top

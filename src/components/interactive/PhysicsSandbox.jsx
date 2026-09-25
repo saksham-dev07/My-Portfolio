@@ -1,25 +1,105 @@
-import React, { useState, useEffect, useRef, memo } from "react";
-import { motion as Motion, AnimatePresence } from "framer-motion";
-import { Sparkles, RotateCcw, X, Zap, ArrowDown, Move } from "lucide-react";
+import { AnimatePresence, motion as Motion } from "framer-motion";
+import { ArrowDown, Move, RotateCcw, Sparkles, X, Zap } from "lucide-react";
+import React, { memo, useEffect, useRef, useState } from "react";
 import { useSound } from "../../context/SoundContext";
 
 const TECH_ITEMS = [
-  { label: "React 19", color: "#22d3ee", bg: "rgba(6,182,212,0.15)", border: "rgba(6,182,212,0.4)" },
-  { label: "PyTorch", color: "#f97316", bg: "rgba(249,115,22,0.15)", border: "rgba(249,115,22,0.4)" },
-  { label: "FastAPI", color: "#10b981", bg: "rgba(16,185,129,0.15)", border: "rgba(16,185,129,0.4)" },
-  { label: "Docker", color: "#38bdf8", bg: "rgba(56,189,248,0.15)", border: "rgba(56,189,248,0.4)" },
-  { label: "TypeScript", color: "#60a5fa", bg: "rgba(96,165,250,0.15)", border: "rgba(96,165,250,0.4)" },
-  { label: "Tailwind CSS", color: "#38bdf8", bg: "rgba(56,189,248,0.15)", border: "rgba(56,189,248,0.4)" },
-  { label: "Python", color: "#fbbf24", bg: "rgba(251,191,36,0.15)", border: "rgba(251,191,36,0.4)" },
-  { label: "PostgreSQL", color: "#818cf8", bg: "rgba(129,140,248,0.15)", border: "rgba(129,140,248,0.4)" },
-  { label: "Redis", color: "#f43f5e", bg: "rgba(244,63,94,0.15)", border: "rgba(244,63,94,0.4)" },
-  { label: "AWS", color: "#f59e0b", bg: "rgba(245,158,11,0.15)", border: "rgba(245,158,11,0.4)" },
-  { label: "Kubernetes", color: "#3b82f6", bg: "rgba(59,130,246,0.15)", border: "rgba(59,130,246,0.4)" },
-  { label: "WebSockets", color: "#34d399", bg: "rgba(52,211,153,0.15)", border: "rgba(52,211,153,0.4)" },
-  { label: "OpenCV", color: "#c084fc", bg: "rgba(192,132,252,0.15)", border: "rgba(192,132,252,0.4)" },
-  { label: "CRDT / Canvas", color: "#e879f9", bg: "rgba(232,121,249,0.15)", border: "rgba(232,121,249,0.4)" },
-  { label: "Linux", color: "#e4e4e7", bg: "rgba(228,228,231,0.15)", border: "rgba(228,228,231,0.4)" },
-  { label: "Grad-CAM", color: "#fb7185", bg: "rgba(251,113,133,0.15)", border: "rgba(251,113,133,0.4)" },
+  {
+    label: "React 19",
+    color: "#22d3ee",
+    bg: "rgba(6,182,212,0.15)",
+    border: "rgba(6,182,212,0.4)",
+  },
+  {
+    label: "PyTorch",
+    color: "#f97316",
+    bg: "rgba(249,115,22,0.15)",
+    border: "rgba(249,115,22,0.4)",
+  },
+  {
+    label: "FastAPI",
+    color: "#10b981",
+    bg: "rgba(16,185,129,0.15)",
+    border: "rgba(16,185,129,0.4)",
+  },
+  {
+    label: "Docker",
+    color: "#38bdf8",
+    bg: "rgba(56,189,248,0.15)",
+    border: "rgba(56,189,248,0.4)",
+  },
+  {
+    label: "TypeScript",
+    color: "#60a5fa",
+    bg: "rgba(96,165,250,0.15)",
+    border: "rgba(96,165,250,0.4)",
+  },
+  {
+    label: "Tailwind CSS",
+    color: "#38bdf8",
+    bg: "rgba(56,189,248,0.15)",
+    border: "rgba(56,189,248,0.4)",
+  },
+  {
+    label: "Python",
+    color: "#fbbf24",
+    bg: "rgba(251,191,36,0.15)",
+    border: "rgba(251,191,36,0.4)",
+  },
+  {
+    label: "PostgreSQL",
+    color: "#818cf8",
+    bg: "rgba(129,140,248,0.15)",
+    border: "rgba(129,140,248,0.4)",
+  },
+  {
+    label: "Redis",
+    color: "#f43f5e",
+    bg: "rgba(244,63,94,0.15)",
+    border: "rgba(244,63,94,0.4)",
+  },
+  {
+    label: "AWS",
+    color: "#f59e0b",
+    bg: "rgba(245,158,11,0.15)",
+    border: "rgba(245,158,11,0.4)",
+  },
+  {
+    label: "Kubernetes",
+    color: "#3b82f6",
+    bg: "rgba(59,130,246,0.15)",
+    border: "rgba(59,130,246,0.4)",
+  },
+  {
+    label: "WebSockets",
+    color: "#34d399",
+    bg: "rgba(52,211,153,0.15)",
+    border: "rgba(52,211,153,0.4)",
+  },
+  {
+    label: "OpenCV",
+    color: "#c084fc",
+    bg: "rgba(192,132,252,0.15)",
+    border: "rgba(192,132,252,0.4)",
+  },
+  {
+    label: "CRDT / Canvas",
+    color: "#e879f9",
+    bg: "rgba(232,121,249,0.15)",
+    border: "rgba(232,121,249,0.4)",
+  },
+  {
+    label: "Linux",
+    color: "#e4e4e7",
+    bg: "rgba(228,228,231,0.15)",
+    border: "rgba(228,228,231,0.4)",
+  },
+  {
+    label: "Grad-CAM",
+    color: "#fb7185",
+    bg: "rgba(251,113,133,0.15)",
+    border: "rgba(251,113,133,0.4)",
+  },
 ];
 
 const PhysicsSandbox = memo(({ isOpen, onClose }) => {
@@ -172,7 +252,8 @@ const PhysicsSandbox = memo(({ isOpen, onClose }) => {
     animationFrameRef.current = requestAnimationFrame(render);
 
     return () => {
-      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
+      if (animationFrameRef.current)
+        cancelAnimationFrame(animationFrameRef.current);
       window.removeEventListener("resize", resizeCanvas);
     };
   }, [isOpen, gravityEnabled, playWhoosh]);
@@ -254,7 +335,9 @@ const PhysicsSandbox = memo(({ isOpen, onClose }) => {
                 <span className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse shadow-[0_0_8px_#22d3ee] shrink-0" />
                 <span className="text-xs sm:text-sm font-bold text-white tracking-wide flex items-center gap-1.5 truncate">
                   <Move size={14} className="text-cyan-400 shrink-0" />
-                  <span className="hidden sm:inline">Physics Playground — Tech Stack Gravity Sandbox</span>
+                  <span className="hidden sm:inline">
+                    Physics Playground — Tech Stack Gravity Sandbox
+                  </span>
                   <span className="sm:hidden">Physics Sandbox</span>
                 </span>
               </div>
@@ -307,8 +390,13 @@ const PhysicsSandbox = memo(({ isOpen, onClose }) => {
 
             {/* Instruction banner */}
             <div className="px-5 py-2 bg-cyan-950/20 border-b border-cyan-500/10 flex items-center justify-between text-[11px] text-zinc-400 select-none">
-              <span>Grab any badge with your mouse/touch, fling it across the screen, or watch them collide!</span>
-              <span className="text-cyan-400/80 font-bold hidden sm:inline">Rigid-Body 2D Physics</span>
+              <span>
+                Grab any badge with your mouse/touch, fling it across the
+                screen, or watch them collide!
+              </span>
+              <span className="text-cyan-400/80 font-bold hidden sm:inline">
+                Rigid-Body 2D Physics
+              </span>
             </div>
 
             {/* Physics Interactive Canvas */}

@@ -1,61 +1,63 @@
-import React, { memo, useState } from "react";
 import { motion as Motion } from "framer-motion";
-import { 
-  BrainCircuit, 
-  Server, 
-  Globe, 
-  ShieldCheck, 
-  Terminal, 
-  Cpu, 
-  Database, 
-  Sparkles,
-  Layers,
-  Activity,
-  Zap
-} from "lucide-react";
-import { SectionWrapper } from "../hoc";
-import PhysicsSandbox from "./interactive/PhysicsSandbox";
 import {
-  PythonIcon,
-  PytorchIcon,
-  TensorflowIcon,
-  OpencvIcon,
-  ScikitlearnIcon,
-  ReactIcon,
-  NextIcon,
-  TsIcon,
-  JsIcon,
-  TailwindIcon,
-  ThreeIcon,
-  ReduxIcon,
-  FastapiIcon,
-  FlaskIcon,
-  NodeIcon,
-  ExpressIcon,
-  PostgresIcon,
-  MongoIcon,
-  MysqlIcon,
-  FirebaseIcon,
+  Activity,
+  BrainCircuit,
+  Cpu,
+  Database,
+  Globe,
+  Layers,
+  Server,
+  ShieldCheck,
+  Sparkles,
+  Terminal,
+  Zap,
+} from "lucide-react";
+import React, { memo, useState } from "react";
+import {
   AppwriteIcon,
   AwsIcon,
-  GcpIcon,
-  DockerIcon,
-  LinuxIcon,
-  GitIcon,
-  PostmanIcon,
-  VercelIcon,
-  JavaIcon,
-  CppIcon,
   CIcon,
+  CppIcon,
+  DockerIcon,
+  ExpressIcon,
+  FastapiIcon,
+  FirebaseIcon,
+  FlaskIcon,
+  GcpIcon,
+  GitIcon,
+  JavaIcon,
+  JsIcon,
+  LinuxIcon,
+  MongoIcon,
+  MysqlIcon,
+  NextIcon,
+  NodeIcon,
+  OpencvIcon,
+  PostgresIcon,
+  PostmanIcon,
+  PythonIcon,
+  PytorchIcon,
+  ReactIcon,
+  ReduxIcon,
+  ScikitlearnIcon,
+  TailwindIcon,
+  TensorflowIcon,
+  ThreeIcon,
+  TsIcon,
+  VercelIcon,
 } from "../assets/techIcons";
+import { SectionWrapper } from "../hoc";
+import PhysicsSandbox from "./interactive/PhysicsSandbox";
 
 const BENTO_GROUPS = [
   {
     id: "ai",
     title: "Applied AI & Machine Learning",
-    description: "Multi-modal forensic neural nets, computer vision and LLM compiler pipelines.",
+    description:
+      "Multi-modal forensic neural nets, computer vision and LLM compiler pipelines.",
     accent: "text-purple-400",
-    borderGlow: "hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]",
+    borderGlow:
+      "hover:border-purple-500/30 hover:shadow-[0_0_30px_rgba(168,85,247,0.15)]",
     icon: BrainCircuit,
     gridClass: "col-span-12 lg:col-span-6",
     tools: [
@@ -72,9 +74,11 @@ const BENTO_GROUPS = [
   {
     id: "backend",
     title: "Backend & Distributed Systems",
-    description: "High-throughput async APIs, relational schemas, auth and persistent queues.",
+    description:
+      "High-throughput async APIs, relational schemas, auth and persistent queues.",
     accent: "text-emerald-400",
-    borderGlow: "hover:border-emerald-500/30 hover:shadow-[0_0_30px_rgba(52,211,153,0.15)]",
+    borderGlow:
+      "hover:border-emerald-500/30 hover:shadow-[0_0_30px_rgba(52,211,153,0.15)]",
     icon: Server,
     gridClass: "col-span-12 lg:col-span-6",
     tools: [
@@ -93,9 +97,11 @@ const BENTO_GROUPS = [
   {
     id: "frontend",
     title: "Frontend & Creative Web",
-    description: "Reactive component architecture, WebGL 3D graphics and canvas engines.",
+    description:
+      "Reactive component architecture, WebGL 3D graphics and canvas engines.",
     accent: "text-cyan-400",
-    borderGlow: "hover:border-cyan-500/30 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]",
+    borderGlow:
+      "hover:border-cyan-500/30 hover:shadow-[0_0_30px_rgba(6,182,212,0.15)]",
     icon: Globe,
     gridClass: "col-span-12 lg:col-span-6",
     tools: [
@@ -112,9 +118,11 @@ const BENTO_GROUPS = [
   {
     id: "cloud-devops",
     title: "Cloud Architecture & Security",
-    description: "AWS certified foundations, containerized workflows and PE forensics.",
+    description:
+      "AWS certified foundations, containerized workflows and PE forensics.",
     accent: "text-amber-400",
-    borderGlow: "hover:border-amber-500/30 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]",
+    borderGlow:
+      "hover:border-amber-500/30 hover:shadow-[0_0_30px_rgba(245,158,11,0.15)]",
     icon: ShieldCheck,
     gridClass: "col-span-12 lg:col-span-6",
     tools: [
@@ -130,8 +138,6 @@ const BENTO_GROUPS = [
     ],
   },
 ];
-
-
 
 const Tech = memo(() => {
   const [isSandboxOpen, setIsSandboxOpen] = useState(false);
@@ -150,7 +156,8 @@ const Tech = memo(() => {
             What I Work With
           </h2>
           <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal">
-            Core programming languages, machine learning frameworks, async web backends, and cloud tools I use to build scalable systems.
+            Core programming languages, machine learning frameworks, async web
+            backends, and cloud tools I use to build scalable systems.
           </p>
         </div>
 
@@ -161,13 +168,18 @@ const Tech = memo(() => {
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs font-mono text-cyan-300 hover:text-white transition-all cursor-pointer shadow-sm active:scale-95 group"
             title="Launch interactive physics sandbox for tech badges"
           >
-            <Zap size={12} className="text-cyan-400 group-hover:scale-110 transition-transform" />
+            <Zap
+              size={12}
+              className="text-cyan-400 group-hover:scale-110 transition-transform"
+            />
             <span>Break Gravity</span>
           </button>
 
           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-cyan-500/10 border border-cyan-500/20 text-xs font-mono text-cyan-400">
             <Sparkles size={12} />
-            <span className="hidden sm:inline">35+ Production Technologies</span>
+            <span className="hidden sm:inline">
+              35+ Production Technologies
+            </span>
             <span className="sm:hidden">35+ Tech</span>
           </span>
         </div>
@@ -188,7 +200,9 @@ const Tech = memo(() => {
               <div>
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-2">
-                  <div className={`p-2 rounded-xl bg-white/[0.04] border border-white/10 ${group.accent}`}>
+                  <div
+                    className={`p-2 rounded-xl bg-white/[0.04] border border-white/10 ${group.accent}`}
+                  >
                     <GroupIcon size={18} />
                   </div>
                   <h3 className="text-xl font-bold text-white tracking-tight">
@@ -231,9 +245,14 @@ const Tech = memo(() => {
       <div className="p-4 rounded-2xl bg-zinc-900/40 border border-white/10 text-xs font-mono text-zinc-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
         <div className="flex items-center gap-2">
           <Terminal size={14} className="text-cyan-400 shrink-0" />
-          <span>Core Coursework: Data Structures &amp; Algorithms (Java), C/C++, Database Systems (DBMS), Operating Systems &amp; Computer Networks.</span>
+          <span>
+            Core Coursework: Data Structures &amp; Algorithms (Java), C/C++,
+            Database Systems (DBMS), Operating Systems &amp; Computer Networks.
+          </span>
         </div>
-        <span className="text-zinc-500 text-[11px] whitespace-nowrap">VIT Bhopal University</span>
+        <span className="text-zinc-500 text-[11px] whitespace-nowrap">
+          VIT Bhopal University
+        </span>
       </div>
 
       {/* Interactive Physics Sandbox Modal */}

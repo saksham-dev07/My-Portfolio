@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef, useCallback, memo } from "react";
-import { motion as Motion, AnimatePresence } from "framer-motion";
-import { MessageSquare, X, Eye, Bot, Minus, Maximize2 } from "lucide-react";
+import { AnimatePresence, motion as Motion } from "framer-motion";
+import { Bot, Eye, Maximize2, MessageSquare, Minus, X } from "lucide-react";
+import React, { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useSound } from "../../context/SoundContext";
 
 const COMMENTARIES = {
@@ -57,13 +57,13 @@ const COMMENTARIES = {
 const SentinelObserver = memo(() => {
   const { playBlip } = useSound();
   const [comment, setComment] = useState(
-    "System online. I'll be observing your navigation behavior."
+    "System online. I'll be observing your navigation behavior.",
   );
   const [isMinimized, setIsMinimized] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [moodEye, setMoodEye] = useState("normal"); // 'normal' | 'wink' | 'look' | 'happy'
-  const [isMobileScreen, setIsMobileScreen] = useState(() => 
-    typeof window !== "undefined" && window.innerWidth < 768
+  const [isMobileScreen, setIsMobileScreen] = useState(
+    () => typeof window !== "undefined" && window.innerWidth < 768,
   );
 
   useEffect(() => {
@@ -80,11 +80,14 @@ const SentinelObserver = memo(() => {
   const currentSection = useRef("hero");
 
   // Behavior trigger function
-  const triggerComment = useCallback((newComment, eyeState = "normal") => {
-    setComment(newComment);
-    setMoodEye(eyeState);
-    playBlip();
-  }, [playBlip]);
+  const triggerComment = useCallback(
+    (newComment, eyeState = "normal") => {
+      setComment(newComment);
+      setMoodEye(eyeState);
+      playBlip();
+    },
+    [playBlip],
+  );
 
   useEffect(() => {
     // Reset idle timer
@@ -134,11 +137,15 @@ const SentinelObserver = memo(() => {
         const el = document.getElementById(id);
         if (el) {
           const rect = el.getBoundingClientRect();
-          if (rect.top <= window.innerHeight * 0.45 && rect.bottom >= window.innerHeight * 0.2) {
+          if (
+            rect.top <= window.innerHeight * 0.45 &&
+            rect.bottom >= window.innerHeight * 0.2
+          ) {
             if (currentSection.current !== id) {
               currentSection.current = id;
               const pool = COMMENTARIES[id] || COMMENTARIES.projects;
-              const randomComment = pool[Math.floor(Math.random() * pool.length)];
+              const randomComment =
+                pool[Math.floor(Math.random() * pool.length)];
               triggerComment(randomComment, "normal");
             }
             break;
@@ -222,7 +229,11 @@ const SentinelObserver = memo(() => {
             whileTap={{ scale: 0.92 }}
             onClick={() => setIsMinimized((prev) => !prev)}
             className="group relative flex items-center justify-center w-12 h-12 rounded-2xl bg-zinc-950 border border-cyan-400/50 shadow-[0_0_20px_rgba(6,182,212,0.3)] hover:shadow-[0_0_30px_rgba(6,182,212,0.5)] transition-all cursor-pointer overflow-hidden"
-            title={isMinimized ? "Wake up Sentinel Mascot" : "Minimize Sentinel Mascot"}
+            title={
+              isMinimized
+                ? "Wake up Sentinel Mascot"
+                : "Minimize Sentinel Mascot"
+            }
           >
             {/* Ambient Background Flare */}
             <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/20 via-transparent to-blue-600/20 pointer-events-none" />
