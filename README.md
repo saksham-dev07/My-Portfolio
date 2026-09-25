@@ -4,6 +4,7 @@ Production-grade, highly interactive portfolio and distributed systems showcase 
 
 [![React 19](https://img.shields.io/badge/React-19.1.0-61dafb?style=flat-square&logo=react)](https://react.dev/)
 [![Vite 6](https://img.shields.io/badge/Vite-6.3.5-646cff?style=flat-square&logo=vite)](https://vitejs.dev/)
+[![Bun](https://img.shields.io/badge/Bun-1.4.0-fbf0df?style=flat-square&logo=bun&logoColor=black)](https://bun.sh/)
 [![Three.js](https://img.shields.io/badge/Three.js-0.176.0-black?style=flat-square&logo=threedotjs)](https://threejs.org/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-3.4.17-38bdf8?style=flat-square&logo=tailwindcss)](https://tailwindcss.com/)
 [![Resend](https://img.shields.io/badge/Resend-6.28.1-000000?style=flat-square&logo=resend)](https://resend.com/)
@@ -251,10 +252,10 @@ My-Portfolio/
 ## Local Development Setup
 
 ### Prerequisites
-* **Node.js**: `v20.0.0` or higher
-* **npm**: `v9.0.0` or higher
+* **Bun**: `v1.1.0` or higher (Recommended — ~1s installs & instant script execution)
+* *or* **Node.js**: `v20.0.0` or higher & **npm**: `v9.0.0`+
 
-### Installation
+### Installation & Launch
 
 1. **Clone the repository**:
    ```bash
@@ -264,6 +265,10 @@ My-Portfolio/
 
 2. **Install dependencies**:
    ```bash
+   # Using Bun (Recommended ~1s install)
+   bun install
+
+   # Or using npm
    npm install
    ```
 
@@ -280,6 +285,10 @@ My-Portfolio/
 
 4. **Start Development Server**:
    ```bash
+   # Using Bun
+   bun dev
+
+   # Or using npm
    npm run dev
    ```
    Open `http://localhost:5173` in your browser.
@@ -288,12 +297,12 @@ My-Portfolio/
 
 ## Available Scripts
 
-| Command | Description |
-|---|---|
-| `npm run dev` | Launches local Vite development server with Hot Module Replacement (HMR) and local Resend API middleware |
-| `npm run build` | Compiles production bundle, splits chunks, strips debuggers, and emits pre-compressed Brotli & Gzip files |
-| `npm run lint` | Runs ESLint 9 to verify code quality, hooks integrity, and syntax standards |
-| `npm run preview` | Locally serves and tests the compiled production build from `/dist` |
+| Bun Command | npm Equivalent | Description |
+|---|---|---|
+| `bun dev` | `npm run dev` | Launches local Vite development server with Hot Module Replacement (HMR) and local Resend API middleware |
+| `bun run build` | `npm run build` | Compiles production bundle, splits chunks, strips debuggers, and emits pre-compressed Brotli & Gzip files |
+| `bun run lint` | `npm run lint` | Runs ESLint 9 to verify code quality, hooks integrity, and syntax standards |
+| `bun run preview` | `npm run preview` | Locally serves and tests the compiled production build from `/dist` |
 
 ---
 
