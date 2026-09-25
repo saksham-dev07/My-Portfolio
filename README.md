@@ -314,7 +314,7 @@ B.Tech in Computer Science Engineering, VIT Bhopal University (Class of 2027)
 
 * **Portfolio:** [saksham-dev07.me](https://saksham-dev07.me)
 * **GitHub:** [github.com/saksham-dev07](https://github.com/saksham-dev07)
-* **LinkedIn:** [linkedin.com/in/saksham-agarwal07](https://www.linkedin.com/in/saksham-agarwal07/)
+* **LinkedIn:** [linkedin.com/in/saksham-agarwal-b44910289](https://www.linkedin.com/in/saksham-agarwal-b44910289/)
 * **Email:** [sakmmm07@gmail.com](mailto:sakmmm07@gmail.com)
 
 ---

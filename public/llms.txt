@@ -1,13 +1,73 @@
-# Saksham Agarwal - Portfolio & Technical Profile
+# Saksham Agarwal — Software & Applied AI Engineer
 
-> B.Tech CSE Student at VIT Bhopal (Class of 2027) specializing in Full-Stack Web Development, Applied AI/ML, and Scalable Web Systems.
+> Portfolio, systems architecture, and credentials directory for LLM web crawlers and AI search engines.
+> Website: https://saksham-dev07.me/
+> GitHub: https://github.com/saksham-dev07
+> LinkedIn: https://www.linkedin.com/in/saksham-agarwal-b44910289/
+> Email: sakmmm07@gmail.com
 
-## Core Links
-- [Website](https://saksham-dev07.me/)
-- [GitHub](https://github.com/saksham-dev07)
-- [LinkedIn](https://www.linkedin.com/in/saksham-agarwal-b44910289/)
-- [Projects](https://saksham-dev07.me/#projects)
-- [Certifications](https://saksham-dev07.me/#certifications)
+---
 
-## Summary
-Saksham Agarwal is a Computer Science and Engineering student at VIT Bhopal building deepfake forensics platforms, LLM app compilers, and real-time distributed web systems.
+## Profile Summary
+Saksham Agarwal is a Software and Applied AI Engineer pursuing B.Tech in Computer Science Engineering at VIT Bhopal University (Class of 2027, CGPA: 8.46/10.0). Specializes in Computer Vision, Deepfake Forensics, LLM AST Compilers, Distributed Systems, and Full-Stack React/FastAPI engineering.
+
+---
+
+## Key Achievements & Competitive Programming
+- **TCS CodeVita 2025**: Global Rank 6,735 out of 20,540 participants in Round 1.
+- **Flipkart Gridlock Hackathon 2.0**: Round 2 Solo Qualifier with 93.94% accuracy in ML traffic demand prediction.
+- **FinTech Club VIT Bhopal**: Design Team Lead (2025 - Present), directing visual branding and design initiatives.
+
+---
+
+## Flagship Engineering Projects
+
+### 1. Deepfake Forensics & Explainable AI
+- **Category**: Computer Vision & AI Forensics
+- **Tech Stack**: Python, PyTorch, EfficientNet-B4, SyncNet, Grad-CAM, SHAP, FastAPI, React
+- **Summary**: Multi-modal forensics engine fusing 15 detection signals with 94.2% validation accuracy. Generates visual attribution heatmaps (Grad-CAM/SHAP), lip-sync confidence scores, and automated forensic PDF reports.
+- **Source**: https://github.com/saksham-dev07/Deepfake-Forensics-with-Explainable-AI
+- **Demo**: https://deepforensics.vercel.app/
+
+### 2. Natural Language App Compiler
+- **Category**: Generative AI & LLM Systems
+- **Tech Stack**: Node.js, JavaScript, Gemini API, Multi-pass AST
+- **Summary**: 4-stage compiler-style pipeline that translates natural language prompts into validated, deployable web application code with 100% automated database schema synthesis.
+- **Source**: https://github.com/saksham-dev07/NL-App-Compiler
+
+### 3. DocPilot — Clinical Management Platform
+- **Category**: Full-Stack Healthcare Platform
+- **Tech Stack**: React, TypeScript, Firebase, Appwrite, Gemini AI
+- **Summary**: Role-based clinical platform with Gemini AI serving as an automated consultation scribe generating structured clinical notes, paired with Appwrite real-time state synchronization.
+- **Source**: https://github.com/saksham-dev07/Docpilot
+
+### 4. NexusBoard — Collaborative Canvas
+- **Category**: Real-Time Distributed Systems & WebSockets
+- **Tech Stack**: React, HTML5 Canvas API, WebSockets, CRDT / Delta Sync
+- **Summary**: Real-time collaborative infinite canvas and whiteboard engine with sub-20ms WebSocket delta sync and 60 FPS drawing loop.
+- **Source**: https://github.com/saksham-dev07/NexusBoard
+
+---
+
+## Verified Industry Certifications
+1. **AWS Certified AI Practitioner** — Amazon Web Services (Validation: a9c8149546a744f1abfb63c0140809fc)
+2. **AWS Certified Cloud Practitioner** — Amazon Web Services (Validation: 06aad1dcc8e147cdb48972cb44a6c810)
+3. **Generative AI Using IBM Watsonx** — IBM Skills Network (Validation: 60c690f32b0840d1846b829372463e44)
+4. **AI & Edge Computing for Industry Applications** — Larsen & Toubro (L&T EduTech) • Grade A+
+5. **Marketing Analytics** — NPTEL & IIT Kharagpur • 85% Score (Roll: NPTEL26MG33S1052405420)
+6. **Introduction to Machine Learning** — NPTEL & IIT Madras (Roll: NPTEL25CS46S350600275)
+7. **The Bits and Bytes of Computer Networking** — Google & Coursera (Validation: 0QWGIHP7LEJF)
+8. **Google Cloud Skills Boost** — Google Cloud Platform
+9. **FutureAI Global Hackathon 2026** — FutureAI
+10. **Fundamentals of AI and ML** — VIT Bhopal University
+11. **Programming in Java** — VIT Bhopal University
+12. **Python Essentials** — VIT Bhopal University
+
+---
+
+## Technical Skills Matrix
+- **Languages**: Python, Java, C++, TypeScript, JavaScript, C, SQL
+- **AI & ML**: PyTorch, TensorFlow, OpenCV, scikit-learn, Grad-CAM, SHAP, SyncNet, Gemini API
+- **Web & Backend**: React 19, Next.js, FastAPI, Flask, Node.js, Express.js, Three.js, Tailwind CSS
+- **Cloud & Databases**: PostgreSQL, MongoDB, MySQL, Firebase, Appwrite, AWS, Google Cloud
+- **DevOps & Tools**: Docker, Git, Linux (POSIX), Bun, Postman, Vercel, Figma, Jupyter
