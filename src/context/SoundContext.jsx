@@ -27,10 +27,11 @@ const SoundContext = createContext({
 export const SoundProvider = ({ children }) => {
   const [isMuted, setIsMuted] = useState(true);
   const audioCtxRef = useRef(null);
+  const hasInteractedRef = useRef(false);
 
   // Initialize or resume AudioContext safely with user gesture
   const getAudioContext = useCallback(() => {
-    if (typeof window === "undefined") return null;
+    if (typeof window === "undefined" || !hasInteractedRef.current) return null;
     try {
       if (!audioCtxRef.current) {
         const AudioCtxClass = window.AudioContext || window.webkitAudioContext;
@@ -50,10 +51,17 @@ export const SoundProvider = ({ children }) => {
   // Unlock AudioContext on first user interaction anywhere
   useEffect(() => {
     const unlock = () => {
+      hasInteractedRef.current = true;
       try {
-        const ctx = getAudioContext();
-        if (ctx && ctx.state === "suspended") {
-          ctx.resume();
+        if (!audioCtxRef.current) {
+          const AudioCtxClass =
+            window.AudioContext || window.webkitAudioContext;
+          if (AudioCtxClass) {
+            audioCtxRef.current = new AudioCtxClass();
+          }
+        }
+        if (audioCtxRef.current && audioCtxRef.current.state === "suspended") {
+          audioCtxRef.current.resume();
         }
       } catch {
         // Ignore
@@ -68,7 +76,7 @@ export const SoundProvider = ({ children }) => {
       window.removeEventListener("pointerdown", unlock);
       window.removeEventListener("keydown", unlock);
     };
-  }, [getAudioContext]);
+  }, []);
 
   // Load saved sound preference
   useEffect(() => {

@@ -5,19 +5,23 @@ import * as THREE from "three";
 import { useThemeMood } from "../../context/ThemeMoodContext";
 import CanvasLoader from "../Loader";
 
+const getDeviceType = () => {
+  if (typeof window === "undefined") return "desktop";
+  const width = window.innerWidth;
+  if (width <= 640) return "mobile";
+  if (width <= 1024) return "tablet";
+  return "desktop";
+};
+
 // Custom hook to detect device type based on screen width
 const useDeviceType = () => {
-  const [device, setDevice] = useState("desktop");
+  const [device, setDevice] = useState(getDeviceType);
 
   useEffect(() => {
     const updateDevice = () => {
-      const width = window.innerWidth;
-      if (width <= 640) setDevice("mobile");
-      else if (width <= 1024) setDevice("tablet");
-      else setDevice("desktop");
+      setDevice(getDeviceType());
     };
 
-    updateDevice();
     window.addEventListener("resize", updateDevice);
     return () => window.removeEventListener("resize", updateDevice);
   }, []);

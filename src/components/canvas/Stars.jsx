@@ -60,11 +60,11 @@ const hasWebGL = () => {
 const StarsCanvas = memo(() => {
   const [isVisible, setIsVisible] = useState(false);
   const containerRef = useRef(null);
-  const [canRenderWebGL, setCanRenderWebGL] = useState(false);
+  const [canRenderWebGL] = useState(() =>
+    typeof window !== "undefined" ? hasWebGL() : false,
+  );
 
   useEffect(() => {
-    setCanRenderWebGL(hasWebGL());
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         setIsVisible(entry.isIntersecting);

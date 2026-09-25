@@ -16,7 +16,6 @@
   "linter": {
     "enabled": true,
     "rules": {
-      "recommended": true,
       "suspicious": {
         "noArrayIndexKey": "off",
         "noAssignInExpressions": "warn",
