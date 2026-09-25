@@ -164,13 +164,13 @@ An authentic 2D platformer embedded directly into the portfolio (`src/components
 
 | Layer | Technologies | Purpose |
 |---|---|---|
-| **Core Framework & Compiler** | React 19.1.0, Vite 8.3.1 (Rolldown Rust Bundler), SWC in Rust (@vitejs/plugin-react-swc) | Reactive component architecture with 20x faster Rust-powered JSX compiler & sub-4s Rolldown builds |
+| **Core Framework & Compiler** | React 19.3.0, Vite 8.3.1 (Rolldown Rust Bundler), SWC in Rust (@vitejs/plugin-react-swc) | Reactive component architecture with 20x faster Rust-powered JSX compiler & sub-4s Rolldown builds |
 | **Code Quality & Tooling** | Biome 2.5 (Rust), Bun 1.4 (Zig) | Sub-10ms native linter & formatter + 25x faster native package manager |
-| **3D & WebGL Graphics** | Three.js 0.176.0, @react-three/fiber 9.1.2, @react-three/drei 10.0.8 | Interactive 3D retro computer workstation & stars particle canvas |
-| **Styling & Design Tokens** | Tailwind CSS 3.4.17, tailwind-merge, clsx, Vanilla CSS | Conflict-safe utility classes with cn() helper and custom glassmorphism |
+| **3D & WebGL Graphics** | Three.js 0.186.1, @react-three/fiber 9.8.1, @react-three/drei 10.7.9 | Interactive 3D retro computer workstation & stars particle canvas |
+| **Styling & Design Tokens** | Tailwind CSS 3.4.17, tailwind-merge 3.7.0, clsx, Vanilla CSS | Conflict-safe utility classes with cn() helper and custom glassmorphism |
 | **Notifications & UI Feedback** | Sonner 2.0 | Ultra-lightweight (3KB) dark-mode toast notification engine with spring physics |
-| **Animation & Gestures** | Framer Motion 12.12.1, Lenis 1.3.26 | Fluid spring animations, 3D card flips, and momentum scroll |
-| **Email & Backend Gateway** | Resend 6.28.1, Vercel Serverless Function (`/api/send.js`) | Enterprise serverless transactional email delivery |
+| **Animation & Gestures** | Framer Motion 13.4.4, Lenis 1.3.26 | Fluid spring animations, 3D card flips, and momentum scroll |
+| **Email & Backend Gateway** | Resend 6.30.0, Vercel Serverless Function (`/api/send.js`) | Enterprise serverless transactional email delivery |
 | **Local Dev Server API** | Custom Vite Plugin (`resendLocalPlugin` in `vite.config.js`) | Local middleware emulating serverless `/api/send` endpoint |
 | **Audio Engine** | Native Web Audio API | Procedural subtractive sound synthesis & retro SFX |
 | **Mini-Game Engine** | HTML5 Canvas 2D API | Delta-time Euler physics engine with zero external dependencies |
