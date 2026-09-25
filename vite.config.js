@@ -119,13 +119,25 @@ export default defineConfig({
     },
     rollupOptions: {
       output: {
-        manualChunks: {
-          'three-core': ['three'],
-          'three-drei': ['@react-three/drei', '@react-three/fiber'],
-          'framer-motion': ['framer-motion'],
-          'icons-vendor': ['lucide-react']
-        }
-      }
+        manualChunks(id) {
+          const normalizedId = id.replace(/\\/g, "/");
+          if (normalizedId.includes("/node_modules/three/")) {
+            return "three-core";
+          }
+          if (
+            normalizedId.includes("/node_modules/@react-three/drei/") ||
+            normalizedId.includes("/node_modules/@react-three/fiber/")
+          ) {
+            return "three-drei";
+          }
+          if (normalizedId.includes("/node_modules/framer-motion/")) {
+            return "framer-motion";
+          }
+          if (normalizedId.includes("/node_modules/lucide-react/")) {
+            return "icons-vendor";
+          }
+        },
+      },
     },
     chunkSizeWarningLimit: 1200,
     assetsInlineLimit: 4096,   // Inline tiny assets < 4KB as base64 (saves HTTP requests)

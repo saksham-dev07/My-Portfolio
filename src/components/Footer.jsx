@@ -47,7 +47,7 @@ const CASE_STUDIES = [
 ];
 
 const MARQUEE_TECH = [
-  "React 19", "Tailwind CSS", "Vite 6", "Framer Motion", "Lenis Scroll",
+  "React 19", "Tailwind CSS", "Vite 8", "Framer Motion", "Lenis Scroll",
   "Resend API", "Vercel Edge", "Three.js", "React Three Fiber",
 ];
 

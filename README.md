@@ -164,7 +164,7 @@ An authentic 2D platformer embedded directly into the portfolio (`src/components
 
 | Layer | Technologies | Purpose |
 |---|---|---|
-| **Core Framework & Compiler** | React 19.1.0, Vite 6.3.5, SWC in Rust (@vitejs/plugin-react-swc) | Reactive component architecture with 20x faster Rust-powered JSX compiler |
+| **Core Framework & Compiler** | React 19.1.0, Vite 8.3.1 (Rolldown Rust Bundler), SWC in Rust (@vitejs/plugin-react-swc) | Reactive component architecture with 20x faster Rust-powered JSX compiler & sub-4s Rolldown builds |
 | **Code Quality & Tooling** | Biome 2.5 (Rust), Bun 1.4 (Zig) | Sub-10ms native linter & formatter + 25x faster native package manager |
 | **3D & WebGL Graphics** | Three.js 0.176.0, @react-three/fiber 9.1.2, @react-three/drei 10.0.8 | Interactive 3D retro computer workstation & stars particle canvas |
 | **Styling & Design Tokens** | Tailwind CSS 3.4.17, tailwind-merge, clsx, Vanilla CSS | Conflict-safe utility classes with cn() helper and custom glassmorphism |
