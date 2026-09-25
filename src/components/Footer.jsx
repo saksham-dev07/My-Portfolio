@@ -168,7 +168,7 @@ const Footer = memo(() => {
         setPresence({
           isAwake,
           label: isAwake ? "Online / Building" : "Recharging / Offline",
-          detail: isAwake ? "Avg reply: < 2h" : "Queued for morning",
+          detail: isAwake ? "Avg reply: < 2h" : "Queued for AM",
         });
       } catch {
         setCurrentTime("17:00:00 IST");
@@ -311,7 +311,7 @@ const Footer = memo(() => {
           </Motion.div>
 
           {/* Col 2: Section Directory */}
-          <Motion.div className="lg:col-span-3 space-y-3" variants={itemVariants}>
+          <Motion.div className="lg:col-span-2 space-y-3" variants={itemVariants}>
             <span className="text-xs font-mono uppercase tracking-wider text-zinc-500 font-semibold flex items-center gap-1.5">
               <Compass size={12} className="text-cyan-400" />
               <span>Directory</span>
@@ -361,18 +361,18 @@ const Footer = memo(() => {
           </Motion.div>
 
           {/* Col 4: Live Operations & Telemetry */}
-          <Motion.div className="lg:col-span-3 space-y-3 lg:text-right flex flex-col lg:items-end" variants={itemVariants}>
+          <Motion.div className="lg:col-span-4 space-y-3 lg:text-right flex flex-col lg:items-end" variants={itemVariants}>
             <span className="text-xs font-mono uppercase tracking-wider text-zinc-500 font-semibold flex items-center gap-1.5">
               <Radio size={12} className="text-emerald-400 animate-pulse" />
               <span>Live Operations</span>
             </span>
 
-            <div className="space-y-2.5 font-mono text-xs text-zinc-400 w-full lg:w-auto">
+            <div className="space-y-2.5 font-mono text-xs text-zinc-400 w-full lg:w-auto flex flex-col lg:items-end">
               {/* Presence Pill */}
-              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900 border border-white/10 text-zinc-200">
-                <span className={`w-2 h-2 rounded-full ${presence.isAwake ? "bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]"}`} />
-                <span>{presence.label}</span>
-                <span className="text-zinc-500 text-[10px]">({presence.detail})</span>
+              <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900/90 border border-white/10 text-zinc-200 whitespace-nowrap shrink-0">
+                <span className={`w-2 h-2 rounded-full shrink-0 ${presence.isAwake ? "bg-emerald-400 animate-pulse shadow-[0_0_8px_rgba(52,211,153,0.8)]" : "bg-indigo-400 shadow-[0_0_8px_rgba(129,140,248,0.8)]"}`} />
+                <span className="shrink-0">{presence.label}</span>
+                <span className="text-zinc-500 text-[10px] shrink-0">({presence.detail})</span>
               </div>
 
               {/* Clock */}
