@@ -13,7 +13,7 @@ import {
   Server,
   X,
 } from "lucide-react";
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 
 import { navLinks } from "../constants";
 import { useArcade } from "../context/ArcadeContext";

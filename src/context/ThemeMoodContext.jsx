@@ -1,4 +1,4 @@
-import React, {
+import {
   createContext,
   useCallback,
   useContext,
@@ -85,7 +85,7 @@ export const ThemeMoodProvider = ({ children }) => {
         ) {
           x = eventOrCoords.clientX;
           y = eventOrCoords.clientY;
-        } else if (eventOrCoords.touches && eventOrCoords.touches[0]) {
+        } else if (eventOrCoords.touches?.[0]) {
           x = eventOrCoords.touches[0].clientX;
           y = eventOrCoords.touches[0].clientY;
         } else if (

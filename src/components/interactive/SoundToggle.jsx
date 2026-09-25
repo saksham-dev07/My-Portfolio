@@ -1,6 +1,6 @@
 import { motion as Motion } from "framer-motion";
 import { Volume2, VolumeX } from "lucide-react";
-import React, { memo } from "react";
+import { memo } from "react";
 import { useSound } from "../../context/SoundContext";
 
 const SoundToggle = memo(({ isMobile = false }) => {

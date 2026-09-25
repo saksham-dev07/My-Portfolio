@@ -1,4 +1,3 @@
-import React from "react";
 import { FaAws, FaJava } from "react-icons/fa6";
 import { IoLogoCss3 } from "react-icons/io5";
 import {

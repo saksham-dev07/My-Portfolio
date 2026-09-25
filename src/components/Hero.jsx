@@ -8,14 +8,7 @@ import {
   Sparkles,
   Terminal,
 } from "lucide-react";
-import React, {
-  lazy,
-  memo,
-  Suspense,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
+import { lazy, memo, Suspense, useCallback, useEffect, useState } from "react";
 import { profile, resume } from "../assets";
 import {
   AwsIcon,

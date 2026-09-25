@@ -1,6 +1,6 @@
 import { AnimatePresence, motion as Motion } from "framer-motion";
-import { Gamepad2, Sparkles, Trophy, X } from "lucide-react";
-import React, { memo, useEffect, useRef, useState } from "react";
+import { Gamepad2, Trophy, X } from "lucide-react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useArcade } from "../../context/ArcadeContext";
 import { useSound } from "../../context/SoundContext";
 
@@ -65,12 +65,16 @@ const KonamiCelebration = memo(() => {
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
 
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    let width = canvas.width;
+    let height = canvas.height;
 
     const handleResize = () => {
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      width = canvas.width;
+      height = canvas.height;
     };
     window.addEventListener("resize", handleResize);
 

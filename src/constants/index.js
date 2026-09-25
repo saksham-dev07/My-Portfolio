@@ -1,20 +1,14 @@
 import {
   Award,
-  Braces,
   BrainCircuit,
   CloudCog,
   Code2,
-  Coffee,
-  FileCode2,
   Globe,
   GraduationCap,
   Mail,
-  PenTool,
   Server,
   ShieldCheck,
-  Smartphone,
   TerminalSquare,
-  User,
   Users,
 } from "lucide-react";
 

@@ -1,9 +1,7 @@
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import {
   ArrowRight,
-  CheckCircle2,
   Clock,
-  ExternalLink,
   Gamepad2,
   Pause,
   Play,
@@ -16,7 +14,7 @@ import {
   X,
   Zap,
 } from "lucide-react";
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useArcade } from "../../../context/ArcadeContext";
 import { useSound } from "../../../context/SoundContext";
 import { buildSignalRunTrack } from "./signalRunData";

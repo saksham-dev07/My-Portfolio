@@ -1,9 +1,7 @@
-import { motion as Motion } from "framer-motion";
 import {
   Activity,
   BrainCircuit,
   Cpu,
-  Database,
   Globe,
   Layers,
   Server,
@@ -12,12 +10,10 @@ import {
   Terminal,
   Zap,
 } from "lucide-react";
-import React, { memo, useState } from "react";
+import { memo, useState } from "react";
 import {
   AppwriteIcon,
   AwsIcon,
-  CIcon,
-  CppIcon,
   DockerIcon,
   ExpressIcon,
   FastapiIcon,
@@ -25,11 +21,9 @@ import {
   FlaskIcon,
   GcpIcon,
   GitIcon,
-  JavaIcon,
   JsIcon,
   LinuxIcon,
   MongoIcon,
-  MysqlIcon,
   NextIcon,
   NodeIcon,
   OpencvIcon,

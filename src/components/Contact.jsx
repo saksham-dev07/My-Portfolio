@@ -21,7 +21,7 @@ import {
   Sparkles,
   Zap,
 } from "lucide-react";
-import React, { memo, useCallback, useState } from "react";
+import { memo, useCallback, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { profile } from "../assets";

@@ -1,6 +1,5 @@
-import { motion as Motion } from "framer-motion";
-import { ArrowUpRight, Code2, ExternalLink, Github } from "lucide-react";
-import React, { memo } from "react";
+import { ArrowUpRight, Github } from "lucide-react";
+import { memo } from "react";
 import { projects } from "../constants";
 import { useRole } from "../context/RoleContext";
 import { SectionWrapper } from "../hoc";

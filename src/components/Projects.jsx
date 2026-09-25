@@ -1,31 +1,16 @@
-import { AnimatePresence, motion as Motion } from "framer-motion";
 import {
   Activity,
-  ArrowRight,
-  CheckCircle2,
-  Code2,
   Cpu,
   Eraser,
   ExternalLink,
-  FileCode,
   Github,
-  Layers,
   PenTool,
   Radio,
   RotateCcw,
   ShieldCheck,
-  Sparkles,
   Trash2,
-  Users,
 } from "lucide-react";
-import React, {
-  memo,
-  useCallback,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { projects } from "../constants";
 import { useRole } from "../context/RoleContext";
 import { SectionWrapper } from "../hoc";

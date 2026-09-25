@@ -1,16 +1,14 @@
 import {
-  Award,
   BookOpen,
   Building2,
   Calendar,
   CheckCircle2,
   GraduationCap,
-  MapPin,
   Sparkles,
   TrendingUp,
   Trophy,
 } from "lucide-react";
-import React, { memo } from "react";
+import { memo } from "react";
 import { education, hackathons } from "../constants";
 import { SectionWrapper } from "../hoc";
 

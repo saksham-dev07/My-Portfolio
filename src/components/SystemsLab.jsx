@@ -1,17 +1,12 @@
-import { AnimatePresence, motion as Motion } from "framer-motion";
 import {
-  Activity,
-  ArrowRight,
   CheckCircle2,
   Cpu,
   Database,
   Gauge,
   Globe,
-  HardDrive,
   Radio,
   Server,
   ShieldCheck,
-  Zap,
 } from "lucide-react";
 import React, { memo, useState } from "react";
 import { SectionWrapper } from "../hoc";

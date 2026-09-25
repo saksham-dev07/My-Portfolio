@@ -1,6 +1,5 @@
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import {
-  Award,
   Check,
   CheckCircle2,
   Copy,
@@ -8,12 +7,10 @@ import {
   Eye,
   QrCode,
   RotateCw,
-  Scan,
   ShieldCheck,
-  Sparkles,
   X,
 } from "lucide-react";
-import React, { memo, useCallback, useEffect, useMemo, useState } from "react";
+import { memo, useCallback, useEffect, useMemo, useState } from "react";
 import { certifications } from "../constants";
 import { SectionWrapper } from "../hoc";
 
@@ -408,7 +405,7 @@ const Certifications = () => {
   }, [activeTab]);
 
   const handleFlipAll = useCallback(() => {
-    setIsFlippedAll((prev) => (prev ? false : true));
+    setIsFlippedAll((prev) => !prev);
   }, []);
 
   const handleViewImage = useCallback((cert) => {

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion as Motion } from "framer-motion";
-import { Bot, Eye, Maximize2, MessageSquare, Minus, X } from "lucide-react";
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import { Minus, X } from "lucide-react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useSound } from "../../context/SoundContext";
 
 const COMMENTARIES = {

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion as Motion } from "framer-motion";
 import { ChevronDown, Coffee, Cpu, Flame, Sun, Terminal } from "lucide-react";
-import React, { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import { MOODS } from "../../constants/moods";
 import { useSound } from "../../context/SoundContext";
 import { useThemeMood } from "../../context/ThemeMoodContext";

@@ -1,6 +1,6 @@
 import { AnimatePresence, motion as Motion } from "framer-motion";
-import { ArrowDown, Move, RotateCcw, Sparkles, X, Zap } from "lucide-react";
-import React, { memo, useEffect, useRef, useState } from "react";
+import { ArrowDown, Move, RotateCcw, X, Zap } from "lucide-react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useSound } from "../../context/SoundContext";
 
 const TECH_ITEMS = [
@@ -113,7 +113,7 @@ const PhysicsSandbox = memo(({ isOpen, onClose }) => {
   const mousePosRef = useRef({ x: 0, y: 0, prevX: 0, prevY: 0 });
 
   // Initialize rigid bodies
-  const initBodies = (width) => {
+  const initBodies = useCallback((width) => {
     bodiesRef.current = TECH_ITEMS.map((item, idx) => {
       const col = idx % 4;
       const row = Math.floor(idx / 4);
@@ -130,7 +130,7 @@ const PhysicsSandbox = memo(({ isOpen, onClose }) => {
         vRot: (Math.random() - 0.5) * 0.05,
       };
     });
-  };
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -256,7 +256,7 @@ const PhysicsSandbox = memo(({ isOpen, onClose }) => {
         cancelAnimationFrame(animationFrameRef.current);
       window.removeEventListener("resize", resizeCanvas);
     };
-  }, [isOpen, gravityEnabled, playWhoosh]);
+  }, [isOpen, gravityEnabled, playWhoosh, initBodies]);
 
   // Pointer / Mouse interaction handlers
   const handlePointerDown = (e) => {

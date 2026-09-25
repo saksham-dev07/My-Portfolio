@@ -1,12 +1,5 @@
-import {
-  Calendar,
-  ChevronRight,
-  Palette,
-  ShieldCheck,
-  Sparkles,
-  Users,
-} from "lucide-react";
-import React, { memo } from "react";
+import { Calendar, Palette, ShieldCheck, Users } from "lucide-react";
+import { memo } from "react";
 import { leadership } from "../constants";
 import { SectionWrapper } from "../hoc";
 

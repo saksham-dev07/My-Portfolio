@@ -1,6 +1,6 @@
-import { AnimatePresence, motion as Motion } from "framer-motion";
-import { CheckCircle2, Mail, Sparkles, Zap } from "lucide-react";
-import React, { memo, useCallback, useRef, useState } from "react";
+import { motion as Motion } from "framer-motion";
+import { CheckCircle2, Sparkles, Zap } from "lucide-react";
+import { memo, useCallback, useRef, useState } from "react";
 import { useSound } from "../../context/SoundContext";
 
 const QUIPS = [

@@ -8,7 +8,6 @@ import {
   Code2,
   Compass,
   Copy,
-  Cpu,
   FileText,
   GitBranch,
   Github,
@@ -22,7 +21,7 @@ import {
   Sun,
   Zap,
 } from "lucide-react";
-import React, { memo, useCallback, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { profile, resume } from "../assets";
 

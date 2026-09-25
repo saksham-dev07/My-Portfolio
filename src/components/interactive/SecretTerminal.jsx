@@ -1,11 +1,6 @@
 import { AnimatePresence, motion as Motion } from "framer-motion";
-import {
-  Maximize2,
-  Minimize2,
-  Terminal as TerminalIcon,
-  X,
-} from "lucide-react";
-import React, { memo, useEffect, useRef, useState } from "react";
+import { Terminal as TerminalIcon, X } from "lucide-react";
+import { memo, useEffect, useRef, useState } from "react";
 import { useSound } from "../../context/SoundContext";
 
 const KONAMI_CODE = [
@@ -91,7 +86,7 @@ const SecretTerminal = memo(() => {
       setTimeout(() => inputRef.current?.focus(), 100);
       bottomRef.current?.scrollIntoView({ behavior: "smooth" });
     }
-  }, [isOpen, history]);
+  }, [isOpen]);
 
   const handleCommand = (e) => {
     e.preventDefault();
