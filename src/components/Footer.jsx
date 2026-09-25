@@ -1,5 +1,6 @@
 import React, { memo, useCallback, useState, useEffect, useRef } from "react";
 import { motion as Motion, useInView } from "framer-motion";
+import { toast } from "sonner";
 import { 
   ArrowUp, 
   ArrowUpRight,
@@ -212,6 +213,10 @@ const Footer = memo(() => {
     if (typeof navigator !== "undefined") {
       navigator.clipboard.writeText("sakmmm07@gmail.com");
       setCopied(true);
+      toast.success("Email copied to clipboard: sakmmm07@gmail.com", {
+        duration: 2500,
+        icon: <Check size={16} className="text-emerald-400" />,
+      });
       setTimeout(() => setCopied(false), 2200);
     }
   }, []);

@@ -11,6 +11,7 @@ import SentinelObserver from "./components/interactive/SentinelObserver";
 import SecretTerminal from "./components/interactive/SecretTerminal";
 import CursorTrail from "./components/interactive/CursorTrail";
 import KonamiCelebration from "./components/interactive/KonamiCelebration";
+import { Toaster } from "sonner";
 
 // Lazy load below-the-fold components and easter egg mini-game for optimal initial bundle size
 const SignalRun = lazy(() => import("./components/interactive/signalRun/SignalRunModal"));
@@ -193,6 +194,25 @@ const App = () => {
               <Suspense fallback={null}>
                 <SignalRun />
               </Suspense>
+
+              {/* Global Sonner Toast Notifications (mounted at root to escape section stacking contexts) */}
+              <Toaster
+                position="bottom-right"
+                richColors
+                theme="dark"
+                toastOptions={{
+                  style: {
+                    background: "rgba(24, 24, 27, 0.95)",
+                    backdropFilter: "blur(12px)",
+                    color: "#f4f4f5",
+                    borderRadius: "16px",
+                    border: "1px solid rgba(255, 255, 255, 0.15)",
+                    boxShadow: "0 20px 40px -15px rgba(0, 0, 0, 0.7), 0 0 20px rgba(6, 182, 212, 0.15)",
+                    fontFamily: "monospace",
+                    fontSize: "12px",
+                  },
+                }}
+              />
             </div>
           </RoleProvider>
         </ArcadeProvider>

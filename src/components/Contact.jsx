@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from "react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
-import { toast, Toaster } from "sonner";
+import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import {
   Loader,
@@ -598,23 +598,6 @@ const Contact = memo(() => {
           </div>
         </div>
       </div>
-
-      {/* Global Sonner Toast Engine */}
-      <Toaster
-        position="bottom-right"
-        richColors
-        theme="dark"
-        toastOptions={{
-          style: {
-            background: "#18181b",
-            color: "#f4f4f5",
-            borderRadius: "16px",
-            border: "1px solid rgba(255, 255, 255, 0.1)",
-            fontFamily: "monospace",
-            fontSize: "12px",
-          },
-        }}
-      />
     </div>
   );
 });
