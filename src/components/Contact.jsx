@@ -1,6 +1,6 @@
 import React, { memo, useCallback, useState } from "react";
 import { motion as Motion, AnimatePresence } from "framer-motion";
-import { toast, ToastContainer } from "react-toastify";
+import { toast, Toaster } from "sonner";
 import { useForm } from "react-hook-form";
 import {
   Loader,
@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import clsx from "clsx";
 
-import "react-toastify/dist/ReactToastify.css";
+
 import { SectionWrapper } from "../hoc";
 import { profile } from "../assets";
 import DodgeButton from "./interactive/DodgeButton";
@@ -105,8 +105,7 @@ const ContactForm = memo(() => {
       setIsLoading(false);
       toast.info("Opened pre-filled draft in your mail app. Click Send to deliver to sakmmm07@gmail.com!", {
         icon: <Mail size={18} className="text-cyan-400" />,
-        position: "bottom-right",
-        autoClose: 6000,
+        duration: 6000,
       });
     };
 
@@ -125,8 +124,7 @@ const ContactForm = memo(() => {
         setIsSuccess(true);
         toast.success("Message dispatched via Resend! Saksham has received your inquiry.", {
           icon: <CheckCircle size={18} className="text-emerald-400" />,
-          position: "bottom-right",
-          autoClose: 5000,
+          duration: 5000,
         });
 
         reset();
@@ -158,8 +156,7 @@ const ContactForm = memo(() => {
       window.open(gmailUrl, "_blank", "noopener,noreferrer");
       toast.info("Opened Gmail Web with your draft to sakmmm07@gmail.com!", {
         icon: <ExternalLink size={16} className="text-cyan-400" />,
-        position: "bottom-right",
-        autoClose: 4000,
+        duration: 4000,
       });
     }
   }, [buildGmailUrl, watch]);
@@ -400,8 +397,7 @@ const Contact = memo(() => {
       navigator.clipboard.writeText("sakmmm07@gmail.com");
       setCopied(true);
       toast.success("Email copied to clipboard: sakmmm07@gmail.com", {
-        position: "bottom-right",
-        autoClose: 2500,
+        duration: 2500,
         icon: <Check size={16} className="text-emerald-400" />
       });
       setTimeout(() => setCopied(false), 2000);
@@ -603,26 +599,20 @@ const Contact = memo(() => {
         </div>
       </div>
 
-      {/* Global Toast Container */}
-      <ToastContainer
+      {/* Global Sonner Toast Engine */}
+      <Toaster
         position="bottom-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
+        richColors
         theme="dark"
-        toastStyle={{
-          backgroundColor: "#18181b",
-          color: "#f4f4f5",
-          borderRadius: "16px",
-          border: "1px solid rgba(255, 255, 255, 0.1)",
-          backdropFilter: "blur(12px)",
-          fontFamily: "monospace",
-          fontSize: "12px",
+        toastOptions={{
+          style: {
+            background: "#18181b",
+            color: "#f4f4f5",
+            borderRadius: "16px",
+            border: "1px solid rgba(255, 255, 255, 0.1)",
+            fontFamily: "monospace",
+            fontSize: "12px",
+          },
         }}
       />
     </div>
