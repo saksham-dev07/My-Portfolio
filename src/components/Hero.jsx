@@ -97,11 +97,11 @@ const Hero = memo(() => {
     const checkWebGL = () => {
       try {
         const canvas = document.createElement("canvas");
-        return Boolean(
-          window.WebGLRenderingContext &&
-            (canvas.getContext("webgl") ||
-              canvas.getContext("experimental-webgl")),
-        );
+        const gl =
+          canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+        const supported = Boolean(window.WebGLRenderingContext && gl);
+        gl?.getExtension?.("WEBGL_lose_context")?.loseContext?.();
+        return supported;
       } catch {
         return false;
       }

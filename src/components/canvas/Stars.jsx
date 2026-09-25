@@ -1,6 +1,7 @@
 import { PointMaterial, Points, Preload } from "@react-three/drei";
 import { Canvas, useFrame } from "@react-three/fiber";
 import { memo, Suspense, useEffect, useRef, useState } from "react";
+import CanvasErrorBoundary from "./CanvasErrorBoundary";
 
 const generateSpherePoints = (count = 2000, radius = 1.25) => {
   const points = new Float32Array(count);
@@ -48,10 +49,11 @@ const Stars = (props) => {
 const hasWebGL = () => {
   try {
     const canvas = document.createElement("canvas");
-    return Boolean(
-      window.WebGLRenderingContext &&
-        (canvas.getContext("webgl") || canvas.getContext("experimental-webgl")),
-    );
+    const gl =
+      canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+    const supported = Boolean(window.WebGLRenderingContext && gl);
+    gl?.getExtension?.("WEBGL_lose_context")?.loseContext?.();
+    return supported;
   } catch {
     return false;
   }
@@ -86,18 +88,20 @@ const StarsCanvas = memo(() => {
       ref={containerRef}
       className="w-full h-auto absolute inset-0 z-[-1] pointer-events-none overflow-hidden"
     >
-      <Canvas
-        frameloop={isVisible ? "always" : "never"}
-        camera={{ position: [0, 0, 1] }}
-        dpr={[1, 1.2]}
-        gl={{ powerPreference: "high-performance", antialias: false }}
-      >
-        <Suspense fallback={null}>
-          <Stars />
-        </Suspense>
+      <CanvasErrorBoundary>
+        <Canvas
+          frameloop={isVisible ? "always" : "never"}
+          camera={{ position: [0, 0, 1] }}
+          dpr={[1, 1.2]}
+          gl={{ powerPreference: "high-performance", antialias: false }}
+        >
+          <Suspense fallback={null}>
+            <Stars />
+          </Suspense>
 
-        <Preload all />
-      </Canvas>
+          <Preload all />
+        </Canvas>
+      </CanvasErrorBoundary>
     </div>
   );
 });

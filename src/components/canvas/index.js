@@ -1,3 +1,5 @@
+import CanvasErrorBoundary from "./CanvasErrorBoundary";
+import ComputersCanvas from "./Computers";
 import StarsCanvas from "./Stars";
 
-export { StarsCanvas };
+export { CanvasErrorBoundary, ComputersCanvas, StarsCanvas };

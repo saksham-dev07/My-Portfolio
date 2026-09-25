@@ -1,9 +1,8 @@
 import { Float, OrbitControls, Preload, useGLTF } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
-import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
-import * as THREE from "three";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useThemeMood } from "../../context/ThemeMoodContext";
-import CanvasLoader from "../Loader";
+import CanvasErrorBoundary from "./CanvasErrorBoundary";
 
 const getDeviceType = () => {
   if (typeof window === "undefined") return "desktop";
@@ -38,7 +37,7 @@ const Computers = ({ device, mood = "cyber" }) => {
       if (child.isMesh && child.geometry) {
         if (
           !child.geometry.boundingSphere ||
-          isNaN(child.geometry.boundingSphere.radius)
+          Number.isNaN(child.geometry.boundingSphere.radius)
         ) {
           child.geometry.computeBoundingBox();
           child.geometry.computeBoundingSphere();
@@ -172,40 +171,42 @@ const ComputersCanvas = () => {
     mobile: [16, 2.5, 5],
     tablet: [18, 2.8, 5],
     desktop: [20, 3.0, 5],
-  }[device];
+  }[device] || [20, 3.0, 5];
 
   return (
     <div ref={containerRef} className="w-full h-full">
-      <Canvas
-        frameloop={isVisible ? "always" : "never"}
-        shadows={false}
-        dpr={[1, 1.5]}
-        camera={{ position: cameraPos, fov: 25 }}
-        gl={{
-          powerPreference: "high-performance",
-          antialias: false,
-          stencil: false,
-          alpha: true,
-        }}
-        style={{
-          touchAction: "pan-y",
-          pointerEvents: device === "mobile" ? "none" : "auto",
-        }}
-      >
-        <Suspense fallback={<CanvasLoader />}>
-          <OrbitControls
-            enableZoom={false}
-            enablePan={false}
-            enableRotate={device !== "mobile"}
-            autoRotate={isVisible}
-            autoRotateSpeed={0.8}
-            minPolarAngle={Math.PI / 2}
-            maxPolarAngle={Math.PI / 2}
-          />
-          <Computers device={device} mood={mood} />
-        </Suspense>
-        <Preload all />
-      </Canvas>
+      <CanvasErrorBoundary>
+        <Canvas
+          frameloop={isVisible ? "always" : "never"}
+          shadows={false}
+          dpr={[1, 1.5]}
+          camera={{ position: cameraPos, fov: 25 }}
+          gl={{
+            powerPreference: "high-performance",
+            antialias: false,
+            stencil: false,
+            alpha: true,
+          }}
+          style={{
+            touchAction: "pan-y",
+            pointerEvents: device === "mobile" ? "none" : "auto",
+          }}
+        >
+          <Suspense fallback={null}>
+            <OrbitControls
+              enableZoom={false}
+              enablePan={false}
+              enableRotate={device !== "mobile"}
+              autoRotate={isVisible}
+              autoRotateSpeed={0.8}
+              minPolarAngle={Math.PI / 2}
+              maxPolarAngle={Math.PI / 2}
+            />
+            <Computers device={device} mood={mood} />
+          </Suspense>
+          <Preload all />
+        </Canvas>
+      </CanvasErrorBoundary>
     </div>
   );
 };
