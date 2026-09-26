@@ -29,3 +29,11 @@ Desktop.ini
 
 # Lock files (optional — uncomment if you want faster installs for contributors)
 # package-lock.json
+
+# Agent instructions & skills (never push to GitHub)
+[Aa][Gg][Ee][Nn][Tt][Ss].md
+[Gg][Ee][Mm][Ii][Nn][Ii].md
+[Ss][Kk][Ii][Ll][Ll]*.md
+.agents/
+.agent/
+
