@@ -599,7 +599,7 @@ const Contact = memo(() => {
               <div className="grid grid-cols-2 gap-2 pt-1 border-t border-white/5">
                 <a
                   href="mailto:sakmmm07@gmail.com"
-                  className="py-2 px-3 rounded-xl bg-white/[0.05] hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-400/40 text-xs font-mono text-zinc-300 hover:text-cyan-300 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+                  className="py-2 px-3 rounded-xl bg-white/[0.05] hover:bg-cyan-500/10 border border-white/10 hover:border-cyan-400/40 text-xs font-mono text-zinc-300 hover:text-cyan-300 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 >
                   <Mail size={13} />
                   <span>Mail Client</span>
@@ -608,9 +608,11 @@ const Contact = memo(() => {
                   href="https://mail.google.com/mail/?view=cm&fs=1&to=sakmmm07@gmail.com"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="py-2 px-3 rounded-xl bg-white/[0.05] hover:bg-red-500/10 border border-white/10 hover:border-red-400/40 text-xs font-mono text-zinc-300 hover:text-red-300 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center"
+                  aria-label="Gmail Web (opens in a new tab)"
+                  className="py-2 px-3 rounded-xl bg-white/[0.05] hover:bg-red-500/10 border border-white/10 hover:border-red-400/40 text-xs font-mono text-zinc-300 hover:text-red-300 transition-all flex items-center justify-center gap-1.5 cursor-pointer text-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 >
                   <span>Gmail Web</span>
+                  <span className="sr-only"> (opens in a new tab)</span>
                   <ArrowUpRight size={13} />
                 </a>
               </div>
@@ -622,11 +624,13 @@ const Contact = memo(() => {
                 href="https://www.linkedin.com/in/saksham-agarwal-b44910289/"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-3.5 rounded-2xl bg-zinc-900/50 border border-white/10 hover:border-blue-400/40 hover:bg-zinc-900/80 transition-all flex items-center justify-between text-xs font-mono text-zinc-300 hover:text-white group"
+                aria-label="LinkedIn Profile (opens in a new tab)"
+                className="p-3.5 rounded-2xl bg-zinc-900/50 border border-white/10 hover:border-blue-400/40 hover:bg-zinc-900/80 transition-all flex items-center justify-between text-xs font-mono text-zinc-300 hover:text-white group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <div className="flex items-center gap-2">
                   <Linkedin size={16} className="text-blue-400" />
                   <span>LinkedIn</span>
+                  <span className="sr-only"> (opens in a new tab)</span>
                 </div>
                 <ArrowUpRight
                   size={13}
@@ -638,11 +642,13 @@ const Contact = memo(() => {
                 href="https://github.com/saksham-dev07"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-3.5 rounded-2xl bg-zinc-900/50 border border-white/10 hover:border-white/30 hover:bg-zinc-900/80 transition-all flex items-center justify-between text-xs font-mono text-zinc-300 hover:text-white group"
+                aria-label="GitHub Profile (opens in a new tab)"
+                className="p-3.5 rounded-2xl bg-zinc-900/50 border border-white/10 hover:border-white/30 hover:bg-zinc-900/80 transition-all flex items-center justify-between text-xs font-mono text-zinc-300 hover:text-white group focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <div className="flex items-center gap-2">
                   <Github size={16} className="text-zinc-300" />
                   <span>GitHub</span>
+                  <span className="sr-only"> (opens in a new tab)</span>
                 </div>
                 <ArrowUpRight
                   size={13}

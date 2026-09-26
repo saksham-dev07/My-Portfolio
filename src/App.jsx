@@ -134,64 +134,71 @@ const App = () => {
               {/* Subtle mouse reaction particle trail */}
               <CursorTrail />
 
-              {/* Skip to Content — WCAG 2.1 Accessibility */}
+              {/* Skip to Content — WCAG 2.1 Accessibility (G1 Bypass Blocks) */}
               <a
-                href="#projects"
-                className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-full focus:bg-white focus:text-zinc-950 focus:font-bold focus:text-sm focus:shadow-lg"
+                href="#main-content"
+                className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-full focus:bg-white focus:text-zinc-950 focus:font-bold focus:text-sm focus:shadow-lg focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
-                Skip to content
+                Skip to main content
               </a>
-              {/* === Header & Hero Section === */}
-              <div className="bg-primary">
-                <Navbar />
+              {/* === Header & Navigation === */}
+              <Navbar />
+
+              {/* === Main Landmark & Content Sections === */}
+              <main
+                id="main-content"
+                tabIndex="-1"
+                className="outline-none bg-primary"
+              >
                 <Hero />
-              </div>
 
-              {/* === Main Content Sections === */}
-              {/* Individual Suspense boundaries so each section loads independently,
-                  preventing the entire page from going blank while one chunk loads */}
-              <Suspense fallback={null}>
-                {/* 01: Selected Work (Flagship Stacked Panels) */}
-                <Works />
-              </Suspense>
-
-              <Suspense fallback={null}>
-                {/* 02: Smaller Builds (Minimalist Interactive Row Showcase) */}
-                <SmallerBuilds />
-              </Suspense>
-
-              <Suspense fallback={null}>
-                {/* 03: Systems & Inference Architecture Lab (abhyudaytomar.com homelab inspiration) */}
-                <SystemsLab />
-              </Suspense>
-
-              <Suspense fallback={null}>
-                {/* 04: What I Work With (Bento Grid Skills) */}
-                <Tech />
-              </Suspense>
-
-              <Suspense fallback={null}>
-                {/* 05: Credentials & Background (Flippable Card Deck) */}
-                <Certifications />
-              </Suspense>
-
-              <Suspense fallback={null}>
-                {/* 06: Academic Foundation */}
-                <Education />
-              </Suspense>
-
-              <Suspense fallback={null}>
-                {/* 07: Leadership & Community Direction */}
-                <Leadership />
-              </Suspense>
-
-              <Suspense fallback={null}>
-                {/* 08: Editorial Contact & Direct Outreach */}
-                <div className="relative z-0">
-                  <Contact />
-                  <DeferredStarsCanvas />
+                <div id="projects" className="scroll-mt-24">
+                  {/* Individual Suspense boundaries so each section loads independently,
+                      preventing the entire page from going blank while one chunk loads */}
+                  <Suspense fallback={null}>
+                    {/* 01: Selected Work (Flagship Stacked Panels) */}
+                    <Works />
+                  </Suspense>
                 </div>
-              </Suspense>
+
+                <Suspense fallback={null}>
+                  {/* 02: Smaller Builds (Minimalist Interactive Row Showcase) */}
+                  <SmallerBuilds />
+                </Suspense>
+
+                <Suspense fallback={null}>
+                  {/* 03: Systems & Inference Architecture Lab (abhyudaytomar.com homelab inspiration) */}
+                  <SystemsLab />
+                </Suspense>
+
+                <Suspense fallback={null}>
+                  {/* 04: What I Work With (Bento Grid Skills) */}
+                  <Tech />
+                </Suspense>
+
+                <Suspense fallback={null}>
+                  {/* 05: Credentials & Background (Flippable Card Deck) */}
+                  <Certifications />
+                </Suspense>
+
+                <Suspense fallback={null}>
+                  {/* 06: Academic Foundation */}
+                  <Education />
+                </Suspense>
+
+                <Suspense fallback={null}>
+                  {/* 07: Leadership & Community Direction */}
+                  <Leadership />
+                </Suspense>
+
+                <Suspense fallback={null}>
+                  {/* 08: Editorial Contact & Direct Outreach */}
+                  <div className="relative z-0">
+                    <Contact />
+                    <DeferredStarsCanvas />
+                  </div>
+                </Suspense>
+              </main>
 
               <Suspense fallback={null}>
                 {/* 08: Deep Editorial Footer */}

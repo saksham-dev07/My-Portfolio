@@ -109,12 +109,12 @@ const RoleSwitcher = memo(({ isMobile = false, onCloseMobile }) => {
             onClick={() => handleSelect(role.id)}
             className={
               isMobile
-                ? `relative flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold tracking-tight transition-all duration-200 outline-none cursor-pointer ${
+                ? `relative flex items-center justify-center gap-2 py-2 px-3 rounded-xl text-xs font-semibold tracking-tight transition-all duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${
                     isSelected
                       ? "text-cyan-300 bg-cyan-500/15 border border-cyan-400/40 shadow-sm"
                       : "text-zinc-400 hover:text-zinc-200 hover:bg-white/5 border border-transparent"
                   }`
-                : `relative z-10 flex items-center gap-1.5 px-2.5 xl:px-3 py-1 text-[11px] xl:text-xs font-semibold tracking-tight transition-colors duration-200 outline-none cursor-pointer whitespace-nowrap shrink-0 ${
+                : `relative z-10 flex items-center gap-1.5 px-2.5 xl:px-3 py-1 text-[11px] xl:text-xs font-semibold tracking-tight transition-colors duration-200 cursor-pointer whitespace-nowrap shrink-0 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${
                     isSelected
                       ? "text-white"
                       : "text-zinc-400 hover:text-zinc-200"
@@ -159,7 +159,7 @@ const DesktopNavItem = memo(({ item, active }) => {
   return (
     <button
       onClick={handle}
-      className={`relative px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-[11px] xl:text-xs font-semibold tracking-wide transition-all duration-200 outline-none cursor-pointer whitespace-nowrap shrink-0 ${
+      className={`relative px-2.5 xl:px-3.5 py-1 xl:py-1.5 rounded-full text-[11px] xl:text-xs font-semibold tracking-wide transition-all duration-200 cursor-pointer whitespace-nowrap shrink-0 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${
         isActive ? "text-white" : "text-zinc-400 hover:text-zinc-100"
       }`}
       aria-current={isActive ? "page" : undefined}
@@ -196,7 +196,7 @@ const MobileNavItem = memo(({ item, onClick, active }) => {
   );
 
   const base =
-    "relative flex items-center font-medium transition-all duration-200 outline-none w-full justify-start gap-3 px-4 py-3 rounded-xl text-left text-sm cursor-pointer";
+    "relative flex items-center font-medium transition-all duration-200 w-full justify-start gap-3 px-4 py-3 rounded-xl text-left text-sm cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950";
   const cta = `${base} mt-2 bg-white text-zinc-950 font-bold hover:bg-zinc-200 shadow-lg shadow-white/10 active:scale-[0.98]`;
   const reg = `${base} ${isActive ? "text-cyan-400 bg-cyan-400/10 font-semibold border border-cyan-400/25" : "text-zinc-300 hover:text-white hover:bg-white/5 border border-transparent"}`;
 
@@ -257,7 +257,7 @@ const Logo = memo(() => {
   return (
     <button
       onClick={handle}
-      className="flex items-center gap-2 sm:gap-2.5 group focus:outline-none rounded-xl p-1 -m-1 cursor-pointer shrink-0"
+      className="flex items-center gap-2 sm:gap-2.5 group focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded-xl p-1 -m-1 cursor-pointer shrink-0"
       aria-label="Saksham Agarwal - Back to top"
     >
       {/* Monogram Brand Mark (inspired by abhyudaytomar.com's 'AT' mark) */}
@@ -360,7 +360,6 @@ const Navbar = () => {
             ? "bg-zinc-950/85 backdrop-blur-2xl border-b border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.7)] py-2.5"
             : "bg-transparent py-4 sm:py-5"
         }`}
-        role="banner"
       >
         {/* Top Scroll Reading Progress Indicator */}
         <Motion.div
@@ -383,7 +382,6 @@ const Navbar = () => {
           <div className="hidden lg:flex items-center gap-2 xl:gap-2.5 shrink-0">
             <nav
               className="flex items-center p-1 rounded-full bg-zinc-900/60 border border-white/10 shadow-sm backdrop-blur-md shrink-0"
-              role="navigation"
               aria-label="Desktop nav"
             >
               {standardNavLinks.map((item) => (
@@ -405,7 +403,7 @@ const Navbar = () => {
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
                 onClick={handleCtaClick}
-                className="group relative inline-flex items-center gap-1.5 px-3.5 xl:px-4 py-1.5 rounded-full text-[11px] xl:text-xs font-bold text-zinc-950 bg-white hover:bg-zinc-200 border border-white/20 shadow-md shadow-white/10 transition-all duration-300 cursor-pointer whitespace-nowrap shrink-0"
+                className="group relative inline-flex items-center gap-1.5 px-3.5 xl:px-4 py-1.5 rounded-full text-[11px] xl:text-xs font-bold text-zinc-950 bg-white hover:bg-zinc-200 border border-white/20 shadow-md shadow-white/10 transition-all duration-300 cursor-pointer whitespace-nowrap shrink-0 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 aria-label="Contact Saksham"
               >
                 <span>{ctaLink.title}</span>
@@ -423,7 +421,7 @@ const Navbar = () => {
             <SoundToggle isMobile={true} />
             <Motion.button
               onClick={toggle}
-              className="p-1.5 sm:p-2 rounded-xl bg-zinc-900 border border-white/15 text-white active:scale-95 transition-all shadow-sm shrink-0"
+              className="p-1.5 sm:p-2 rounded-xl bg-zinc-900 border border-white/15 text-white active:scale-95 transition-all shadow-sm shrink-0 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               whileTap={reduce ? {} : { scale: 0.9 }}
               aria-label={open ? "Close menu" : "Open menu"}
               aria-expanded={open}
@@ -465,7 +463,6 @@ const Navbar = () => {
               exit={{ opacity: 0, y: -10, scale: 0.96 }}
               transition={{ duration: 0.2 }}
               className="fixed top-18 sm:top-20 right-3 left-3 sm:right-6 sm:left-auto sm:w-88 bg-zinc-950/95 backdrop-blur-2xl border border-white/15 rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.95)] p-5 space-y-4 z-50 overflow-hidden max-h-[85vh] overflow-y-auto"
-              role="navigation"
             >
               {/* Header inside drawer */}
               <div className="flex items-center justify-between pb-3 border-b border-white/10">
@@ -479,7 +476,7 @@ const Navbar = () => {
                 </div>
                 <button
                   onClick={close}
-                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-zinc-400 hover:text-white transition-colors cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                   aria-label="Close menu"
                 >
                   <X size={15} />

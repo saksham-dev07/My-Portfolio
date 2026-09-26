@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>404: Page Not Found | Saksham Agarwal</title>
+    <meta name="robots" content="noindex, follow" />
+    <link rel="icon" type="image/svg+xml" href="/logo.svg" />
+    <style>
+      :root {
+        --bg-primary: #050816;
+        --text-primary: #f4f4f5;
+        --text-secondary: #a1a1aa;
+        --accent: #22d3ee;
+        --accent-hover: #38bdf8;
+        --border: rgba(255, 255, 255, 0.12);
+      }
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: var(--bg-primary);
+        color: var(--text-primary);
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        min-height: 100vh;
+        min-height: 100dvh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1.25rem;
+        text-align: center;
+      }
+      .card {
+        max-width: 540px;
+        background: rgba(18, 24, 38, 0.7);
+        border: 1px solid var(--border);
+        border-radius: 1.25rem;
+        padding: 3rem 2rem;
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+      }
+      .code-badge {
+        display: inline-block;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: var(--accent);
+        background: rgba(34, 211, 238, 0.1);
+        border: 1px solid rgba(34, 211, 238, 0.25);
+        padding: 0.35rem 0.85rem;
+        border-radius: 9999px;
+        margin-bottom: 1.5rem;
+      }
+      h1 {
+        font-size: 2.5rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: #ffffff;
+        margin-bottom: 1rem;
+        line-height: 1.1;
+      }
+      p {
+        color: var(--text-secondary);
+        font-size: 1.05rem;
+        line-height: 1.6;
+        margin-bottom: 2rem;
+      }
+      .action-group {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.85rem;
+        justify-content: center;
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 9999px;
+        background: #ffffff;
+        color: #09090b;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: transform 0.2s, background-color 0.2s;
+      }
+      .btn:hover, .btn:focus-visible {
+        background: #f4f4f5;
+        transform: scale(1.04);
+      }
+      .btn-secondary {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        border-radius: 9999px;
+        background: rgba(255, 255, 255, 0.06);
+        border: 1px solid var(--border);
+        color: var(--text-primary);
+        font-weight: 600;
+        font-size: 0.95rem;
+        text-decoration: none;
+        transition: transform 0.2s, border-color 0.2s, background-color 0.2s;
+      }
+      .btn-secondary:hover, .btn-secondary:focus-visible {
+        border-color: rgba(34, 211, 238, 0.4);
+        background: rgba(255, 255, 255, 0.1);
+        transform: scale(1.04);
+      }
+      a:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 3px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="card">
+      <div class="code-badge">HTTP 404 &bull; Signal Disconnected</div>
+      <h1>Coordinates Not Found</h1>
+      <p>The transmission path you requested does not correspond to an existing station. Check the URL or return to home.</p>
+      <div class="action-group">
+        <a href="/" class="btn">&larr; Return Home</a>
+        <a href="/sitemap.html" class="btn-secondary">Explore Site Map</a>
+      </div>
+    </main>
+  </body>
+</html>

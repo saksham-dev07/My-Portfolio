@@ -31,6 +31,8 @@
     <meta name="author" content="Saksham Agarwal" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://saksham-dev07.me/" />
+    <link rel="sitemap" type="text/html" title="Sitemap" href="/sitemap.html" />
+    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
 
     <!-- Open Graph / Facebook / LinkedIn -->
     <meta property="og:type" content="website" />
@@ -81,7 +83,10 @@
     </script>
   </head>
   <body>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback accessibility landmark for pre-rendering / crawler inspection -->
+      <main id="main-content" tabindex="-1"></main>
+    </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

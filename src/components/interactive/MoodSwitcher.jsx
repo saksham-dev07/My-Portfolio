@@ -96,7 +96,7 @@ const MoodSwitcher = memo(({ isMobile = false }) => {
         onMouseLeave={() => !isMobile && setButtonHovered(false)}
         className={`mood-consolidated-btn group relative flex items-center justify-center ${
           isMobile ? "w-6 h-6" : "w-8 h-8"
-        } rounded-full border transition-all duration-200 cursor-pointer shrink-0 ${
+        } rounded-full border transition-all duration-200 cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${
           isOpen
             ? `${activeColors.bg} ${activeColors.border} ${activeColors.glow}`
             : "bg-zinc-900/80 border-white/10 hover:border-white/25 hover:bg-zinc-800/90 shadow-sm"
@@ -178,7 +178,7 @@ const MoodSwitcher = memo(({ isMobile = false }) => {
                   onMouseLeave={() => !isMobile && setHoveredId(null)}
                   className={`mood-icon-btn relative z-10 flex items-center justify-center ${
                     isMobile ? "w-6 h-6" : "w-7 h-7"
-                  } rounded-full transition-colors duration-200 outline-none cursor-pointer shrink-0 ${
+                  } rounded-full transition-colors duration-200 cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${
                     isSelected
                       ? itemColors.text
                       : "text-zinc-400 hover:text-zinc-100"

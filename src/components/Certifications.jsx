@@ -115,9 +115,11 @@ const CredentialCard = memo(({ cert, index, isFlippedAll, onViewImage }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 font-mono font-semibold"
+                aria-label={`Verify ${cert.name} credential (opens in a new tab)`}
+                className="inline-flex items-center gap-1 text-cyan-400 hover:text-cyan-300 font-mono font-semibold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded"
               >
                 <span>Verify</span>
+                <span className="sr-only"> (opens in a new tab)</span>
                 <ExternalLink size={12} />
               </a>
             ) : cert.validationNumber ? (
@@ -270,9 +272,11 @@ const CredentialCard = memo(({ cert, index, isFlippedAll, onViewImage }) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 onClick={(e) => e.stopPropagation()}
-                className="text-cyan-400 hover:text-cyan-300 font-semibold inline-flex items-center gap-1"
+                aria-label={`Verify ${cert.name} credential (opens in a new tab)`}
+                className="text-cyan-400 hover:text-cyan-300 font-semibold inline-flex items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded"
               >
                 <span>Verify Link</span>
+                <span className="sr-only"> (opens in a new tab)</span>
                 <ExternalLink size={10} />
               </a>
             ) : (
@@ -380,9 +384,11 @@ const CertificateModal = memo(({ cert, onClose }) => {
                 href={cert.credentialUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold font-mono transition-colors self-start sm:self-auto"
+                aria-label={`Verify ${cert.name} on Issuer Portal (opens in a new tab)`}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-cyan-500 hover:bg-cyan-400 text-zinc-950 font-bold font-mono transition-colors self-start sm:self-auto focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <span>Verify on Issuer Portal</span>
+                <span className="sr-only"> (opens in a new tab)</span>
                 <ExternalLink size={13} />
               </a>
             )}

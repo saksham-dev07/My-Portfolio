@@ -16,8 +16,8 @@ const BuildRow = memo(({ project }) => {
         href={targetLink}
         target="_blank"
         rel="noopener noreferrer"
-        className="build-row-link flex flex-col lg:flex-row lg:items-center justify-between py-5 px-3 sm:px-4 rounded-xl hover:bg-white/[0.03] transition-all gap-4 outline-none cursor-pointer"
-        aria-label={`${name} - ${role}`}
+        className="build-row-link flex flex-col lg:flex-row lg:items-center justify-between py-5 px-3 sm:px-4 rounded-xl hover:bg-white/[0.03] transition-all gap-4 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+        aria-label={`${name} - ${role} (opens in a new tab)`}
       >
         {/* Left: Meta + Title */}
         <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-6 min-w-0 sm:min-w-[280px]">

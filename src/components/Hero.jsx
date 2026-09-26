@@ -1,7 +1,6 @@
 import { motion as Motion } from "framer-motion";
 import {
   ArrowDown,
-  ArrowUpRight,
   Github,
   Linkedin,
   Mail,
@@ -149,7 +148,7 @@ const Hero = memo(() => {
               height={40}
             />
           </div>
-          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-zinc-900/90 border border-white/10 text-zinc-300 text-xs font-mono shadow-sm backdrop-blur-md">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/90 border border-white/10 text-zinc-300 text-sm font-mono shadow-sm backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
             <span className="xs:hidden">VIT Bhopal '27 · Available</span>
             <span className="hidden xs:inline">{eyebrowText}</span>
@@ -217,25 +216,24 @@ const Hero = memo(() => {
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 mb-5 sm:mb-8">
           {/* Main Action Buttons */}
           <div className="flex items-center gap-2.5 sm:gap-3 w-full sm:w-auto">
-            {/* Primary CTA: Resume */}
+            {/* Primary CTA: Resume Direct Download */}
             <a
               href={resume}
               download="Saksham_Agarwal_Resume.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-white text-zinc-950 font-bold text-xs sm:text-sm shadow-[0_0_25px_rgba(255,255,255,0.25)] hover:bg-zinc-100 hover:shadow-[0_0_35px_rgba(255,255,255,0.45)] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer"
+              aria-label="Download Saksham Agarwal Resume PDF"
+              className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-5 sm:px-6 py-2.5 sm:py-3 rounded-full bg-white text-zinc-950 font-bold text-xs sm:text-sm shadow-[0_0_25px_rgba(255,255,255,0.25)] hover:bg-zinc-100 hover:shadow-[0_0_35px_rgba(255,255,255,0.45)] hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               <span>Resume</span>
-              <ArrowUpRight
-                size={15}
-                className="transition-transform duration-200 group-hover:translate-x-0.5 group-hover:-translate-y-0.5"
+              <ArrowDown
+                size={14}
+                className="transition-transform duration-200 group-hover:translate-y-0.5"
               />
             </a>
 
             {/* Secondary Ghost CTA: Contact */}
             <button
               onClick={handleScrollToContact}
-              className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4.5 sm:px-5 py-2.5 sm:py-3 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-white font-semibold text-xs sm:text-sm border border-white/15 hover:border-white/30 shadow-sm hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer backdrop-blur-md"
+              className="group flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 px-4.5 sm:px-5 py-2.5 sm:py-3 rounded-full bg-zinc-900/80 hover:bg-zinc-800 text-white font-semibold text-xs sm:text-sm border border-white/15 hover:border-white/30 shadow-sm hover:scale-105 active:scale-95 transition-all duration-200 cursor-pointer backdrop-blur-md focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               <span>Contact</span>
               <ArrowDown
@@ -251,8 +249,8 @@ const Hero = memo(() => {
               href="https://github.com/saksham-dev07"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="GitHub Profile"
-              className="p-2.5 sm:p-3 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 shadow-sm hover:scale-110 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
+              aria-label="GitHub Profile (opens in a new tab)"
+              className="p-2.5 sm:p-3 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 shadow-sm hover:scale-110 active:scale-95 transition-all cursor-pointer backdrop-blur-md focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               <Github size={15} />
             </a>
@@ -260,8 +258,8 @@ const Hero = memo(() => {
               href="https://www.linkedin.com/in/saksham-agarwal-b44910289/"
               target="_blank"
               rel="noopener noreferrer"
-              aria-label="LinkedIn Profile"
-              className="p-2.5 sm:p-3 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 shadow-sm hover:scale-110 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
+              aria-label="LinkedIn Profile (opens in a new tab)"
+              className="p-2.5 sm:p-3 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-white hover:border-white/30 shadow-sm hover:scale-110 active:scale-95 transition-all cursor-pointer backdrop-blur-md focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               <Linkedin size={15} />
             </a>
@@ -269,7 +267,7 @@ const Hero = memo(() => {
               href="mailto:sakmmm07@gmail.com"
               aria-label="Direct Email"
               title="Email Saksham directly (sakmmm07@gmail.com)"
-              className="p-2.5 sm:p-3 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-cyan-400 hover:border-cyan-400/40 shadow-sm hover:scale-110 active:scale-95 transition-all cursor-pointer backdrop-blur-md"
+              className="p-2.5 sm:p-3 rounded-full bg-zinc-900/80 border border-white/10 text-zinc-400 hover:text-cyan-400 hover:border-cyan-400/40 shadow-sm hover:scale-110 active:scale-95 transition-all cursor-pointer backdrop-blur-md focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
             >
               <Mail size={15} />
             </a>
@@ -309,7 +307,11 @@ const Hero = memo(() => {
                   className="hero-marquee-item flex items-center gap-2.5 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] hover:border-cyan-400/40 hover:text-white transition-all cursor-default text-xs font-mono font-medium"
                 >
                   <span className="w-4 h-4 flex items-center justify-center opacity-85">
-                    <Icon className="w-full h-full object-contain" />
+                    <Icon
+                      className="w-full h-full object-contain"
+                      aria-label={item.name}
+                      title={item.name}
+                    />
                   </span>
                   <span>{item.name}</span>
                 </li>
@@ -327,7 +329,11 @@ const Hero = memo(() => {
                   className="hero-marquee-item flex items-center gap-2.5 px-3 py-1 rounded-full bg-white/[0.03] border border-white/[0.08] hover:border-cyan-400/40 hover:text-white transition-all cursor-default text-xs font-mono font-medium"
                 >
                   <span className="w-4 h-4 flex items-center justify-center opacity-85">
-                    <Icon className="w-full h-full object-contain" />
+                    <Icon
+                      className="w-full h-full object-contain"
+                      aria-label={item.name}
+                      title={item.name}
+                    />
                   </span>
                   <span>{item.name}</span>
                 </li>

@@ -14,7 +14,7 @@ const SoundToggle = memo(({ isMobile = false }) => {
       whileTap={{ scale: 0.88 }}
       className={`sound-toggle-btn relative flex items-center justify-center ${
         isMobile ? "w-6 h-6" : "w-8 h-8"
-      } rounded-full border transition-all duration-250 cursor-pointer shrink-0 ${
+      } rounded-full border transition-all duration-250 cursor-pointer shrink-0 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 ${
         isMuted
           ? "bg-zinc-900/80 border-white/10 text-zinc-500 hover:text-zinc-200 hover:border-white/20"
           : "bg-cyan-500/15 border-cyan-500/30 text-cyan-400 hover:bg-cyan-500/25"

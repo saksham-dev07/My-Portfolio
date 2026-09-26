@@ -348,16 +348,18 @@ const Footer = memo(() => {
                 download="Saksham_Agarwal_Resume.pdf"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-zinc-950 text-xs font-mono font-bold hover:bg-zinc-200 transition-all shadow-sm cursor-pointer active:scale-95 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+                aria-label="Download Resume PDF (opens in a new tab)"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white text-zinc-950 text-xs font-mono font-bold hover:bg-zinc-200 transition-all shadow-sm cursor-pointer active:scale-95 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <FileText size={12} />
                 <span>Resume (PDF)</span>
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
 
               <button
                 type="button"
                 onClick={handleCopyEmail}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-mono text-zinc-300 hover:text-white transition-all cursor-pointer active:scale-95"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-xs font-mono text-zinc-300 hover:text-white transition-all cursor-pointer active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                 title="Copy sakmmm07@gmail.com"
               >
                 {copied ? (
@@ -370,7 +372,7 @@ const Footer = memo(() => {
 
               <a
                 href="mailto:sakmmm07@gmail.com"
-                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs font-mono text-cyan-300 hover:text-cyan-200 transition-all cursor-pointer"
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-cyan-500/10 hover:bg-cyan-500/20 border border-cyan-500/30 text-xs font-mono text-cyan-300 hover:text-cyan-200 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <span>Compose</span>
                 <ArrowUpRight size={12} />
@@ -566,9 +568,18 @@ const Footer = memo(() => {
                 height={28}
               />
             </div>
-            <span className="flex items-center gap-1 text-center sm:text-left">
-              &copy; {new Date().getFullYear()} Saksham Agarwal &bull; B.Tech
-              CSE Class of 2027
+            <span className="flex items-center gap-2 text-center sm:text-left flex-wrap">
+              <span>
+                &copy; {new Date().getFullYear()} Saksham Agarwal &bull; B.Tech
+                CSE Class of 2027
+              </span>
+              <span className="text-zinc-700 hidden sm:inline">&bull;</span>
+              <a
+                href="/sitemap.html"
+                className="text-zinc-400 hover:text-cyan-300 transition-colors underline underline-offset-4 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded"
+              >
+                Site Map
+              </a>
             </span>
           </div>
 
@@ -604,8 +615,12 @@ const Footer = memo(() => {
                       ? undefined
                       : "noopener noreferrer"
                   }
-                  aria-label={`${link.label} Profile`}
-                  className="relative p-2 rounded-lg bg-zinc-900 border border-white/10 text-zinc-400 hover:text-white hover:border-cyan-400/40 transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(6,182,212,0.1)]"
+                  aria-label={
+                    link.href.startsWith("mailto")
+                      ? `${link.label}`
+                      : `${link.label} Profile (opens in a new tab)`
+                  }
+                  className="relative p-2 rounded-lg bg-zinc-900 border border-white/10 text-zinc-400 hover:text-white hover:border-cyan-400/40 transition-all cursor-pointer group hover:shadow-[0_0_15px_rgba(6,182,212,0.1)] focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
                   title={link.title}
                 >
                   {link.icon}
@@ -619,7 +634,7 @@ const Footer = memo(() => {
 
             <button
               onClick={scrollToTop}
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-zinc-950 font-bold hover:bg-zinc-200 transition-all cursor-pointer shadow-sm active:scale-95 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)]"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white text-zinc-950 font-bold hover:bg-zinc-200 transition-all cursor-pointer shadow-sm active:scale-95 hover:shadow-[0_0_20px_rgba(255,255,255,0.15)] focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               aria-label="Scroll back to top"
             >
               <span>Back to Top</span>

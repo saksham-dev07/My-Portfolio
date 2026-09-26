@@ -219,9 +219,13 @@ const Tech = memo(() => {
                       >
                         <span className="w-3.5 h-3.5 flex items-center justify-center opacity-85">
                           {typeof Icon === "function" ? (
-                            <Icon className="w-full h-full object-contain" />
+                            <Icon
+                              className="w-full h-full object-contain"
+                              aria-label={tool.name}
+                              title={tool.name}
+                            />
                           ) : (
-                            <Icon size={14} />
+                            <Icon size={14} aria-label={tool.name} />
                           )}
                         </span>
                         <span>{tool.name}</span>

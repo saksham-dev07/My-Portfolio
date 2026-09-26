@@ -161,6 +161,7 @@ const DeepfakeVisual = memo(({ image }) => {
                   className="w-full h-full max-h-[160px]"
                   viewBox="0 0 200 240"
                   fill="none"
+                  aria-hidden="true"
                 >
                   <defs>
                     <radialGradient
@@ -1334,6 +1335,7 @@ const NexusBoardVisual = memo(() => {
             className="w-4 h-4 text-cyan-400 drop-shadow"
             viewBox="0 0 24 24"
             fill="currentColor"
+            aria-hidden="true"
           >
             <path d="M3 3l7 18 3-7 7-3L3 3z" />
           </svg>
@@ -1351,6 +1353,7 @@ const NexusBoardVisual = memo(() => {
             className="w-4 h-4 text-purple-400 drop-shadow"
             viewBox="0 0 24 24"
             fill="currentColor"
+            aria-hidden="true"
           >
             <path d="M3 3l7 18 3-7 7-3L3 3z" />
           </svg>
@@ -1542,9 +1545,11 @@ const CaseStudyPanel = memo(({ project }) => {
                 href={live_demo}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="project-btn-primary inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white text-zinc-950 font-bold text-xs hover:bg-zinc-200 transition-colors shadow-sm"
+                aria-label={`${name} Live Demo (opens in a new tab)`}
+                className="project-btn-primary inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-white text-zinc-950 font-bold text-xs hover:bg-zinc-200 transition-colors shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <span>Live Demo</span>
+                <span className="sr-only"> (opens in a new tab)</span>
                 <ExternalLink size={13} />
               </a>
             )}
@@ -1553,10 +1558,12 @@ const CaseStudyPanel = memo(({ project }) => {
                 href={source_code_link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="project-btn-secondary inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-zinc-800/80 hover:bg-zinc-700 border border-white/15 text-white font-semibold text-xs transition-colors"
+                aria-label={`${name} Source Code on GitHub (opens in a new tab)`}
+                className="project-btn-secondary inline-flex items-center gap-1.5 px-4 py-2 rounded-full bg-zinc-800/80 hover:bg-zinc-700 border border-white/15 text-white font-semibold text-xs transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 <Github size={13} />
                 <span>GitHub</span>
+                <span className="sr-only"> (opens in a new tab)</span>
               </a>
             )}
           </div>
