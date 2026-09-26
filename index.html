@@ -12,6 +12,17 @@
     <style>
       html, body { background: #050816; color: #f4f4f5; }
       #root { min-height: 100vh; min-height: 100dvh; }
+      .sr-fallback {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
     </style>
 
     <!-- DNS Prefetch & Preconnect for Zero Latency Font Loading -->
@@ -84,8 +95,19 @@
   </head>
   <body>
     <div id="root">
-      <!-- Fallback accessibility landmark for pre-rendering / crawler inspection -->
-      <main id="main-content" tabindex="-1"></main>
+      <!-- Fallback accessibility landmark & site map navigation for crawlers and pre-hydration -->
+      <main id="main-content" tabindex="-1">
+        <header class="sr-fallback">
+          <nav aria-label="Quick Sitemap &amp; Section Directory">
+            <a href="/sitemap.html">HTML Site Map</a>
+            <a href="#projects">Flagship Projects</a>
+            <a href="#systems-lab">Systems Lab</a>
+            <a href="#skills">Technical Skills</a>
+            <a href="#credentials">Credentials</a>
+            <a href="#contact">Contact</a>
+          </nav>
+        </header>
+      </main>
     </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

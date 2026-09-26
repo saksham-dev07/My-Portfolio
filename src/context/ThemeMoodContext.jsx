@@ -103,6 +103,16 @@ export const ThemeMoodProvider = ({ children }) => {
         Math.max(y, window.innerHeight - y),
       );
 
+      // Dynamically inject view-transition CSS rules only in browsers that support View Transitions
+      const styleId = "view-transition-runtime-styles";
+      if (!document.getElementById(styleId)) {
+        const styleEl = document.createElement("style");
+        styleEl.id = styleId;
+        styleEl.textContent =
+          "::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal;}::view-transition-old(root){z-index:1;}::view-transition-new(root){z-index:9999;}";
+        document.head.appendChild(styleEl);
+      }
+
       const transition = document.startViewTransition(() => {
         applyTheme();
       });

@@ -125,6 +125,21 @@ const App = () => {
     window.scrollTo({ top: 0, behavior: "instant" });
   }, []);
 
+  // Remove obsolete type="text/css" from any dynamically injected <style> tags (e.g., from Sonner or other packages)
+  useEffect(() => {
+    const cleanStyleTypes = () => {
+      document.querySelectorAll('style[type="text/css"]').forEach((el) => {
+        el.removeAttribute("type");
+      });
+    };
+    cleanStyleTypes();
+    const observer = new MutationObserver(() => {
+      cleanStyleTypes();
+    });
+    observer.observe(document.head, { childList: true, subtree: true });
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <ThemeMoodProvider>
       <SoundProvider>
@@ -134,12 +149,18 @@ const App = () => {
               {/* Subtle mouse reaction particle trail */}
               <CursorTrail />
 
-              {/* Skip to Content — WCAG 2.1 Accessibility (G1 Bypass Blocks) */}
+              {/* Skip to Content & Site Map — WCAG 2.1 Accessibility & Crawler Discovery */}
               <a
                 href="#main-content"
                 className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-full focus:bg-white focus:text-zinc-950 focus:font-bold focus:text-sm focus:shadow-lg focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
               >
                 Skip to main content
+              </a>
+              <a
+                href="/sitemap.html"
+                className="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-52 focus:z-[100] focus:px-4 focus:py-2 focus:rounded-full focus:bg-white focus:text-zinc-950 focus:font-bold focus:text-sm focus:shadow-lg focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
+              >
+                HTML Site Map
               </a>
               {/* === Header & Navigation === */}
               <Navbar />

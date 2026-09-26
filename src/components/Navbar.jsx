@@ -503,8 +503,14 @@ const Navbar = () => {
                 ))}
               </div>
 
-              <div className="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-zinc-500 font-mono">
-                <span>Saksham Agarwal</span>
+              <div className="pt-3 border-t border-white/10 flex items-center justify-between text-[11px] text-zinc-400 font-mono">
+                <a
+                  href="/sitemap.html"
+                  onClick={close}
+                  className="hover:text-cyan-400 transition-colors underline underline-offset-4 focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950 rounded"
+                >
+                  HTML Site Map
+                </a>
                 <span>VIT Bhopal &bull; 2027</span>
               </div>
             </Motion.nav>

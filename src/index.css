@@ -4,22 +4,6 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Circular View Transition Shockwave (Signature Awwwards feature) - Guarded for CSS validators */
-@supports (view-transition-name: root) {
-  ::view-transition-old(root),
-  ::view-transition-new(root) {
-    animation: none;
-    mix-blend-mode: normal;
-  }
-
-  ::view-transition-old(root) {
-    z-index: 1;
-  }
-
-  ::view-transition-new(root) {
-    z-index: 9999;
-  }
-}
 
 /*--------------------------------------------------------------
   Base Layer: High-Performance Resets & Kinetic Scroll Dynamics

@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
+Disallow: /*.pdf
+Disallow: /assets/*.pdf
 
 Sitemap: https://saksham-dev07.me/sitemap.xml

@@ -182,7 +182,7 @@ const SentinelObserver = memo(() => {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 15, scale: 0.9 }}
               transition={{ duration: 0.25, ease: "easeOut" }}
-              className="sentinel-observer-bubble relative mb-2 max-w-[280px] sm:max-w-[340px] rounded-2xl bg-zinc-950/95 border border-cyan-500/30 p-3.5 shadow-2xl backdrop-blur-xl font-mono text-sm text-zinc-200"
+              className="sentinel-observer-bubble relative mb-2 max-w-[300px] sm:max-w-[360px] rounded-2xl bg-zinc-950/95 border border-cyan-500/30 p-3.5 shadow-2xl backdrop-blur-xl font-mono text-base text-zinc-200"
             >
               {/* Header Controls */}
               <div className="flex items-center justify-between gap-2 pb-2 mb-2 border-b border-white/10">
@@ -211,7 +211,7 @@ const SentinelObserver = memo(() => {
               </div>
 
               {/* Bot Commentary Speech Bubble */}
-              <div className="relative leading-relaxed text-zinc-200 text-sm">
+              <div className="relative leading-relaxed text-zinc-200 text-base">
                 <p>"{comment}"</p>
               </div>
 

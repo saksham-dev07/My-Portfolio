@@ -148,13 +148,13 @@ const Hero = memo(() => {
               height={40}
             />
           </div>
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/90 border border-white/10 text-zinc-300 text-sm font-mono shadow-sm backdrop-blur-md">
+          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-zinc-900/90 border border-white/10 text-zinc-300 text-base font-mono shadow-sm backdrop-blur-md">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse shrink-0" />
             <span className="xs:hidden">VIT Bhopal '27 · Available</span>
             <span className="hidden xs:inline">{eyebrowText}</span>
           </div>
-          <div className="hidden md:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-zinc-400 text-xs font-mono">
-            <Terminal size={12} className="text-cyan-400" />
+          <div className="hidden md:inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-zinc-400 text-base font-mono">
+            <Terminal size={14} className="text-cyan-400 shrink-0" />
             <span>CGPA: 8.46 / 10.0</span>
           </div>
         </div>
