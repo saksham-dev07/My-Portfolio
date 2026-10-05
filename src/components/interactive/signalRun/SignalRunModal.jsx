@@ -25,6 +25,7 @@ const SignalRunModal = memo(() => {
     useSound();
 
   const canvasRef = useRef(null);
+  const modalRef = useRef(null);
   const containerRef = useRef(null);
 
   // High-level game state
@@ -81,15 +82,36 @@ const SignalRunModal = memo(() => {
     }
   }, []);
 
-  // Prevent background scroll and coordinate with Lenis
+  // Keep focus inside the game and prevent background scrolling.
   useEffect(() => {
     if (!isSignalRunOpen) return;
 
     const prevOverflow = document.body.style.overflow;
     const prevTouchAction = document.body.style.touchAction;
+    const previousFocus = document.activeElement;
 
     document.body.style.overflow = "hidden";
     document.body.style.touchAction = "none";
+    modalRef.current?.querySelector('[aria-label="Close Game"]')?.focus();
+    const trapFocus = (event) => {
+      if (event.key !== "Tab") return;
+      const buttons = Array.from(
+        modalRef.current?.querySelectorAll(
+          'button:not([disabled]), a[href], [tabindex="0"]',
+        ) || [],
+      ).filter((button) => button.getClientRects().length);
+      const first = buttons[0],
+        last = buttons[buttons.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last?.focus();
+      }
+      if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first?.focus();
+      }
+    };
+    document.addEventListener("keydown", trapFocus);
 
     // Pause Lenis smooth scroll while game modal is active
     if (window.lenis) window.lenis.stop();
@@ -99,6 +121,8 @@ const SignalRunModal = memo(() => {
     return () => {
       document.body.style.overflow = prevOverflow;
       document.body.style.touchAction = prevTouchAction;
+      document.removeEventListener("keydown", trapFocus);
+      previousFocus?.focus({ preventScroll: true });
       // Resume Lenis smooth scroll
       if (window.lenis) window.lenis.start();
     };
@@ -174,6 +198,11 @@ const SignalRunModal = memo(() => {
     const handleKeyDown = (e) => {
       // Don't intercept typing in inputs
       if (["INPUT", "TEXTAREA"].includes(e.target.tagName)) return;
+      if (
+        e.target.tagName === "BUTTON" &&
+        (e.code === "Space" || e.key === "Enter")
+      )
+        return;
 
       if (e.code === "Space" || e.key === "ArrowUp" || e.code === "KeyW") {
         e.preventDefault(); // Stop window scroll
@@ -842,6 +871,10 @@ const SignalRunModal = memo(() => {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-2 sm:p-4 bg-black/90 backdrop-blur-xl select-none">
       <Motion.div
+        ref={modalRef}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Signal Run arcade"
         initial={{ opacity: 0, scale: 0.95, y: 16 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
         exit={{ opacity: 0, scale: 0.95, y: 16 }}
@@ -855,7 +888,7 @@ const SignalRunModal = memo(() => {
             <div className="flex items-center gap-1.5">
               <span className="w-2.5 h-2.5 rounded-full bg-red-500/80 inline-block shadow-[0_0_6px_rgba(239,68,68,0.6)]" />
               <span className="w-2.5 h-2.5 rounded-full bg-yellow-500/80 inline-block shadow-[0_0_6px_rgba(234,179,8,0.6)]" />
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/80 inline-block shadow-[0_0_6px_rgba(16,185,129,0.6)]" />
+              <span className="w-2.5 h-2.5 rounded-full bg-indigo-500/80 inline-block shadow-[0_0_6px_rgba(129,140,248,0.6)]" />
             </div>
 
             <div className="flex items-center gap-2">
@@ -1098,7 +1131,7 @@ const SignalRunModal = memo(() => {
             >
               <div className="w-full max-w-lg p-5 sm:p-7 rounded-2xl sm:rounded-3xl bg-zinc-900 border border-cyan-500/40 shadow-[0_0_60px_rgba(6,182,212,0.3)] space-y-5 text-center">
                 {/* Trophy Header */}
-                <div className="w-14 h-14 mx-auto rounded-2xl bg-emerald-500/20 border border-emerald-400/40 flex items-center justify-center text-emerald-400 shadow-[0_0_25px_rgba(16,185,129,0.35)]">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-indigo-500/20 border border-indigo-400/40 flex items-center justify-center text-indigo-400 shadow-[0_0_25px_rgba(129,140,248,0.35)]">
                   <Trophy size={28} />
                 </div>
 
@@ -1125,7 +1158,7 @@ const SignalRunModal = memo(() => {
                     <span className="text-[10px] text-zinc-400 block uppercase">
                       Time
                     </span>
-                    <span className="text-base sm:text-lg font-bold text-emerald-300">
+                    <span className="text-base sm:text-lg font-bold text-indigo-300">
                       {runTime.toFixed(1)}s
                     </span>
                   </div>

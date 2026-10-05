@@ -2,7 +2,13 @@
 
   module.exports = {
     darkMode: 'class',
-    content: ['./src/**/*.{js,jsx,ts,tsx,html}'],
+    content: [
+      './index.html',
+      './src/App.jsx',
+      './src/components/{Navbar,Hero,Projects,SmallerBuilds,SystemsLab,Tech,Education,Leadership,Certifications,Contact,Footer,SectionHeading}.jsx',
+      './src/components/interactive/{SignalSculpture,BuildPlayground}.jsx',
+      './src/components/interactive/signalRun/*.jsx',
+    ],
     theme: {
       extend: {
         colors: {

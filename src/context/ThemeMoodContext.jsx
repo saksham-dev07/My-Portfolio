@@ -2,157 +2,43 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
+  useLayoutEffect,
   useState,
 } from "react";
-import { MOODS } from "../constants/moods";
 
 const ThemeMoodContext = createContext({
   mood: "cyber",
-  setMood: () => {},
   toggleLightDark: () => {},
-  moods: MOODS,
 });
-
 export const ThemeMoodProvider = ({ children }) => {
-  const [mood, setMoodState] = useState("cyber");
-
-  useEffect(() => {
+  const [mood, setMood] = useState(() => {
     try {
-      const saved = localStorage.getItem("portfolio_mood");
-      if (
-        saved &&
-        ["cyber", "light", "hacker", "chill", "chaotic"].includes(saved)
-      ) {
-        setMoodState(saved);
-        document.documentElement.setAttribute("data-mood", saved);
-      } else {
-        document.documentElement.setAttribute("data-mood", "cyber");
-      }
+      return localStorage.getItem("portfolio_mood") === "light"
+        ? "light"
+        : "cyber";
     } catch {
-      document.documentElement.setAttribute("data-mood", "cyber");
+      return "cyber";
     }
-  }, []);
-
-  const setMood = useCallback(
-    (newMood, eventOrCoords) => {
-      if (!["cyber", "light", "hacker", "chill", "chaotic"].includes(newMood))
-        return;
-      if (newMood === mood) return;
-
-      const isReducedMotion =
-        typeof window !== "undefined" &&
-        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-      // Direct update helper
-      const applyTheme = () => {
-        setMoodState(newMood);
-        document.documentElement.setAttribute("data-mood", newMood);
-        try {
-          localStorage.setItem("portfolio_mood", newMood);
-        } catch {
-          // Ignore localStorage error
-        }
-      };
-
-      // If browser doesn't support View Transitions or user prefers reduced motion
-      if (
-        typeof document === "undefined" ||
-        !document.startViewTransition ||
-        isReducedMotion
-      ) {
-        applyTheme();
-        return;
-      }
-
-      // Determine circular expansion epicenter (x, y)
-      let x = window.innerWidth / 2;
-      let y = window.innerHeight / 2;
-
-      if (eventOrCoords) {
-        if (
-          eventOrCoords.currentTarget &&
-          typeof eventOrCoords.currentTarget.getBoundingClientRect ===
-            "function"
-        ) {
-          const rect = eventOrCoords.currentTarget.getBoundingClientRect();
-          x = rect.left + rect.width / 2;
-          y = rect.top + rect.height / 2;
-        } else if (
-          typeof eventOrCoords.clientX === "number" &&
-          typeof eventOrCoords.clientY === "number" &&
-          (eventOrCoords.clientX !== 0 || eventOrCoords.clientY !== 0)
-        ) {
-          x = eventOrCoords.clientX;
-          y = eventOrCoords.clientY;
-        } else if (eventOrCoords.touches?.[0]) {
-          x = eventOrCoords.touches[0].clientX;
-          y = eventOrCoords.touches[0].clientY;
-        } else if (
-          typeof eventOrCoords.x === "number" &&
-          typeof eventOrCoords.y === "number"
-        ) {
-          x = eventOrCoords.x;
-          y = eventOrCoords.y;
-        }
-      }
-
-      // Radius to the furthest corner of viewport
-      const endRadius = Math.hypot(
-        Math.max(x, window.innerWidth - x),
-        Math.max(y, window.innerHeight - y),
-      );
-
-      // Dynamically inject view-transition CSS rules only in browsers that support View Transitions
-      const styleId = "view-transition-runtime-styles";
-      if (!document.getElementById(styleId)) {
-        const styleEl = document.createElement("style");
-        styleEl.id = styleId;
-        styleEl.textContent =
-          "::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal;}::view-transition-old(root){z-index:1;}::view-transition-new(root){z-index:9999;}";
-        document.head.appendChild(styleEl);
-      }
-
-      const transition = document.startViewTransition(() => {
-        applyTheme();
-      });
-
-      transition.ready.then(() => {
-        const clipPath = [
-          `circle(0px at ${x}px ${y}px)`,
-          `circle(${endRadius}px at ${x}px ${y}px)`,
-        ];
-        document.documentElement.animate(
-          {
-            clipPath: clipPath,
-          },
-          {
-            duration: 1500, // Slowed down so user can properly see the circular wave reveal
-            easing: "cubic-bezier(0.22, 1, 0.36, 1)",
-            pseudoElement: "::view-transition-new(root)",
-          },
-        );
-      });
-    },
-    [mood],
-  );
-
+  });
+  useLayoutEffect(() => {
+    document.documentElement.dataset.mood = mood;
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute("content", mood === "light" ? "#f5f4ed" : "#111219");
+    try {
+      localStorage.setItem("portfolio_mood", mood);
+    } catch {
+      /* Storage may be unavailable. */
+    }
+  }, [mood]);
   const toggleLightDark = useCallback(
-    (eventOrCoords) => {
-      const nextMood = mood === "light" ? "cyber" : "light";
-      setMood(nextMood, eventOrCoords);
-    },
-    [mood, setMood],
+    () => setMood((current) => (current === "light" ? "cyber" : "light")),
+    [],
   );
-
   return (
-    <ThemeMoodContext.Provider
-      value={{ mood, setMood, toggleLightDark, moods: MOODS }}
-    >
+    <ThemeMoodContext.Provider value={{ mood, toggleLightDark }}>
       {children}
     </ThemeMoodContext.Provider>
   );
 };
-
-// eslint-disable-next-line react-refresh/only-export-components
 export const useThemeMood = () => useContext(ThemeMoodContext);

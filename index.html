@@ -3,111 +3,57 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <!-- Title & Favicon -->
-    <title>Saksham Agarwal | Portfolio • CSE Student @ VIT Bhopal</title>
+    <title>Saksham Agarwal | Software &amp; Applied AI Engineer</title>
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
-
-    <!-- Inline Critical CSS: instant dark background paint (eliminates white flash) -->
-    <style>
-      html, body { background: #050816; color: #f4f4f5; }
-      #root { min-height: 100vh; min-height: 100dvh; }
-      .sr-fallback {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        white-space: nowrap;
-        border: 0;
-      }
-    </style>
-
-    <!-- DNS Prefetch & Preconnect for Zero Latency Font Loading -->
-    <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
-    <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&display=optional" rel="stylesheet" media="print" onload="this.media='all'" />
-    <noscript>
-      <link href="https://fonts.googleapis.com/css2?family=Caveat:wght@600;700&family=Inter:wght@300;400;500;600;700;800&family=Poppins:wght@400;500;600;700;800;900&display=optional" rel="stylesheet" />
-    </noscript>
-
-    <!-- SEO Meta Tags -->
-    <meta name="title" content="Saksham Agarwal | Portfolio • CSE Student @ VIT Bhopal" />
-    <meta name="description" content="Saksham Agarwal — Software & Applied AI Engineer. B.Tech CSE at VIT Bhopal (2027). Building explainable deepfake forensic engines, deterministic LLM compilers, and distributed real-time cloud systems." />
-    <meta name="keywords" content="Saksham Agarwal, Portfolio, Software Engineer, Applied AI, Deepfake Forensics, LLM Compiler, React, FastAPI, PyTorch, Distributed Systems, VIT Bhopal, Full Stack Developer" />
+    <meta name="description" content="Saksham Agarwal’s interactive engineering portfolio. Explore applied AI, explainable computer vision, full-stack applications, and creative experiments. B.Tech CSE, VIT Bhopal ’27." />
     <meta name="author" content="Saksham Agarwal" />
     <meta name="robots" content="index, follow" />
     <link rel="canonical" href="https://saksham-dev07.me/" />
-    <link rel="sitemap" type="text/html" title="Sitemap" href="/sitemap.html" />
-    <link rel="sitemap" type="application/xml" title="Sitemap" href="/sitemap.xml" />
-
-    <!-- Open Graph / Facebook / LinkedIn -->
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <meta name="theme-color" content="#111219" />
+    <style>
+      html, body { background: #111219; color: #f2f1e8; margin: 0; }
+      html[data-mood="light"], html[data-mood="light"] body { background: #f5f4ed; color: #242638; }
+      #root { min-height: 100dvh; }
+      .fallback { max-width: 760px; margin: 80px auto; padding: 24px; font: 16px/1.8 system-ui, sans-serif; }
+      .fallback a { color: #a8b7ff; }
+    </style>
+    <script>
+      try { document.documentElement.dataset.mood = localStorage.getItem("portfolio_mood") === "light" ? "light" : "cyber"; } catch {}
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
     <meta property="og:type" content="website" />
     <meta property="og:url" content="https://saksham-dev07.me/" />
-    <meta property="og:title" content="Saksham Agarwal | Software & Applied AI Engineer" />
-    <meta property="og:description" content="Building explainable deepfake forensic engines, deterministic LLM compilers, and distributed real-time cloud systems. B.Tech CSE at VIT Bhopal (2027)." />
-    <meta property="og:image" content="https://saksham-dev07.me/logo.svg" />
-
-    <!-- Twitter -->
-    <meta property="twitter:card" content="summary_large_image" />
-    <meta property="twitter:url" content="https://saksham-dev07.me/" />
-    <meta property="twitter:title" content="Saksham Agarwal | Software & Applied AI Engineer" />
-    <meta property="twitter:description" content="Building explainable deepfake forensic engines, deterministic LLM compilers, and distributed real-time cloud systems. B.Tech CSE at VIT Bhopal (2027)." />
-    <meta property="twitter:image" content="https://saksham-dev07.me/logo.svg" />
-
-    <!-- Theme color for mobile browsers -->
-    <meta name="theme-color" content="#050816" />
-
-    <!-- Structured Data (JSON-LD) for Search Engines -->
+    <meta property="og:title" content="Saksham Agarwal | Software &amp; Applied AI Engineer" />
+    <meta property="og:description" content="Complex ideas. Intelligent systems. Human experiences. Explore my work and a playground of creative experiments." />
+    <meta property="og:image" content="https://saksham-dev07.me/og-image.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Saksham Agarwal’s engineering portfolio with an interactive particle sculpture." />
+    <meta property="og:locale" content="en_IN" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Saksham Agarwal | Software &amp; Applied AI Engineer" />
+    <meta name="twitter:description" content="Applied AI, thoughtful interfaces, and the systems underneath. A portfolio built to be explored." />
+    <meta name="twitter:image" content="https://saksham-dev07.me/og-image.jpg" />
     <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "Person",
-      "name": "Saksham Agarwal",
-      "url": "https://saksham-dev07.me/",
-      "jobTitle": "Software & Applied AI Engineer",
-      "alumniOf": {
-        "@type": "CollegeOrUniversity",
-        "name": "VIT Bhopal University"
-      },
-      "sameAs": [
-        "https://github.com/saksham-dev07",
-        "https://www.linkedin.com/in/saksham-agarwal-b44910289/"
-      ],
-      "knowsAbout": [
-        "Applied Machine Learning",
-        "Computer Vision",
-        "Deepfake Forensics",
-        "Generative AI",
-        "Full-Stack Web Development",
-        "Distributed Systems",
-        "React",
-        "Python",
-        "PyTorch",
-        "FastAPI"
-      ]
-    }
+      {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Saksham Agarwal",
+        "url": "https://saksham-dev07.me/",
+        "jobTitle": "Software & Applied AI Engineer",
+        "description": "Computer Science student at VIT Bhopal University, graduating in 2027.",
+        "affiliation": { "@type": "CollegeOrUniversity", "name": "VIT Bhopal University" },
+        "sameAs": ["https://github.com/saksham-dev07", "https://www.linkedin.com/in/saksham-agarwal-b44910289/"],
+        "knowsAbout": ["Applied AI", "Computer Vision", "Full-Stack Development", "Python", "React", "PyTorch", "FastAPI"]
+      }
     </script>
   </head>
   <body>
     <div id="root">
-      <!-- Fallback accessibility landmark & site map navigation for crawlers and pre-hydration -->
-      <main id="main-content" tabindex="-1">
-        <header class="sr-fallback">
-          <nav aria-label="Quick Sitemap &amp; Section Directory">
-            <a href="/sitemap.html">HTML Site Map</a>
-            <a href="#projects">Flagship Projects</a>
-            <a href="#systems-lab">Systems Lab</a>
-            <a href="#skills">Technical Skills</a>
-            <a href="#credentials">Credentials</a>
-            <a href="#contact">Contact</a>
-          </nav>
-        </header>
-      </main>
+      <noscript><main class="fallback"><h1>Saksham Agarwal</h1><p>Software &amp; Applied AI Engineer. B.Tech Computer Science at VIT Bhopal, Class of 2027.</p><p>I build explainable computer vision tools, LLM pipelines, and collaborative web applications. Enable JavaScript to explore the interactive portfolio.</p><p><a href="/resume.pdf">View my résumé</a> · <a href="https://github.com/saksham-dev07">Explore my projects on GitHub</a> · <a href="mailto:sakmmm07@gmail.com">Get in touch</a></p></main></noscript>
     </div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

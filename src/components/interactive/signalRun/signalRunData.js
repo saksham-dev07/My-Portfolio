@@ -218,8 +218,8 @@ export function buildSignalRunTrack() {
     number: "05",
     name: "LEADERSHIP",
     subtitle: "FinTech Club Design Lead & Direction",
-    accentColor: "#10b981", // Emerald
-    glowColor: "rgba(16, 185, 129, 0.45)",
+    accentColor: "#a8b7ff", // Periwinkle
+    glowColor: "rgba(168, 183, 255, 0.45)",
     speed: 330,
     facts: leadFacts,
   });

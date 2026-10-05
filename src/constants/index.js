@@ -742,13 +742,13 @@ export const projects = [
     category: "ai",
     featured: true,
     description:
-      "Production-grade, multi-modal deepfake forensics engine fusing 15 detection signals — EfficientNet-B4 visual classifier with Grad-CAM/SHAP, SyncNet lip-sync analysis, and automated PDF evidence reporting.",
+      "A multi-modal deepfake research platform combining 15 forensic signals, EfficientNet-B4 classification, Grad-CAM/SHAP explanations, SyncNet lip-sync analysis, and PDF evidence reports.",
     metrics: [
       { label: "detection signals fused", value: "15" },
-      { label: "validation accuracy", value: "94.2%" },
-      { label: "explainability maps", value: "Grad-CAM & SHAP" },
+      { label: "reported Celeb-DF v2 accuracy", value: "99.81%" },
+      { label: "reported 140k Faces accuracy", value: "99.96%" },
     ],
-    codeSnippet: `// Multi-modal forensic signal fusion & Grad-CAM attribution
+    codeSnippet: `// Illustrative flow: multi-modal analysis and explanation
 const visualScore = await efficientnetB4.classifyFrame(faceCrop);
 const syncConfidence = await syncnet.evaluateLipSync(audioMel, mouthSequence);
 const explainabilityMap = await generateGradCamMap(targetLayer="conv_head");
@@ -773,19 +773,19 @@ const verdict = fuseForensics([visualScore, syncConfidence, frequencyArtifacts])
     category: "ai",
     featured: true,
     description:
-      "4-stage compiler-style LLM pipeline — intent parsing, UI/UX design generation, database schema synthesis, and cross-layer refinement — turning natural-language prompts into validated, deployable web apps.",
+      "A four-stage Gemini workflow that turns natural-language requirements into application structure through intent parsing, interface generation, schema synthesis, and cross-layer refinement.",
     metrics: [
       { label: "compiler pipeline stages", value: "4" },
-      { label: "automated schema synthesis", value: "100%" },
-      { label: "syntax verification", value: "Multi-pass AST" },
+      { label: "generation model", value: "Gemini API" },
+      { label: "structured output", value: "UI & schema" },
     ],
-    codeSnippet: `// 4-stage natural language to full-stack compiler
-const intentAST = await parsePromptToIntent(prompt);
-const schemaModel = await synthesizeDatabaseSchema(intentAST);
-const componentTree = await generateReactComponents(intentAST, schemaModel);
-const deployableApp = await crossLayerVerifier.compile(componentTree);`,
+    codeSnippet: `// Illustrative flow: four-stage application generation
+const intent = await parseRequirements(prompt);
+const design = await generateInterface(intent);
+const schema = await synthesizeSchema(intent, design);
+const application = await refineApplication({ intent, design, schema });`,
     tags: [
-      { name: "Node.js", color: "text-green-300" },
+      { name: "Node.js", color: "text-blue-300" },
       { name: "JavaScript", color: "text-yellow-300" },
       { name: "Gemini API", color: "text-purple-300" },
       { name: "LLM Pipeline", color: "text-teal-300" },
@@ -797,18 +797,18 @@ const deployableApp = await crossLayerVerifier.compile(componentTree);`,
   {
     id: "docpilot",
     name: "DocPilot – Clinical Management Platform",
-    role: "Healthcare Platform, Team of Six",
+    role: "AI-Assisted Clinical Management",
     period: "May 2026",
     category: "fullstack",
     featured: true,
     description:
       "Full-stack, role-based healthcare platform with Gemini AI as an intelligent consultation scribe auto-generating structured clinical notes, with Firebase multi-role auth and Appwrite real-time sync.",
     metrics: [
-      { label: "scoped access roles", value: "3" },
+      { label: "authentication", value: "Role-based" },
       { label: "real-time state sync", value: "Appwrite" },
       { label: "consultation scribe", value: "Gemini AI" },
     ],
-    codeSnippet: `// Role-based clinical security rules & patient privacy boundary
+    codeSnippet: `// Illustrative access boundary, not deployed security rules
 match /consultations/{consultId} {
   allow read, write: if isAuthenticated() && 
     (request.auth.uid == resource.data.doctorId || 
@@ -829,26 +829,27 @@ match /consultations/{consultId} {
   {
     id: "nexusboard",
     name: "NexusBoard – Collaborative Canvas",
-    role: "Real-Time Systems & WebSockets",
+    role: "Real-Time Systems & Canvas",
     period: "Apr 2026",
     category: "fullstack",
     featured: true,
     description:
-      "Real-time collaborative infinite canvas and digital whiteboard engine featuring live multi-user synchronization over WebSockets and ultra-smooth freehand drawing using HTML5 Canvas API.",
+      "A collaborative infinite whiteboard connecting a double-buffered Canvas drawing interface to live multi-user updates through Socket.IO and a Node.js server.",
     metrics: [
-      { label: "WebSocket sync latency", value: "< 20ms" },
-      { label: "render loop rate", value: "60 FPS" },
-      { label: "multi-user live sync", value: "CRDT / Delta" },
+      { label: "reported test users per room", value: "50" },
+      { label: "reported median sync latency", value: "0.56ms" },
+      { label: "reported render rate", value: "60 FPS" },
     ],
-    codeSnippet: `// High-frequency canvas delta synchronization over WebSockets
+    codeSnippet: `// Illustrative flow: share a stroke through Socket.IO
 canvas.on('path:created', (event) => {
-  const delta = serializeStrokeDelta(event.path);
-  socket.emit('broadcast:stroke', { userId, delta, timestamp: performance.now() });
+  const stroke = serializeStroke(event.path);
+  socket.emit('broadcast:stroke', { userId, stroke });
 });`,
     tags: [
       { name: "React 18", color: "text-cyan-300" },
       { name: "Tailwind CSS", color: "text-blue-300" },
-      { name: "WebSockets", color: "text-emerald-300" },
+      { name: "Socket.IO", color: "text-emerald-300" },
+      { name: "Node.js", color: "text-blue-300" },
       { name: "Canvas API", color: "text-amber-300" },
     ],
     image: nexusboard,
@@ -858,14 +859,16 @@ canvas.on('path:created', (event) => {
   {
     id: "lastmile",
     name: "Last-Mile Delivery Tracker",
-    role: "Logistics Routing & Telemetry",
+    role: "Logistics & Delivery Tracking",
     period: "Mar 2026",
     category: "backend",
     featured: false,
     description:
-      "Smart logistics platform for last-mile delivery tracking with real-time GPS vehicle routing, live ETA calculations, package status cards, and courier assignment dispatch.",
+      "A logistics tracking application built with FastAPI, React, and Leaflet, combining delivery status, dynamic ETA calculations, and interactive maps.",
     tags: [
       { name: "Python", color: "text-blue-300" },
+      { name: "FastAPI", color: "text-emerald-300" },
+      { name: "React", color: "text-cyan-300" },
       { name: "Leaflet Maps", color: "text-emerald-300" },
       { name: "JavaScript", color: "text-yellow-300" },
       { name: "Vercel", color: "text-sky-300" },
@@ -883,10 +886,10 @@ canvas.on('path:created', (event) => {
     category: "backend",
     featured: false,
     description:
-      "Advanced TypeScript-based web scraping and automated extraction engine with live crawling status, robust queue management, and structured data streaming.",
+      "TypeScript-based web scraping and automated extraction tooling for collecting and organizing structured web data.",
     tags: [
       { name: "TypeScript", color: "text-blue-300" },
-      { name: "Node.js", color: "text-green-300" },
+      { name: "Node.js", color: "text-blue-300" },
       { name: "Puppeteer", color: "text-amber-300" },
       { name: "Render", color: "text-purple-300" },
     ],
@@ -902,9 +905,10 @@ canvas.on('path:created', (event) => {
     category: "ai",
     featured: false,
     description:
-      "Hybrid malware inspection engine combining custom YARA signature rules with heuristic behavioral analysis — performing static analysis of PE headers, entropy metrics, and behavioral indicators.",
+      "A five-layer static malware triage tool combining cryptographic hash signatures, YARA rules, PE entropy analysis, and VirusTotal API lookups in a Python and Flask application.",
     tags: [
       { name: "Python", color: "text-blue-300" },
+      { name: "Flask", color: "text-emerald-300" },
       { name: "YARA Rules", color: "text-red-400" },
       { name: "PE Forensics", color: "text-purple-300" },
       { name: "Entropy Analysis", color: "text-emerald-300" },
@@ -942,7 +946,7 @@ canvas.on('path:created', (event) => {
       "Interactive OpenCV & Python ping pong game controlled using real-time hand gesture tracking via computer webcam with zero physical controllers.",
     tags: [
       { name: "Python", color: "text-blue-300" },
-      { name: "OpenCV", color: "text-green-300" },
+      { name: "OpenCV", color: "text-blue-300" },
       { name: "MediaPipe", color: "text-yellow-300" },
     ],
     image: pingpong,
@@ -979,7 +983,7 @@ canvas.on('path:created', (event) => {
       "A lightweight tool to improve code readability by automatically stripping out comments from various programming languages.",
     tags: [
       { name: "Python", color: "text-blue-300" },
-      { name: "Regex AST", color: "text-orange-300" },
+      { name: "Text processing", color: "text-orange-300" },
     ],
     image: comment,
     source_code_link: "https://github.com/saksham-dev07/Code-comment-remover",

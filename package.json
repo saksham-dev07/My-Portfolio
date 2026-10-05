@@ -12,6 +12,7 @@
     "lint": "biome lint .",
     "format": "biome format --write .",
     "check": "biome check .",
+    "test": "bun test",
     "preview": "vite preview"
   },
   "dependencies": {

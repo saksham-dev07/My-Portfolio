@@ -31,6 +31,7 @@ import vitb from "./company/vitb.webp";
 import github from "./github.webp";
 import logo from "./logo.svg";
 import profile from "./profile.webp";
+import profileStudio from "./profile-studio.webp";
 import blockforge from "./projects/blockforge.webp";
 import comment from "./projects/comment.webp";
 import deepfake from "./projects/deepfake.webp";
@@ -83,6 +84,7 @@ export {
   nptel,
   pingpong,
   profile,
+  profileStudio,
   resume,
   scrapeverse,
   story,

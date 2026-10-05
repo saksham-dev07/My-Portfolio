@@ -6,7 +6,13 @@
     "useIgnoreFile": true
   },
   "files": {
-    "includes": ["src/**/*.{js,jsx}", "api/**/*.js", "vite.config.js"]
+    "includes": [
+      "src/**/*.{js,jsx}",
+      "api/**/*.js",
+      "tests/**/*.js",
+      "scripts/**/*.mjs",
+      "vite.config.js"
+    ]
   },
   "formatter": {
     "enabled": true,

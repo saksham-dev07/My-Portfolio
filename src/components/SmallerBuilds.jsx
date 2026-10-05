@@ -1,121 +1,227 @@
-import { ArrowUpRight, Github } from "lucide-react";
-import { memo } from "react";
+import { ArrowUpRight, ChevronDown, Github, Search, X } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { projects } from "../constants";
 import { useRole } from "../context/RoleContext";
-import { SectionWrapper } from "../hoc";
-
-const BuildRow = memo(({ project }) => {
-  const { name, role, period, description, tags, source_code_link, live_demo } =
-    project;
-
-  const targetLink = live_demo || source_code_link;
-
-  return (
-    <li className="build-row-item group relative border-b border-white/10 last:border-b-0 transition-colors duration-200">
-      <a
-        href={targetLink}
-        target="_blank"
-        rel="noopener noreferrer"
-        className="build-row-link flex flex-col lg:flex-row lg:items-center justify-between py-5 px-3 sm:px-4 rounded-xl hover:bg-white/[0.03] transition-all gap-4 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-400 focus-visible:ring-offset-2 focus-visible:ring-offset-zinc-950"
-        aria-label={`${name} - ${role} (opens in a new tab)`}
-      >
-        {/* Left: Meta + Title */}
-        <div className="flex flex-col sm:flex-row sm:items-baseline gap-2 sm:gap-6 min-w-0 sm:min-w-[280px]">
-          <span className="text-xs font-mono text-zinc-500 sm:min-w-[110px]">
-            {period}
-          </span>
-          <span className="text-base sm:text-lg font-bold text-white group-hover:text-cyan-400 transition-colors flex items-center gap-2">
-            <span>{name}</span>
-            <ArrowUpRight
-              size={15}
-              className="opacity-0 group-hover:opacity-100 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all text-cyan-400"
-            />
-          </span>
-        </div>
-
-        {/* Center: Summary */}
-        <p className="text-xs sm:text-sm text-zinc-400 max-w-md line-clamp-2 lg:line-clamp-1 font-normal">
-          {description}
-        </p>
-
-        {/* Right: Tech Stack Pills & Action */}
-        <div className="flex items-center gap-2 flex-wrap lg:justify-end">
-          {tags.slice(0, 3).map((tag, idx) => (
-            <span
-              key={idx}
-              className="build-row-tag px-2 py-0.5 text-[11px] font-mono rounded bg-white/[0.04] border border-white/10 text-zinc-400"
-            >
-              {tag.name}
-            </span>
-          ))}
-
-          {live_demo && (
-            <span className="text-xs font-mono text-cyan-400 flex items-center gap-1 ml-2 font-semibold">
-              Live
-            </span>
-          )}
-          {!live_demo && source_code_link && (
-            <span className="text-xs font-mono text-zinc-400 flex items-center gap-1 ml-2">
-              <Github size={12} />
-              Code
-            </span>
-          )}
-        </div>
-      </a>
-    </li>
-  );
-});
-BuildRow.displayName = "BuildRow";
-
-const SmallerBuilds = () => {
+import { motionAllowed } from "../utils/studioMotion";
+export default function SmallerBuilds() {
   const { activeRole } = useRole();
-
-  // Non-featured projects
-  const smallerProjects = projects.filter((p) => !p.featured);
-
-  const filteredProjects =
-    activeRole === "all"
-      ? smallerProjects
-      : smallerProjects.filter((p) => p.category === activeRole);
-
+  const [query, setQuery] = useState("");
+  const [expanded, setExpanded] = useState(false);
+  const [preview, setPreview] = useState(null);
+  const previewRef = useRef(null);
+  const previewPosition = useRef({ x: 0, y: 0 });
+  const previewFrame = useRef(0);
+  const previewRow = useRef(null);
+  const keyboardPreview = useRef(false);
+  const hidePreview = useCallback(() => {
+    previewRow.current = null;
+    keyboardPreview.current = false;
+    setPreview(null);
+  }, []);
+  const placePreview = useCallback((x, y) => {
+    previewPosition.current = {
+      x: Math.max(16, Math.min(x + 26, window.innerWidth - 326)),
+      y: Math.max(96, Math.min(y - 110, window.innerHeight - 236)),
+    };
+    if (previewFrame.current) return;
+    previewFrame.current = requestAnimationFrame(() => {
+      previewFrame.current = 0;
+      const position = previewPosition.current;
+      previewRef.current?.style.setProperty("--preview-x", `${position.x}px`);
+      previewRef.current?.style.setProperty("--preview-y", `${position.y}px`);
+    });
+  }, []);
+  const revealPreview = (project, event, keyboard = false) => {
+    if (
+      !motionAllowed() ||
+      !window.matchMedia("(pointer: fine) and (min-width: 900px)").matches
+    )
+      return;
+    const bounds = event.currentTarget.getBoundingClientRect();
+    previewRow.current = event.currentTarget;
+    keyboardPreview.current = keyboard;
+    placePreview(
+      event.clientX ?? bounds.right - 360,
+      event.clientY ?? bounds.top + bounds.height / 2,
+    );
+    setPreview(project);
+  };
+  useEffect(() => {
+    const onScroll = () => {
+      const row = previewRow.current;
+      if (
+        keyboardPreview.current &&
+        row === document.activeElement &&
+        motionAllowed()
+      ) {
+        const bounds = row.getBoundingClientRect();
+        placePreview(bounds.right - 360, bounds.top + bounds.height / 2);
+      } else hidePreview();
+    };
+    const query = window.matchMedia("(prefers-reduced-motion: reduce)");
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    window.addEventListener("portfolio-motion-change", hidePreview);
+    query.addEventListener("change", hidePreview);
+    return () => {
+      cancelAnimationFrame(previewFrame.current);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+      window.removeEventListener("portfolio-motion-change", hidePreview);
+      query.removeEventListener("change", hidePreview);
+    };
+  }, [hidePreview, placePreview]);
+  const matches = projects.filter(
+    (p) =>
+      !p.featured &&
+      !(
+        activeRole === "backend" && ["lastmile", "scrapeverse"].includes(p.id)
+      ) &&
+      (activeRole === "all" || p.category === activeRole) &&
+      `${p.name} ${p.description} ${p.tags.map((t) => t.name).join(" ")}`
+        .toLowerCase()
+        .includes(query.trim().toLowerCase()),
+  );
+  const visible = expanded || query ? matches : matches.slice(0, 4);
   return (
-    <div className="space-y-6 pt-4">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-4 border-b border-white/10">
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-zinc-900 border border-white/10 text-xs font-mono text-zinc-400">
-            <span className="text-cyan-400 font-bold">02</span>
-            <span>&bull;</span>
-            <span>Additional Projects</span>
-          </div>
-          <h2 className="text-3xl sm:text-5xl font-black text-white tracking-tight">
-            Smaller Builds &amp; Experiments
+    <section
+      id="smaller-builds"
+      className="shell archive-section"
+      aria-labelledby="archive-title"
+    >
+      <div className="archive-header">
+        <div>
+          <p className="eyebrow">The ongoing collection</p>
+          <h2 id="archive-title">
+            More things I’ve built
+            <span className="count-badge">{matches.length}</span>
           </h2>
-          <p className="text-sm sm:text-base text-zinc-400 max-w-2xl font-normal">
-            Specialized engineering utilities, automated scrapers, and
-            open-source explorations built with React, FastAPI, and TypeScript.
-          </p>
         </div>
-
-        <div className="flex items-center gap-2 shrink-0">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white/[0.04] border border-white/10 text-xs font-mono text-zinc-300">
-            <span>Showing {filteredProjects.length} builds</span>
-          </span>
+        <div className="search-field">
+          <Search size={17} aria-hidden="true" />
+          <input
+            type="search"
+            aria-label="Search additional projects"
+            placeholder="Search projects or technologies"
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+          />
+          {query && (
+            <button
+              type="button"
+              className="icon-button"
+              aria-label="Clear search"
+              onClick={() => setQuery("")}
+            >
+              <X size={16} />
+            </button>
+          )}
         </div>
       </div>
-
-      {/* Row List */}
-      <ul className="list-none divide-y divide-white/5 border-t border-white/5">
-        {filteredProjects.map((project) => (
-          <BuildRow key={project.id} project={project} />
+      <div className="sr-only" role="status">
+        {matches.length} additional projects found
+      </div>
+      <ul className="build-list">
+        {visible.map((project, index) => (
+          <li key={project.id}>
+            <a
+              href={project.live_demo || project.source_code_link}
+              target="_blank"
+              rel="noreferrer"
+              onPointerEnter={(event) => {
+                if (event.pointerType === "mouse")
+                  revealPreview(
+                    project,
+                    event,
+                    event.currentTarget === document.activeElement,
+                  );
+              }}
+              onPointerMove={(event) => {
+                if (preview && event.pointerType === "mouse")
+                  placePreview(event.clientX, event.clientY);
+              }}
+              onPointerLeave={(event) => {
+                if (
+                  !keyboardPreview.current ||
+                  event.currentTarget !== document.activeElement
+                )
+                  hidePreview();
+              }}
+              onFocus={(event) => revealPreview(project, event, true)}
+              onBlur={hidePreview}
+              onKeyDown={(event) => {
+                if (event.key === "Escape") hidePreview();
+              }}
+            >
+              <span className="build-index mono">
+                {String(index + 1).padStart(2, "0")}
+              </span>
+              <div className="build-name">
+                <h3>{project.name}</h3>
+                <p>{project.role}</p>
+              </div>
+              <div className="tag-list">
+                {project.tags.slice(0, 2).map((t) => (
+                  <span key={t.name}>{t.name}</span>
+                ))}
+              </div>
+              <span className="build-destination">
+                {project.live_demo ? (
+                  "Explore"
+                ) : (
+                  <>
+                    <Github size={14} /> Code
+                  </>
+                )}
+                <ArrowUpRight size={18} />
+              </span>
+            </a>
+          </li>
         ))}
       </ul>
-    </div>
+      <div
+        className="archive-image-preview"
+        ref={previewRef}
+        data-visible={Boolean(preview)}
+        aria-hidden="true"
+      >
+        {preview && (
+          <div className="archive-preview-content" key={preview.id}>
+            <img src={preview.image} alt="" width={1200} height={675} />
+            <div>
+              <span className="mono">A CLOSER LOOK</span>
+              <span>{preview.name}</span>
+              <ArrowUpRight size={17} />
+            </div>
+          </div>
+        )}
+      </div>
+      {matches.length === 0 && (
+        <div className="empty-state">
+          <Search size={24} />
+          <p>No projects match this search.</p>
+          <button
+            type="button"
+            className="text-link"
+            onClick={() => setQuery("")}
+          >
+            Clear the search
+          </button>
+        </div>
+      )}
+      {!query && matches.length > 4 && (
+        <button
+          type="button"
+          className="archive-expand"
+          aria-expanded={expanded}
+          onClick={() => setExpanded(!expanded)}
+        >
+          {expanded
+            ? "Show less"
+            : `Explore all ${matches.length} additional builds`}
+          <ChevronDown size={16} className={expanded ? "rotate-180" : ""} />
+        </button>
+      )}
+    </section>
   );
-};
-
-const WrappedSmallerBuilds = SectionWrapper(
-  memo(SmallerBuilds),
-  "smaller-builds",
-);
-export default WrappedSmallerBuilds;
+}

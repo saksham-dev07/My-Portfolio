@@ -1,77 +1,100 @@
 import { Resend } from "resend";
 
-export default async function handler(req, res) {
-  // Only accept POST requests
-  if (req.method !== "POST") {
-    res.setHeader("Allow", ["POST"]);
-    return res.status(405).json({ error: "Method Not Allowed" });
+export function validateContact(body) {
+  if (!body || typeof body !== "object" || Array.isArray(body))
+    return { error: "Please provide a valid message." };
+  const limits = {
+    name: [2, 100],
+    reply_to: [3, 254],
+    title: [3, 150],
+    message: [10, 2000],
+  };
+  const values = {};
+  for (const [key, [min, max]] of Object.entries(limits)) {
+    if (typeof body[key] !== "string")
+      return { error: "Please complete all required fields." };
+    const value = body[key].trim();
+    if (value.length < min || value.length > max)
+      return { error: "Please check the length of your message fields." };
+    values[key] = value;
   }
-
-  const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.error("RESEND_API_KEY is not defined in environment variables");
-    return res.status(500).json({
-      error: "Server configuration error: RESEND_API_KEY is not defined",
-    });
-  }
-
-  const resend = new Resend(apiKey);
-
-  try {
-    const { name, reply_to, title, message } = req.body || {};
-
-    if (!name || !reply_to || !message) {
-      return res
-        .status(400)
-        .json({ error: "Missing required fields (name, email, message)" });
-    }
-
-    const emailSubject = title
-      ? `[Portfolio] ${title}`
-      : `Portfolio Inquiry from ${name}`;
-
-    const { data, error } = await resend.emails.send({
-      from: "Portfolio Inquiry <onboarding@resend.dev>",
-      to: ["sakmmm07@gmail.com"],
-      replyTo: reply_to,
-      subject: emailSubject,
-      html: `
-        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; background-color: #09090b; color: #f4f4f5; border-radius: 12px; border: 1px solid #27272a;">
-          <div style="border-bottom: 1px solid #27272a; padding-bottom: 16px; margin-bottom: 20px;">
-            <span style="font-size: 11px; font-family: monospace; color: #06b6d4; text-transform: uppercase; letter-spacing: 0.05em; font-weight: bold;">New Portfolio Transmission</span>
-            <h2 style="margin: 6px 0 0 0; color: #ffffff; font-size: 20px; font-weight: 700;">${emailSubject}</h2>
-          </div>
-
-          <div style="background-color: #18181b; padding: 16px; border-radius: 8px; border: 1px solid #27272a; margin-bottom: 20px;">
-            <p style="margin: 0 0 8px 0; font-size: 13px; color: #a1a1aa;"><strong style="color: #ffffff;">Sender Name:</strong> ${name}</p>
-            <p style="margin: 0 0 8px 0; font-size: 13px; color: #a1a1aa;"><strong style="color: #ffffff;">Sender Email:</strong> <a href="mailto:${reply_to}" style="color: #22d3ee; text-decoration: none;">${reply_to}</a></p>
-            <p style="margin: 0; font-size: 13px; color: #a1a1aa;"><strong style="color: #ffffff;">Subject / Opportunity:</strong> ${title || "General Discussion"}</p>
-          </div>
-
-          <div style="margin-bottom: 24px;">
-            <p style="margin: 0 0 8px 0; font-size: 11px; font-family: monospace; color: #a1a1aa; text-transform: uppercase; letter-spacing: 0.05em;">Message Body:</p>
-            <div style="background-color: #18181b; padding: 18px; border-radius: 8px; border: 1px solid #27272a; font-size: 14px; line-height: 1.6; color: #e4e4e7; white-space: pre-wrap;">${message}</div>
-          </div>
-
-          <div style="border-top: 1px solid #27272a; padding-top: 16px; font-size: 11px; font-family: monospace; color: #71717a; text-align: center;">
-            Dispatched securely via Resend API &bull; Saksham Agarwal Portfolio Gateway
-          </div>
-        </div>
-      `,
-    });
-
-    if (error) {
-      console.error("Resend API Error:", error);
-      return res
-        .status(400)
-        .json({ error: error.message || "Resend delivery failed" });
-    }
-
-    return res.status(200).json({ success: true, id: data?.id });
-  } catch (err) {
-    console.error("Server Handler Error:", err);
-    return res
-      .status(500)
-      .json({ error: err.message || "Internal Server Error" });
-  }
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.reply_to))
+    return { error: "Please enter a valid email address." };
+  if (/[\r\n]/.test(values.name + values.title))
+    return { error: "Please use a single line for your name and subject." };
+  return { values };
 }
+
+// Best-effort per-instance throttling. A durable limiter can be added at the host.
+export function createContactHandler({ send, now = Date.now } = {}) {
+  const attempts = new Map();
+  return async function handler(req, res) {
+    res.setHeader("Cache-Control", "no-store");
+    if (req.method !== "POST") {
+      res.setHeader("Allow", "POST");
+      return res.status(405).json({ error: "Method Not Allowed" });
+    }
+    if (
+      !req.headers?.["content-type"]
+        ?.toLowerCase()
+        .startsWith("application/json")
+    )
+      return res.status(415).json({ error: "Please send a JSON message." });
+    if (Number(req.headers?.["content-length"] || 0) > 16384)
+      return res.status(413).json({ error: "Message is too large." });
+    if (typeof req.body?.website === "string" && req.body.website.trim())
+      return res.status(200).json({ success: true });
+    const validation = validateContact(req.body);
+    if (validation.error)
+      return res.status(400).json({ error: validation.error });
+    const time = now();
+    for (const [key, value] of attempts)
+      if (time - value.start >= 60000) attempts.delete(key);
+    const forwarded = req.headers?.["x-forwarded-for"];
+    const ip =
+      (typeof forwarded === "string"
+        ? forwarded.split(",")[0].trim()
+        : req.socket?.remoteAddress) || "unknown";
+    const attempt = attempts.get(ip) || { count: 0, start: time };
+    if (attempt.count >= 5) {
+      res.setHeader(
+        "Retry-After",
+        String(Math.ceil((60000 - (time - attempt.start)) / 1000)),
+      );
+      return res
+        .status(429)
+        .json({ error: "Please wait a minute before trying again." });
+    }
+    if (attempts.size >= 10000 && !attempts.has(ip))
+      return res.status(503).json({ error: "Please try again shortly." });
+    attempt.count++;
+    attempts.set(ip, attempt);
+    const { name, reply_to, title, message } = validation.values;
+    try {
+      const result = await send({
+        from: "Portfolio Inquiry <onboarding@resend.dev>",
+        to: ["sakmmm07@gmail.com"],
+        replyTo: reply_to,
+        subject: `[Portfolio] ${title}`,
+        text: `From: ${name}\nReply to: ${reply_to}\nSubject: ${title}\n\n${message}`,
+      });
+      if (result.error)
+        return res.status(502).json({
+          error: "The message couldn't be delivered. Please email me directly.",
+        });
+      return res.status(200).json({ success: true });
+    } catch {
+      return res.status(503).json({
+        error:
+          "Messaging is temporarily unavailable. Please email me directly.",
+      });
+    }
+  };
+}
+
+export default createContactHandler({
+  send: async (payload) => {
+    if (!process.env.RESEND_API_KEY) throw new Error("Email is not configured");
+    return new Resend(process.env.RESEND_API_KEY).emails.send(payload);
+  },
+});
