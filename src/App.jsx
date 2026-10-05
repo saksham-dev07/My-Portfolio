@@ -1,4 +1,4 @@
-import { lazy, Suspense } from "react";
+
 import Certifications from "./components/Certifications";
 import ChapterBridge from "./components/ChapterBridge";
 import Contact from "./components/Contact";
@@ -13,28 +13,11 @@ import Projects from "./components/Projects";
 import SmallerBuilds from "./components/SmallerBuilds";
 import SystemsLab from "./components/SystemsLab";
 import Tech from "./components/Tech";
-import { ArcadeProvider, useArcade } from "./context/ArcadeContext";
+import { ArcadeProvider } from "./context/ArcadeContext";
 import { RoleProvider } from "./context/RoleContext";
 import { SoundProvider } from "./context/SoundContext";
 import { ThemeMoodProvider } from "./context/ThemeMoodContext";
 
-const SignalRun = lazy(
-  () => import("./components/interactive/signalRun/SignalRunModal"),
-);
-function OptionalArcade() {
-  const { isSignalRunOpen } = useArcade();
-  return isSignalRunOpen ? (
-    <Suspense
-      fallback={
-        <div role="status" className="arcade-loading">
-          Loading Signal Run…
-        </div>
-      }
-    >
-      <SignalRun />
-    </Suspense>
-  ) : null;
-}
 export default function App() {
   return (
     <ThemeMoodProvider>
@@ -60,7 +43,7 @@ export default function App() {
               <Contact />
             </main>
             <Footer />
-            <OptionalArcade />
+
           </ArcadeProvider>
         </SoundProvider>
       </RoleProvider>
