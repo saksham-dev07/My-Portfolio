@@ -36,6 +36,8 @@ bun run preview
 
 ## Content and styling
 
+The main portfolio's creative studio layer adds explorable project blueprints, an interactive About notebook, skill-to-repository links, and contact subject starters that preserve custom drafts. Its styles are isolated in `src/creative-studio.css`. Design notes and checks are in [docs/portfolio-creative-upgrade.md](docs/portfolio-creative-upgrade.md).
+
 Project, education, leadership, technology, and credential data live in `src/constants/index.js`. The active design uses `src/portfolio.css`, `src/experience.css`, `src/studio.css`, `src/studio-index.css`, and the deferred `src/workstation.css`. The résumé is served from `public/resume.pdf`.
 
 The latest research, composition, interaction specification, implementation order, and verification criteria were written before the changes in [docs/portfolio-design-plan.md](docs/portfolio-design-plan.md). The hero's annotation and caption follow the selected desk, signal, or human scene.
@@ -47,6 +49,28 @@ The original workstation is `public/desktop_pc/scene-opt.glb`; its CC BY model c
 The animation loops stop when their experiment is offscreen, hidden, or paused. Reduced-motion visitors see paused simulations by default. Drawing coordinates are normalized so a sketch survives resizing, and switching experiment tabs preserves the sketch.
 
 The contact endpoint validates field types and lengths, sends plain-text email, rejects honeypot submissions, and applies a best-effort in-memory rate limit. For distributed or high-traffic hosting, add a durable host-level limiter. Provider errors are kept private, and the form retains drafts on delivery failure.
+
+## Optional driving world
+
+The footer opens `/world`, a lazy React wrapper around a separate Three.js driving application. `/drive` and `/exe` remain compatible aliases. The embedded world is served at `/driving-world/index.html`; it loads only after entry. Exit controls and Escape return to the saved portfolio scroll position. Escape first dismisses the World Map when it is open. The standalone world also offers a normal portfolio link.
+
+Source lives in `experiments/saksham-driving-world/` with its own Bun lockfile and tests. `public/driving-world/` is generated and Git-ignored: never edit or copy assets into it manually. Both `bun dev` and `bun run build` build and publish the current world automatically. Use `bun run dev:world` for live editing of the standalone scene; run `bun run build:world` to refresh the embedded version after scene edits. `bun run test:world` runs its tests.
+
+The deployment permits same-origin framing and blocks external framing. The wrapper accepts exit messages only from its own iframe on the same origin. Main portfolio assets, world source assets, and generated deployment output remain separate. Preserve the original MIT licence and model attribution files.
+
+Repository layout:
+
+- `src/`, `public/`, `api/`: professional portfolio, shared assets, contact endpoint.
+- `experiments/saksham-driving-world/`: world source, models, audio, independent tests.
+- `scripts/build-world.mjs`: reproducible integration build.
+- `tests/`: portfolio tests; `docs/`: design research and maintenance notes.
+- `dist/` and `public/driving-world/`: disposable generated output.
+
+## Optional discoveries
+
+`/lab` hosts five small experiments: drawing, a compiler walkthrough, gravity, a neural signal visualization and generative art. Experiments mount only after launch and unmount when closed. The developer terminal opens from its button or Ctrl + backtick; it uses a predefined command dictionary and never executes shell commands. Four margin fragments and the portrait's Professional Button Presser achievement are saved locally without login.
+
+The supplied portrait is a static mesh with no rig. It responds through subtle bust poses and dialogue, with pointer attention, project/contact context, an idle response and a returning greeting. The project blueprints link to repository documentation and reflect distinct actual architectures. See [docs/portfolio-discovery-plan.md](docs/portfolio-discovery-plan.md).
 
 ## Deployment
 

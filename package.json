@@ -7,8 +7,11 @@
     "bun": ">=1.0.0"
   },
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "bun run build:world && vite",
+    "dev:world": "bun run --cwd experiments/saksham-driving-world dev",
+    "build:world": "bun scripts/build-world.mjs",
+    "build": "bun run build:world && vite build",
+    "test:world": "bun run --cwd experiments/saksham-driving-world test",
     "lint": "biome lint .",
     "format": "biome format --write .",
     "check": "biome check .",

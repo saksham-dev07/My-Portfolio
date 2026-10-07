@@ -45,7 +45,8 @@ import nl from "./projects/nl.webp";
 import pingpong from "./projects/pingpong.webp";
 import scrapeverse from "./projects/scrapeverse.webp";
 import story from "./projects/story.webp";
-import resume from "./resume.pdf";
+
+const resume = "/resume.pdf";
 
 export {
   anthony,

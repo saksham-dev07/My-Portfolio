@@ -802,7 +802,7 @@ const application = await refineApplication({ intent, design, schema });`,
     category: "fullstack",
     featured: true,
     description:
-      "Full-stack, role-based healthcare platform with Gemini AI as an intelligent consultation scribe auto-generating structured clinical notes, with Firebase multi-role auth and Appwrite real-time sync.",
+      "A role-based healthcare platform with a Gemini consultation scribe, Firebase authentication, Firestore real-time clinical data, and Appwrite file storage.",
     metrics: [
       { label: "authentication", value: "Role-based" },
       { label: "real-time state sync", value: "Appwrite" },

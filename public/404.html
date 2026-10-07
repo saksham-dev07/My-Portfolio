@@ -8,11 +8,11 @@
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <style>
       :root {
-        --bg-primary: #050816;
+        --bg-primary: #111219;
         --text-primary: #f4f4f5;
         --text-secondary: #a1a1aa;
-        --accent: #22d3ee;
-        --accent-hover: #38bdf8;
+        --accent: #a8b7ff;
+        --accent-hover: #c1cbff;
         --border: rgba(255, 255, 255, 0.12);
       }
       * {
@@ -34,7 +34,7 @@
       }
       .card {
         max-width: 540px;
-        background: rgba(18, 24, 38, 0.7);
+        background: rgba(26, 28, 39, 0.7);
         border: 1px solid var(--border);
         border-radius: 1.25rem;
         padding: 3rem 2rem;
@@ -50,8 +50,8 @@
         letter-spacing: 0.1em;
         text-transform: uppercase;
         color: var(--accent);
-        background: rgba(34, 211, 238, 0.1);
-        border: 1px solid rgba(34, 211, 238, 0.25);
+        background: rgba(168, 183, 255, 0.1);
+        border: 1px solid rgba(168, 183, 255, 0.25);
         padding: 0.35rem 0.85rem;
         border-radius: 9999px;
         margin-bottom: 1.5rem;
@@ -108,7 +108,7 @@
         transition: transform 0.2s, border-color 0.2s, background-color 0.2s;
       }
       .btn-secondary:hover, .btn-secondary:focus-visible {
-        border-color: rgba(34, 211, 238, 0.4);
+        border-color: rgba(168, 183, 255, 0.4);
         background: rgba(255, 255, 255, 0.1);
         transform: scale(1.04);
       }
@@ -116,17 +116,19 @@
         outline: 2px solid var(--accent);
         outline-offset: 3px;
       }
+      @media(prefers-reduced-motion:reduce) { .btn,.btn-secondary { transition:none; } .btn:hover,.btn-secondary:hover { transform:none; } }
     </style>
   </head>
   <body>
     <main class="card">
       <div class="code-badge">HTTP 404 &bull; Signal Disconnected</div>
-      <h1>Coordinates Not Found</h1>
-      <p>The transmission path you requested does not correspond to an existing station. Check the URL or return to home.</p>
+      <div style="font-size:clamp(90px,20vw,150px);letter-spacing:-.08em;line-height:1.1;color:#a8b7ff" aria-hidden="true">404</div><h1>A Little Too Far Off the Map</h1>
+      <p>This page doesn't exist. Curiosity is welcome, though. Find your way back to the portfolio or explore a working experiment.</p>
       <div class="action-group">
         <a href="/" class="btn">&larr; Return Home</a>
-        <a href="/sitemap.html" class="btn-secondary">Explore Site Map</a>
+        <a href="/lab" class="btn-secondary">Explore the Lab</a>
       </div>
     </main>
   </body>
 </html>
+

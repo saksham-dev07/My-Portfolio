@@ -1,6 +1,6 @@
 import { useGLTF } from "@react-three/drei/core/Gltf.js";
 import { OrbitControls } from "@react-three/drei/core/OrbitControls.js";
-import { Canvas, useThree } from "@react-three/fiber";
+import { Canvas, useFrame, useThree } from "@react-three/fiber";
 import {
   Download,
   Grid2X2,
@@ -20,6 +20,7 @@ import {
   useState,
 } from "react";
 import { Box3, MathUtils, MeshBasicMaterial, Vector3 } from "three";
+import { discover } from "../../utils/discovery";
 import { motionAllowed } from "../../utils/studioMotion";
 
 const MODEL = "/portrait/saksham-model.glb";
@@ -38,9 +39,52 @@ class PortraitBoundary extends Component {
   }
 }
 
-function Bust({ wireframe, onReady }) {
+function Bust({ wireframe, onReady, active, allowed, mood, onGreeting }) {
   const { scene } = useGLTF(MODEL);
   const { invalidate } = useThree();
+  const pose = useRef(null);
+  const target = useRef({ x: 0, y: 0 });
+  useEffect(() => {
+    target.current = {
+      x: mood === "sleepy" ? 0.07 : 0,
+      y: mood === "projects" ? -0.09 : mood === "contact" ? 0.09 : 0,
+    };
+    invalidate();
+    const follow = (event) => {
+      if (
+        !active ||
+        !allowed ||
+        mood !== "awake" ||
+        event.pointerType === "touch" ||
+        event.buttons
+      )
+        return;
+      target.current.x = (event.clientY / innerHeight - 0.5) * 0.045;
+      target.current.y = (event.clientX / innerWidth - 0.5) * 0.12;
+      invalidate();
+    };
+    window.addEventListener("pointermove", follow, { passive: true });
+    return () => window.removeEventListener("pointermove", follow);
+  }, [active, allowed, mood, invalidate]);
+  useFrame((_, delta) => {
+    if (!pose.current) return;
+    const x = active && allowed ? target.current.x : 0;
+    const y = active && allowed ? target.current.y : 0;
+    pose.current.rotation.x = allowed
+      ? MathUtils.damp(pose.current.rotation.x, x, 8, Math.min(delta, 0.05))
+      : 0;
+    pose.current.rotation.y = allowed
+      ? MathUtils.damp(pose.current.rotation.y, y, 8, Math.min(delta, 0.05))
+      : 0;
+    if (
+      active &&
+      allowed &&
+      Math.abs(pose.current.rotation.x - x) +
+        Math.abs(pose.current.rotation.y - y) >
+        0.0003
+    )
+      invalidate();
+  });
   const portrait = useMemo(() => {
     const copy = scene.clone(true);
     const materials = new Map();
@@ -109,7 +153,19 @@ function Bust({ wireframe, onReady }) {
     },
     [portrait],
   );
-  return <primitive object={portrait} dispose={null} />;
+  return (
+    <group
+      ref={pose}
+      onClick={(event) => {
+        if (event.delta < 4) {
+          event.stopPropagation();
+          onGreeting();
+        }
+      }}
+    >
+      <primitive object={portrait} dispose={null} />
+    </group>
+  );
 }
 
 function PortraitCamera({ controls, revision, onFail }) {
@@ -142,9 +198,71 @@ export default function PortraitBust({ portraitImage }) {
   const [attempt, setAttempt] = useState(0);
   const [allowed, setAllowed] = useState(motionAllowed);
   const [active, setActive] = useState(true);
+  const [mood, setMood] = useState("awake");
+  const [dialogue, setDialogue] = useState("A little curious. As usual.");
+  const greetings = useRef(0);
   const controls = useRef(null);
   const stage = useRef(null);
   const instructions = useId();
+  useEffect(() => {
+    try {
+      if (localStorage.getItem("saksham-portrait-visited"))
+        setDialogue("Hey, welcome back.");
+      localStorage.setItem("saksham-portrait-visited", "1");
+    } catch {
+      /* Return dialogue is optional. */
+    }
+    let idle;
+    let context = "awake";
+    const wake = (event) => {
+      clearTimeout(idle);
+      const element = event.target instanceof Element ? event.target : null;
+      const next = element?.closest("a[href$='#contact'], #contact")
+        ? "contact"
+        : element?.closest("a[href$='#projects'], [id^='build-']")
+          ? "projects"
+          : "awake";
+      if (context !== next) {
+        context = next;
+        setMood(next);
+        if (next === "contact") setDialogue("Have an idea? Let's build it.");
+        if (next === "projects") setDialogue("These actually work. Mostly.");
+        if (next === "awake") setDialogue("A little curious. As usual.");
+      }
+      idle = setTimeout(() => {
+        context = "sleepy";
+        setMood("sleepy");
+        setDialogue("Thinking with my eyes closed.");
+      }, 45000);
+    };
+    idle = setTimeout(() => {
+      context = "sleepy";
+      setMood("sleepy");
+      setDialogue("Thinking with my eyes closed.");
+    }, 45000);
+    window.addEventListener("pointermove", wake, { passive: true });
+    window.addEventListener("keydown", wake);
+    window.addEventListener("focusin", wake);
+    return () => {
+      clearTimeout(idle);
+      window.removeEventListener("pointermove", wake);
+      window.removeEventListener("keydown", wake);
+      window.removeEventListener("focusin", wake);
+    };
+  }, []);
+  const greet = useCallback(() => {
+    greetings.current = Math.min(greetings.current + 1, 5);
+    setDialogue(
+      [
+        "I'm listening.",
+        "Hey.",
+        "You know there are projects here, right?",
+        "bro.",
+        "Fine. Achievement unlocked: Professional Button Presser.",
+      ][greetings.current - 1],
+    );
+    if (greetings.current === 5) discover("button-presser", "achievements");
+  }, []);
   useEffect(() => {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => {
@@ -280,7 +398,14 @@ export default function PortraitBust({ portraitImage }) {
                 color="#b7a1ee"
               />
               <Suspense fallback={null}>
-                <Bust wireframe={wireframe} onReady={onReady} />
+                <Bust
+                  wireframe={wireframe}
+                  onReady={onReady}
+                  active={active}
+                  allowed={allowed}
+                  mood={mood}
+                  onGreeting={greet}
+                />
               </Suspense>
               <OrbitControls
                 ref={controls}
@@ -310,6 +435,13 @@ export default function PortraitBust({ portraitImage }) {
             <span className="desk-loader" /> Opening another perspective…
           </div>
         )}
+      </div>
+      <div className="portrait-response">
+        <button type="button" disabled={!ready || failed} onClick={greet}>
+          Say hello
+        </button>
+        <p role="status">{dialogue}</p>
+        {mood === "contact" && <a href="#contact">Let's talk</a>}
       </div>
       <div className="bust-toolbar">
         <button

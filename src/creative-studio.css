@@ -1,0 +1,121 @@
+/* The notebook layer: expressive surfaces without another rendering engine. */
+.studio-hero .hero-name { padding-bottom:12px; }
+.hero-name .name-surname { color:var(--text); }
+.hero-name .name-surname>span { background:radial-gradient(ellipse at var(--name-x,50%) 50%,var(--accent) 0%,var(--muted) 38%,var(--text) 80%); background-clip:text; -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.hero-name .name-surname .name-character { -webkit-text-fill-color:currentColor; color:var(--muted); transition:color .2s; }
+.hero-name .name-surname .name-character:hover { color:var(--accent); }
+.studio-edition { display:flex; justify-content:space-between; gap:16px; border-bottom:1px solid var(--line); padding:0 0 16px; color:var(--quiet); font-size:8px; letter-spacing:.12em; }
+.studio-edition>span:first-child { color:var(--accent); }
+.hero-note-card { border-left:2px solid var(--accent); border-top:0; padding:13px 0 13px 16px; background:linear-gradient(90deg,color-mix(in srgb,var(--accent) 7%,transparent),transparent); }
+.hero-note-card svg { right:10px; }
+.section-heading .eyebrow { display:flex; align-items:center; gap:13px; }
+.section-heading .section-number { display:inline-grid; place-items:center; width:31px; height:31px; border:1px solid var(--line); border-radius:50%; }
+.project-visual { position:relative; min-width:0; display:flex; flex-direction:column; overflow:hidden; }
+.project-visual>.project-preview { flex:1; min-height:0; padding-top:80px; }
+.project-lens { position:absolute; left:24px; top:22px; display:flex; gap:4px; padding:4px; z-index:5; background:#0a1429d9; border:1px solid #ffffff25; border-radius:6px; }
+.project-lens button { display:flex; align-items:center; gap:7px; min-height:34px; padding:8px 12px; color:#abbada; font-size:10px; border-radius:3px; }
+.project-lens button[aria-pressed=true] { background:#d3ddff; color:#14213d; }
+.project-lens button:hover:not([aria-pressed=true]) { color:#fff; }
+.project-blueprint { flex:1; padding:90px 30px 24px; color:#dce5ff; background-color:#101c32; background-image:linear-gradient(#9db7eb0b 1px,transparent 1px),linear-gradient(90deg,#9db7eb0b 1px,transparent 1px); background-size:22px 22px; animation:notebook-enter .4s ease both; }
+.blueprint-heading { display:flex; justify-content:space-between; color:#8da5d4; font-size:8px; letter-spacing:.1em; }
+.blueprint-diagram { display:block; width:100%; height:auto; margin-top:10px; overflow:visible; }
+.blueprint-diagram g rect { fill:#142640; stroke:#587199; stroke-width:1; transition:fill .3s,stroke .3s; }
+.blueprint-diagram g path { stroke:#95acd6; stroke-width:1.5; fill:none; }
+.blueprint-diagram g circle { fill:#526b96; }
+.blueprint-diagram .is-active rect { fill:#a8b7ff24; stroke:#c2d1ff; stroke-width:2; }
+.blueprint-diagram .is-active path { stroke:#e4ebff; }
+.blueprint-diagram .is-active circle { fill:#d2dfff; }
+.blueprint-path { stroke:#607aa3; stroke-width:1; stroke-dasharray:5 6; fill:none; }
+.blueprint-steps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:7px; }
+.blueprint-steps button { display:flex; flex-direction:column; align-items:flex-start; text-align:left; padding:12px 9px; gap:8px; min-height:93px; border-top:1px solid #9bb6ec35; color:#93a9ce; }
+.blueprint-steps button[aria-pressed=true] { background:#a8b7ff12; border-color:#c6d4ff; color:#e2eaff; }
+.blueprint-steps .mono { font-size:8px; color:#91a4cb; }
+.blueprint-steps strong { font-size:12px; font-weight:500; }
+.blueprint-steps small { font-size:8px; line-height:1.5; color:#97add3; }
+.blueprint-note { min-height:65px; margin:20px 0 10px; font-size:11px; line-height:1.85; color:#c0cee8; animation:notebook-enter .3s ease both; }
+.blueprint-footnote { display:block; font-size:6px; color:#8197ba; letter-spacing:.1em; }
+.project-card .project-copy { border-top:2px solid color-mix(in srgb,var(--accent) 40%,transparent); }
+.project-grid:has(:focus-visible) .project-card { position:relative; top:auto; }
+:root[data-motion="off"] .project-card { position:relative; top:auto; }
+.field-notes { margin-top:65px; border:1px solid var(--line); border-radius:4px; background:var(--surface); overflow:hidden; }
+.field-notes-tabs { display:flex; align-items:center; gap:8px; padding:13px 25px; border-bottom:1px solid var(--line); }
+.field-notes-tabs>.mono { margin-right:auto; color:var(--quiet); font-size:8px; }
+.field-notes-tabs button { display:flex; align-items:center; gap:12px; padding:12px; min-height:44px; font-size:11px; color:var(--muted); border-bottom:2px solid transparent; }
+.field-notes-tabs button span { color:var(--quiet); font:8px ui-monospace,monospace; }
+.field-notes-tabs button[aria-pressed=true] { color:var(--accent); border-bottom-color:var(--accent); }
+.field-note-sheet { position:relative; display:grid; grid-template-columns:.65fr 2fr; align-items:center; gap:40px; padding:45px 50px 65px; min-height:310px; background-image:linear-gradient(90deg,transparent 34px,color-mix(in srgb,var(--accent) 14%,transparent) 35px,transparent 36px); animation:notebook-enter .35s ease both; }
+.field-note-mark { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px; color:var(--accent); }
+.field-note-mark svg { transform:rotate(-8deg); }
+.field-note-mark .mono { color:var(--quiet); font-size:8px; }
+.field-note-copy>.mono { font-size:8px; color:var(--quiet); }
+.field-note-copy h3 { font-size:clamp(24px,2.7vw,38px); line-height:1.2; letter-spacing:-.045em; margin:13px 0 15px; }
+.field-note-copy p { max-width:590px; color:var(--muted); font-size:13px; line-height:1.9; }
+.field-note-copy .text-link { margin-top:20px; font-size:11px; color:var(--accent); }
+.field-note-scribble { position:absolute; bottom:21px; right:35px; color:var(--quiet); font:italic 17px Georgia,serif; transform:rotate(-3deg); }
+.education-card { box-shadow:7px 7px 0 var(--page),8px 8px 0 var(--line); border-radius:3px; }
+.skill-build-link { display:flex; align-items:center; gap:8px; padding:11px 0; border-top:1px solid var(--line); color:var(--accent); font-size:10px; line-height:1.6; }
+.skill-build-link>.mono { font-size:7px; color:var(--quiet); }
+.skill-build-link>svg { flex-shrink:0; margin-left:auto; }
+.skill-build-link:hover { text-decoration:underline; text-underline-offset:3px; }
+.contact-section { position:relative; background:var(--page); }
+.contact-grid { position:relative; padding-block:40px; }
+.contact-form { position:relative; border-radius:4px; box-shadow:10px 10px 0 var(--page),11px 11px 0 var(--line); }
+.contact-postmark { display:flex; align-items:center; gap:13px; margin-bottom:27px; color:var(--accent); opacity:.8; }
+.contact-postmark>span { display:grid; place-items:center; width:55px; height:55px; border:1px dashed var(--accent); border-radius:50%; font:italic 24px Georgia,serif; transform:rotate(-12deg); }
+.contact-postmark>.mono { font-size:7px; line-height:1.7; letter-spacing:.14em; }
+.contact-postmark svg { width:100px; height:35px; fill:none; stroke:currentColor; stroke-width:1; opacity:.45; }
+.contact-starters { display:flex; gap:7px; flex-wrap:wrap; margin:0 0 25px; }
+.contact-starters button { display:flex; align-items:center; gap:13px; padding:10px 12px; min-height:40px; border:1px solid var(--line); border-radius:3px; color:var(--muted); font-size:10px; }
+.contact-starters button[aria-pressed=true] { background:var(--accent); color:var(--accent-ink); border-color:var(--accent); }
+.contact-starters button:hover:enabled { border-color:var(--accent); }
+.contact-starters button:disabled { opacity:.4; cursor:default; }
+.footer-bottom>a { display:flex; align-items:center; gap:8px; color:var(--accent); font-size:11px; min-height:44px; }
+.footer-top>p { font-size:clamp(25px,3.2vw,45px); line-height:1.2; letter-spacing:-.04em; }
+@keyframes notebook-enter { from { opacity:0; transform:translateY(7px); } to { opacity:1; transform:translateY(0); } }
+@media(max-width:900px) {
+ .field-note-sheet { padding:35px 30px 60px; gap:25px; }
+ .project-blueprint { padding-inline:23px; }
+}
+@media(max-width:600px) {
+ .studio-edition { font-size:6px; line-height:1.6; gap:22px; }
+ .studio-edition>span { max-width:130px; }
+ .project-visual { min-height:300px; }
+ .project-visual>.project-preview { padding-top:72px; padding-bottom:35px; }
+ .project-lens { top:15px; left:15px; }
+ .project-lens button { min-height:36px; }
+ .project-blueprint { padding:75px 18px 22px; }
+ .blueprint-steps { gap:4px; }
+ .blueprint-steps button { padding:10px 6px; }
+ .blueprint-steps strong { font-size:11px; }
+ .blueprint-steps small { font-size:9px; }
+ .blueprint-note { min-height:75px; }
+ .field-notes { margin-top:40px; }
+ .field-notes-tabs { flex-wrap:wrap; gap:0; padding:14px; }
+ .field-notes-tabs>.mono { width:100%; margin-bottom:9px; }
+ .field-notes-tabs button { flex:1; justify-content:center; gap:6px; padding:10px 5px; font-size:10px; }
+ .field-note-sheet { grid-template-columns:1fr; gap:20px; padding:25px 23px 65px; background-image:none; min-height:410px; }
+ .field-note-mark { flex-direction:row; justify-content:flex-start; gap:15px; }
+ .field-note-mark svg { width:33px; height:33px; }
+ .field-note-copy p { font-size:12px; }
+ .field-note-scribble { font-size:13px; right:20px; bottom:24px; }
+ .contact-grid { padding-block:0; }
+ .contact-form { box-shadow:5px 5px 0 var(--page),6px 6px 0 var(--line); }
+ .contact-postmark { margin-bottom:30px; }
+}
+@media(prefers-reduced-motion:reduce) { .project-blueprint,.blueprint-note,.field-note-sheet { animation:none; } .blueprint-diagram g rect { transition:none; } .project-card { position:relative; top:auto; } }
+:root[data-motion="off"] .project-blueprint,:root[data-motion="off"] .blueprint-note,:root[data-motion="off"] .field-note-sheet { animation:none; }
+
+/* A signal becomes a system: restrained, contextual motion. */
+.bridge-signal { display:block; width:100%; height:64px; margin:-20px 0 20px; overflow:visible; color:var(--accent); }
+.bridge-signal path { fill:none; stroke:currentColor; stroke-width:1; vector-effect:non-scaling-stroke; opacity:.32; }
+.bridge-signal path:nth-child(2) { opacity:.65; }
+.preview-light { position:absolute; inset:0; z-index:3; pointer-events:none; opacity:0; background:radial-gradient(ellipse 280px 200px at var(--lens-x,50%) var(--lens-y,50%),#b6c8ff21,transparent 80%); transition:opacity .35s; }
+.blueprint-path { stroke-dasharray:.04 .035; }
+.blueprint-path.is-flowing { stroke:#d1deff; stroke-width:1.8; animation:blueprint-transfer .85s ease-out; }
+@keyframes blueprint-transfer { from { stroke-dashoffset:1; opacity:.3; } to { stroke-dashoffset:0; opacity:1; } }
+@media(hover:hover) and (pointer:fine) { .project-preview:hover .preview-light { opacity:1; } }
+:root[data-motion="off"] .preview-light { display:none; }
+:root[data-motion="off"] .blueprint-path.is-flowing { animation:none; }
+@media(prefers-reduced-motion:reduce) { .preview-light { display:none; } .blueprint-path.is-flowing { animation:none; } }
+@media(max-width:600px) { .bridge-signal { height:40px; margin:-10px 0 15px; } }
+

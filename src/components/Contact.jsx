@@ -12,12 +12,18 @@ import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 
 const email = "sakmmm07@gmail.com";
+const subjectStarters = [
+  { label: "A role", title: "Let's talk about an opportunity" },
+  { label: "A project", title: "Let's build something together" },
+  { label: "A hello", title: "Hello from your portfolio" },
+];
 export default function Contact() {
   const {
     register,
     handleSubmit,
     reset,
     watch,
+    setValue,
     formState: { errors, isSubmitting },
   } = useForm({
     mode: "onBlur",
@@ -78,6 +84,17 @@ export default function Contact() {
     >
       <div className="shell contact-grid">
         <div className="contact-copy">
+          <div className="contact-postmark" aria-hidden="true">
+            <span>SA</span>
+            <div className="mono">
+              OPEN TO
+              <br />
+              WHAT'S NEXT
+            </div>
+            <svg viewBox="0 0 170 42">
+              <path d="M0 6q20-10 40 0t40 0t40 0t40 0M0 20q20-10 40 0t40 0t40 0t40 0M0 34q20-10 40 0t40 0t40 0t40 0" />
+            </svg>
+          </div>
           <p className="eyebrow">
             <span className="section-number">06</span>Start a conversation
           </p>
@@ -141,6 +158,32 @@ export default function Contact() {
         >
           <h3>Tell me what you have in mind.</h3>
           <p className="form-intro">All fields are required.</p>
+          <div
+            className="contact-starters"
+            role="group"
+            aria-label="Choose a starting subject"
+          >
+            {subjectStarters.map((starter) => (
+              <button
+                key={starter.label}
+                type="button"
+                aria-pressed={data.title === starter.title}
+                disabled={Boolean(
+                  data.title &&
+                    !subjectStarters.some((item) => item.title === data.title),
+                )}
+                onClick={() =>
+                  setValue("title", starter.title, {
+                    shouldDirty: true,
+                    shouldValidate: true,
+                  })
+                }
+              >
+                {starter.label}
+                <ArrowUpRight size={12} />
+              </button>
+            ))}
+          </div>
           <div className="form-row">
             <div className="form-field">
               <label htmlFor="contact-name">Your name</label>

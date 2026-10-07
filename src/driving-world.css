@@ -1,0 +1,114 @@
+.driving-world-container {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  z-index: 1000;
+  background: #111424;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.driving-world-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 24px;
+  background: rgba(17, 20, 36, 0.95);
+  backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f1f0eb;
+  font-size: 11px;
+  z-index: 20;
+}
+
+.driving-world-exit-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 6px;
+  color: #c3cdf7;
+  font-size: 11px;
+  font-weight: 500;
+  font-family: Inter, system-ui, sans-serif;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.driving-world-exit-btn:hover {
+  background: rgba(195, 205, 247, 0.18);
+  color: #ffffff;
+  border-color: #c3cdf7;
+}
+
+.driving-world-meta {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: #9ba4c5;
+  font-size: 11px;
+}
+
+.driving-world-meta .mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  letter-spacing: 0.1em;
+  color: #d4e7ef;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.driving-world-dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: #6366f1;
+}
+
+.driving-world-tab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #9ba4c5;
+  text-decoration: none;
+  font-size: 11px;
+  padding: 7px 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  transition: all 0.2s ease;
+}
+
+.driving-world-tab-btn:hover {
+  color: #ffffff;
+  border-color: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.driving-world-iframe {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  border: none;
+  display: block;
+  background: #16192b;
+}
+
+@media (max-width: 650px) {
+  .driving-world-bar {
+    padding: 8px 14px;
+  }
+  .driving-world-meta span:not(.mono) {
+    display: none;
+  }
+  .driving-world-dot {
+    display: none;
+  }
+}

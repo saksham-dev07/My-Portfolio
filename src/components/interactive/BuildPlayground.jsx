@@ -18,7 +18,7 @@ import { useEffect, useRef, useState } from "react";
 
 const colors = ["#a8b7ff", "#aa95f5", "#66d9eb", "#ffb08a"];
 
-function DrawingCanvas() {
+export function DrawingCanvas() {
   const canvasRef = useRef(null);
   const strokes = useRef([]);
   const current = useRef(null);
@@ -261,7 +261,7 @@ const stages = [
     code: "check(componentProps);\ncheck(schemaReferences);\ncheck(roleBoundaries);\n\nreturn refine(application);",
   },
 ];
-function PipelineDemo({ active }) {
+export function PipelineDemo({ active }) {
   const [step, setStep] = useState(0);
   const [running, setRunning] = useState(false);
   useEffect(() => {
@@ -350,7 +350,7 @@ function PipelineDemo({ active }) {
   );
 }
 
-function GravityDemo({ active }) {
+export function GravityDemo({ active }) {
   const arenaRef = useRef(null);
   const nodes = useRef([]);
   const bodies = useRef([]);
@@ -653,6 +653,9 @@ export default function BuildPlayground() {
           <Code2 size={13} />
           SMALL EXPERIMENTS. REAL INTERACTIONS.
         </span>
+        <a className="lab-entry-link" href="/lab">
+          More where that came from. Enter the Lab <ArrowRight size={15} />
+        </a>
       </div>
       <div className="playground-panel">
         <div hidden={tab !== "canvas"}>

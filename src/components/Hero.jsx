@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { profileStudio } from "../assets";
+import { motionAllowed, transitionView } from "../utils/studioMotion";
 import PortraitStudio from "./interactive/PortraitStudio";
 import SignalSculpture from "./interactive/SignalSculpture";
 
@@ -43,6 +44,9 @@ const scenes = {
 export default function Hero() {
   const [view, setView] = useState("desk");
   const scene = scenes[view];
+  const chooseScene = (next) => {
+    if (view !== next) transitionView(() => setView(next), { kind: "scene" });
+  };
   return (
     <section
       id="home"
@@ -58,16 +62,54 @@ export default function Hero() {
           SOFTWARE ENGINEER / APPLIED AI / CLASS OF 2027
         </span>
       </div>
-      <h1 id="hero-title" className="hero-name" aria-label="Saksham Agarwal">
+      <h1
+        id="hero-title"
+        className="hero-name"
+        aria-label="Saksham Agarwal"
+        onPointerMove={(event) => {
+          if (event.pointerType !== "mouse" || !motionAllowed()) return;
+          const bounds = event.currentTarget.getBoundingClientRect();
+          event.currentTarget.style.setProperty(
+            "--name-x",
+            `${((event.clientX - bounds.left) / bounds.width) * 100}%`,
+          );
+        }}
+        onPointerLeave={(event) =>
+          event.currentTarget.style.setProperty("--name-x", "50%")
+        }
+      >
         <span className="name-line">
-          <span>Saksham</span>
+          <span>
+            {[..."Saksham"].map((letter, index) => (
+              <i
+                className="name-character"
+                key={`${letter}-${index}`}
+                style={{ "--letter-order": index }}
+              >
+                {letter}
+              </i>
+            ))}
+          </span>
         </span>
         <span className="name-line name-surname">
           <span>
-            Agarwal<span className="name-period">.</span>
+            {[..."Agarwal"].map((letter, index) => (
+              <i
+                className="name-character"
+                key={`${letter}-${index}`}
+                style={{ "--letter-order": index + 4 }}
+              >
+                {letter}
+              </i>
+            ))}
+            <span className="name-period">.</span>
           </span>
         </span>
       </h1>
+      <div className="studio-edition mono">
+        <span>INDEPENDENT MIND. CONNECTED IDEAS.</span>
+        <span>DESIGN / CODE / INTELLIGENCE</span>
+      </div>
       <div className="hero-grid">
         <div className="hero-copy">
           <p className="eyebrow">
@@ -133,7 +175,7 @@ export default function Hero() {
             <button
               type="button"
               aria-pressed={view === "desk"}
-              onClick={() => setView("desk")}
+              onClick={() => chooseScene("desk")}
             >
               <Monitor size={13} />
               <span className="scene-choice-number">01</span>
@@ -142,7 +184,7 @@ export default function Hero() {
             <button
               type="button"
               aria-pressed={view === "signal"}
-              onClick={() => setView("signal")}
+              onClick={() => chooseScene("signal")}
             >
               <Scan size={13} />
               <span className="scene-choice-number">02</span>
@@ -151,7 +193,7 @@ export default function Hero() {
             <button
               type="button"
               aria-pressed={view === "portrait"}
-              onClick={() => setView("portrait")}
+              onClick={() => chooseScene("portrait")}
             >
               <UserRound size={13} />
               <span className="scene-choice-number">03</span>

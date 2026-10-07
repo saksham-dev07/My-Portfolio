@@ -4,6 +4,9 @@ node_modules/
 # Build output
 dist/
 dist-ssr/
+public/driving-world/
+package-lock.json
+.local-history/
 
 # Environment
 .env

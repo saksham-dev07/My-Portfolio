@@ -5,6 +5,7 @@ import { useRole } from "../context/RoleContext";
 import { motionAllowed, transitionView } from "../utils/studioMotion";
 import ProjectCaseStudy from "./ProjectCaseStudy";
 import ProjectIndex, { projectTitle } from "./ProjectIndex";
+import ProjectPreview from "./ProjectPreview";
 import SectionHeading from "./SectionHeading";
 
 const filters = [
@@ -41,7 +42,7 @@ const notes = {
     points: [
       "Uses role-based access and Firebase authentication for clinical workflows.",
       "Uses Gemini to generate structured consultation notes.",
-      "Combines Firebase authentication with Appwrite real-time updates.",
+      "Uses Firestore for real-time clinical data and Appwrite for large-file storage.",
     ],
   },
   nexusboard: {
@@ -163,38 +164,7 @@ export default function Projects() {
             aria-labelledby={`project-${project.id}`}
             data-project-id={project.id}
           >
-            <a
-              className={`project-preview preview-${project.category}`}
-              href={project.live_demo || project.source_code_link}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={`Explore ${project.name} (opens in a new tab)`}
-            >
-              <div className="preview-bar">
-                <span className="window-dots" aria-hidden="true">
-                  <i />
-                  <i />
-                  <i />
-                </span>
-                <span className="mono">
-                  {project.id.replaceAll("-", " / ")}
-                </span>
-                <ArrowUpRight size={15} />
-              </div>
-              <div className="preview-image">
-                <img
-                  src={project.image}
-                  alt={`Interface preview of ${project.name}`}
-                  width={1200}
-                  height={675}
-                  loading="lazy"
-                  decoding="async"
-                />
-              </div>
-              <span className="preview-open">
-                <ArrowUpRight size={21} />
-              </span>
-            </a>
+            <ProjectPreview project={project} />
             <div className="project-copy">
               <div className="project-meta">
                 <span className="mono">

@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Saksham Agarwal | The Driving World</title>
+  <meta name="description" content="Drive through Saksham Agarwal's projects in applied AI and full-stack engineering. An optional interactive portfolio adapted from Bruno Simon.">
+  <meta name="theme-color" content="#16192b">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2316192b'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='28' font-family='Arial' fill='%23b9c5eb'%3ESA%3C/text%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="./style/main.css">
+  <link rel="stylesheet" href="./style/saksham.css">
+  <style>
+    /* Immediate zero-FOUC critical styling */
+    :root {
+      color-scheme: dark;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #16192b;
+      color: #f1f0eb;
+    }
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    html, body {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background: #16192b;
+      color: #f1f0eb;
+    }
+    .canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: #16192b;
+    }
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+    button {
+      font: inherit;
+      cursor: pointer;
+    }
+    .drive-header {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      padding: 26px 36px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      z-index: 20;
+      background: linear-gradient(#16192b80, transparent);
+      pointer-events: none;
+    }
+    .drive-header a, .drive-header button {
+      pointer-events: auto;
+    }
+    .drive-brand {
+      font-size: 43px;
+      font-weight: 750;
+      letter-spacing: -0.08em;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: #f1f0eb;
+    }
+    .drive-brand span {
+      letter-spacing: 0.12em;
+      font-size: 9px;
+      line-height: 1.8;
+    }
+    .drive-brand small {
+      display: block;
+      font-size: 8px;
+      opacity: 0.65;
+    }
+    .drive-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .drive-actions button, .drive-actions > a, .drive-bottom button, .drive-bottom a {
+      border: 1px solid #ffffff30;
+      border-radius: 7px;
+      color: #f1f0eb;
+      padding: 12px 16px;
+      background: #16192b80;
+      font-size: 11px;
+      min-height: 44px;
+      backdrop-filter: blur(12px);
+    }
+    .drive-actions button span {
+      margin-left: 12px;
+      opacity: 0.6;
+    }
+    .drive-boot {
+      position: fixed;
+      inset: 0;
+      background: linear-gradient(90deg, #15182ced, #15182cb3 48%, #15182b20), #16192b;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      padding: 90px 8vw;
+      color: #f1f0eb;
+    }
+    .drive-boot[hidden] {
+      display: none;
+    }
+    .boot-copy {
+      max-width: 490px;
+    }
+    .drive-eyebrow {
+      font-size: 9px;
+      letter-spacing: 0.18em;
+      color: #c3cdf7;
+      margin-bottom: 24px;
+    }
+    .boot-copy h1 {
+      font-size: clamp(64px, 7.2vw, 105px);
+      letter-spacing: -0.07em;
+      line-height: 0.94;
+      margin: 0 0 28px;
+      font-weight: 600;
+      color: #f1f0eb;
+    }
+    .boot-copy em {
+      font-family: Georgia, serif;
+      font-weight: 400;
+      color: #b9c5eb;
+    }
+    .boot-copy > p:not(.drive-eyebrow) {
+      font-size: 14px;
+      line-height: 1.7;
+      color: #c1c5d5;
+      max-width: 390px;
+    }
+    .boot-facts {
+      display: flex;
+      gap: 18px;
+      font-size: 9px;
+      color: #adb7d7;
+      margin: 25px 0;
+    }
+    progress {
+      appearance: none;
+      border: 0;
+      background: #ffffff15;
+      width: 100%;
+      height: 3px;
+      display: block;
+      margin: 30px 0 12px;
+    }
+    progress::-webkit-progress-bar {
+      background: #ffffff15;
+    }
+    progress::-webkit-progress-value {
+      background: #b9c5eb;
+    }
+    #loading-status {
+      font-size: 10px;
+      margin-bottom: 20px;
+      color: #c1c5d5;
+    }
+    #start-drive {
+      background: #c3cdf7;
+      color: #15182c;
+      border: 0;
+      border-radius: 6px;
+      padding: 17px 27px;
+      min-height: 52px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    #start-drive:disabled {
+      opacity: 0.45;
+      cursor: wait;
+    }
+    .boot-copy > small {
+      display: block;
+      font-size: 10px;
+      color: #9ba4c5;
+      margin-top: 18px;
+    }
+    .drive-bottom {
+      position: fixed;
+      bottom: 48px;
+      left: 36px;
+      right: 36px;
+      z-index: 5;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 18px;
+      pointer-events: none;
+    }
+    .drive-bottom button, .drive-bottom a {
+      pointer-events: auto;
+    }
+    .drive-bottom p {
+      font-size: 11px;
+      font-weight: 650;
+      letter-spacing: 0.08em;
+      text-shadow: 0 1px 8px #16192b;
+    }
+    .drive-bottom small {
+      display: block;
+      font-size: 8px;
+      margin-top: 9px;
+      font-weight: 400;
+      letter-spacing: 0.12em;
+    }
+    .drive-credit {
+      position: fixed;
+      bottom: 16px;
+      left: 36px;
+      z-index: 6;
+      color: #edefff;
+      font-size: 9px;
+      text-shadow: 0 1px 5px #16192b;
+    }
+    .drive-credit a {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+    @media(max-width:650px) {
+      .drive-header { padding: 16px; gap: 10px; }
+      .drive-brand { font-size: 34px; }
+      .drive-brand span { display: none; }
+      .drive-actions > a:nth-of-type(1) { display: none; }
+      .drive-actions button, .drive-actions > a { padding: 10px; font-size: 10px; }
+      .drive-boot { padding: 90px 24px; background: #15182ce6; }
+      .boot-copy h1 { font-size: 70px; }
+      .boot-facts { gap: 14px; font-size: 8px; }
+      .drive-bottom { left: 16px; right: 16px; bottom: 35px; align-items: flex-end; }
+      .drive-bottom small { display: none; }
+      .drive-bottom > div { gap: 5px; }
+      .drive-bottom button, .drive-bottom a { padding: 9px; font-size: 9px; }
+      .drive-bottom p { max-width: 95px; font-size: 9px; }
+      .drive-credit { left: 16px; bottom: 12px; font-size: 8px; }
+    }
+  </style>
+</head>
+<body>
+  <canvas class="canvas js-canvas" aria-label="Driving world. Arrow keys or WASD to drive, Space to brake, R to reset. Use World map for accessible navigation." tabindex="0"></canvas>
+  <header class="drive-header">
+    <a class="drive-brand" href="/">sa.<span>SAKSHAM AGARWAL<small>SOFTWARE / APPLIED AI</small></span></a>
+    <div class="drive-actions"><button id="project-index">World map <span>5 stops</span></button><a href="mailto:sakmmm07@gmail.com">Let's talk</a><a id="exit-world-link" href="/">Exit world</a></div>
+  </header>
+  <section class="drive-boot" aria-labelledby="boot-title">
+    <div class="boot-copy"><p class="drive-eyebrow">A DIFFERENT WAY INTO THE WORK</p><h1 id="boot-title">Curiosity.<br><em>In motion.</em></h1><p>A small world of things I've built. Take the wheel, follow a road, or explore my skills, education and projects.</p><div class="boot-facts"><span>12 projects</span><span>4 profile stops</span><span>No wrong turns</span></div><progress id="world-progress" max="1" value="0" aria-label="Loading driving world"></progress><p id="loading-status" role="status">Loading the world…</p><button id="start-drive" disabled>Loading…</button><small>Sound starts off. Driving is optional.</small></div>
+  </section>
+  <div class="camera-tools" hidden><label for="camera-view">Camera</label><select id="camera-view"><option value="orbit">Original view</option><option value="top">Top view</option><option value="first">First-person car</option></select><div id="top-tools" hidden><button id="fit-map">Fit map</button><button id="focus-car">Focus car</button></div><button id="circuit-start">Start circuit</button><small id="camera-help" role="status">Drag to pan · scroll or pinch to zoom</small><small id="circuit-status" role="status" aria-live="polite">Optional: a clockwise lap around the lower world.</small></div>
+  <div class="drive-bottom"><p><span id="world-location">THE STARTING LINE</span><small>ARROWS / WASD · SPACE BRAKES · R RESET</small></p><div><button id="drive-home" disabled>Start line</button><button id="drive-sound" aria-pressed="false">Sound off</button><a href="./saksham/resume.pdf" target="_blank" rel="noopener">Résumé</a></div></div>
+  <p class="drive-credit">Adapted from <a href="https://github.com/brunosimon/folio-2019" target="_blank" rel="noopener">Bruno Simon’s Folio 2019</a> · MIT</p>
+  <dialog class="drive-index" aria-labelledby="index-title"><div class="index-header"><div><p class="drive-eyebrow">YOUR ROUTE THROUGH MY WORK</p><h2 id="index-title">More than projects.</h2></div><button id="close-index" aria-label="Close world map">Close</button></div><p>Pick a stop. Explore my background, see the tools behind my work, or visit a project. Driving is always optional.</p><nav id="world-navigation" aria-label="World sections"></nav><section id="profile-content" aria-label="Profile details" hidden></section><div id="project-list"></div><div class="index-links"><a href="https://github.com/saksham-dev07" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/saksham-agarwal-b44910289/" target="_blank" rel="noopener">LinkedIn</a><a href="mailto:sakmmm07@gmail.com">Contact</a></div><details class="model-credits"><summary>3D artwork &amp; licenses</summary><p>Models keep their own licenses, separate from the driving engine.</p><p><a href="https://sketchfab.com/3d-models/stylized-hacked-pc-sketchfabweeklychallenge-192ab9d4706f4ffaaf22f9a299289d75" target="_blank" rel="noopener">Stylized Hacked PC</a> by ottobite — CC BY 4.0.</p><p><a href="https://sketchfab.com/3d-models/trophy-podium-c24980e83e3c4b8393980358486b100c" target="_blank" rel="noopener">Trophy podium</a> by Anilz — Sketchfab Standard license.</p><p>VIT Bhopal campus — supplied by Saksham; Meshy AI asset. Original face portrait — supplied by Saksham, reused from the main portfolio.</p><p>Adaptation: normalized scale and orientation, adjusted material response, and added collision proxies.</p></details></dialog>
+  <noscript><p class="no-script">This driving world needs JavaScript. <a href="/">Visit the normal portfolio.</a></p></noscript>
+  <script type="module" src="./index.js"></script>
+</body>
+</html>

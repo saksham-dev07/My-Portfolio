@@ -1,6 +1,7 @@
 import { ArrowUpRight, GraduationCap } from "lucide-react";
 import { profileStudio } from "../assets";
 import { education } from "../constants";
+import FieldNotes from "./FieldNotes";
 import SectionHeading from "./SectionHeading";
 export default function Education() {
   const current = education[0];
@@ -22,6 +23,23 @@ export default function Education() {
         }
       />
       <div className="about-grid">
+        <figure className="journey-portrait">
+          <img
+            src={profileStudio}
+            alt="Saksham Agarwal, the person behind the projects"
+            width={1024}
+            height={1536}
+            loading="lazy"
+          />
+          <span className="portrait-annotation mono">
+            THE HUMAN IN THE LOOP / SA
+          </span>
+          <figcaption>
+            Still asking.
+            <br />
+            <em>Still building.</em>
+          </figcaption>
+        </figure>
         <div className="about-story">
           <div className="about-avatar">
             <img
@@ -86,6 +104,7 @@ export default function Education() {
           </details>
         </div>
       </div>
+      <FieldNotes />
     </section>
   );
 }

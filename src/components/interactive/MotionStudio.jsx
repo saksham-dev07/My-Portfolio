@@ -26,6 +26,7 @@ export default function MotionStudio() {
   });
   const [chapter, setChapter] = useState("");
   const cursorRef = useRef(null);
+  const threadRef = useRef(null);
   const chapterTimer = useRef(null);
 
   useEffect(() => {
@@ -53,6 +54,13 @@ export default function MotionStudio() {
       "(min-width: 1100px) and (min-height: 730px)",
     );
     let cards = [];
+    let threadLayout = null;
+    const thread = threadRef.current;
+    const threadGroup = thread?.querySelector("g");
+    const threadPaths = thread?.querySelectorAll("path");
+    const threadDot = thread?.querySelector("circle");
+    const bridge = document.querySelector(".chapter-bridge");
+    const signalLines = [...document.querySelectorAll("[data-signal-line]")];
     let frame = 0;
     const observer = new IntersectionObserver(
       (entries) => {
@@ -89,8 +97,63 @@ export default function MotionStudio() {
       frame = 0;
       const range = root.scrollHeight - window.innerHeight;
       const animate = motionAllowed();
+      if (thread && window.innerWidth >= 1200) {
+        const width = window.innerWidth;
+        if (
+          !threadLayout ||
+          threadLayout.height !== root.scrollHeight ||
+          threadLayout.width !== width
+        ) {
+          const chapters = [
+            ...document.querySelectorAll("main > section[id], footer"),
+          ];
+          const points = chapters.map((section) => ({
+            y: section.getBoundingClientRect().top + window.scrollY + 70,
+          }));
+          const x = width - 28;
+          let d = `M${x} ${points[0]?.y || 100}`;
+          for (let i = 1; i < points.length; i++) {
+            const previous = points[i - 1].y;
+            const y = points[i].y;
+            const sway = i % 2 ? -24 : 10;
+            d += ` C${x + sway} ${previous + (y - previous) * 0.35},${x - sway} ${previous + (y - previous) * 0.65},${x} ${y}`;
+          }
+          threadPaths.forEach((path) => {
+            path.setAttribute("d", d);
+          });
+          threadLayout = {
+            width,
+            height: root.scrollHeight,
+            start: points[0]?.y || 100,
+            end: points.at(-1)?.y || root.scrollHeight,
+            length: threadPaths[0].getTotalLength(),
+          };
+        }
+        thread.setAttribute("viewBox", `0 0 ${width} ${window.innerHeight}`);
+        threadGroup.setAttribute(
+          "transform",
+          `translate(0 ${-window.scrollY})`,
+        );
+        const progress = Math.max(
+          0,
+          Math.min(
+            1,
+            (window.scrollY + window.innerHeight * 0.68 - threadLayout.start) /
+              (threadLayout.end - threadLayout.start),
+          ),
+        );
+        threadPaths[1].style.strokeDasharray = `${threadLayout.length}`;
+        threadPaths[1].style.strokeDashoffset = `${threadLayout.length * (1 - progress)}`;
+        const point = threadPaths[0].getPointAtLength(
+          threadLayout.length * progress,
+        );
+        threadDot.setAttribute("cx", point.x);
+        threadDot.setAttribute("cy", point.y);
+        thread.dataset.active = String(animate);
+      }
       // Read all geometry before writing transforms; one frame handles the stack.
       const bounds = cards.map((card) => card.getBoundingClientRect());
+      const bridgeBounds = bridge?.getBoundingClientRect();
       const values = bounds.map((rect, index) => {
         const next = bounds[index + 1];
         const progress =
@@ -121,6 +184,22 @@ export default function MotionStudio() {
         "--page-progress",
         range > 0 ? window.scrollY / range : 0,
       );
+      if (bridgeBounds) {
+        const position =
+          (window.innerHeight / 2 -
+            bridgeBounds.top -
+            bridgeBounds.height / 2) /
+          window.innerHeight;
+        const bend = animate ? Math.max(-1, Math.min(1, position * 2)) * 65 : 0;
+        signalLines.forEach((line, index) => {
+          const y = 36 + index * 14;
+          const curve = bend * (1 - index * 0.2);
+          line.setAttribute(
+            "d",
+            `M0 ${y} C300 ${y + curve} 900 ${y - curve} 1200 ${y}`,
+          );
+        });
+      }
       cards.forEach((card, index) => {
         const { progress, drift } = values[index];
         card.style.setProperty("--stack-scale", 1 - progress * 0.065);
@@ -213,6 +292,18 @@ export default function MotionStudio() {
   return (
     <>
       <div className="reading-progress" aria-hidden="true" />
+      <svg
+        className="studio-thread"
+        ref={threadRef}
+        aria-hidden="true"
+        focusable="false"
+      >
+        <g>
+          <path className="thread-track" />
+          <path className="thread-ink" />
+          <circle r="4" />
+        </g>
+      </svg>
       <div className="studio-cursor" ref={cursorRef} aria-hidden="true" />
       <button
         type="button"

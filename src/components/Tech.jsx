@@ -1,5 +1,5 @@
-import { BrainCircuit, Cloud, Code2, Server } from "lucide-react";
-import { technologies } from "../constants";
+import { ArrowUpRight, BrainCircuit, Cloud, Code2, Server } from "lucide-react";
+import { projects, technologies } from "../constants";
 import SectionHeading from "./SectionHeading";
 
 const groups = [
@@ -75,6 +75,33 @@ export default function Tech() {
                         <span>{tool.name}</span>
                       </summary>
                       <div className="skill-description">{tool.desc}</div>
+                      {projects
+                        .filter((project) =>
+                          project.tags.some(
+                            (tag) =>
+                              tag.name === tool.name ||
+                              (tool.name === "React.js" &&
+                                tag.name.startsWith("React")),
+                          ),
+                        )
+                        .slice(0, 3)
+                        .map((project, index) => (
+                          <a
+                            className="skill-build-link"
+                            key={project.id}
+                            href={project.source_code_link}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            <span className="mono">0{index + 1}</span>
+                            {
+                              project.name
+                                .replace(" (Generative AI)", "")
+                                .split(" – ")[0]
+                            }
+                            <ArrowUpRight size={12} />
+                          </a>
+                        ))}
                     </details>
                   </li>
                 ))}
