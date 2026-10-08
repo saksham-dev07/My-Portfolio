@@ -10,6 +10,8 @@ import Areas from './Areas.js'
 import Tiles from './Tiles.js'
 import Walls from './Walls.js'
 import Scenery from './Scenery.js'
+import Landscape from './Landscape.js'
+import { stabilizeGround } from './GroundLayers.js'
 import IntroSection from './Sections/IntroSection.js'
 import ProjectsSection from './Sections/ProjectsSection.js'
 import CrossroadsSection from './Sections/CrossroadsSection.js'
@@ -77,8 +79,13 @@ export default class World
         this.setTiles()
         this.setWalls()
         this.setSections()
+        this.landscape = new Landscape({ objects: this.objects, scene: this.scene, camera: this.camera, config: this.config, time: this.time, directionSignTemplate: this.sections.crossroads.signTemplate })
+        this.container.add(this.landscape.container)
         this.setScenery()
         this.setEasterEggs()
+        stabilizeGround(this.container, this.floor.mesh, this.landscape.terrain)
+        // Clone reusable trees/signs before baking the existing static props.
+        this.objects.merge.update()
     }
 
     setReveal()
@@ -395,6 +402,7 @@ export default class World
             config: this.config
         })
         this.container.add(this.car.container)
+        this.camera.carVisual = this.car.chassis.object
     }
 
     setSections()

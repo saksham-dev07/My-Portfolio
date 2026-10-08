@@ -301,7 +301,7 @@ export default class Area extends EventEmitter
 
         window.addEventListener('keydown', (_event) =>
         {
-            if(document.querySelector('dialog[open]') || _event.target.closest?.('button, a, input, textarea')) return
+            if(document.querySelector('dialog[open]') || _event.target?.closest?.('button, a, input, textarea, select, [contenteditable]:not([contenteditable="false"])')) return
             if(!_event.repeat && ['f', 'e', 'Enter'].includes(_event.key) && this.active && this.initialTestCar && this.containsCar())
             {
                 // Opening a dialog focuses its Close button. Cancel Enter's default

@@ -1,6 +1,7 @@
 import { ArrowUpRight, Award, ChevronDown, Eye, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { certifications } from "../constants";
+import ResponsiveImage from "./ResponsiveImage";
 import SectionHeading from "./SectionHeading";
 
 const categories = [
@@ -84,7 +85,8 @@ export default function Certifications() {
             className={`credential-card ${cert.id <= 2 ? "credential-featured" : ""}`}
           >
             <div className="credential-top">
-              <img
+              <ResponsiveImage
+                sizes="44px"
                 src={cert.profilePic}
                 alt=""
                 width={44}
@@ -164,7 +166,9 @@ export default function Certifications() {
             </button>
           </div>
           <div className="certificate-image">
-            <img
+            <ResponsiveImage
+              sizes="(max-width: 800px) 90vw, 850px"
+              loading="eager"
               src={selected.imageSrc}
               alt={`Certificate for ${selected.title}, issued by ${selected.issuer}`}
             />
@@ -172,7 +176,9 @@ export default function Certifications() {
           <div className="dialog-footer">
             <p>{selected.description}</p>
             {selected.qrCode && (
-              <img
+              <ResponsiveImage
+                sizes="88px"
+                loading="eager"
                 src={selected.qrCode}
                 alt="Issuer verification QR code"
                 width={88}

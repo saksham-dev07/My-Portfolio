@@ -1,9 +1,13 @@
 import { ArrowLeft, Compass, ExternalLink } from "lucide-react";
 import { useEffect, useRef } from "react";
-import "../driving-world.css";
+import { projects } from "../constants";
+import { readProjectRequest } from "../utils/worldNavigation";
+import "../styles/driving-world.css";
 
 export default function DrivingWorld({ onExit }) {
   const frame = useRef(null);
+  const destination = readProjectRequest(window.location.search, projects);
+  const worldSrc = `/driving-world/index.html${destination ? `?project=${encodeURIComponent(destination.id)}` : ""}`;
 
   useEffect(() => {
     const previousTitle = document.title;
@@ -12,10 +16,15 @@ export default function DrivingWorld({ onExit }) {
     const onMessage = (event) => {
       if (
         event.origin === window.location.origin &&
-        event.source === frame.current?.contentWindow &&
-        event.data?.type === "exit-world"
+        event.source === frame.current?.contentWindow
       ) {
-        onExit?.();
+        if (event.data?.type === "exit-world") onExit?.();
+        if (event.data?.type === "portfolio-project") {
+          const project = projects.find(
+            (item) => item.id === event.data.projectId,
+          );
+          if (project) onExit?.(`build-${project.id}`, project.id);
+        }
       }
     };
     window.addEventListener("message", onMessage);
@@ -60,7 +69,7 @@ export default function DrivingWorld({ onExit }) {
         </div>
 
         <a
-          href="/driving-world/index.html"
+          href={worldSrc}
           target="_blank"
           rel="noopener noreferrer"
           className="driving-world-tab-btn"
@@ -73,7 +82,7 @@ export default function DrivingWorld({ onExit }) {
 
       <iframe
         ref={frame}
-        src="/driving-world/index.html"
+        src={worldSrc}
         title="Saksham's Driving World"
         className="driving-world-iframe"
         allow="autoplay; fullscreen"

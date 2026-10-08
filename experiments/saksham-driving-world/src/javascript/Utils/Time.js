@@ -37,6 +37,8 @@ export default class Time extends EventEmitter
         }
 
         this.trigger('tick')
+        this.trigger('afterTick')
+        this.trigger('render')
     }
 
     /**

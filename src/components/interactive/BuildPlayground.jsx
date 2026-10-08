@@ -355,6 +355,77 @@ export function GravityDemo({ active }) {
   const nodes = useRef([]);
   const bodies = useRef([]);
   const dragging = useRef(null);
+  const dragSample = useRef(null);
+  const pulseRef = useRef(null);
+  const pulseAnimation = useRef(null);
+  const [physicsNote, setPhysicsNote] = useState("");
+  useEffect(() => {
+    const move = (event) => {
+      const index = dragging.current;
+      if (index === null || event.pointerId !== dragSample.current?.pointerId)
+        return;
+      const rect = arenaRef.current.getBoundingClientRect();
+      const body = bodies.current[index];
+      const last = dragSample.current;
+      const elapsed = Math.max(8, event.timeStamp - last.time);
+      body.x = Math.max(
+        0,
+        Math.min(event.clientX - rect.left - body.w / 2, rect.width - body.w),
+      );
+      body.y = Math.max(
+        0,
+        Math.min(event.clientY - rect.top - body.h / 2, rect.height - body.h),
+      );
+      body.vx = Math.max(
+        -10,
+        Math.min(((event.clientX - last.x) / elapsed) * 16.67, 10),
+      );
+      body.vy = Math.max(
+        -10,
+        Math.min(((event.clientY - last.y) / elapsed) * 16.67, 10),
+      );
+      body.rotation = Math.max(-8, Math.min(8, body.vx));
+      body.spin = body.vx * 0.15;
+      dragSample.current = {
+        x: event.clientX,
+        y: event.clientY,
+        time: event.timeStamp,
+        pointerId: event.pointerId,
+      };
+      nodes.current[index].style.transform =
+        `translate(${body.x}px,${body.y}px) rotate(${body.rotation}deg)`;
+    };
+    const end = (event) => {
+      const index = dragging.current;
+      if (index === null) return;
+      if (
+        event.pointerId !== undefined &&
+        event.pointerId !== dragSample.current?.pointerId
+      )
+        return;
+      if (
+        event.type !== "pointerup" ||
+        event.timeStamp - dragSample.current.time > 100
+      ) {
+        bodies.current[index].vx = 0;
+        bodies.current[index].vy = 0;
+        bodies.current[index].spin = 0;
+      }
+      delete nodes.current[index].dataset.dragging;
+      dragging.current = null;
+      dragSample.current = null;
+    };
+    window.addEventListener("pointermove", move, { passive: true });
+    window.addEventListener("pointerup", end);
+    window.addEventListener("pointercancel", end);
+    window.addEventListener("blur", end);
+    return () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", end);
+      window.removeEventListener("pointercancel", end);
+      window.removeEventListener("blur", end);
+    };
+  }, []);
   const [gravity, setGravity] = useState(true);
   const [running, setRunning] = useState(
     () =>
@@ -403,6 +474,8 @@ export function GravityDemo({ active }) {
         y: Math.floor(index / 3) * 60 + 20,
         vx: (index % 2 ? 1 : -1) * 1.2,
         vy: 0,
+        rotation: 0,
+        spin: 0,
         w: node.offsetWidth,
         h: node.offsetHeight,
       }));
@@ -412,7 +485,7 @@ export function GravityDemo({ active }) {
       bodies.current.forEach((body, index) => {
         if (nodes.current[index])
           nodes.current[index].style.transform =
-            `translate(${body.x}px,${body.y}px)`;
+            `translate(${body.x}px,${body.y}px) rotate(${body.rotation}deg)`;
       });
     reset.current = init;
     const loop = (time) => {
@@ -420,6 +493,11 @@ export function GravityDemo({ active }) {
       previous = time;
       bodies.current.forEach((body, index) => {
         if (dragging.current === index) return;
+        body.rotation = Math.max(
+          -10,
+          Math.min(10, (body.rotation + body.spin * dt) * 0.96 ** dt),
+        );
+        body.spin *= 0.92 ** dt;
         if (gravity) body.vy += 0.16 * dt;
         else {
           body.vy *= 0.998;
@@ -495,6 +573,7 @@ export function GravityDemo({ active }) {
       resize.disconnect();
       observer.disconnect();
       document.removeEventListener("visibilitychange", sync);
+      pulseAnimation.current?.cancel();
     };
   }, [gravity, running, active]);
   return (
@@ -504,9 +583,47 @@ export function GravityDemo({ active }) {
           <span />
           SKILL STACK / LITERALLY
         </span>
-        <span className="mono">Drag. Throw. Repeat.</span>
+        <span className="mono">Drag a sticker. Tap empty space.</span>
       </div>
-      <div className="gravity-arena" ref={arenaRef}>
+      <div
+        className="gravity-arena"
+        ref={arenaRef}
+        onPointerDown={(event) => {
+          if (event.target.closest("button") || event.button !== 0) return;
+          const bounds = arenaRef.current.getBoundingClientRect();
+          const x = event.clientX - bounds.left,
+            y = event.clientY - bounds.top;
+          for (const body of bodies.current) {
+            const dx = body.x + body.w / 2 - x,
+              dy = body.y + body.h / 2 - y;
+            const distance = Math.hypot(dx, dy) || 1;
+            const strength = Math.max(0, 1 - distance / 280) * 12;
+            body.vx += (dx / distance) * strength;
+            body.vy += (dy / distance) * strength - 2;
+            body.spin = (dx / distance) * 2;
+          }
+          setPhysicsNote("A small disturbance in the skill stack.");
+          setRunning(true);
+          if (
+            !window.matchMedia("(prefers-reduced-motion: reduce)").matches &&
+            document.documentElement.dataset.motion !== "off"
+          ) {
+            pulseAnimation.current?.cancel();
+            Object.assign(pulseRef.current.style, {
+              left: `${x}px`,
+              top: `${y}px`,
+            });
+            pulseAnimation.current = pulseRef.current.animate(
+              [
+                { scale: "0", opacity: 0.7 },
+                { scale: "1", opacity: 0 },
+              ],
+              { duration: 450, easing: "ease-out" },
+            );
+          }
+        }}
+      >
+        <span className="gravity-pulse" ref={pulseRef} aria-hidden="true" />
         <div className="gravity-watermark" aria-hidden="true">
           break
           <br />
@@ -527,40 +644,21 @@ export function GravityDemo({ active }) {
                 const body = bodies.current[index];
                 body.vy = -9;
                 body.vx = index % 2 ? 3 : -3;
+                body.spin = index % 2 ? 2 : -2;
                 setRunning(true);
               }
             }}
             onPointerDown={(event) => {
+              if (event.button !== 0 || dragging.current !== null) return;
               dragging.current = index;
+              dragSample.current = {
+                x: event.clientX,
+                y: event.clientY,
+                time: event.timeStamp,
+                pointerId: event.pointerId,
+              };
               event.currentTarget.setPointerCapture(event.pointerId);
-            }}
-            onPointerMove={(event) => {
-              if (dragging.current !== index) return;
-              const rect = arenaRef.current.getBoundingClientRect();
-              const body = bodies.current[index];
-              body.x = Math.max(
-                0,
-                Math.min(
-                  event.clientX - rect.left - body.w / 2,
-                  rect.width - body.w,
-                ),
-              );
-              body.y = Math.max(
-                0,
-                Math.min(
-                  event.clientY - rect.top - body.h / 2,
-                  rect.height - body.h,
-                ),
-              );
-              body.vx = Math.max(-10, Math.min(event.movementX / 2, 10));
-              body.vy = Math.max(-10, Math.min(event.movementY / 2, 10));
-              event.currentTarget.style.transform = `translate(${body.x}px,${body.y}px)`;
-            }}
-            onPointerUp={() => {
-              dragging.current = null;
-            }}
-            onPointerCancel={() => {
-              dragging.current = null;
+              event.currentTarget.dataset.dragging = "true";
             }}
           >
             {label}
@@ -582,12 +680,16 @@ export function GravityDemo({ active }) {
             for (const body of bodies.current) {
               body.vy = -6 - Math.random() * 5;
               body.vx = (Math.random() - 0.5) * 12;
+              body.spin = (Math.random() - 0.5) * 5;
             }
+            setPhysicsNote(
+              "That was clearly a suggestion. No frameworks were harmed.",
+            );
             setRunning(true);
           }}
         >
           <Wand2 size={14} />
-          Shake it up
+          Do not press
         </button>
         <button
           type="button"
@@ -599,11 +701,17 @@ export function GravityDemo({ active }) {
         <button
           type="button"
           aria-label="Reset physics"
-          onClick={() => reset.current()}
+          onClick={() => {
+            reset.current();
+            setPhysicsNote("");
+          }}
         >
           <RotateCcw size={15} />
         </button>
       </div>
+      <p className="gravity-note" role="status">
+        {physicsNote || "Contained chaos. Your actual skills are safe."}
+      </p>
     </div>
   );
 }
@@ -613,12 +721,13 @@ const tabs = [
   { id: "pipeline", label: "The pipeline", icon: Workflow },
   { id: "gravity", label: "The chaos", icon: Wand2 },
 ];
-export default function BuildPlayground() {
+export default function BuildPlayground({ embedded = false }) {
   const [tab, setTab] = useState("canvas");
+  const Container = embedded ? "div" : "section";
   return (
-    <section
-      id="playground"
-      className="shell playground-section"
+    <Container
+      id={embedded ? undefined : "playground"}
+      className={embedded ? "playground-content" : "shell playground-section"}
       aria-labelledby="playground-title"
     >
       <div className="playground-intro">
@@ -668,6 +777,6 @@ export default function BuildPlayground() {
           <GravityDemo active={tab === "gravity"} />
         </div>
       </div>
-    </section>
+    </Container>
   );
 }

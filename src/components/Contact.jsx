@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import ContactReceipt from "./ContactReceipt";
 
 const email = "sakmmm07@gmail.com";
 const subjectStarters = [
@@ -36,6 +37,7 @@ export default function Contact() {
     },
   });
   const [status, setStatus] = useState("idle");
+  const [senderName, setSenderName] = useState("");
   const [copied, setCopied] = useState(false);
   const copyTimer = useRef(null);
   useEffect(() => () => clearTimeout(copyTimer.current), []);
@@ -54,6 +56,7 @@ export default function Contact() {
       });
       const result = await response.json();
       if (!response.ok || !result.success) throw new Error("Delivery failed");
+      setSenderName(values.name.trim().split(/\s+/)[0]);
       setStatus("success");
       reset();
     } catch {
@@ -153,159 +156,175 @@ export default function Contact() {
         </div>
         <form
           className="contact-form"
+          data-delivery={status}
           noValidate
           onSubmit={handleSubmit(submit)}
         >
           <h3>Tell me what you have in mind.</h3>
-          <p className="form-intro">All fields are required.</p>
-          <div
-            className="contact-starters"
-            role="group"
-            aria-label="Choose a starting subject"
-          >
-            {subjectStarters.map((starter) => (
-              <button
-                key={starter.label}
-                type="button"
-                aria-pressed={data.title === starter.title}
-                disabled={Boolean(
-                  data.title &&
-                    !subjectStarters.some((item) => item.title === data.title),
-                )}
-                onClick={() =>
-                  setValue("title", starter.title, {
-                    shouldDirty: true,
-                    shouldValidate: true,
-                  })
-                }
-              >
-                {starter.label}
-                <ArrowUpRight size={12} />
-              </button>
-            ))}
-          </div>
-          <div className="form-row">
-            <div className="form-field">
-              <label htmlFor="contact-name">Your name</label>
-              <input
-                id="contact-name"
-                autoComplete="name"
-                placeholder="Alex Morgan"
-                maxLength={100}
-                {...register("name", {
-                  required: "Please enter your name.",
-                  validate: (value) =>
-                    value.trim().length >= 2 ||
-                    "Please enter at least 2 characters.",
-                })}
-                {...fieldProps("name")}
-              />
-              {errors.name && (
-                <p className="field-error" id="name-error">
-                  {errors.name.message}
-                </p>
-              )}
-            </div>
-            <div className="form-field">
-              <label htmlFor="contact-email">Email address</label>
-              <input
-                id="contact-email"
-                type="email"
-                autoComplete="email"
-                placeholder="alex@company.com"
-                maxLength={254}
-                {...register("reply_to", {
-                  required: "Please enter your email.",
-                  pattern: {
-                    value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-                    message: "Please enter a valid email address.",
-                  },
-                })}
-                {...fieldProps("reply_to")}
-              />
-              {errors.reply_to && (
-                <p className="field-error" id="reply_to-error">
-                  {errors.reply_to.message}
-                </p>
-              )}
-            </div>
-          </div>
-          <div className="form-field">
-            <label htmlFor="contact-subject">What’s this about?</label>
-            <input
-              id="contact-subject"
-              placeholder="An opportunity, a collaboration, an idea…"
-              maxLength={150}
-              {...register("title", {
-                required: "Please add a subject.",
-                validate: (value) =>
-                  value.trim().length >= 3 ||
-                  "Please enter at least 3 characters.",
-              })}
-              {...fieldProps("title")}
-            />
-            {errors.title && (
-              <p className="field-error" id="title-error">
-                {errors.title.message}
-              </p>
-            )}
-          </div>
-          <div className="form-field">
-            <div className="message-label">
-              <label htmlFor="contact-message">Your message</label>
-              <span className="mono">{data.message.length} / 2000</span>
-            </div>
-            <textarea
-              id="contact-message"
-              placeholder="A little context goes a long way."
-              rows={5}
-              maxLength={2000}
-              {...register("message", {
-                required: "Please write a message.",
-                validate: (value) =>
-                  value.trim().length >= 10 ||
-                  "Please enter at least 10 characters.",
-              })}
-              {...fieldProps("message")}
-            />
-            {errors.message && (
-              <p className="field-error" id="message-error">
-                {errors.message.message}
-              </p>
-            )}
-          </div>
-          <div className="honeypot" aria-hidden="true">
-            <label htmlFor="contact-website">Leave this field empty</label>
-            <input
-              id="contact-website"
-              tabIndex={-1}
-              autoComplete="off"
-              {...register("website")}
-            />
-          </div>
-          <button
-            type="submit"
-            className="button button-primary send-button"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <>
-                <LoaderCircle size={18} className="animate-spin" />
-                Sending…
-              </>
-            ) : (
-              <>
-                <span>Send message</span>
-                <Send size={17} />
-              </>
-            )}
-          </button>
+          {status !== "success" && (
+            <>
+              <p className="form-intro">All fields are required.</p>
+              <fieldset className="contact-fields" disabled={isSubmitting}>
+                <div
+                  className="contact-starters"
+                  role="group"
+                  aria-label="Choose a starting subject"
+                >
+                  {subjectStarters.map((starter) => (
+                    <button
+                      key={starter.label}
+                      type="button"
+                      aria-pressed={data.title === starter.title}
+                      disabled={Boolean(
+                        data.title &&
+                          !subjectStarters.some(
+                            (item) => item.title === data.title,
+                          ),
+                      )}
+                      onClick={() =>
+                        setValue("title", starter.title, {
+                          shouldDirty: true,
+                          shouldValidate: true,
+                        })
+                      }
+                    >
+                      {starter.label}
+                      <ArrowUpRight size={12} />
+                    </button>
+                  ))}
+                </div>
+                <div className="form-row">
+                  <div className="form-field">
+                    <label htmlFor="contact-name">Your name</label>
+                    <input
+                      id="contact-name"
+                      autoComplete="name"
+                      placeholder="Alex Morgan"
+                      maxLength={100}
+                      {...register("name", {
+                        required: "Please enter your name.",
+                        validate: (value) =>
+                          value.trim().length >= 2 ||
+                          "Please enter at least 2 characters.",
+                      })}
+                      {...fieldProps("name")}
+                    />
+                    {errors.name && (
+                      <p className="field-error" id="name-error">
+                        {errors.name.message}
+                      </p>
+                    )}
+                  </div>
+                  <div className="form-field">
+                    <label htmlFor="contact-email">Email address</label>
+                    <input
+                      id="contact-email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="alex@company.com"
+                      maxLength={254}
+                      {...register("reply_to", {
+                        required: "Please enter your email.",
+                        pattern: {
+                          value: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+                          message: "Please enter a valid email address.",
+                        },
+                      })}
+                      {...fieldProps("reply_to")}
+                    />
+                    {errors.reply_to && (
+                      <p className="field-error" id="reply_to-error">
+                        {errors.reply_to.message}
+                      </p>
+                    )}
+                  </div>
+                </div>
+                <div className="form-field">
+                  <label htmlFor="contact-subject">What’s this about?</label>
+                  <input
+                    id="contact-subject"
+                    placeholder="An opportunity, a collaboration, an idea…"
+                    maxLength={150}
+                    {...register("title", {
+                      required: "Please add a subject.",
+                      validate: (value) =>
+                        value.trim().length >= 3 ||
+                        "Please enter at least 3 characters.",
+                    })}
+                    {...fieldProps("title")}
+                  />
+                  {errors.title && (
+                    <p className="field-error" id="title-error">
+                      {errors.title.message}
+                    </p>
+                  )}
+                </div>
+                <div className="form-field">
+                  <div className="message-label">
+                    <label htmlFor="contact-message">Your message</label>
+                    <span className="mono">{data.message.length} / 2000</span>
+                  </div>
+                  <textarea
+                    id="contact-message"
+                    placeholder="A little context goes a long way."
+                    rows={5}
+                    maxLength={2000}
+                    {...register("message", {
+                      required: "Please write a message.",
+                      validate: (value) =>
+                        value.trim().length >= 10 ||
+                        "Please enter at least 10 characters.",
+                    })}
+                    {...fieldProps("message")}
+                  />
+                  {errors.message && (
+                    <p className="field-error" id="message-error">
+                      {errors.message.message}
+                    </p>
+                  )}
+                </div>
+                <div className="honeypot" aria-hidden="true">
+                  <label htmlFor="contact-website">
+                    Leave this field empty
+                  </label>
+                  <input
+                    id="contact-website"
+                    tabIndex={-1}
+                    autoComplete="off"
+                    {...register("website")}
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="button button-primary send-button"
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? (
+                    <>
+                      <LoaderCircle size={18} className="animate-spin" />
+                      Sending…
+                    </>
+                  ) : (
+                    <>
+                      <span>Send message</span>
+                      <Send size={17} />
+                    </>
+                  )}
+                </button>
+              </fieldset>
+            </>
+          )}
           <div className="form-status" role="status" aria-live="polite">
             {status === "success" && (
-              <p className="success-message">
-                <Check size={17} />
-                Your message was sent. Thanks for reaching out!
-              </p>
+              <ContactReceipt
+                name={senderName}
+                onWriteAgain={() => {
+                  setStatus("idle");
+                  requestAnimationFrame(() =>
+                    document.getElementById("contact-name")?.focus(),
+                  );
+                }}
+              />
             )}
             {status === "error" && (
               <div className="error-message">
@@ -317,10 +336,12 @@ export default function Contact() {
               </div>
             )}
           </div>
-          <p className="form-note">
-            Prefer your own email app?{" "}
-            <a href={draftLink}>Email me directly.</a>
-          </p>
+          {status !== "success" && (
+            <p className="form-note">
+              Prefer your own email app?{" "}
+              <a href={draftLink}>Email me directly.</a>
+            </p>
+          )}
         </form>
       </div>
     </section>

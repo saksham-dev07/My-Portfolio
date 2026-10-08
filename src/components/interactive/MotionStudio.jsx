@@ -1,6 +1,8 @@
 import { ArrowDownRight, Pause, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
+import { canStackProjects } from "../../utils/projectStack";
 import { motionAllowed } from "../../utils/studioMotion";
+import { installTactileMotion } from "../../utils/tactileMotion";
 
 const chapterNames = {
   home: "Back to the studio",
@@ -29,6 +31,8 @@ export default function MotionStudio() {
   const threadRef = useRef(null);
   const chapterTimer = useRef(null);
 
+  useEffect(() => installTactileMotion(), []);
+
   useEffect(() => {
     const query = window.matchMedia("(prefers-reduced-motion: reduce)");
     const update = () => setSystemReduced(query.matches);
@@ -50,9 +54,7 @@ export default function MotionStudio() {
     const root = document.documentElement;
     const observed = new WeakSet();
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-    const wide = window.matchMedia(
-      "(min-width: 1100px) and (min-height: 730px)",
-    );
+    const grid = document.querySelector(".project-grid");
     let cards = [];
     let threadLayout = null;
     const thread = threadRef.current;
@@ -153,11 +155,18 @@ export default function MotionStudio() {
       }
       // Read all geometry before writing transforms; one frame handles the stack.
       const bounds = cards.map((card) => card.getBoundingClientRect());
+      const stack =
+        animate &&
+        canStackProjects(
+          window.innerWidth,
+          window.innerHeight,
+          cards.map((card) => card.offsetHeight),
+        );
       const bridgeBounds = bridge?.getBoundingClientRect();
       const values = bounds.map((rect, index) => {
         const next = bounds[index + 1];
         const progress =
-          animate && wide.matches && next
+          stack && next
             ? Math.max(
                 0,
                 Math.min(
@@ -180,6 +189,7 @@ export default function MotionStudio() {
             : 0;
         return { progress, drift };
       });
+      if (grid) grid.dataset.stack = String(stack);
       root.style.setProperty(
         "--page-progress",
         range > 0 ? window.scrollY / range : 0,
@@ -223,6 +233,7 @@ export default function MotionStudio() {
       observer.disconnect();
       mutations.disconnect();
       root.classList.remove("motion-ready");
+      if (grid) delete grid.dataset.stack;
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
       window.removeEventListener("portfolio-motion-change", onScroll);
@@ -235,38 +246,109 @@ export default function MotionStudio() {
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
     const fine = window.matchMedia("(pointer: fine)");
     let magnetic = null;
+    let magnetBounds = null;
+    let frame = 0;
+    let previousTime = 0;
+    let positioned = false;
+    let cursorX = 0;
+    let cursorY = 0;
+    let targetX = 0;
+    let targetY = 0;
+    let cursorWidth = 110;
+    let cursorHeight = 36;
+    const moveCursor = (time) => {
+      frame = 0;
+      const cursor = cursorRef.current;
+      if (!cursor) return;
+      const elapsed = previousTime ? Math.min(time - previousTime, 50) : 16;
+      previousTime = time;
+      const response = 1 - Math.exp(-elapsed / 55);
+      cursorX += (targetX - cursorX) * response;
+      cursorY += (targetY - cursorY) * response;
+      const settled = Math.hypot(targetX - cursorX, targetY - cursorY) < 0.25;
+      if (settled) {
+        cursorX = targetX;
+        cursorY = targetY;
+        previousTime = 0;
+      }
+      cursor.style.transform = `translate3d(${cursorX}px,${cursorY}px,0)`;
+      if (!settled) frame = requestAnimationFrame(moveCursor);
+    };
     const resetMagnet = () => {
       magnetic?.style.setProperty("--mag-x", "0px");
       magnetic?.style.setProperty("--mag-y", "0px");
       magnetic = null;
+      magnetBounds = null;
     };
     const onMove = (event) => {
-      if (paused || reduced.matches || !fine.matches) return;
+      if (
+        event.pointerType !== "mouse" ||
+        paused ||
+        !motionAllowed() ||
+        !fine.matches
+      )
+        return;
       const target = event.target.closest?.("[data-cursor], .project-preview");
       const cursor = cursorRef.current;
       if (cursor) {
-        cursor.style.transform = `translate3d(${event.clientX + 18}px,${event.clientY + 18}px,0)`;
+        const label = target?.dataset.cursor || (target ? "Explore" : "");
+        if (cursor.textContent !== label) {
+          cursor.textContent = label;
+          cursorWidth = cursor.offsetWidth;
+          cursorHeight = cursor.offsetHeight;
+        }
+        targetX = Math.min(
+          event.clientX + 18,
+          window.innerWidth - cursorWidth - 8,
+        );
+        targetY = Math.min(
+          event.clientY + 18,
+          window.innerHeight - cursorHeight - 8,
+        );
+        if (!positioned) {
+          cursorX = targetX;
+          cursorY = targetY;
+          positioned = true;
+        }
         cursor.dataset.visible = target ? "true" : "false";
-        cursor.textContent =
-          target?.dataset.cursor || (target ? "Explore" : "");
+        if (target && !frame) frame = requestAnimationFrame(moveCursor);
+        else if (!target) {
+          cancelAnimationFrame(frame);
+          frame = 0;
+          previousTime = 0;
+          positioned = false;
+        }
       }
       const button = event.target.closest?.(".magnetic");
       if (button !== magnetic) resetMagnet();
       if (button) {
+        if (!magnetBounds) {
+          const rect = button.getBoundingClientRect();
+          const shift = getComputedStyle(button)
+            .translate.split(" ")
+            .map(parseFloat);
+          magnetBounds = {
+            x: rect.left + rect.width / 2 - (shift[0] || 0),
+            y: rect.top + rect.height / 2 - (shift[1] || 0),
+          };
+        }
         magnetic = button;
-        const rect = button.getBoundingClientRect();
         button.style.setProperty(
           "--mag-x",
-          `${(event.clientX - rect.left - rect.width / 2) * 0.12}px`,
+          `${Math.max(-12, Math.min(12, (event.clientX - magnetBounds.x) * 0.12))}px`,
         );
         button.style.setProperty(
           "--mag-y",
-          `${(event.clientY - rect.top - rect.height / 2) * 0.15}px`,
+          `${Math.max(-8, Math.min(8, (event.clientY - magnetBounds.y) * 0.15))}px`,
         );
       }
     };
     const onLeave = () => {
       resetMagnet();
+      cancelAnimationFrame(frame);
+      frame = 0;
+      previousTime = 0;
+      positioned = false;
       if (cursorRef.current) cursorRef.current.dataset.visible = "false";
     };
     const onNavigate = (event) => {
@@ -280,12 +362,26 @@ export default function MotionStudio() {
     document.addEventListener("pointermove", onMove, { passive: true });
     document.addEventListener("pointerleave", onLeave);
     document.addEventListener("click", onNavigate);
+    document.addEventListener("visibilitychange", onLeave);
+    window.addEventListener("blur", onLeave);
+    window.addEventListener("scroll", onLeave, { passive: true });
+    window.addEventListener("resize", onLeave);
+    window.addEventListener("portfolio-motion-change", onLeave);
+    reduced.addEventListener("change", onLeave);
+    fine.addEventListener("change", onLeave);
     return () => {
       onLeave();
       clearTimeout(chapterTimer.current);
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerleave", onLeave);
       document.removeEventListener("click", onNavigate);
+      document.removeEventListener("visibilitychange", onLeave);
+      window.removeEventListener("blur", onLeave);
+      window.removeEventListener("scroll", onLeave);
+      window.removeEventListener("resize", onLeave);
+      window.removeEventListener("portfolio-motion-change", onLeave);
+      reduced.removeEventListener("change", onLeave);
+      fine.removeEventListener("change", onLeave);
     };
   }, [paused]);
 

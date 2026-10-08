@@ -1,7 +1,8 @@
 import { Box, Camera, Download, UserRound } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { profileStudio } from "../../assets";
-import "../../portrait.css";
+import ResponsiveImage from "../ResponsiveImage";
+import "../../styles/portrait.css";
 
 const PortraitBust = lazy(() => import("./PortraitBust"));
 
@@ -39,7 +40,9 @@ export default function PortraitStudio() {
             <br />
             CURIOUS BY NATURE.
           </span>
-          <img
+          <ResponsiveImage
+            sizes="(max-width: 650px) 320px, 380px"
+            loading="eager"
             src={profileStudio}
             alt="Studio portrait of Saksham Agarwal"
             width={1024}

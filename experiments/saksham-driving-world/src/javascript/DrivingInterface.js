@@ -1,6 +1,7 @@
 import { Howler } from 'howler';
 import { projects } from './sakshamProjects.js';
 import { profileSections } from './sakshamProfile.js';
+import { projectStoryHref, readProjectRequest } from '../../../../src/utils/worldNavigation.js';
 
 export function drivingInterface(app) {
   const start = document.querySelector('#start-drive');
@@ -12,18 +13,47 @@ export function drivingInterface(app) {
   const sound = document.querySelector('#drive-sound');
   const home = document.querySelector('#drive-home');
   const location = document.querySelector('#world-location');
+  const requestedProject = readProjectRequest(window.location.search, projects);
   const cameraTools = document.querySelector('.camera-tools');
   const cameraView = document.querySelector('#camera-view');
   const topTools = document.querySelector('#top-tools');
   const cameraHelp = document.querySelector('#camera-help');
+  const cameraStatus = document.querySelector('#camera-status');
+  const cameraToggle = document.querySelector('#camera-toggle');
+  const cameraBody = document.querySelector('#camera-body');
+  const followCar = document.querySelector('#follow-car');
+  cameraToggle.addEventListener('click', () => {
+    const expanded = cameraToggle.getAttribute('aria-expanded') !== 'true';
+    cameraToggle.setAttribute('aria-expanded', String(expanded));
+    cameraToggle.setAttribute('aria-label', `${expanded ? 'Collapse' : 'Expand'} camera controls`);
+    cameraToggle.title = `${expanded ? 'Collapse' : 'Expand'} camera controls`;
+    cameraBody.hidden = !expanded;
+    cameraTools.dataset.collapsed = String(!expanded);
+  });
+  const syncCameraTools = () => {
+    const view = app.camera.view;
+    topTools.hidden = view !== 'top';
+    followCar.hidden = view !== 'orbit';
+    followCar.disabled = app.camera.following;
+    const following = app.camera.following && !app.camera.exploring;
+    cameraStatus.dataset.state = view === 'orbit' ? following ? 'follow' : 'explore' : view;
+    cameraStatus.textContent = view === 'top' ? 'Map overview' : view === 'first' ? 'Behind the wheel' : following ? 'Auto follow' : 'Exploring';
+    const touch = app.config.touch;
+    cameraHelp.textContent = view === 'first'
+      ? touch ? 'Car-mounted camera · use the driving controls' : 'Car-mounted camera · steer with arrows / WASD'
+      : view === 'top'
+        ? touch ? 'Drag to pan · pinch to zoom' : 'Drag to pan · scroll to zoom'
+        : touch ? 'Drag to explore · pinch to zoom\nDrive to automatically follow your car.' : 'Left drag: pan · Scroll: zoom\nRight drag: rotate · Drive: auto follow';
+  };
+  app.time.on('cameraControl', syncCameraTools);
+  window.addEventListener('drive-boundary', () => { location.textContent = 'BACK ON THE ROAD · PERIMETER RIDGE'; });
   cameraView.addEventListener('change', () => {
     app.camera.setView(cameraView.value);
-    topTools.hidden = cameraView.value !== 'top';
-    cameraHelp.textContent = cameraView.value === 'first'
-      ? 'Car-mounted view · steer with arrows / WASD'
-      : cameraView.value === 'top'
-        ? 'Map layout · drag to pan · scroll or pinch to zoom'
-        : 'Drag to pan · scroll or pinch to zoom';
+    syncCameraTools();
+    app.$canvas.focus({ preventScroll: true });
+  });
+  followCar.addEventListener('click', () => {
+    app.camera.focusCar();
     app.$canvas.focus({ preventScroll: true });
   });
   document.querySelector('#fit-map').addEventListener('click', () => {
@@ -40,6 +70,29 @@ export function drivingInterface(app) {
   nearbyButton.id = 'nearby-section';
   nearbyButton.hidden = true;
   document.querySelector('.drive-bottom > div').prepend(nearbyButton);
+  function storyLink(project, text) {
+    const link = document.createElement('a');
+    link.href = projectStoryHref(project.id);
+    link.textContent = text;
+    link.setAttribute('aria-label', `Read ${project.name} in the portfolio`);
+    link.addEventListener('click', event => {
+      if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+      if (window.parent !== window) {
+        event.preventDefault();
+        window.parent.postMessage({ type: 'portfolio-project', projectId: project.id }, window.location.origin);
+      }
+    });
+    return link;
+  }
+  let activeStoryLink = null;
+  function showProjectStory(project) {
+    activeStoryLink?.remove();
+    activeStoryLink = project ? storyLink(project, 'Read this project’s story') : null;
+    if (activeStoryLink) {
+      activeStoryLink.className = 'world-story-link';
+      document.querySelector('.drive-bottom').append(activeStoryLink);
+    }
+  }
   let nearby = null;
   const modelStatus = document.createElement('p');
   modelStatus.className = 'model-status';
@@ -76,7 +129,16 @@ export function drivingInterface(app) {
     home.disabled = false;
     app.camera.carBody = app.world.physics.car.chassis.body;
     cameraTools.hidden = false;
+    syncCameraTools();
     document.querySelectorAll('[data-drive]').forEach(button => { button.disabled = false; });
+    if (requestedProject) {
+      const destination = app.world.sections.projects.items[projects.indexOf(requestedProject)];
+      if (destination) {
+        travel(destination.x, destination.y);
+        location.textContent = requestedProject.name.toUpperCase();
+        showProjectStory(requestedProject);
+      }
+    }
     app.$canvas.focus({ preventScroll: true });
   });
   start.addEventListener('click', () => {
@@ -93,13 +155,12 @@ export function drivingInterface(app) {
     body.force.set(0, 0, 0);
     body.torque.set(0, 0, 0);
     body.quaternion.set(0, 0, 0, 1);
+    body.previousQuaternion.copy(body.quaternion);
     body.wakeUp();
     car.oldPosition.copy(body.position);
     app.camera.pan.reset();
-    if (app.camera.view === 'top') {
-      app.camera.topCenter.set(x, y - 7, 0);
-      app.camera.zoom.targetValue = 0.12;
-    }
+    app.camera.target.set(x, y - 7, 0);
+    app.camera.focusCar();
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       app.camera.targetEased.set(x, y - 7, 0);
     }
@@ -110,6 +171,7 @@ export function drivingInterface(app) {
   }
   home.addEventListener('click', () => {
     travel(0, 7);
+    showProjectStory(null);
     location.textContent = 'THE STARTING LINE';
   });
   sound.addEventListener('click', () => {
@@ -269,8 +331,10 @@ export function drivingInterface(app) {
       const destination = app.world.sections.projects.items[i];
       travel(destination.x, destination.y);
       location.textContent = project.name.toUpperCase();
+      showProjectStory(project);
     });
     links.append(drive);
+    links.append(storyLink(project, 'Read project story'));
     [['Source', project.source], ['Experience', project.demo]].forEach(([name, href]) => {
       if (!href) return;
       const link = document.createElement('a');

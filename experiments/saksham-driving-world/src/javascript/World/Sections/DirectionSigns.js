@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import { FontLoader } from 'three/addons/loaders/FontLoader.js'
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
+import { mergeGroups } from 'three/addons/utils/BufferGeometryUtils.js'
 import fontData from 'three/examples/fonts/helvetiker_bold.typeface.json'
 
 const signFont = new FontLoader().parse(fontData)
@@ -14,7 +15,7 @@ export const directionSigns = [
 // Clone the original arrow board and pole, preserving authored bevels/materials.
 // Replace only the lettering; mirrored geometry never mirrors the text.
 export default class DirectionSigns {
-    constructor(template, container, solids) {
+    constructor(template, container, solids, signs = directionSigns) {
         this.items = []
         if (!template?.children.length) return
         template.updateMatrixWorld(true)
@@ -56,10 +57,10 @@ export default class DirectionSigns {
             }
         }
         const pointsRight = tipRanges[1][1] - tipRanges[1][0] < tipRanges[0][1] - tipRanges[0][0]
-        for (const sign of directionSigns) {
+        for (const sign of signs) {
             const group = new THREE.Group()
             group.name = `Direction / ${sign.text}`
-            group.position.set(sign.x, sign.y, 0)
+            group.position.set(sign.x, sign.y, sign.z || 0)
             group.rotation.z = sign.angle
             const copy = template.clone(true)
             copy.position.copy(origin).multiplyScalar(-1)
@@ -77,6 +78,9 @@ export default class DirectionSigns {
             // Tall, tightly fitted dimensional letters like the original sign.
             geometry.translate(-textBounds.getCenter(new THREE.Vector3()).x, -textBounds.getCenter(new THREE.Vector3()).y, 0)
             geometry.scale(boardSize.x * .76 / textSize.x, boardSize.z * .66 / textSize.y, 1)
+            // TextGeometry emits separate front/side groups per glyph. Collapse
+            // those groups to two draws while preserving dimensional lettering.
+            mergeGroups(geometry)
             for (const side of [-1, 1]) {
                 const label = new THREE.Mesh(geometry, material)
                 label.name = `Raised lettering / ${sign.text} / ${side}`
@@ -88,7 +92,7 @@ export default class DirectionSigns {
             this.items.push(group)
             const pole = new THREE.Object3D()
             pole.name = 'box'
-            pole.position.set(sign.x, sign.y, (bounds.max.z - bounds.min.z) / 2)
+            pole.position.set(sign.x, sign.y, (sign.z || 0) + (bounds.max.z - bounds.min.z) / 2)
             pole.scale.set(.45, .45, bounds.max.z - bounds.min.z)
             solids.push(pole)
         }

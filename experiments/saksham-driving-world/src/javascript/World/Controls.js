@@ -31,16 +31,54 @@ export default class Controls extends EventEmitter
 
         document.addEventListener('visibilitychange', () =>
         {
-            if(!document.hidden)
+            if(document.hidden)
             {
-                this.actions.up = false
-                this.actions.right = false
-                this.actions.down = false
-                this.actions.left = false
-                this.actions.brake = false
-                this.actions.boost = false
+                this.releaseActions()
             }
         })
+        window.addEventListener('blur', () => this.releaseActions())
+    }
+
+    releaseActions()
+    {
+        for(const action of Object.keys(this.actions))
+        {
+            this.actions[action] = false
+        }
+
+        if(this.touch)
+        {
+            for(const name of ['joystick', 'boost', 'forward', 'brake', 'backward'])
+            {
+                this.releaseTouch(this.touch[name])
+            }
+        }
+    }
+
+    releaseTouch(control)
+    {
+        const wasActive = control.active
+        control.touchIdentifier = null
+        document.removeEventListener('touchend', control.events.touchend)
+        document.removeEventListener('touchcancel', control.events.touchend)
+
+        if(control.$border)
+        {
+            control.$border.style.opacity = '0.25'
+        }
+        else
+        {
+            control.active = false
+            control.$limit.style.opacity = '0.25'
+            control.$cursor.style.transform = 'translateX(0px) translateY(0px)'
+            document.removeEventListener('touchmove', control.events.touchmove)
+            if(wasActive) this.trigger('joystickEnd')
+        }
+    }
+
+    isKeyboardInputBlocked(_event)
+    {
+        return document.querySelector('dialog[open]') || _event.target?.closest?.('button, a, input, textarea, select, [contenteditable]:not([contenteditable="false"])')
     }
 
     setKeyboard()
@@ -50,12 +88,11 @@ export default class Controls extends EventEmitter
 
         this.keyboard.events.keyDown = (_event) =>
         {
-            if(document.querySelector('dialog[open]') || _event.target.closest?.('button, a, input, textarea, select')) return
+            if(this.isKeyboardInputBlocked(_event)) return
             switch(_event.code)
             {
                 case 'ArrowUp':
                 case 'KeyW':
-                    this.camera.pan.reset()
                     this.actions.up = true
                     break
 
@@ -66,7 +103,6 @@ export default class Controls extends EventEmitter
 
                 case 'ArrowDown':
                 case 'KeyS':
-                    this.camera.pan.reset()
                     this.actions.down = true
                     break
 
@@ -94,7 +130,6 @@ export default class Controls extends EventEmitter
 
         this.keyboard.events.keyUp = (_event) =>
         {
-            if(document.querySelector('dialog[open]')) return
             switch(_event.code)
             {
                 case 'ArrowUp':
@@ -129,7 +164,7 @@ export default class Controls extends EventEmitter
                     break
 
                 case 'KeyR':
-                    this.trigger('action', ['reset'])
+                    if(!this.isKeyboardInputBlocked(_event)) this.trigger('action', ['reset'])
                     break
             }
         }
@@ -256,7 +291,7 @@ export default class Controls extends EventEmitter
 
             const touch = _event.changedTouches[0]
 
-            if(touch)
+            if(touch && this.touch.joystick.touchIdentifier === null)
             {
                 this.touch.joystick.active = true
 
@@ -268,6 +303,7 @@ export default class Controls extends EventEmitter
                 this.touch.joystick.$limit.style.opacity = '0.5'
 
                 document.addEventListener('touchend', this.touch.joystick.events.touchend)
+                document.addEventListener('touchcancel', this.touch.joystick.events.touchend)
                 document.addEventListener('touchmove', this.touch.joystick.events.touchmove, { passive: false })
 
                 this.trigger('joystickStart')
@@ -297,15 +333,7 @@ export default class Controls extends EventEmitter
 
             if(touch)
             {
-                this.touch.joystick.active = false
-
-                this.touch.joystick.$limit.style.opacity = '0.25'
-
-                this.touch.joystick.$cursor.style.transform = 'translateX(0px) translateY(0px)'
-
-                document.removeEventListener('touchend', this.touch.joystick.events.touchend)
-
-                this.trigger('joystickEnd')
+                this.releaseTouch(this.touch.joystick)
             }
         }
 
@@ -362,10 +390,8 @@ export default class Controls extends EventEmitter
 
             const touch = _event.changedTouches[0]
 
-            if(touch)
+            if(touch && this.touch.boost.touchIdentifier === null)
             {
-                this.camera.pan.reset()
-
                 this.touch.boost.touchIdentifier = touch.identifier
 
                 this.actions.up = true
@@ -374,6 +400,7 @@ export default class Controls extends EventEmitter
                 this.touch.boost.$border.style.opacity = '0.5'
 
                 document.addEventListener('touchend', this.touch.boost.events.touchend)
+                document.addEventListener('touchcancel', this.touch.boost.events.touchend)
             }
         }
 
@@ -387,9 +414,7 @@ export default class Controls extends EventEmitter
                 this.actions.up = false
                 this.actions.boost = false
 
-                this.touch.boost.$border.style.opacity = '0.25'
-
-                document.removeEventListener('touchend', this.touch.boost.events.touchend)
+                this.releaseTouch(this.touch.boost)
             }
         }
 
@@ -446,10 +471,8 @@ export default class Controls extends EventEmitter
 
             const touch = _event.changedTouches[0]
 
-            if(touch)
+            if(touch && this.touch.forward.touchIdentifier === null)
             {
-                this.camera.pan.reset()
-
                 this.touch.forward.touchIdentifier = touch.identifier
 
                 this.actions.up = true
@@ -457,6 +480,7 @@ export default class Controls extends EventEmitter
                 this.touch.forward.$border.style.opacity = '0.5'
 
                 document.addEventListener('touchend', this.touch.forward.events.touchend)
+                document.addEventListener('touchcancel', this.touch.forward.events.touchend)
             }
         }
 
@@ -469,9 +493,7 @@ export default class Controls extends EventEmitter
             {
                 this.actions.up = false
 
-                this.touch.forward.$border.style.opacity = '0.25'
-
-                document.removeEventListener('touchend', this.touch.forward.events.touchend)
+                this.releaseTouch(this.touch.forward)
             }
         }
 
@@ -529,7 +551,7 @@ export default class Controls extends EventEmitter
 
             const touch = _event.changedTouches[0]
 
-            if(touch)
+            if(touch && this.touch.brake.touchIdentifier === null)
             {
                 this.touch.brake.touchIdentifier = touch.identifier
 
@@ -538,6 +560,7 @@ export default class Controls extends EventEmitter
                 this.touch.brake.$border.style.opacity = '0.5'
 
                 document.addEventListener('touchend', this.touch.brake.events.touchend)
+                document.addEventListener('touchcancel', this.touch.brake.events.touchend)
             }
         }
 
@@ -550,9 +573,7 @@ export default class Controls extends EventEmitter
             {
                 this.actions.brake = false
 
-                this.touch.brake.$border.style.opacity = '0.25'
-
-                document.removeEventListener('touchend', this.touch.brake.events.touchend)
+                this.releaseTouch(this.touch.brake)
             }
         }
 
@@ -610,10 +631,8 @@ export default class Controls extends EventEmitter
 
             const touch = _event.changedTouches[0]
 
-            if(touch)
+            if(touch && this.touch.backward.touchIdentifier === null)
             {
-                this.camera.pan.reset()
-
                 this.touch.backward.touchIdentifier = touch.identifier
 
                 this.actions.down = true
@@ -621,6 +640,7 @@ export default class Controls extends EventEmitter
                 this.touch.backward.$border.style.opacity = '0.5'
 
                 document.addEventListener('touchend', this.touch.backward.events.touchend)
+                document.addEventListener('touchcancel', this.touch.backward.events.touchend)
             }
         }
 
@@ -633,9 +653,7 @@ export default class Controls extends EventEmitter
             {
                 this.actions.down = false
 
-                this.touch.backward.$border.style.opacity = '0.25'
-
-                document.removeEventListener('touchend', this.touch.backward.events.touchend)
+                this.releaseTouch(this.touch.backward)
             }
         }
 

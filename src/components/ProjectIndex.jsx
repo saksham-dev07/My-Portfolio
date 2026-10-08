@@ -1,5 +1,6 @@
 import { ArrowDownRight } from "lucide-react";
 import { useEffect, useState } from "react";
+import ResponsiveImage from "./ResponsiveImage";
 
 const disciplines = {
   ai: "APPLIED AI",
@@ -61,7 +62,8 @@ export default function ProjectIndex({ projects }) {
             }
           >
             <div className={`project-index-cover preview-${project.category}`}>
-              <img
+              <ResponsiveImage
+                sizes="(max-width: 650px) 43vw, (max-width: 1000px) 28vw, 250px"
                 src={project.image}
                 alt=""
                 width={1200}

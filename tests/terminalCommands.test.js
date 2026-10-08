@@ -6,6 +6,7 @@ describe("portfolio terminal allowlist", () => {
     expect(terminalCommand("  SUDO   hire Saksham ").action).toBe("/#contact");
     expect(terminalCommand("resume").action).toBe("/resume.pdf");
     expect(terminalCommand("lab").action).toBe("/lab");
+    expect(terminalCommand(" GRAVITY ").action).toBe("/lab#gravity");
   });
   test("never interprets shell syntax, script markup or external URLs", () => {
     for (const input of [
@@ -37,5 +38,25 @@ describe("portfolio terminal allowlist", () => {
     expect(
       terminalCommand("skills", { skills: [{ name: "Python" }] }).text,
     ).toBe("Python");
+  });
+  test("world and story destinations use catalogue IDs only", () => {
+    const projects = [{ id: "deepfake-forensics", name: "Deepfake Forensics" }];
+    expect(terminalCommand("world").action).toBe("/world");
+    expect(terminalCommand("surprise").action).toBe("/lab#gravity");
+    expect(
+      terminalCommand("WORLD deepfake-forensics", { projects }).action,
+    ).toBe("/world?project=deepfake-forensics");
+    expect(
+      terminalCommand("story deepfake-forensics", { projects }).action,
+    ).toBe("/?project=deepfake-forensics#build-deepfake-forensics");
+    for (const input of [
+      "world unknown",
+      "world //evil.example",
+      "world deepfake-forensics;",
+      "world deepfake-forensics extra",
+      "story __proto__",
+      "story <script>",
+    ])
+      expect(terminalCommand(input, { projects }).action).toBeUndefined();
   });
 });

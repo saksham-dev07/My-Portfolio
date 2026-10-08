@@ -1,9 +1,10 @@
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { labelTexture } from '../../StudioLabels.js'
-import { profilePaths, profilePathMarkers } from './ProfilePaths.js'
+import { profilePaths, profilePathMarkers, educationStops } from './ProfilePaths.js'
 import ProfileCircuit from './ProfileCircuit.js'
 import DirectionSigns from './DirectionSigns.js'
+import { roadsidePosition, surfaceHeight } from '../LandscapeLayout.js'
 // Authored scenery frames the landmarks; the eastern wall is a physics experiment.
 export default class ProfileDistrict {
     constructor({ objects, areas, resources, walls, zones, time, camera, directionSignTemplate }, container, collisions) {
@@ -60,16 +61,20 @@ export default class ProfileDistrict {
             node.updateMatrix()
         })
         const tree = (x, y, size = 1, angle = 0) => {
+            const radius=Math.hypot(bounds.max.x-bounds.min.x,bounds.max.y-bounds.min.y)*scale*size/2+.12
+            const planting=roadsidePosition(x,y,radius)
+            x=planting.x;y=planting.y
+            const ground=surfaceHeight(x,y)
             const copy = treeSource.clone(true)
-            copy.position.set(x, y, .02)
+            copy.position.set(x, y, ground+.02)
             copy.scale.setScalar(scale * size)
             copy.rotation.z = angle
             copy.updateMatrix()
             district.add(copy)
-            trees.push({ object: copy, phase: x * .17 + y * .08 })
+            trees.push({ object: copy, radius, phase: x * .17 + y * .08 })
             const trunk = new THREE.Object3D()
             trunk.name = 'box'
-            trunk.position.set(x, y, .65)
+            trunk.position.set(x, y, ground+.65)
             trunk.scale.set(.65, .65, 1.3)
             solids.push(trunk)
         }
@@ -104,12 +109,12 @@ export default class ProfileDistrict {
         // ═══════════════════════════════════════════════════════════════
         // 1. PORTRAIT GARDEN — Richer grove framing the bust
         // ═══════════════════════════════════════════════════════════════
-        tree(-12, -62, .95, -.2)
-        tree(-11, -68, .72, .3)
-        tree(-14, -66, .6, -.5)   // new: fills western gap
-        tree(14, -63, 1.1, .5)
-        tree(15, -69, .78, -.4)
-        tree(17, -66, .55, .2)    // new: mirrors western addition
+        tree(-15.5, -59.5, .95, -.2)
+        tree(-15.5, -69, .72, .3)
+        tree(-18.5, -64.5, .6, -.5)
+        tree(20, -59.5, 1.1, .5)
+        tree(20, -69, .78, -.4)
+        tree(23, -64.5, .55, .2)
         // Scattered accent pools behind the portrait
         groundCircle(-10, -66, 2.5, '#d4e7ef', .025)
         groundCircle(14, -67, 2, '#c3cdf7', .02)
@@ -203,12 +208,12 @@ export default class ProfileDistrict {
         // ═══════════════════════════════════════════════════════════════
         // 6. EDUCATION TIMELINE — Western ring road stops
         // ═══════════════════════════════════════════════════════════════
-        for (const [y, title] of [[-103, '2020 / SCHOOL'], [-109, '2022 / SCIENCE'], [-115, '2023 / VIT']]) {
-            sign([title], -19, y - .3, 7, 1.4)
-            const area = areas.add({ position: new THREE.Vector2(-19, y), halfExtents: new THREE.Vector2(3.5, 1.8) })
+        for (const { x, y, title } of educationStops) {
+            sign([title], x, y - .3, 7, 1.4)
+            const area = areas.add({ position: new THREE.Vector2(x, y), halfExtents: new THREE.Vector2(3.5, 1.8) })
             area.on('interact', () => window.dispatchEvent(new CustomEvent('drive-section', { detail: 'education' })))
             // Subtle ring around each education pad.
-            accentRing(-19, y, 3.8, 4.0, '#ffe5b8', .1)
+            accentRing(x, y, 3.8, 4.0, '#ffe5b8', .1)
         }
         tree(-31, -97, 1, .4)
         tree(-31, -117, .8, -.2)
@@ -231,9 +236,9 @@ export default class ProfileDistrict {
         reset.on('interact', () => this.experiment.items.forEach(item => item.collision.reset()))
         sign(['REBUILD'], 30, -115, 5, 1)
         sign(['BREAK / BUILD / REPEAT'], 30, -119, 12, 1.5)
-        tree(46, -101, .9, .3)
-        tree(47, -114, 1.1, -.4)
-        tree(44, -108, .65, .2)    // new: fill eastern gap
+        tree(52, -101, .9, .3)
+        tree(53, -112, 1.1, -.4)
+        tree(52, -107, .65, .2)
         // Ground accent under the physics experiment.
         groundCircle(30, -110, 4, '#edc4da', .02)
 

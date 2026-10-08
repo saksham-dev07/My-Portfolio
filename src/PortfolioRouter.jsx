@@ -1,7 +1,13 @@
 import { Component, lazy, Suspense, useEffect, useRef, useState } from "react";
 import App from "./App";
+import { projects } from "./constants";
 import { readExeReturn, saveExeReturn } from "./utils/exeProgress";
-import "./exe-entry.css";
+import {
+  projectStoryHref,
+  projectWorldHref,
+  readProjectRequest,
+} from "./utils/worldNavigation";
+import "./styles/exe-entry.css";
 
 const DrivingWorld = lazy(() => import("./experience/DrivingWorld"));
 const Laboratory = lazy(() => import("./lab/Laboratory"));
@@ -66,12 +72,12 @@ export default function PortfolioRouter() {
         if (destination.y !== null) {
           window.scrollTo({ top: destination.y, behavior: "instant" });
           document
-            .getElementById("exe-entry-link")
+            .getElementById(destination.focusId || "exe-entry-link")
             ?.focus({ preventScroll: true });
         } else {
-          const target = document.getElementById(
-            location.hash.slice(1) || "footer",
-          );
+          const target =
+            document.getElementById(location.hash.slice(1) || "footer") ||
+            document.getElementById("projects");
           target?.scrollIntoView({ behavior: "instant", block: "start" });
           const heading = target?.querySelector("h1,h2") || target;
           heading?.setAttribute("tabindex", "-1");
@@ -95,15 +101,26 @@ export default function PortfolioRouter() {
     )
       return;
     event.preventDefault();
-    saveExeReturn();
-    history.pushState({ world: true }, "", "/world");
+    saveExeReturn(event.currentTarget.id);
+    const project = readProjectRequest(
+      new URL(event.currentTarget.href).search,
+      projects,
+    );
+    history.pushState(
+      { world: true },
+      "",
+      project ? projectWorldHref(project.id) : "/world",
+    );
     setRoute("world");
   };
 
-  const exit = (fragment) => {
+  const exit = (fragment, projectId) => {
     const destination =
       typeof fragment === "string"
-        ? { url: `/#${fragment}`, y: null }
+        ? {
+            url: projectId ? projectStoryHref(projectId) : `/#${fragment}`,
+            y: null,
+          }
         : readExeReturn();
     restore.current = destination;
     history.replaceState({}, "", destination.url);

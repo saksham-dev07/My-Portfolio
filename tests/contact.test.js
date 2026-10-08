@@ -140,6 +140,14 @@ describe("contact API", () => {
       expect(JSON.stringify(res.body)).not.toContain("secret");
     }
   });
+  test("does not confirm a message without provider acceptance", async () => {
+    for (const result of [undefined, {}, { data: {} }, { data: { id: "" } }]) {
+      const res = response();
+      await createContactHandler({ send: async () => result })(request(), res);
+      expect(res.statusCode).toBe(502);
+      expect(res.body.success).toBeUndefined();
+    }
+  });
   test("throttles repeated requests and recovers after the window", async () => {
     let time = 100000;
     let sends = 0;
@@ -147,7 +155,7 @@ describe("contact API", () => {
       now: () => time,
       send: async () => {
         sends++;
-        return {};
+        return { data: { id: "accepted" } };
       },
     });
     for (let i = 0; i < 5; i++) await handler(request(), response());

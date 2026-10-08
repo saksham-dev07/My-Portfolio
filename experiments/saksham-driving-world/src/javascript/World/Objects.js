@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { groundLayer } from './GroundLayers.js'
 import * as BufferGeometryUtils from 'three/addons/utils/BufferGeometryUtils.js';
 
 
@@ -105,7 +106,7 @@ export default class Objects
 
                     const mesh = new THREE.Mesh(geometry, material)
                     mesh.matrixAutoUpdate = false
-                    mesh.updateMatrix()
+                    groundLayer(mesh, 'shadow')
 
                     this.floorShadows.push(mesh)
 
@@ -154,6 +155,7 @@ export default class Objects
 
                 // Mesh
                 mergeItem.mesh = new THREE.Mesh(mergeItem.geometry, mergeItem.material)
+                mergeItem.mesh.renderOrder = _mesh.renderOrder
                 this.merge.container.add(mergeItem.mesh)
 
                 // Save
@@ -161,9 +163,8 @@ export default class Objects
             }
 
             // Apply the object transform to the geometry and save it for later merge
-            const geometry = _mesh.geometry
-            _mesh.updateMatrixWorld() // Maybe not
-            geometry.applyMatrix(_mesh.matrixWorld)
+            _mesh.updateWorldMatrix(true, false)
+            const geometry = _mesh.geometry.clone().applyMatrix4(_mesh.matrixWorld)
 
             mergeItem.geometriesToMerge.push(geometry)
         }
@@ -174,7 +175,8 @@ export default class Objects
             {
                 const mergeItem = this.merge.items[_mergeItemName]
 
-                mergeItem.geometry = BufferGeometryUtils.mergeGeometries(mergeItem.geometriesToMerge) // Should add original geometry
+                mergeItem.geometry.dispose()
+                mergeItem.geometry = BufferGeometryUtils.mergeGeometries(mergeItem.geometriesToMerge)
                 mergeItem.mesh.geometry = mergeItem.geometry
             }
         }

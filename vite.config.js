@@ -1,6 +1,5 @@
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
-import { compression } from "vite-plugin-compression2";
 import contactHandler from "./api/send.js";
 
 // Run the same validated contact handler in development and on Vercel.
@@ -46,20 +45,7 @@ function contactApi() {
 }
 
 export default defineConfig({
-  plugins: [
-    react(),
-    contactApi(),
-    compression({
-      algorithm: "brotliCompress",
-      exclude: [/\.(br|gz)$/i, /\.(png|jpg|jpeg|gif|webp|avif|svg|ico)$/i],
-      threshold: 1024,
-    }),
-    compression({
-      algorithm: "gzip",
-      exclude: [/\.(br|gz)$/i, /\.(png|jpg|jpeg|gif|webp|avif|svg|ico)$/i],
-      threshold: 1024,
-    }),
-  ],
+  plugins: [react(), contactApi()],
   build: {
     target: "es2020",
     minify: "esbuild",
@@ -74,6 +60,7 @@ export default defineConfig({
         },
       },
     },
-    assetsInlineLimit: 4096,
+    // Responsive variants must stay cacheable files, not eager data in JS.
+    assetsInlineLimit: 0,
   },
 });

@@ -22,8 +22,10 @@ import {
 import { Box3, MathUtils, MeshBasicMaterial, Vector3 } from "three";
 import { discover } from "../../utils/discovery";
 import { motionAllowed } from "../../utils/studioMotion";
+import ResponsiveImage from "../ResponsiveImage";
 
-const MODEL = "/portrait/saksham-model.glb";
+const MODEL = new URL("../../assets/models/saksham-model.glb", import.meta.url)
+  .href;
 const TARGET = [0, 0.84, 0];
 
 class PortraitBoundary extends Component {
@@ -341,7 +343,12 @@ export default function PortraitBust({ portraitImage }) {
   };
   const fallback = (
     <div className="bust-fallback">
-      <img src={portraitImage} alt="Saksham Agarwal" />
+      <ResponsiveImage
+        sizes="(max-width: 650px) 90vw, 520px"
+        loading="eager"
+        src={portraitImage}
+        alt="Saksham Agarwal"
+      />
       <span>3D view unavailable in this browser.</span>
       <button type="button" onClick={retry}>
         <RotateCcw size={13} /> Try again

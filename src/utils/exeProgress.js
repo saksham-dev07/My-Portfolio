@@ -1,10 +1,11 @@
-export function saveExeReturn() {
+export function saveExeReturn(focusId = "exe-entry-link") {
   try {
     sessionStorage.setItem(
       "saksham-exe-return",
       JSON.stringify({
         url: `${location.pathname}${location.search}${location.hash}`,
         y: window.scrollY,
+        focusId,
       }),
     );
   } catch {
@@ -18,7 +19,16 @@ export function readExeReturn() {
     );
     // The experience returns only to this portfolio's root, never a supplied URL.
     if (data && /^\/(?:\?|#|$)/.test(data.url) && Number.isFinite(data.y))
-      return { url: data.url, y: Math.max(0, data.y) };
+      return {
+        url: data.url,
+        y: Math.max(0, data.y),
+        focusId:
+          /^(exe-entry-link|hero-world-link|developer-terminal-launcher|world-[a-z0-9-]+)$/.test(
+            data.focusId,
+          )
+            ? data.focusId
+            : "exe-entry-link",
+      };
   } catch {
     /* Corrupt or unavailable storage. */
   }

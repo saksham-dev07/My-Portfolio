@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import CANNON from 'cannon'
+import { vehiclePose } from './VehiclePose.js'
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
 
 export default class Car
@@ -123,8 +124,8 @@ export default class Car
             // Update if mode physics
             if(!this.transformControls.enabled)
             {
-                this.chassis.object.position.copy(this.physics.car.chassis.body.position).add(this.chassis.offset)
-                this.chassis.object.quaternion.copy(this.physics.car.chassis.body.quaternion)
+                vehiclePose(this.chassis.object, this.physics.car.chassis.body, this.physics.world)
+                this.chassis.object.position.add(this.chassis.offset)
             }
 
             // Update position
@@ -260,8 +261,7 @@ export default class Car
                     const wheelBody = this.physics.car.wheels.bodies[_wheelKey]
                     const wheelObject = this.wheels.items[_wheelKey]
 
-                    wheelObject.position.copy(wheelBody.position)
-                    wheelObject.quaternion.copy(wheelBody.quaternion)
+                    vehiclePose(wheelObject, wheelBody, this.physics.world)
                 }
             }
         })

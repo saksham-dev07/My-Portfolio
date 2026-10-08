@@ -23,9 +23,12 @@ import {
   useState,
 } from "react";
 import { Box3, MathUtils, Vector3 } from "three";
-import "../../workstation.css";
+import "../../styles/workstation.css";
 
-const MODEL_URL = "/desktop_pc/scene-opt.glb";
+const MODEL_URL = new URL(
+  "../../assets/models/workstation.glb",
+  import.meta.url,
+).href;
 const TARGET = [0, 0.15, 0];
 const VIEWS = [
   { name: "Desk", icon: Code2, position: [10.4, 5.2, 6.5], target: TARGET },

@@ -10,6 +10,7 @@ export default class Project
         // Options
         this.time = _options.time
         this.resources = _options.resources
+        this.camera = _options.camera
         this.objects = _options.objects
         this.areas = _options.areas
         this.name = _options.name
@@ -89,7 +90,20 @@ export default class Project
                 gsap.to(board.planeMesh.material.uniforms.uTextureAlpha, { value: 1, duration: 1, ease: 'power4.inOut' })
             })
 
-            image.src = _imageSource
+            // Board images are optional transfers until their terrace is visible
+            // or nearby. Top view intentionally reveals the whole map.
+            let nextCheck = 0
+            const frustum = new THREE.Frustum(), matrix = new THREE.Matrix4()
+            const bounds = new THREE.Sphere(new THREE.Vector3(board.x,board.y,2),6)
+            this.time.on('tick', () => {
+                if(image.src || this.time.elapsed < nextCheck) return
+                nextCheck = this.time.elapsed + 250
+                this.camera.instance.updateMatrixWorld()
+                matrix.multiplyMatrices(this.camera.instance.projectionMatrix,this.camera.instance.matrixWorldInverse)
+                frustum.setFromProjectionMatrix(matrix)
+                if(this.camera.view === 'top' || frustum.intersectsSphere(bounds)
+                    || this.camera.instance.position.distanceTo(bounds.center) < 35) image.src = _imageSource
+            })
 
             // Plane
             board.planeMesh = this.meshes.boardPlane.clone()
@@ -137,6 +151,8 @@ export default class Project
 
         // Mesh
         this.floor.mesh = new THREE.Mesh(this.floor.geometry, this.floor.material)
+        this.floor.mesh.position.z = .025
+        this.floor.mesh.updateMatrix()
         this.floor.mesh.matrixAutoUpdate = false
         this.floor.container.add(this.floor.mesh)
 

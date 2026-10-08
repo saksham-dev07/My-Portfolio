@@ -78,7 +78,7 @@ export function createContactHandler({ send, now = Date.now } = {}) {
         subject: `[Portfolio] ${title}`,
         text: `From: ${name}\nReply to: ${reply_to}\nSubject: ${title}\n\n${message}`,
       });
-      if (result.error)
+      if (result?.error || !result?.data?.id)
         return res.status(502).json({
           error: "The message couldn't be delivered. Please email me directly.",
         });

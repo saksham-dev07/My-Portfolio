@@ -46,6 +46,7 @@ export default class Application
     {
         this.config = {}
         this.config.debug = window.location.hash === '#debug'
+        this.config.debugWorld = new URLSearchParams(window.location.search).get('debugWorld') === 'true'
         this.config.cyberTruck = window.location.hash === '#cybertruck'
         this.config.touch = false
 
@@ -115,12 +116,13 @@ export default class Application
 
         this.scene.add(this.camera.container)
 
-        this.time.on('tick', () =>
+        this.time.on('afterTick', () =>
         {
             if(this.world && this.world.car)
             {
                 this.camera.target.x = this.world.car.chassis.object.position.x
                 this.camera.target.y = this.world.car.chassis.object.position.y
+                this.camera.target.z = Math.max(0, this.world.car.chassis.object.position.z)
             }
         })
     }
@@ -192,7 +194,7 @@ export default class Application
         this.passes.composer.addPass(this.passes.glowsPass)
 
         // Time tick
-        this.time.on('tick', () =>
+        this.time.on('render', () =>
         {
             this.passes.horizontalBlurPass.enabled = this.camera.view === 'orbit' && this.passes.horizontalBlurPass.material.uniforms.uStrength.value.x > 0
             this.passes.verticalBlurPass.enabled = this.camera.view === 'orbit' && this.passes.verticalBlurPass.material.uniforms.uStrength.value.y > 0
@@ -248,6 +250,8 @@ export default class Application
     destructor()
     {
         this.time.off('tick')
+        this.time.off('afterTick')
+        this.time.off('render')
         this.sizes.off('resize')
 
         this.camera.orbitControls.dispose()

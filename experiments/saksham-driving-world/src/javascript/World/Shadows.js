@@ -1,5 +1,7 @@
 import * as THREE from 'three'
 import ShadowMaterial from '../Materials/Shadow.js'
+import { surfaceHeight } from './LandscapeLayout.js'
+import { conformShadow } from './GroundLayers.js'
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
 
 export default class Shadows
@@ -59,16 +61,18 @@ export default class Shadows
         this.setHelper()
 
         // Time tick
-        this.time.on('tick', () =>
+        this.time.on('afterTick', () =>
         {
             for(const _shadow of this.items)
             {
                 // Position
-                const z = Math.max(_shadow.reference.position.z + _shadow.offsetZ, 0)
+                const ground = surfaceHeight(_shadow.reference.position.x, _shadow.reference.position.y)
+                const z = Math.max(_shadow.reference.position.z + _shadow.offsetZ - ground, 0)
                 const sunOffset = this.sun.vector.clone().multiplyScalar(z)
 
                 _shadow.mesh.position.x = _shadow.reference.position.x + sunOffset.x
                 _shadow.mesh.position.y = _shadow.reference.position.y + sunOffset.y
+                _shadow.mesh.position.z = surfaceHeight(_shadow.mesh.position.x, _shadow.mesh.position.y) + .045
 
                 // Angle
                 // Project the rotation as a vector on a plane and extract the angle
@@ -86,6 +90,11 @@ export default class Shadows
 
                 const angle = Math.atan2(projectedRotationVector.y, projectedRotationVector.x)
                 _shadow.mesh.rotation.z = angle
+                const {x, y, z: groundZ} = _shadow.mesh.position
+                if (_shadow.lastX !== x || _shadow.lastY !== y || _shadow.lastZ !== groundZ || _shadow.lastAngle !== angle) {
+                    conformShadow(_shadow.mesh, surfaceHeight)
+                    _shadow.lastX = x; _shadow.lastY = y; _shadow.lastZ = groundZ; _shadow.lastAngle = angle
+                }
 
                 // Alpha
                 let alpha = (this.maxDistance - z) / this.maxDistance
@@ -141,6 +150,9 @@ export default class Shadows
         // Base
         this.materials.base = new ShadowMaterial()
         this.materials.base.depthWrite = false
+        this.materials.base.polygonOffset = true
+        this.materials.base.polygonOffsetFactor = -1
+        this.materials.base.polygonOffsetUnits = -2
         this.materials.base.uniforms.uColor.value = new THREE.Color(this.color)
         this.materials.base.uniforms.uAlpha.value = 0
         this.materials.base.uniforms.uFadeRadius.value = 0.35
@@ -148,7 +160,7 @@ export default class Shadows
 
     setGeometry()
     {
-        this.geometry = new THREE.PlaneGeometry(1, 1, 1, 1)
+        this.geometry = new THREE.PlaneGeometry(1, 1, 8, 8)
     }
 
     setHelper()
@@ -229,7 +241,9 @@ export default class Shadows
         shadow.material = this.materials.base.clone()
 
         // Mesh
-        shadow.mesh = new THREE.Mesh(this.geometry, this.wireframeVisible ? this.materials.wireframe : shadow.material)
+        shadow.mesh = new THREE.Mesh(this.geometry.clone(), this.wireframeVisible ? this.materials.wireframe : shadow.material)
+        shadow.mesh.userData.terrainShadow = true
+        shadow.mesh.renderOrder = 10
         shadow.mesh.position.z = this.zFightingDistance
         shadow.mesh.scale.set(_options.sizeX, _options.sizeY, 2.4)
 

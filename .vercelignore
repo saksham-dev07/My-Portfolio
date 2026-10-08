@@ -1,0 +1,23 @@
+# CLI uploads contain build inputs only. Git deployments already use .gitignore.
+node_modules/
+**/node_modules/
+dist/
+**/dist/
+public/driving-world/
+.git/
+.local-history/
+.agents/
+.agent/
+AGENTS.md
+GEMINI.md
+**/SKILL.md
+.env
+.env.*
+!.env.example
+.vercel/
+coverage/
+docs/
+tests/
+experiments/saksham-driving-world/tests/
+experiments/saksham-driving-world/references/
+*.log

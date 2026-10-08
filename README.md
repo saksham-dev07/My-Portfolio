@@ -14,7 +14,6 @@ A React portfolio combining selected engineering projects with small, working cr
 - Project archive: search by project name, description, or technology; reveal actual project images with the pointer or keyboard focus, and dismiss previews with Escape.
 - Toolkit: expandable tool descriptions.
 - Credentials: certificate previews in a native dialog and issuer verification links.
-- Signal Run: an optional canvas arcade experience, loaded from the footer when requested.
 
 The palette pairs periwinkle blue with violet and copper accents, on cool ink and warm paper themes. The pipeline walkthrough and architecture diagrams are illustrative examples. They do not run AI inference or represent live infrastructure.
 
@@ -36,15 +35,15 @@ bun run preview
 
 ## Content and styling
 
-The main portfolio's creative studio layer adds explorable project blueprints, an interactive About notebook, skill-to-repository links, and contact subject starters that preserve custom drafts. Its styles are isolated in `src/creative-studio.css`. Design notes and checks are in [docs/portfolio-creative-upgrade.md](docs/portfolio-creative-upgrade.md).
+The main portfolio's creative studio layer adds explorable project blueprints, an interactive About notebook, skill-to-repository links, and contact subject starters that preserve custom drafts. Its styles are isolated in `src/styles/creative-studio.css`. Design notes and checks are in [docs/portfolio-creative-upgrade.md](docs/portfolio-creative-upgrade.md).
 
-Project, education, leadership, technology, and credential data live in `src/constants/index.js`. The active design uses `src/portfolio.css`, `src/experience.css`, `src/studio.css`, `src/studio-index.css`, and the deferred `src/workstation.css`. The résumé is served from `public/resume.pdf`.
+Project, education, leadership, technology, and credential data live in `src/constants/index.js`. The active design uses `src/styles/portfolio.css`, `src/styles/experience.css`, `src/styles/studio.css`, `src/styles/studio-index.css`, and the deferred `src/styles/workstation.css`. The résumé is served from `public/resume.pdf`.
 
 The latest research, composition, interaction specification, implementation order, and verification criteria were written before the changes in [docs/portfolio-design-plan.md](docs/portfolio-design-plan.md). The hero's annotation and caption follow the selected desk, signal, or human scene.
 
 `MotionStudio` coordinates word reveals, scroll-linked project depth, reading progress, bounded magnetic buttons, and brief chapter cues. The theme toggle reveals the new palette from its origin, while discipline filters bridge their layouts through native View Transitions. Browsers without that API update normally. Decorative motion can be disabled with the persistent motion control; the operating system's reduced-motion preference is also respected. Pausing motion settles active transitions. Research references and design decisions are in [docs/design-references.md](docs/design-references.md).
 
-The original workstation is `public/desktop_pc/scene-opt.glb`; its CC BY model credit is available in the scene and `public/desktop_pc/license.txt`. Keep those credits when changing or redistributing the scene.
+The original workstation is `src/assets/models/workstation.glb`; its CC BY model credit is available in the scene and `public/desktop_pc/license.txt`. Keep those credits when changing or redistributing the scene.
 
 The animation loops stop when their experiment is offscreen, hidden, or paused. Reduced-motion visitors see paused simulations by default. Drawing coordinates are normalized so a sketch survives resizing, and switching experiment tabs preserves the sketch.
 
@@ -68,12 +67,22 @@ Repository layout:
 
 ## Optional discoveries
 
+Poke the full stop after Saksham's name three times to discover a bouncing punctuation Easter egg. In the playground's Chaos tab or `/lab#gravity`, drag and flick skill stickers, tap empty space for a shockwave, or try the deliberately tempting “Do not press” control. The terminal's `gravity` command opens this existing experiment directly. Motion preferences suppress the punctuation flight and pulse decoration; physics remains explicitly controllable, keyboard-tossable and resettable.
+
 `/lab` hosts five small experiments: drawing, a compiler walkthrough, gravity, a neural signal visualization and generative art. Experiments mount only after launch and unmount when closed. The developer terminal opens from its button or Ctrl + backtick; it uses a predefined command dictionary and never executes shell commands. Four margin fragments and the portrait's Professional Button Presser achievement are saved locally without login.
 
 The supplied portrait is a static mesh with no rig. It responds through subtle bust poses and dialogue, with pointer attention, project/contact context, an idle response and a returning greeting. The project blueprints link to repository documentation and reflect distinct actual architectures. See [docs/portfolio-discovery-plan.md](docs/portfolio-discovery-plan.md).
 
 ## Deployment
 
-Run `bun run build` and deploy `dist/` with the serverless `api/` handler. Configure `RESEND_API_KEY` in the hosting environment. The current sender is Resend's onboarding address; a verified sender domain is recommended for deployment.
+Import the GitHub repository into Vercel with the repository root as the project root. `vercel.json` selects Vite, installs both frozen Bun lockfiles, runs the combined build, and publishes `dist/` plus the single `api/send.js` function. Use Bun 1.4.0 and Node 22 locally, matching CI. Configure `RESEND_API_KEY` in Vercel's environment settings; never prefix it with `VITE_`. The current sender is Resend's onboarding address; a verified sender domain is recommended for deployment.
+
+Run `bun run audit:production` after building to check required entries, oversized files, and unintended debug/environment files. GitHub CI runs locked installs, checks, all tests, the combined build, and this audit. Hashed bundles receive immutable caching; unversioned models revalidate so updates do not remain stale. Vercel supplies CDN compression, so the build does not emit redundant `.gz`/`.br` copies.
+
+The production structure, complete removal list, measured output, and Hobby constraints are documented in [docs/production-repository-audit.md](docs/production-repository-audit.md). This configuration is prepared locally; deployment and live function delivery still require verification on Vercel.
 
 Local instruction and skill files must remain ignored and must never be committed or pushed.
+
+## Low-bandwidth delivery
+
+Images now use generated responsive AVIF/WebP candidates, Inter uses a self-hosted Latin WOFF2 subset, and the interactive playground loads near the viewport. Detected slow/data-saving connections receive a poster of the existing workstation with an explicit full-3D action. Main models use hashed asset URLs for immutable caching. Run `bun run assets:optimize` after replacing source images. See [docs/low-bandwidth-optimization.md](docs/low-bandwidth-optimization.md) for code/config examples, transfer measurements and validation limits.

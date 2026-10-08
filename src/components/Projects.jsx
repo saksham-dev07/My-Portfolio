@@ -1,8 +1,9 @@
-import { ArrowRight, ArrowUpRight, Github } from "lucide-react";
-import { useRef, useState } from "react";
+import { ArrowRight, ArrowUpRight, Compass, Github } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { projects } from "../constants";
 import { useRole } from "../context/RoleContext";
-import { motionAllowed, transitionView } from "../utils/studioMotion";
+import { transitionView } from "../utils/studioMotion";
+import { projectWorldHref, readProjectRequest } from "../utils/worldNavigation";
 import ProjectCaseStudy from "./ProjectCaseStudy";
 import ProjectIndex, { projectTitle } from "./ProjectIndex";
 import ProjectPreview from "./ProjectPreview";
@@ -56,10 +57,20 @@ const notes = {
     ],
   },
 };
-export default function Projects() {
+export default function Projects({ onEnterWorld }) {
   const [selected, setSelected] = useState(null);
   const openerRef = useRef(null);
   const { activeRole, setActiveRole } = useRole();
+  useEffect(() => {
+    const project = readProjectRequest(window.location.search, projects);
+    if (!project) return;
+    openerRef.current =
+      document
+        .getElementById(`build-${project.id}`)
+        ?.querySelector(".project-open-story") ||
+      document.querySelector("#projects .filter-group button");
+    setSelected(project);
+  }, []);
   const featured = projects.filter((project) =>
     activeRole === "backend"
       ? project.category === "backend" &&
@@ -67,6 +78,18 @@ export default function Projects() {
       : project.featured &&
         (activeRole === "all" || project.category === activeRole),
   );
+  const closeStory = () => {
+    const url = new URL(window.location.href);
+    if (url.searchParams.get("project") === selected?.id) {
+      url.searchParams.delete("project");
+      history.replaceState(
+        history.state,
+        "",
+        `${url.pathname}${url.search}${url.hash}`,
+      );
+    }
+    setSelected(null);
+  };
   return (
     <section
       id="projects"
@@ -141,26 +164,6 @@ export default function Projects() {
             id={`build-${project.id}`}
             tabIndex={-1}
             style={{ "--project-order": index }}
-            onPointerMove={(event) => {
-              if (event.pointerType !== "mouse" || !motionAllowed()) return;
-              const rect = event.currentTarget.getBoundingClientRect();
-              const x = event.clientX - rect.left,
-                y = event.clientY - rect.top;
-              event.currentTarget.style.setProperty(
-                "--tilt-x",
-                `${(x / rect.width - 0.5) * 3}deg`,
-              );
-              event.currentTarget.style.setProperty(
-                "--tilt-y",
-                `${-(y / rect.height - 0.5) * 3}deg`,
-              );
-              event.currentTarget.style.setProperty("--spot-x", `${x}px`);
-              event.currentTarget.style.setProperty("--spot-y", `${y}px`);
-            }}
-            onPointerLeave={(event) => {
-              event.currentTarget.style.setProperty("--tilt-x", "0deg");
-              event.currentTarget.style.setProperty("--tilt-y", "0deg");
-            }}
             aria-labelledby={`project-${project.id}`}
             data-project-id={project.id}
           >
@@ -196,6 +199,14 @@ export default function Projects() {
               </button>
               <div className="project-links">
                 <a
+                  id={`world-${project.id}`}
+                  className="text-link accent-link"
+                  href={projectWorldHref(project.id)}
+                  onClick={onEnterWorld}
+                >
+                  <Compass size={15} aria-hidden="true" /> Explore in my world
+                </a>
+                <a
                   className="text-link"
                   href={project.source_code_link}
                   target="_blank"
@@ -223,7 +234,7 @@ export default function Projects() {
         <ProjectCaseStudy
           project={selected}
           note={notes[selected.id]}
-          onClose={() => setSelected(null)}
+          onClose={closeStory}
           opener={openerRef.current}
         />
       )}

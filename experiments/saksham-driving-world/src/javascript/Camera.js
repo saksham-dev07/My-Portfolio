@@ -21,8 +21,14 @@ export default class Camera
         this.targetEased = new THREE.Vector3(0, 0, 0)
         this.easing = 0.15
         this.view = 'orbit'
+        this.following = true
+        this.driving = false
+        this.stationaryTime = 0
+        this.returnProgress = 1
+        this.returnPosition = new THREE.Vector3()
+        this.returnLook = new THREE.Vector3()
         this.carBody = null
-        this.topCenter = new THREE.Vector3(130, -45, 0)
+        this.topCenter = new THREE.Vector3(52, -58, 0)
         this.viewOffset = new THREE.Vector3()
         this.viewLook = new THREE.Vector3()
         this.forward = new THREE.Vector3()
@@ -79,7 +85,7 @@ export default class Camera
     setInstance()
     {
         // Set up
-        this.instance = new THREE.PerspectiveCamera(40, this.sizes.viewport.width / this.sizes.viewport.height, 1, 80)
+        this.instance = new THREE.PerspectiveCamera(40, this.sizes.viewport.width / this.sizes.viewport.height, 1, 300)
         this.instance.up.set(0, 0, 1)
         this.instance.position.copy(this.angle.value)
         this.instance.lookAt(new THREE.Vector3())
@@ -93,12 +99,12 @@ export default class Camera
         })
 
         // Time tick
-        this.time.on('tick', () =>
+        this.time.on('render', () =>
         {
             if(this.view === 'top')
             {
                 const aspect = this.instance.aspect
-                const fitDistance = Math.max(210, 430 / aspect) / (2 * Math.tan(THREE.MathUtils.degToRad(20)))
+                const fitDistance = Math.max(205, 285 / aspect) / (2 * Math.tan(THREE.MathUtils.degToRad(20)))
                 const distance = 24 + (fitDistance - 24) * this.zoom.value
                 this.viewLook.copy(this.topCenter)
                 this.viewLook.x += this.pan.value.x
@@ -110,34 +116,56 @@ export default class Camera
             }
             if(this.view === 'first' && this.carBody)
             {
-                this.forward.set(1, 0, 0).applyQuaternion(this.carBody.quaternion)
+                const carPose = this.carVisual || this.carBody
+                this.forward.set(1, 0, 0).applyQuaternion(carPose.quaternion)
                 this.forward.z = 0
                 this.forward.normalize()
                 // A forward-mounted eye stays outside the solid car model; no roll or shake.
-                this.instance.position.copy(this.carBody.position).addScaledVector(this.forward, 1.6)
-                this.instance.position.z = this.carBody.position.z + 1.05
+                this.instance.position.copy(carPose.position).addScaledVector(this.forward, 1.6)
+                this.instance.position.z = carPose.position.z + (this.carVisual ? 1.33 : 1.05)
                 this.viewLook.copy(this.instance.position).addScaledVector(this.forward, 12)
                 this.viewLook.z -= 0.45
                 this.instance.lookAt(this.viewLook)
                 return
             }
-            if(!this.orbitControls.enabled)
+            this.updateDriving()
+            if(this.following)
             {
                 this.targetEased.x += (this.target.x - this.targetEased.x) * this.easing
                 this.targetEased.y += (this.target.y - this.targetEased.y) * this.easing
                 this.targetEased.z += (this.target.z - this.targetEased.z) * this.easing
 
                 // Apply zoom
-                this.instance.position.copy(this.targetEased).add(this.viewOffset.copy(this.angle.value).normalize().multiplyScalar(this.zoom.distance))
-
-                // Look at target
-                this.instance.lookAt(this.targetEased)
-
-                // Apply pan
-                this.instance.position.x += this.pan.value.x
-                this.instance.position.y += this.pan.value.y
+                this.viewOffset.copy(this.angle.value).normalize().multiplyScalar(this.zoom.distance).add(this.targetEased)
+                this.returnProgress = Math.min(1, this.returnProgress + Math.min(this.time.delta || 16, 60) / 650)
+                const blend = 1 - (1 - this.returnProgress) ** 3
+                this.instance.position.lerpVectors(this.returnPosition, this.viewOffset, blend)
+                this.orbitControls.target.lerpVectors(this.returnLook, this.targetEased, blend)
+                this.instance.lookAt(this.orbitControls.target)
             }
+            this.orbitControls.update()
         })
+    }
+
+    updateDriving()
+    {
+        // Horizontal speed includes coasting, while ignoring suspension motion.
+        // Separate thresholds and a short stop delay avoid camera-mode chatter.
+        const speed = Math.hypot(this.carBody?.velocity?.x || 0, this.carBody?.velocity?.y || 0)
+        let driving = this.driving || speed > .18
+        if(driving)
+        {
+            this.stationaryTime = speed < .05 ? this.stationaryTime + Math.min(this.time.delta || 16, 60) / 1000 : 0
+            if(this.stationaryTime >= .3) driving = false
+        }
+        const changed = driving !== this.driving
+        this.driving = driving
+        if(driving && !this.following && !this.exploring) this.focusCar()
+        this.orbitControls.enabled = true
+        if(changed)
+        {
+            this.time.trigger('cameraControl')
+        }
     }
 
     setView(view)
@@ -153,11 +181,13 @@ export default class Camera
         this.pan.reset()
         this.pan.value.x = 0
         this.pan.value.y = 0
-        this.orbitControls.enabled = false
+        this.orbitControls.enabled = view === 'orbit'
+        this.following = true
+        this.returnProgress = 1
         this.instance.up.set(0, view === 'top' ? 1 : 0, view === 'top' ? 0 : 1)
         this.instance.fov = view === 'first' ? 72 : 40
         this.instance.near = view === 'first' ? 0.05 : 1
-        this.instance.far = view === 'top' ? 3000 : view === 'first' ? 200 : 80
+        this.instance.far = view === 'top' ? 3000 : 300
         this.instance.updateProjectionMatrix()
         if(view === 'first') this.pan.disable()
         else this.pan.enable()
@@ -167,11 +197,12 @@ export default class Camera
             this.fitMap()
         }
         else this.targetEased.copy(this.target)
+        this.time.trigger('cameraControl')
     }
 
     fitMap()
     {
-        this.topCenter.set(130, -45, 0)
+        this.topCenter.set(52, -58, 0)
         this.pan.reset()
         this.zoom.targetValue = 1
         this.zoom.value = 1
@@ -179,11 +210,28 @@ export default class Camera
 
     focusCar()
     {
-        if(this.view !== 'top') return
-        this.topCenter.copy(this.target)
-        this.topCenter.z = 0
-        this.pan.reset()
-        this.zoom.targetValue = 0.12
+        if(this.view === 'top')
+        {
+            this.topCenter.copy(this.target)
+            this.topCenter.z = 0
+            this.pan.reset()
+            this.zoom.targetValue = 0.12
+        }
+        else if(this.view === 'orbit')
+        {
+            // Drain remaining manual damping before returning to the authored view.
+            this.orbitControls.enableDamping = false
+            this.orbitControls.update()
+            this.orbitControls.enableDamping = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+            if(!this.following)
+            {
+                this.returnPosition.copy(this.instance.position)
+                this.returnLook.copy(this.orbitControls.target)
+                this.returnProgress = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 1 : 0
+            }
+            this.following = true
+        }
+        this.time.trigger('cameraControl')
     }
 
     setZoom()
@@ -192,18 +240,20 @@ export default class Camera
         this.zoom = {}
         this.zoom.easing = 0.1
         this.zoom.minDistance = 14
-        this.zoom.amplitude = 15
-        this.zoom.value = this.config.cyberTruck ? 0.3 : 0.5
+        this.zoom.amplitude = 24
+        // Preserve the familiar starting framing, allow wider landmark views.
+        this.zoom.value = this.config.cyberTruck ? 0.1875 : 0.3125
         this.zoom.targetValue = this.zoom.value
         this.zoom.distance = this.zoom.minDistance + this.zoom.amplitude * this.zoom.value
 
-        // Listen to mousewheel event
-        document.addEventListener('mousewheel', (_event) =>
+        // Top-view zoom; OrbitControls owns zoom in the perspective view.
+        this.renderer.domElement.addEventListener('wheel', (_event) =>
         {
-            if(this.view === 'first' || _event.target !== this.renderer.domElement) return
+            if(this.view !== 'top') return
+            _event.preventDefault()
             this.zoom.targetValue += _event.deltaY * 0.001
             this.zoom.targetValue = Math.min(Math.max(this.zoom.targetValue, 0), 1)
-        }, { passive: true })
+        }, { passive: false })
 
         // Touch
         this.zoom.touch = {}
@@ -212,7 +262,7 @@ export default class Camera
 
         this.renderer.domElement.addEventListener('touchstart', (_event) =>
         {
-            if(_event.touches.length === 2)
+            if(this.view === 'top' && _event.touches.length === 2)
             {
                 this.zoom.touch.startDistance = Math.hypot(_event.touches[0].clientX - _event.touches[1].clientX, _event.touches[0].clientY - _event.touches[1].clientY)
                 this.zoom.touch.startValue = this.zoom.targetValue
@@ -221,7 +271,7 @@ export default class Camera
 
         this.renderer.domElement.addEventListener('touchmove', (_event) =>
         {
-            if(_event.touches.length === 2 && this.view !== 'first')
+            if(this.view === 'top' && _event.touches.length === 2)
             {
                 _event.preventDefault()
 
@@ -260,11 +310,8 @@ export default class Camera
         this.pan.raycaster = new THREE.Raycaster()
         this.pan.mouse = new THREE.Vector2()
         this.pan.needsUpdate = false
-        this.pan.hitMesh = new THREE.Mesh(
-            new THREE.PlaneGeometry(500, 500, 1, 1),
-            new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true, visible: false })
-        )
-        this.container.add(this.pan.hitMesh)
+        this.pan.plane = new THREE.Plane(new THREE.Vector3(0, 0, 1), 0)
+        this.pan.hit = new THREE.Vector3()
 
         this.pan.reset = () =>
         {
@@ -274,7 +321,7 @@ export default class Camera
 
         this.pan.enable = () =>
         {
-            this.pan.enabled = true
+            this.pan.enabled = this.view === 'top'
 
             // Update cursor
             this.renderer.domElement.classList.add('has-cursor-grab')
@@ -308,13 +355,12 @@ export default class Camera
             // Get start position
             this.pan.raycaster.setFromCamera(this.pan.mouse, this.instance)
 
-            const intersects = this.pan.raycaster.intersectObjects([this.pan.hitMesh])
-
-            if(intersects.length)
+            if(this.pan.raycaster.ray.intersectPlane(this.pan.plane, this.pan.hit))
             {
-                this.pan.start.x = intersects[0].point.x
-                this.pan.start.y = intersects[0].point.y
+                this.pan.start.x = this.pan.hit.x
+                this.pan.start.y = this.pan.hit.y
             }
+            else this.pan.up()
         }
 
         this.pan.move = (_x, _y) =>
@@ -337,6 +383,7 @@ export default class Camera
 
         this.pan.up = () =>
         {
+            this.pan.update()
             // Deactivate
             this.pan.active = false
 
@@ -344,64 +391,49 @@ export default class Camera
             this.renderer.domElement.classList.remove('has-cursor-grabbing')
         }
 
-        // Mouse
-        window.addEventListener('mousedown', (_event) =>
+        this.pan.update = () =>
         {
+            if(!this.pan.active || !this.pan.needsUpdate) return
+            this.pan.raycaster.setFromCamera(this.pan.mouse, this.instance)
+            if(this.pan.raycaster.ray.intersectPlane(this.pan.plane, this.pan.hit))
+            {
+                // The ray includes the current pan. Retain that offset so
+                // subsequent gestures accumulate instead of resetting it.
+                this.pan.targetValue.x = this.pan.value.x + this.pan.start.x - this.pan.hit.x
+                this.pan.targetValue.y = this.pan.value.y + this.pan.start.y - this.pan.hit.y
+            }
+            this.pan.needsUpdate = false
+        }
+
+        // Mouse
+        this.renderer.domElement.addEventListener('pointerdown', (_event) =>
+        {
+            if(!_event.isPrimary) { this.pan.up(); return }
+            if(_event.button !== 0 || !this.pan.enabled) return
             this.pan.down(_event.clientX, _event.clientY)
+            this.renderer.domElement.setPointerCapture(_event.pointerId)
         })
 
-        window.addEventListener('mousemove', (_event) =>
+        this.renderer.domElement.addEventListener('pointermove', (_event) =>
         {
+            if(!_event.isPrimary) return
             this.pan.move(_event.clientX, _event.clientY)
         })
 
-        window.addEventListener('mouseup', () =>
+        this.renderer.domElement.addEventListener('pointerup', (_event) =>
         {
+            if(this.view !== 'top') return
             this.pan.up()
+            if(this.renderer.domElement.hasPointerCapture(_event.pointerId)) this.renderer.domElement.releasePointerCapture(_event.pointerId)
         })
-
-        // Touch
-        this.renderer.domElement.addEventListener('touchstart', (_event) =>
-        {
-            if(_event.touches.length === 1)
-            {
-                this.pan.down(_event.touches[0].clientX, _event.touches[0].clientY)
-            }
-        })
-
-        this.renderer.domElement.addEventListener('touchmove', (_event) =>
-        {
-            if(_event.touches.length === 1)
-            {
-                this.pan.move(_event.touches[0].clientX, _event.touches[0].clientY)
-            }
-        })
-
-        this.renderer.domElement.addEventListener('touchend', () =>
-        {
-            this.pan.up()
-        })
+        this.renderer.domElement.addEventListener('pointercancel', this.pan.up)
+        this.renderer.domElement.addEventListener('lostpointercapture', this.pan.up)
+        window.addEventListener('blur', this.pan.up)
 
         // Time tick event
         this.time.on('tick', () =>
         {
-            // If active
-            if(this.pan.active && this.pan.needsUpdate)
-            {
-                // Update target value
-                this.pan.raycaster.setFromCamera(this.pan.mouse, this.instance)
-
-                const intersects = this.pan.raycaster.intersectObjects([this.pan.hitMesh])
-
-                if(intersects.length)
-                {
-                    this.pan.targetValue.x = - (intersects[0].point.x - this.pan.start.x)
-                    this.pan.targetValue.y = - (intersects[0].point.y - this.pan.start.y)
-                }
-
-                // Update needsUpdate
-                this.pan.needsUpdate = false
-            }
+            this.pan.update()
 
             // Update value and apply easing
             this.pan.value.x += (this.pan.targetValue.x - this.pan.value.x) * this.pan.easing
@@ -413,9 +445,43 @@ export default class Camera
     {
         // Set up
         this.orbitControls = new OrbitControls(this.instance, this.renderer.domElement)
-        this.orbitControls.enabled = false
-        this.orbitControls.enableKeys = false
+        this.orbitControls.enabled = this.view === 'orbit'
+        this.orbitControls.enableDamping = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        this.orbitControls.dampingFactor = .08
+        this.orbitControls.screenSpacePanning = false
+        this.orbitControls.minDistance = 8
+        this.orbitControls.maxDistance = 160
+        this.orbitControls.maxPolarAngle = Math.PI / 2 - .08
+        this.orbitControls.rotateSpeed = .65
         this.orbitControls.zoomSpeed = 0.5
+        this.orbitControls.mouseButtons.LEFT = THREE.MOUSE.PAN
+        this.orbitControls.mouseButtons.RIGHT = THREE.MOUSE.ROTATE
+        this.orbitControls.touches.ONE = THREE.TOUCH.PAN
+        this.exploring = false
+        let changed = false, wasFollowing = true
+        this.orbitControls.addEventListener('start', () =>
+        {
+            this.exploring = true
+            changed = false
+            wasFollowing = this.following
+            this.following = false
+            this.renderer.domElement.classList.add('has-cursor-grabbing')
+        })
+        this.orbitControls.addEventListener('change', () =>
+        {
+            if(!this.exploring || changed) return
+            changed = true
+            gsap.killTweensOf(this.angle.value)
+            this.time.trigger('cameraControl')
+        })
+        this.orbitControls.addEventListener('end', () =>
+        {
+            this.exploring = false
+            if(this.driving) this.focusCar()
+            else if(!changed) this.following = wasFollowing
+            this.renderer.domElement.classList.remove('has-cursor-grabbing')
+            this.time.trigger('cameraControl')
+        })
 
         // Debug
         if(this.debug)

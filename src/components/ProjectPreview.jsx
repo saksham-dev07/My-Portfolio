@@ -1,18 +1,73 @@
-import { ArrowUpRight, Layers3, Monitor } from "lucide-react";
-import { useState } from "react";
-
+import { ArrowUpRight, Layers3, Monitor, Play } from "lucide-react";
+import { lazy, Suspense, useLayoutEffect, useRef, useState } from "react";
 import { projectBlueprints } from "../data/projectBlueprints";
 import { discover } from "../utils/discovery";
 import { motionAllowed } from "../utils/studioMotion";
 import { DiscoverFragment } from "./interactive/DiscoveryTools";
+import ResponsiveImage from "./ResponsiveImage";
+import "../styles/project-samples.css";
+
+const ForensicsSample = lazy(() => import("./interactive/ForensicsSample"));
+const PipelineSample = lazy(() =>
+  import("./interactive/BuildPlayground").then((module) => ({
+    default: module.PipelineDemo,
+  })),
+);
 
 export default function ProjectPreview({ project }) {
   const [mode, setMode] = useState("interface");
   const [step, setStep] = useState(0);
+  const visualRef = useRef(null);
+  const previousMode = useRef(mode);
   const blueprint = projectBlueprints[project.id];
   const stages = blueprint?.stages;
+  const hasSample = ["deepfake-forensics", "nl-app-compiler"].includes(
+    project.id,
+  );
+
+  useLayoutEffect(() => {
+    if (previousMode.current === mode) return;
+    const openingBlueprint = mode === "blueprint";
+    previousMode.current = mode;
+    if (!motionAllowed() || document.hidden) return;
+    const panel = visualRef.current?.querySelector(
+      ":scope > .project-preview, :scope > .project-blueprint, :scope > .project-sample",
+    );
+    if (!panel) return;
+    const animation = panel.animate(
+      [
+        {
+          opacity: 0.35,
+          transform: openingBlueprint
+            ? "translateX(18px)"
+            : "translateY(12px) scale(.985)",
+          clipPath: openingBlueprint ? "inset(0 0 0 8%)" : "inset(0)",
+        },
+        { opacity: 1, transform: "none", clipPath: "inset(0)" },
+      ],
+      { duration: 440, easing: "cubic-bezier(.22,1,.36,1)" },
+    );
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const settle = () => {
+      if (!motionAllowed() || document.hidden) animation.cancel();
+    };
+    reduced.addEventListener("change", settle);
+    window.addEventListener("portfolio-motion-change", settle);
+    document.addEventListener("visibilitychange", settle);
+    return () => {
+      animation.cancel();
+      reduced.removeEventListener("change", settle);
+      window.removeEventListener("portfolio-motion-change", settle);
+      document.removeEventListener("visibilitychange", settle);
+    };
+  }, [mode]);
+
   return (
-    <div className={`project-visual preview-${project.category}`}>
+    <div
+      className={`project-visual preview-${project.category}`}
+      ref={visualRef}
+      data-preview-mode={mode}
+    >
       {stages && (
         <div
           className="project-lens"
@@ -38,15 +93,42 @@ export default function ProjectPreview({ project }) {
             <Layers3 size={12} />
             Blueprint
           </button>
+          {hasSample && (
+            <button
+              type="button"
+              aria-pressed={mode === "sample"}
+              onClick={() => setMode("sample")}
+            >
+              <Play size={12} aria-hidden="true" />
+              Try a sample
+            </button>
+          )}
         </div>
       )}
-      {mode === "interface" || !stages ? (
+      {mode === "sample" ? (
+        <div className="project-sample">
+          <Suspense
+            fallback={
+              <div className="sample-loading" role="status">
+                Opening the sample…
+              </div>
+            }
+          >
+            {project.id === "deepfake-forensics" ? (
+              <ForensicsSample />
+            ) : (
+              <PipelineSample active={mode === "sample"} />
+            )}
+          </Suspense>
+        </div>
+      ) : mode === "interface" || !stages ? (
         <a
           className={`project-preview preview-${project.category}`}
           href={project.live_demo || project.source_code_link}
           target="_blank"
           rel="noreferrer"
           aria-label={`Explore ${project.name} (opens in a new tab)`}
+          data-cursor="View interface"
           onPointerMove={(event) => {
             if (event.pointerType !== "mouse" || !motionAllowed()) return;
             const bounds = event.currentTarget.getBoundingClientRect();
@@ -71,7 +153,8 @@ export default function ProjectPreview({ project }) {
             <ArrowUpRight size={15} />
           </div>
           <div className="preview-image">
-            <img
+            <ResponsiveImage
+              sizes="(max-width: 650px) 90vw, (max-width: 1100px) 50vw, 650px"
               src={project.image}
               alt={`Interface preview of ${project.name}`}
               width={1200}

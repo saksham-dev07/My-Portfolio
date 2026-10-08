@@ -2,6 +2,7 @@ import { ArrowUpRight, GraduationCap } from "lucide-react";
 import { profileStudio } from "../assets";
 import { education } from "../constants";
 import FieldNotes from "./FieldNotes";
+import ResponsiveImage from "./ResponsiveImage";
 import SectionHeading from "./SectionHeading";
 export default function Education() {
   const current = education[0];
@@ -24,7 +25,8 @@ export default function Education() {
       />
       <div className="about-grid">
         <figure className="journey-portrait">
-          <img
+          <ResponsiveImage
+            sizes="(max-width: 650px) 90vw, 520px"
             src={profileStudio}
             alt="Saksham Agarwal, the person behind the projects"
             width={1024}
@@ -42,7 +44,8 @@ export default function Education() {
         </figure>
         <div className="about-story">
           <div className="about-avatar">
-            <img
+            <ResponsiveImage
+              sizes="64px"
               src={profileStudio}
               alt=""
               width={64}

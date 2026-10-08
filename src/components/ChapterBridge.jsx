@@ -1,8 +1,9 @@
-import { ArrowDownRight, ArrowUpRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { deepfake } from "../assets";
 import { motionAllowed } from "../utils/studioMotion";
-import "../journey.css";
+import ResponsiveImage from "./ResponsiveImage";
+import "../styles/journey.css";
 
 const acts = [
   {
@@ -75,14 +76,14 @@ export default function ChapterBridge() {
       data-stage={stage}
     >
       <header className="shell journey-heading">
-        <span className="mono">BEFORE THE PROJECTS / FOLLOW AN IDEA</span>
+        <span className="mono">THE MAKING OF / DEEPFAKE FORENSICS</span>
         <h2 id="journey-title">
           Every build starts
           <br />
           with <em>a better question.</em>
         </h2>
         <a href="#projects" className="text-link">
-          Straight to the work <ArrowDownRight size={17} />
+          Back to the work <ArrowUpRight size={17} />
         </a>
       </header>
       <div className="shell journey-layout">
@@ -197,7 +198,8 @@ export default function ChapterBridge() {
                 <i />
                 <span>deepfake / evidence workspace</span>
               </div>
-              <img
+              <ResponsiveImage
+                sizes="(max-width: 650px) 75vw, 550px"
                 src={deepfake}
                 alt=""
                 loading="lazy"

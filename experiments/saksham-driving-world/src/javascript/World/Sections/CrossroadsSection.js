@@ -45,11 +45,7 @@ export default class CrossroadsSection
             delta: new THREE.Vector2(0, this.y + 14)
         })
 
-        // To projects
-        // Approach the project from below its title; stop before OPEN.
-        for (const [from, to] of [[[12.5, -30], [18, -30]], [[18, -30], [18, -41]], [[18, -41], [30, -41]]]) {
-            this.tiles.add({ start: new THREE.Vector2(...from), delta: new THREE.Vector2(to[0] - from[0], to[1] - from[1]) })
-        }
+        // Landscape's continuous approach now leads into the research terraces.
 
         // To projects
         this.tiles.add({

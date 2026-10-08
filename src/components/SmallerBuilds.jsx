@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { projects } from "../constants";
 import { useRole } from "../context/RoleContext";
 import { motionAllowed } from "../utils/studioMotion";
+import ResponsiveImage from "./ResponsiveImage";
 export default function SmallerBuilds() {
   const { activeRole } = useRole();
   const [query, setQuery] = useState("");
@@ -187,7 +188,14 @@ export default function SmallerBuilds() {
       >
         {preview && (
           <div className="archive-preview-content" key={preview.id}>
-            <img src={preview.image} alt="" width={1200} height={675} />
+            <ResponsiveImage
+              sizes="360px"
+              loading="eager"
+              src={preview.image}
+              alt=""
+              width={1200}
+              height={675}
+            />
             <div>
               <span className="mono">A CLOSER LOOK</span>
               <span>{preview.name}</span>

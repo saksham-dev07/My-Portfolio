@@ -1,5 +1,7 @@
 import CANNON from 'cannon'
 import * as THREE from 'three'
+import { landscapeGrid, surfaceHeight } from './LandscapeLayout.js'
+import { captureVehiclePose } from './VehiclePose.js'
 
 export default class Physics
 {
@@ -27,7 +29,8 @@ export default class Physics
 
         this.time.on('tick', () =>
         {
-            this.world.step(this.time.delta / 1000)
+            this.world.step(1 / 60, Math.min(this.time.delta / 1000, .1), 5)
+            this.checkLandscapeBounds()
         })
     }
 
@@ -89,16 +92,37 @@ export default class Physics
 
     setFloor()
     {
+        const grid = landscapeGrid()
         this.floor = {}
         this.floor.body = new CANNON.Body({
             mass: 0,
-            shape: new CANNON.Plane(),
+            shape: new CANNON.Heightfield(grid.heights, { elementSize: grid.step }),
             material: this.materials.items.floor
         })
-
-        // this.floor.body.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), - Math.PI * 0.5)
-
+        this.floor.body.position.set(grid.minX, grid.minY, 0)
         this.world.addBody(this.floor.body)
+        this.lastSafePosition = new CANNON.Vec3(0, 0, 1)
+    }
+
+    checkLandscapeBounds()
+    {
+        const grid = landscapeGrid(), body = this.car.chassis.body, p = body.position
+        const edge = Math.min(p.x-grid.minX, grid.maxX-p.x, p.y-grid.minY, grid.maxY-p.y)
+        if (edge > 14 && p.z < surfaceHeight(p.x,p.y)+2 && p.z > -.5) this.lastSafePosition.copy(p)
+        if (edge > 1 && p.z > -4) return
+        // Visible perimeter ridges provide the boundary. Rescue only a car that
+        // jumps beyond them; never trap a visitor outside the finite heightfield.
+        body.position.copy(this.lastSafePosition)
+        body.position.z = surfaceHeight(body.position.x,body.position.y)+1.5
+        body.previousPosition.copy(body.position)
+        body.interpolatedPosition.copy(body.position)
+        body.velocity.set(0,0,0)
+        body.angularVelocity.set(0,0,0)
+        body.quaternion.setFromAxisAngle(new CANNON.Vec3(0,0,1),-Math.PI*.5)
+        body.previousQuaternion.copy(body.quaternion)
+        this.car.oldPosition.copy(body.position)
+        body.wakeUp()
+        window.dispatchEvent(new CustomEvent('drive-boundary'))
     }
 
     setCar()
@@ -184,6 +208,7 @@ export default class Physics
             this.car.chassis.body.sleep()
             this.car.chassis.body.addShape(this.car.chassis.shape, this.car.options.chassisOffset)
             this.car.chassis.body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), - Math.PI * 0.5)
+            captureVehiclePose(this.car.chassis.body)
 
             /**
              * Sound
@@ -260,6 +285,7 @@ export default class Physics
                 quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2)
 
                 body.type = CANNON.Body.KINEMATIC
+                captureVehiclePose(body)
 
                 body.addShape(shape, new CANNON.Vec3(), quaternion)
                 this.car.wheels.bodies.push(body)
@@ -346,6 +372,7 @@ export default class Physics
         /**
          * Cannon tick
          */
+        this.world.addEventListener('preStep', () => captureVehiclePose(this.car.chassis.body))
         this.world.addEventListener('postStep', () =>
         {
             // Update speed
@@ -401,6 +428,9 @@ export default class Physics
                 this.car.vehicle.updateWheelTransform(i)
 
                 const transform = this.car.vehicle.wheelInfos[i].worldTransform
+                const wheelBody = this.car.wheels.bodies[i]
+                wheelBody.previousPosition.copy(wheelBody.position)
+                wheelBody.previousQuaternion.copy(wheelBody.quaternion)
                 this.car.wheels.bodies[i].position.copy(transform.position)
                 this.car.wheels.bodies[i].quaternion.copy(transform.quaternion)
 
@@ -410,6 +440,11 @@ export default class Physics
                     const rotationQuaternion = new CANNON.Quaternion(0, 0, 0, 1)
                     rotationQuaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), Math.PI)
                     this.car.wheels.bodies[i].quaternion = this.car.wheels.bodies[i].quaternion.mult(rotationQuaternion)
+                }
+                if (!wheelBody.presentationReady) {
+                    wheelBody.previousPosition.copy(wheelBody.position)
+                    wheelBody.previousQuaternion.copy(wheelBody.quaternion)
+                    wheelBody.presentationReady = true
                 }
             }
 

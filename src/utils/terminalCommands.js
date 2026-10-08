@@ -1,3 +1,5 @@
+import { projectStoryHref, projectWorldHref } from "./worldNavigation";
+
 const commands = [
   "help",
   "whoami",
@@ -7,9 +9,12 @@ const commands = [
   "contact",
   "resume",
   "lab",
+  "world",
+  "surprise",
   "clear",
   "matrix",
   "coffee",
+  "gravity",
   "date",
   "about",
   "exit",
@@ -21,9 +26,25 @@ export function terminalCommand(
 ) {
   const command = input.trim().toLowerCase().replace(/\s+/g, " ");
   const result = (text, action) => ({ text, action });
+  const [verb, projectId, ...extra] = command.split(" ");
+  if (["world", "story"].includes(verb) && projectId && !extra.length) {
+    const project = projects.find((item) => item.id === projectId);
+    if (project)
+      return result(
+        `Opening ${project.name} ${verb === "world" ? "in the driving world" : "in the portfolio"}.`,
+        verb === "world"
+          ? projectWorldHref(project.id)
+          : projectStoryHref(project.id),
+      );
+  }
   switch (command) {
     case "help":
-      return result(`${commands.join(" · ")}\nTry: sudo hire saksham`);
+      return result(
+        `${commands.join(" · ")}\nworld [project-id] · story [project-id]\n${projects
+          .filter((project) => project.featured)
+          .map((project) => project.id)
+          .join(" · ")}\nTry: sudo hire saksham`,
+      );
     case "whoami":
     case "about":
       return result(
@@ -48,6 +69,18 @@ export function terminalCommand(
       return result("Opening the résumé.", "/resume.pdf");
     case "lab":
       return result("Curiosity wins. Opening the laboratory.", "/lab");
+    case "world":
+      return result("Take the wheel. Opening my driving world.", "/world");
+    case "surprise":
+      return result(
+        "A small detour. Try throwing a framework around.",
+        "/lab#gravity",
+      );
+    case "gravity":
+      return result(
+        "Releasing the skill stack.\nPlease keep all frameworks inside the experiment.",
+        "/lab#gravity",
+      );
     case "clear":
     case "exit":
       return result("", command);

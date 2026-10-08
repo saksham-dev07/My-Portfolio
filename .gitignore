@@ -10,8 +10,12 @@ package-lock.json
 
 # Environment
 .env
-.env.local
-.env.*.local
+.env.*
+!.env.example
+.vercel/
+coverage/
+.cache/
+*.tsbuildinfo
 
 # Logs
 *.log
@@ -29,9 +33,6 @@ npm-debug.log*
 # OS
 Thumbs.db
 Desktop.ini
-
-# Lock files (optional — uncomment if you want faster installs for contributors)
-# package-lock.json
 
 # Agent instructions & skills (never push to GitHub)
 [Aa][Gg][Ee][Nn][Tt][Ss].md

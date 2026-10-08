@@ -1,10 +1,11 @@
 {
-  "name": "final",
+  "name": "saksham-portfolio",
   "private": true,
   "version": "0.0.0",
   "type": "module",
   "engines": {
-    "bun": ">=1.0.0"
+    "bun": ">=1.4.0",
+    "node": "22.x"
   },
   "scripts": {
     "dev": "bun run build:world && vite",
@@ -16,14 +17,14 @@
     "format": "biome format --write .",
     "check": "biome check .",
     "test": "bun test",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "install:world": "bun install --cwd experiments/saksham-driving-world --frozen-lockfile",
+    "audit:production": "bun scripts/audit-production.mjs",
+    "assets:optimize": "bun scripts/assets/optimize-images.mjs && biome check src/assets/responsive/index.js --write"
   },
   "dependencies": {
     "@react-three/drei": "10.0.8",
     "@react-three/fiber": "9.1.2",
-    "clsx": "^2.1.1",
-    "framer-motion": "^13.4.4",
-    "lenis": "^1.3.26",
     "lucide-react": "^0.511.0",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
@@ -31,7 +32,6 @@
     "react-icons": "^5.7.0",
     "resend": "^6.30.0",
     "sonner": "^2.0.8",
-    "tailwind-merge": "^3.7.0",
     "three": "0.176.0"
   },
   "devDependencies": {
@@ -42,8 +42,9 @@
     "autoprefixer": "^10.6.1",
     "esbuild": "^0.28.2",
     "postcss": "^8.5.28",
+    "sharp": "^0.35.5",
+    "svgo": "^4.1.0",
     "tailwindcss": "^3.4.17",
-    "vite": "^8.3.1",
-    "vite-plugin-compression2": "^2.5.3"
+    "vite": "^8.3.1"
   }
 }

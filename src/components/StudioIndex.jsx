@@ -9,6 +9,7 @@ import {
 import { useEffect, useRef, useState } from "react";
 import { deepfake, profileStudio } from "../assets";
 import { motionAllowed } from "../utils/studioMotion";
+import ResponsiveImage from "./ResponsiveImage";
 
 const chapters = {
   projects: {
@@ -41,7 +42,9 @@ const chapters = {
 function ChapterVisual({ id }) {
   if (id === "projects")
     return (
-      <img
+      <ResponsiveImage
+        sizes="(max-width: 650px) 90vw, 480px"
+        loading="eager"
         className="index-work-image"
         src={deepfake}
         alt="Deepfake Forensics project interface"
@@ -51,7 +54,9 @@ function ChapterVisual({ id }) {
     );
   if (id === "education")
     return (
-      <img
+      <ResponsiveImage
+        sizes="(max-width: 650px) 90vw, 480px"
+        loading="eager"
         className="index-person-image"
         src={profileStudio}
         alt="Saksham Agarwal"

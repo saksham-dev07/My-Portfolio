@@ -1,6 +1,7 @@
 import {
   ArrowDownRight,
   ArrowUpRight,
+  Compass,
   Github,
   Linkedin,
   Monitor,
@@ -9,11 +10,17 @@ import {
 } from "lucide-react";
 import { lazy, Suspense, useState } from "react";
 import { profileStudio } from "../assets";
+import workstationPoster from "../assets/workstation-poster.webp";
+import { prefersLightTransfer } from "../utils/network";
 import { motionAllowed, transitionView } from "../utils/studioMotion";
-import PortraitStudio from "./interactive/PortraitStudio";
-import SignalSculpture from "./interactive/SignalSculpture";
+import IdeaSignal from "./interactive/IdeaSignal";
+import PlayfulPeriod from "./interactive/PlayfulPeriod";
+import ResponsiveImage from "./ResponsiveImage";
+import "../styles/network.css";
 
 const WorkstationStage = lazy(() => import("./interactive/WorkstationStage"));
+const PortraitStudio = lazy(() => import("./interactive/PortraitStudio"));
+const SignalSculpture = lazy(() => import("./interactive/SignalSculpture"));
 const scenes = {
   desk: {
     number: "01",
@@ -41,8 +48,35 @@ const scenes = {
   },
 };
 
-export default function Hero() {
+export default function Hero({ onEnterWorld }) {
   const [view, setView] = useState("desk");
+  const [deskEnabled, setDeskEnabled] = useState(() => !prefersLightTransfer());
+  const deskPoster = (
+    <div className="desk-poster">
+      <ResponsiveImage
+        src={workstationPoster}
+        alt="Saksham's 3D workstation"
+        sizes="(max-width: 650px) 90vw, 55vw"
+        loading="eager"
+      />
+      <span className="mono">THE ORIGINAL WORKSTATION / FULL 3D AVAILABLE</span>
+      <a
+        className="mono"
+        href="/desktop_pc/license.txt"
+        target="_blank"
+        rel="noreferrer"
+      >
+        3D model by Yolala1232 / CC BY 4.0
+      </a>
+      <button
+        className="button button-secondary"
+        type="button"
+        onClick={() => setDeskEnabled(true)}
+      >
+        <Monitor size={15} aria-hidden="true" /> Explore the desk in 3D
+      </button>
+    </div>
+  );
   const scene = scenes[view];
   const chooseScene = (next) => {
     if (view !== next) transitionView(() => setView(next), { kind: "scene" });
@@ -102,13 +136,30 @@ export default function Hero() {
                 {letter}
               </i>
             ))}
-            <span className="name-period">.</span>
+            <PlayfulPeriod />
           </span>
         </span>
       </h1>
       <div className="studio-edition mono">
         <span>INDEPENDENT MIND. CONNECTED IDEAS.</span>
         <span>DESIGN / CODE / INTELLIGENCE</span>
+      </div>
+      <div className="hero-actions hero-entry-actions">
+        <a className="button button-primary magnetic" href="#projects">
+          Explore the work <ArrowDownRight size={18} aria-hidden="true" />
+        </a>
+        <a
+          id="hero-world-link"
+          className="button button-secondary magnetic"
+          href="/world"
+          onClick={onEnterWorld}
+        >
+          <Compass size={17} aria-hidden="true" /> Enter my world
+          <ArrowUpRight size={17} aria-hidden="true" />
+        </a>
+        <span className="mono hero-world-note">
+          Same work. A different way in.
+        </span>
       </div>
       <div className="hero-grid">
         <div className="hero-copy">
@@ -127,14 +178,6 @@ export default function Hero() {
             I turn complex ideas into intelligent, useful experiences. Applied
             AI, full-stack systems, and interfaces with a little personality.
           </p>
-          <div className="hero-actions">
-            <a className="button button-primary magnetic" href="#projects">
-              Explore the work <ArrowDownRight size={18} />
-            </a>
-            <a className="button button-secondary magnetic" href="#playground">
-              Go off-script <ArrowUpRight size={17} />
-            </a>
-          </div>
           <div className="hero-socials">
             <a href="/resume.pdf" target="_blank" rel="noreferrer">
               Résumé <ArrowUpRight size={13} />
@@ -156,19 +199,7 @@ export default function Hero() {
               LinkedIn
             </a>
           </div>
-          <div className="hero-note-card" data-scene={view} key={view}>
-            <span className="mono">
-              {scene.number} / {scene.label}
-            </span>
-            <p>
-              <strong>{scene.title}</strong>
-              <br />
-              {scene.note}
-            </p>
-            <svg viewBox="0 0 100 60" aria-hidden="true">
-              <path d="M5 12 Q40 0 42 32 T86 37 M73 32 L88 39 L79 50" />
-            </svg>
-          </div>
+          <IdeaSignal />
         </div>
         <div className="hero-art creative-art studio-hero-art">
           <div className="art-view-toggle" aria-label="Hero experience">
@@ -202,25 +233,53 @@ export default function Hero() {
           </div>
           <div className="hero-scene-switch" key={view}>
             {view === "desk" ? (
+              deskEnabled ? (
+                <Suspense
+                  fallback={
+                    <div className="workstation-loading" role="status">
+                      <Monitor size={30} />
+                      <p>Opening the studio…</p>
+                      <span>The original 3D workstation</span>
+                    </div>
+                  }
+                >
+                  <WorkstationStage />
+                </Suspense>
+              ) : (
+                deskPoster
+              )
+            ) : view === "signal" ? (
               <Suspense
                 fallback={
                   <div className="workstation-loading" role="status">
-                    <Monitor size={30} />
-                    <p>Opening the studio…</p>
-                    <span>The original 3D workstation</span>
+                    Opening the signal…
                   </div>
                 }
               >
-                <WorkstationStage />
+                <SignalSculpture />
               </Suspense>
-            ) : view === "signal" ? (
-              <SignalSculpture />
             ) : (
-              <PortraitStudio />
+              <Suspense
+                fallback={
+                  <div className="workstation-loading" role="status">
+                    Opening the portrait…
+                  </div>
+                }
+              >
+                <PortraitStudio />
+              </Suspense>
             )}
           </div>
           <div className="creative-caption">
-            <img src={profileStudio} alt="" width={34} height={34} />
+            <ResponsiveImage
+              src={profileStudio}
+              alt=""
+              width={34}
+              height={34}
+              sizes="34px"
+              loading="eager"
+              fetchPriority="low"
+            />
             <p>
               {scene.title}
               <span>{scene.caption}</span>

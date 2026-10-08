@@ -262,7 +262,28 @@
   <section class="drive-boot" aria-labelledby="boot-title">
     <div class="boot-copy"><p class="drive-eyebrow">A DIFFERENT WAY INTO THE WORK</p><h1 id="boot-title">Curiosity.<br><em>In motion.</em></h1><p>A small world of things I've built. Take the wheel, follow a road, or explore my skills, education and projects.</p><div class="boot-facts"><span>12 projects</span><span>4 profile stops</span><span>No wrong turns</span></div><progress id="world-progress" max="1" value="0" aria-label="Loading driving world"></progress><p id="loading-status" role="status">Loading the world…</p><button id="start-drive" disabled>Loading…</button><small>Sound starts off. Driving is optional.</small></div>
   </section>
-  <div class="camera-tools" hidden><label for="camera-view">Camera</label><select id="camera-view"><option value="orbit">Original view</option><option value="top">Top view</option><option value="first">First-person car</option></select><div id="top-tools" hidden><button id="fit-map">Fit map</button><button id="focus-car">Focus car</button></div><button id="circuit-start">Start circuit</button><small id="camera-help" role="status">Drag to pan · scroll or pinch to zoom</small><small id="circuit-status" role="status" aria-live="polite">Optional: a clockwise lap around the lower world.</small></div>
+  <section class="camera-tools" aria-label="Camera controls" hidden>
+    <div class="camera-heading">
+      <label for="camera-view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h-4L8 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-4Z"/><circle cx="12" cy="13" r="4"/></svg>Camera</label>
+      <span id="camera-status" class="camera-status" data-state="follow">Auto follow</span>
+      <button id="camera-toggle" aria-label="Collapse camera controls" aria-expanded="true" aria-controls="camera-body" title="Collapse camera controls"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button>
+    </div>
+    <div id="camera-body">
+    <div class="camera-primary">
+      <div class="camera-select">
+        <select id="camera-view" aria-describedby="camera-help"><option value="orbit">Original view</option><option value="top">Top view</option><option value="first">First-person car</option></select>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+      </div>
+      <button id="follow-car" disabled title="Return the camera to your car"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>Follow car</button>
+    </div>
+    <div id="top-tools" hidden><button id="fit-map">Fit map</button><button id="focus-car">Focus car</button></div>
+    <p id="camera-help" role="status">Left-drag to pan · right-drag to rotate · scroll to zoom</p>
+    <div class="camera-circuit">
+      <div class="circuit-heading"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 22V3m0 0c5-4 11 4 16 0v11c-5 4-11-4-16 0"/></svg>Optional circuit</span><button id="circuit-start">Start circuit</button></div>
+      <p id="circuit-status" role="status" aria-live="polite">A clockwise lap around the lower world.</p>
+    </div>
+    </div>
+  </section>
   <div class="drive-bottom"><p><span id="world-location">THE STARTING LINE</span><small>ARROWS / WASD · SPACE BRAKES · R RESET</small></p><div><button id="drive-home" disabled>Start line</button><button id="drive-sound" aria-pressed="false">Sound off</button><a href="./saksham/resume.pdf" target="_blank" rel="noopener">Résumé</a></div></div>
   <p class="drive-credit">Adapted from <a href="https://github.com/brunosimon/folio-2019" target="_blank" rel="noopener">Bruno Simon’s Folio 2019</a> · MIT</p>
   <dialog class="drive-index" aria-labelledby="index-title"><div class="index-header"><div><p class="drive-eyebrow">YOUR ROUTE THROUGH MY WORK</p><h2 id="index-title">More than projects.</h2></div><button id="close-index" aria-label="Close world map">Close</button></div><p>Pick a stop. Explore my background, see the tools behind my work, or visit a project. Driving is always optional.</p><nav id="world-navigation" aria-label="World sections"></nav><section id="profile-content" aria-label="Profile details" hidden></section><div id="project-list"></div><div class="index-links"><a href="https://github.com/saksham-dev07" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/saksham-agarwal-b44910289/" target="_blank" rel="noopener">LinkedIn</a><a href="mailto:sakmmm07@gmail.com">Contact</a></div><details class="model-credits"><summary>3D artwork &amp; licenses</summary><p>Models keep their own licenses, separate from the driving engine.</p><p><a href="https://sketchfab.com/3d-models/stylized-hacked-pc-sketchfabweeklychallenge-192ab9d4706f4ffaaf22f9a299289d75" target="_blank" rel="noopener">Stylized Hacked PC</a> by ottobite — CC BY 4.0.</p><p><a href="https://sketchfab.com/3d-models/trophy-podium-c24980e83e3c4b8393980358486b100c" target="_blank" rel="noopener">Trophy podium</a> by Anilz — Sketchfab Standard license.</p><p>VIT Bhopal campus — supplied by Saksham; Meshy AI asset. Original face portrait — supplied by Saksham, reused from the main portfolio.</p><p>Adaptation: normalized scale and orientation, adjusted material response, and added collision proxies.</p></details></dialog>

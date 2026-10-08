@@ -4,6 +4,7 @@ import ProfileDistrict from '../src/javascript/World/Sections/ProfileDistrict.js
 import Walls from '../src/javascript/World/Walls.js'
 import { profilePathClearances } from '../src/javascript/World/Sections/ProfilePaths.js'
 import { profileSections } from '../src/javascript/sakshamProfile.js'
+import { roadEdgeDistance } from '../src/javascript/World/LandscapeLayout.js'
 
 test('district furniture leaves main and journey entry pads clear', () => {
     const previousDocument = globalThis.document
@@ -43,6 +44,8 @@ test('district furniture leaves main and journey entry pads clear', () => {
         resetExperiment()
         expect(resetCount).toBe(10)
         expect(district.solids.length).toBeGreaterThan(15)
+        // Test the full canopy footprint, not just a car-width trunk corridor.
+        for(const tree of district.trees) expect(roadEdgeDistance(tree.object.position.x,tree.object.position.y)).toBeGreaterThanOrEqual(tree.radius+.6)
         for (const entry of entries) for (const solid of district.solids) {
             if (solid.position.z - solid.scale.z / 2 > 1.6) continue
             const intersects = Math.abs(solid.position.x - entry.position.x) < solid.scale.x / 2 + entry.halfExtents.x

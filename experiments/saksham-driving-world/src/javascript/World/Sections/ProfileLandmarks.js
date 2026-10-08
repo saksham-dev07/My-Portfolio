@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import { groundLayer } from '../GroundLayers.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
 // Keep original materials/textures. Adapt glTF's Y-up into the world's Z-up,
@@ -75,6 +76,7 @@ export default class ProfileLandmarks {
         const shadow = new THREE.Mesh(new THREE.CircleGeometry(1, 32), new THREE.MeshBasicMaterial({ color: '#343052', transparent: true, opacity: .16, depthWrite: false }))
         shadow.scale.set(footprint.x * .6, footprint.y * .6, 1)
         shadow.position.set(x, y, .025)
+        groundLayer(shadow, 'shadow')
         this.container.add(shadow)
         // Sample the mesh's occupied footprint. Empty cells remain drivable;
         // low ground surfaces in the campus are not turned into invisible walls.

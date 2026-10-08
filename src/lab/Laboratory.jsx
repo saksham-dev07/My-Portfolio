@@ -3,7 +3,7 @@ import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import DiscoveryTools, {
   DiscoverFragment,
 } from "../components/interactive/DiscoveryTools";
-import "../laboratory.css";
+import "../styles/laboratory.css";
 
 const Drawing = lazy(() =>
   import("../components/interactive/BuildPlayground").then((module) => ({
@@ -68,10 +68,19 @@ const experiments = [
 ];
 
 export default function Laboratory() {
-  const [selected, setSelected] = useState(null);
+  const [selected, setSelected] = useState(() =>
+    window.location.hash === "#gravity" ? "gravity" : null,
+  );
   const panel = useRef(null);
   const launchers = useRef({});
   const experiment = experiments.find((item) => item.id === selected);
+  useEffect(() => {
+    const launchFromHash = () => {
+      if (window.location.hash === "#gravity") setSelected("gravity");
+    };
+    window.addEventListener("hashchange", launchFromHash);
+    return () => window.removeEventListener("hashchange", launchFromHash);
+  }, []);
   useEffect(() => {
     const title = document.title;
     const description = document.querySelector('meta[name="description"]');
@@ -99,6 +108,12 @@ export default function Laboratory() {
   }, [selected]);
   const close = () => {
     setSelected(null);
+    if (window.location.hash === "#gravity")
+      window.history.replaceState(
+        null,
+        "",
+        window.location.pathname + window.location.search,
+      );
     launchers.current[selected]?.focus();
   };
   return (

@@ -13,3 +13,7 @@ Reference: the supplied 43.3-second recording of Abhyuday's portfolio. Its stron
 No dependencies or models were added. The thread is hidden below 1200px. System reduced motion and the persistent motion-off control suppress decorative changes; scene selection still works immediately. Original text remains readable and routes unchanged.
 
 Validation: desktop and narrow-screen overflow checks, native scene transition activation, motion-off behavior, full build, Biome, and existing 17 tests. The supplied recording was viewed through a temporary local preview; the temporary copy was discarded by the clean production build.
+
+## Narrative pacing
+
+The later 19.3-second recording showed that repeated section compositions flattened the journey. ChapterBridge now tells the Deepfake project story in three scroll-selected acts: question, pipeline, and actual interface. Chapter links also work by keyboard, with a direct skip to the work. A portrait-led About section and an accent-colored closing invitation vary the visual pacing. The scene uses SVG/CSS and existing images, updates React only when the active act changes, and respects reduced motion. Phone layout pins a compact scene above the narrative without horizontal overflow.

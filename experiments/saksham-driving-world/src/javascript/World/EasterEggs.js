@@ -266,7 +266,7 @@ export default class EasterEggs
 
         // Area
         this.wigs.area = this.areas.add({
-            position: new THREE.Vector2(0, 80),
+            position: new THREE.Vector2(-58, -60),
             halfExtents: new THREE.Vector2(2, 2)
         })
         this.wigs.area.on('interact', this.wigs.change)
@@ -275,8 +275,9 @@ export default class EasterEggs
         this.resources.items.areaQuestionMarkTexture.magFilter = THREE.NearestFilter
         this.resources.items.areaQuestionMarkTexture.minFilter = THREE.LinearFilter
         this.wigs.areaLabel = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.resources.items.areaQuestionMarkTexture }))
-        this.wigs.areaLabel.position.x = 0
-        this.wigs.areaLabel.position.y = 80
+        this.wigs.areaLabel.position.x = -58
+        this.wigs.areaLabel.position.y = -60
+        this.wigs.areaLabel.position.z = .03
         this.wigs.areaLabel.matrixAutoUpdate = false
         this.wigs.areaLabel.updateMatrix()
         this.container.add(this.wigs.areaLabel)

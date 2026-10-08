@@ -250,9 +250,7 @@ export default class InformationSection
     setTiles()
     {
         const paths = [
-            [[0, -42], [0, -61]],
-            [[0, -61], [-8, -61]], [[-8, -61], [-8, -68.5]], [[-8, -68.5], [-3.5, -68.5]],
-            [[0, -61], [10, -61]], [[10, -61], [10, -68.5]], [[10, -68.5], [7.5, -68.5]],
+            [[0, -42], [0, -58]],
         ]
         for (const [from, to] of paths) this.tiles.add({ start: new THREE.Vector2(...from), delta: new THREE.Vector2(to[0] - from[0], to[1] - from[1]) })
     }

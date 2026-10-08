@@ -1,6 +1,7 @@
 import { Terminal, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { projects, technologies } from "../../constants";
+import { saveExeReturn } from "../../utils/exeProgress";
 import { motionAllowed } from "../../utils/studioMotion";
 import { terminalCommand } from "../../utils/terminalCommands";
 
@@ -78,6 +79,8 @@ export default function SecretTerminal({ onClose }) {
         timers.current.push(
           setTimeout(
             () => {
+              if (result.action.startsWith("/world"))
+                saveExeReturn("developer-terminal-launcher");
               onClose();
               window.location.assign(result.action);
             },
@@ -152,6 +155,26 @@ export default function SecretTerminal({ onClose }) {
           ))}
         </div>
       )}
+      <div
+        className="terminal-suggestions"
+        role="group"
+        aria-label="Try a portfolio command"
+      >
+        {["world", "world deepfake-forensics", "surprise", "skills"].map(
+          (command) => (
+            <button
+              type="button"
+              key={command}
+              onClick={() => {
+                setValue(command);
+                input.current?.focus();
+              }}
+            >
+              {command}
+            </button>
+          ),
+        )}
+      </div>
       <form onSubmit={submit}>
         <label htmlFor="developer-command">&gt;</label>
         <input

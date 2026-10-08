@@ -1,0 +1,54 @@
+.world-navigator {
+    position: fixed;
+    top: 105px;
+    right: 36px;
+    z-index: 8;
+    display: flex;
+    flex-direction: column;
+    width: 184px;
+    padding: 13px;
+    overflow: hidden;
+    border: 1px solid #d6dbf23d;
+    border-radius: 14px;
+    background: linear-gradient(145deg, #292d46f5, #181c30f5);
+    box-shadow: 0 12px 32px #11152830, inset 0 1px #ffffff0a;
+    color: #f1f0eb;
+    text-align: left;
+    cursor: pointer;
+    touch-action: manipulation;
+    transition: border-color .18s, background-color .18s;
+}
+.world-navigator:hover { border-color: #c3cdf780; }
+.world-navigator:focus-visible { outline: 2px solid #e3e8ff; outline-offset: 4px; }
+.world-navigator__heading { display: flex; align-items: center; gap: 7px; width: 100%; font-size: 11px; font-weight: 600; }
+.world-navigator__heading svg { width: 14px; height: 14px; fill: none; stroke: #c3cdf7; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.world-navigator__heading .world-navigator__expand { width: 12px; height: 12px; margin-left: auto; }
+.world-navigator__map { display: block; width: 100%; height: auto; margin: 12px 0 9px; overflow: visible; }
+.world-navigator__road { fill: none; stroke: #aab3d76e; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.world-navigator__stop { stroke: #1d2136; stroke-width: 1.5; }
+.world-navigator__stop--project { fill: #c3cdf7; }
+.world-navigator__stop--profile { fill: #ffe0b4; }
+.world-navigator__stop.is-visited { fill: #a7e6cb; stroke: #e0fff0; stroke-width: 1; }
+.world-navigator__car-halo { fill: #171b30cf; stroke: #ffffff60; stroke-width: 1; }
+.world-navigator__car-arrow { fill: #fffdf3; stroke: #171b30; stroke-width: .6; stroke-linejoin: round; }
+.world-navigator__legend { display: flex; flex-wrap: wrap; gap: 8px; color: #c1c8dd; font-size: 8px; line-height: 1.5; }
+.world-navigator__key { display: inline-flex; align-items: center; gap: 4px; }
+.world-navigator__key::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: #c3cdf7; }
+.world-navigator__key--profile::before { background: #ffe0b4; }
+.world-navigator__key--visited::before { background: #a7e6cb; }
+.world-navigator__key--car::before { background: #fffdf3; }
+.world-navigator__location { display: block; width: 100%; overflow: hidden; margin-top: 11px; padding-top: 10px; border-top: 1px solid #ffffff14; color: #e7e9f3; font-size: 10px; line-height: 1.45; text-overflow: ellipsis; white-space: nowrap; }
+.world-navigator__progress { margin-top: 4px; color: #b8c2df; font-size: 9px; font-variant-numeric: tabular-nums; line-height: 1.4; }
+.world-navigator.is-complete .world-navigator__progress { color: #a7e6cb; }
+
+/* The touch joystick ends 180px above the bottom; throttle buttons occupy
+   the rightmost 95px. Keep the compact map action outside both regions. */
+@media (max-width: 760px), (pointer: coarse) {
+    .world-navigator { top: auto; right: auto; bottom: 190px; left: 16px; width: min(220px, calc(100vw - 128px)); min-height: 58px; padding: 10px 12px; border-radius: 10px; }
+    .world-navigator__map, .world-navigator__legend, .world-navigator__location { display: none; }
+    .world-navigator__heading { font-size: 10px; }
+    .world-navigator__progress { margin-top: 5px; margin-left: 21px; font-size: 9px; }
+}
+@media (prefers-reduced-motion: reduce) {
+    .world-navigator { transition: none; }
+}

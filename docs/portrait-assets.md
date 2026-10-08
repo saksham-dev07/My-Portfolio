@@ -6,19 +6,17 @@ Created 6 October 2026 for the portfolio's existing studio design.
 
 - `public/portrait/saksham-studio.png`: full-resolution 1024 × 1536 generated studio portrait, retained as a downloadable source image.
 - `src/assets/profile-studio.webp`: web-optimized version of the portrait, used in the hero and About section. The original `profile.webp` remains available.
-- `public/portrait/saksham-model.glb`: the supplied textured 3D portrait, optimized for the active viewer. The source is `b18fea1e-997d-4691-aba2-e8a4296b4b2e_2.glb`; the Downloads file remains untouched. Model provenance beyond the supplied file is unspecified.
-- `public/portrait/saksham-bust.glb`: the earlier procedural bust, retained as an editable alternate asset. It is a stylized approximation, not a photogrammetric scan. The active viewer now uses the supplied model instead.
-- `scripts/create-portrait-bust.mjs`: reproducible Three.js geometry and GLB export. Run `bun scripts/create-portrait-bust.mjs` to rebuild it. The model includes no embedded private gallery images.
+- `src/assets/models/saksham-model.glb`: the supplied textured 3D portrait, optimized for the active viewer. The source is `b18fea1e-997d-4691-aba2-e8a4296b4b2e_2.glb`; the Downloads file remains untouched. Model provenance beyond the supplied file is unspecified.
 
 The supplied Google Photos gallery was inspected for visible appearance and available views, including frontal portraits, selfies, and the profile views visible in the gallery. The existing high-resolution profile asset provides the main reference for the generated portrait. This does not represent an exhaustive inspection of every photo or every possible angle.
 
 ## Supplied model preparation
 
-`scripts/prepare-portrait-model.mjs` simplifies the static mesh while weighting normals and texture coordinates, compacts its vertex buffers, and resizes the three embedded textures to 2048 pixels. JPEG textures use 4:4:4 sampling and high quality; the original material is opaque. The geometry, material assignments, UVs, and embedded normal/base-color/metallic-roughness maps remain in a standard GLB, with no extra decoder required.
+`scripts/assets/prepare-portrait-model.mjs` simplifies the static mesh while weighting normals and texture coordinates, compacts its vertex buffers, and resizes the three embedded textures to 2048 pixels. JPEG textures use 4:4:4 sampling and high quality; the original material is opaque. The geometry, material assignments, UVs, and embedded normal/base-color/metallic-roughness maps remain in a standard GLB, with no extra decoder required.
 
 The source contains 500,000 triangles and 290,074 vertices in 52,654,796 bytes. The prepared file contains 87,472 triangles and 62,218 vertices in 5,093,308 bytes (90.3% smaller). Geometry simplification's normalized error is 0.0009765. These are lossy optimizations; the source is available for future higher-detail exports. The supplied textures retain their original color treatment, including edge highlights on the clothing.
 
-Run `bun scripts/prepare-portrait-model.mjs <source.glb> <output.glb> [sharp-module-path]` with Meshoptimizer and Sharp available. The viewer fits the model's world bounds to its camera and preserves the source's front-facing orientation. Neutral key light and blue/violet rim lights match the updated portfolio palette.
+Run `bun scripts/assets/prepare-portrait-model.mjs <source.glb> <output.glb> [sharp-module-path]` with Meshoptimizer and Sharp available. The viewer fits the model's world bounds to its camera and preserves the source's front-facing orientation. Neutral key light and blue/violet rim lights match the updated portfolio palette.
 
 ## Generation
 

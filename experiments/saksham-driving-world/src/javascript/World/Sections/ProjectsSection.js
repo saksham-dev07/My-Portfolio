@@ -3,6 +3,7 @@ import { labelTexture } from '../../StudioLabels.js'
 import * as THREE from 'three'
 import Project from './Project'
 import gsap from 'gsap'
+import { projectPosition } from '../LandscapeLayout.js'
 
 export default class ProjectsSection
 {
@@ -82,11 +83,9 @@ export default class ProjectsSection
 
     setZone()
     {
-        const totalWidth = this.list.length * (this.interDistance / 2)
-
         const zone = this.zones.add({
-            position: { x: this.x + totalWidth - this.projectHalfWidth - 6, y: this.y },
-            halfExtents: { x: totalWidth, y: 12 },
+            position: { x: 110, y: -65 },
+            halfExtents: { x: 58, y: 58 },
             data: { cameraAngle: 'projects' }
         })
 
@@ -107,17 +106,13 @@ export default class ProjectsSection
 
     add(_options)
     {
-        const x = this.x + this.items.length * this.interDistance
-        let y = this.y
-        if(this.items.length > 0)
-        {
-            y += (Math.random() - 0.5) * this.positionRandomess
-        }
+        const { x, y } = projectPosition(this.items.length)
 
         // Create project
         const project = new Project({
             time: this.time,
             resources: this.resources,
+            camera: this.camera,
             objects: this.objects,
             areas: this.areas,
             geometries: this.geometries,
@@ -130,19 +125,7 @@ export default class ProjectsSection
 
         this.container.add(project.container)
 
-        // Add tiles
-        if(this.items.length >= 1)
-        {
-            const previousProject = this.items[this.items.length - 1]
-            const start = new THREE.Vector2(previousProject.x + this.projectHalfWidth, previousProject.y)
-            const end = new THREE.Vector2(project.x - this.projectHalfWidth, project.y)
-            const delta = end.clone().sub(start)
-            this.tiles.add({
-                start: start,
-                delta: delta,
-                avoid: [previousProject, project].map(item => ({ x: item.x, y: item.y - 2, w: 16, h: 8 }))
-            })
-        }
+        // Landscape owns a continuous promenade below the readable project pads.
 
         // Save
         this.items.push(project)

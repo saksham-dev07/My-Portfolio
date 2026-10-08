@@ -1,6 +1,7 @@
 import { ArrowUpRight, Github, X } from "lucide-react";
 import { useEffect, useRef } from "react";
 import { motionAllowed } from "../utils/studioMotion";
+import ResponsiveImage from "./ResponsiveImage";
 
 export default function ProjectCaseStudy({ project, note, onClose, opener }) {
   const dialogRef = useRef(null);
@@ -111,7 +112,9 @@ export default function ProjectCaseStudy({ project, note, onClose, opener }) {
           <X size={18} />
         </button>
       </div>
-      <img
+      <ResponsiveImage
+        sizes="(max-width: 800px) 90vw, 850px"
+        loading="eager"
         className="case-dialog-image"
         src={project.image}
         alt={`Interface of ${project.name}`}

@@ -1,0 +1,7 @@
+.desk-poster { position:relative; min-height:365px; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:18px; border-radius:18px; overflow:hidden; background:#191c28; }
+.desk-poster img { display:block; width:100%; height:auto; aspect-ratio:689/316; object-fit:contain; }
+.desk-poster button { margin:0 18px 18px; }
+.desk-poster .mono { font-size:9px; color:var(--muted); }
+.deferred-playground { grid-column:1 / -1; min-height:460px; display:grid; place-content:center; gap:20px; padding-block:80px; text-align:center; }
+.playground-content { display:contents; }
+@media(max-width:650px) { .desk-poster { min-height:280px; } }

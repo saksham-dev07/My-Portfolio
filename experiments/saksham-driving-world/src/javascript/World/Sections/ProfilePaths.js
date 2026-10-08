@@ -2,6 +2,12 @@ import * as THREE from 'three'
 import { profileSections } from '../../sakshamProfile.js'
 import { circuitStops } from './ProfileCircuit.js'
 
+export const educationStops = [
+    { x: -19, y: -103, title: '2020 / SCHOOL' },
+    { x: -19, y: -109, title: '2022 / SCIENCE' },
+    { x: -19, y: -115, title: '2023 / VIT' },
+]
+
 // One hierarchical route network:
 // - two lanes leave the Information garden and flank the About portrait,
 // - an About forecourt passes in front of its OPEN DETAILS pad,
@@ -9,8 +15,8 @@ import { circuitStops } from './ProfileCircuit.js'
 // - one closed ring links the education journey, campus and rebuild clearing.
 // Pads sit beside the road instead of being crossed or skirted by it.
 export const profilePaths = [
-    [[-3.5, -68.5], [-9, -71.5], [-9, -98.5]],
-    [[7.5, -68.5], [13, -71.5], [13, -98.5]],
+    [[-9, -71.5], [-9, -98.5]],
+    [[13, -71.5], [13, -98.5]],
     [[-9, -88.5], [13, -88.5]],
     [[2, -98.5], [40, -98.5], [40, -124], [-26.5, -124], [-26.5, -98.5], [2, -98.5]],
 ]
@@ -27,7 +33,7 @@ export const profilePathClearances = [
     { x: 2, y: -73, w: 5.6, h: 5.6 },
     { x: -4.5, y: -73, w: 4.6, h: 1.1 },
     { x: 8.5, y: -73, w: 4.6, h: 1.1 },
-    ...[-103, -109, -115].map(y => ({ x: -19, y, w: 7, h: 3.6 })),
+    ...educationStops.map(({x,y}) => ({ x, y, w: 7, h: 3.6 })),
     { x: -19, y: -120, w: 11, h: 1.5 },
     { x: 30, y: -115, w: 6, h: 3 },
     { x: 30, y: -119, w: 12, h: 1.5 },
