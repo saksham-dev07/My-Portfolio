@@ -1,7 +1,10 @@
 import * as THREE from 'three'
-import { landscapeGrid, surfaceHeight, roadEdgeDistance, foundationDistance, roads, landscapeBounds, roadsidePosition, roadShoulder, landscapeSigns } from './LandscapeLayout.js'
+import { landscapeGrid, surfaceHeight, roadEdgeDistance, roads, landscapeBounds, roadsidePosition, roadShoulder, landscapeSigns, researchTerraces, smooth } from './LandscapeLayout.js'
 import { roadMaskPixels } from './RoadMask.js'
 import DirectionSigns from './Sections/DirectionSigns.js'
+import ResearchGateway from './ResearchGateway.js'
+import { grovePlacements } from './EnvironmentLayout.js'
+import EnvironmentDressing from './EnvironmentDressing.js'
 
 export default class Landscape {
     constructor({ objects, scene, camera, config, time, directionSignTemplate }) {
@@ -11,8 +14,10 @@ export default class Landscape {
         this.setTerrain()
         this.setRoads()
         this.clearOriginalTrees(objects)
-        this.setGroves(objects)
+        this.setGroves(objects, time)
+        this.dressing = new EnvironmentDressing({ container: this.container, objects, camera, time, trees: this.groves || [] })
         this.setSignalArch()
+        this.gateway = new ResearchGateway({ container: this.container, physics: this.physics, camera, time })
         const signSolids=[]
         const signs=landscapeSigns.map(sign=>({...sign,z:surfaceHeight(sign.x,sign.y)}))
         this.directionSigns=new DirectionSigns(directionSignTemplate,this.container,signSolids,signs)
@@ -44,10 +49,16 @@ export default class Landscape {
         geometry.computeVertexNormals()
         const colors=[], normal=geometry.attributes.normal, position=geometry.attributes.position
         const valley=new THREE.Color('#72769f'), stone=new THREE.Color('#b6a6a0'), crest=new THREE.Color('#e3c7ab')
+        const terraceColors=researchTerraces.map(terrace=>new THREE.Color(terrace.ground))
         const light=new THREE.Vector3(-.5,-.35,1).normalize(), n=new THREE.Vector3()
         for(let i=0;i<position.count;i++) {
             const h=position.getZ(i), slope=1-normal.getZ(i)
             const color=valley.clone().lerp(stone,THREE.MathUtils.clamp(h/10+slope*.8,0,1)).lerp(crest,THREE.MathUtils.clamp((h-7)/14,0,.55))
+            researchTerraces.forEach((terrace,index)=>{
+                const edgeX=1-smooth(51,58,Math.abs(position.getX(i)-105))
+                const edgeY=1-smooth(10,16,Math.abs(position.getY(i)-terrace.y))
+                color.lerp(terraceColors[index],edgeX*edgeY*.62)
+            })
             const illumination=.78+Math.max(0,n.fromBufferAttribute(normal,i).dot(light))*.25
             const variation=1+.035*Math.sin(position.getX(i)*.19+position.getY(i)*.11)
             color.multiplyScalar(illumination*variation)
@@ -86,6 +97,16 @@ export default class Landscape {
         const coverage=new Uint8Array(canvas.width*canvas.height)
         for(let i=0;i<coverage.length;i++) coverage[i]=image.data[i*4+3]
         image.data.set(roadMaskPixels(coverage,canvas.width,canvas.height,roadShoulder*scale,.65*scale))
+        // The unused blue channel holds fine lane paint, on the same surface as
+        // the asphalt. No new road meshes, draw calls, or depth overlap.
+        context.clearRect(0,0,canvas.width,canvas.height)
+        context.setLineDash([1.25*scale,2.75*scale])
+        context.lineWidth=.12*scale
+        context.strokeStyle='#fff'
+        for(const road of roads.filter(road=>road.name.startsWith('Research'))) { trace(road);context.stroke() }
+        const paint=context.getImageData(0,0,canvas.width,canvas.height).data
+        for(let i=0;i<coverage.length;i++) image.data[i*4+2]=Math.min(paint[i*4+3],image.data[i*4+1])
+        context.setLineDash([])
         context.putImageData(image,0,0)
         // Subpixel antialiasing removes the distance field's pixel stair steps
         // at close zoom without softening the authored road geometry.
@@ -107,11 +128,12 @@ export default class Landscape {
                 vRoadUv=(position.xy-vec2(${minX}.0,${minY}.0))/vec2(${maxX-minX}.0,${maxY-minY}.0);`)
             shader.fragmentShader='uniform sampler2D roadMask; uniform vec3 roadAsphalt; uniform vec3 roadShoulder; varying vec2 vRoadUv;\n'+shader.fragmentShader
             shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
-                vec2 coverage=texture2D(roadMask,vRoadUv).rg;
+                vec3 coverage=texture2D(roadMask,vRoadUv).rgb;
                 diffuseColor.rgb=mix(diffuseColor.rgb,roadShoulder,coverage.r);
-                diffuseColor.rgb=mix(diffuseColor.rgb,roadAsphalt,coverage.g);`)
+                diffuseColor.rgb=mix(diffuseColor.rgb,roadAsphalt,coverage.g);
+                diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.91,.86,.74),coverage.b*.65);`)
         }
-        this.terrain.material.customProgramCacheKey=()=> 'heightfield-road-union-v2'
+        this.terrain.material.customProgramCacheKey=()=> 'heightfield-road-union-v3'
         this.terrain.material.needsUpdate=true
     }
 
@@ -159,7 +181,7 @@ export default class Landscape {
         }
     }
 
-    setGroves(objects) {
+    setGroves(objects, time) {
         const tree=objects.items.find(item=>item.container.children.some(node=>node.name==='shadeGreen'))
         if(!tree) return
         const source=new THREE.Group()
@@ -167,25 +189,36 @@ export default class Landscape {
         source.updateMatrixWorld(true)
         const bounds=new THREE.Box3().setFromObject(source), center=bounds.getCenter(new THREE.Vector3())
         const baseScale=4.5/Math.max(.01,bounds.max.z-bounds.min.z)
-        const placements=[]
-        // Small groves frame entries and reveal the research boards one terrace
-        // at a time. The two internal ridges are intentionally left exposed.
-        const groves=[[-21,-12,6],[-64,-16,5],[24,-11,5],[39,-17,5],[46,-53,5],[78,-8,6],[139,-8,6],[171,-27,4],[172,-92,5],[69,-132,6],[137,-133,5],[-59,-115,5],[-42,-132,4]]
-        for(const [cx,cy,count] of groves) for(let i=0;i<count;i++) {
-            const angle=i*2.399+cx*.09, radius=2+Math.sqrt(i)*1.7
-            const x=cx+Math.cos(angle)*radius,y=cy+Math.sin(angle)*radius
-            if(roadEdgeDistance(x,y)<2.5 || foundationDistance(x,y)<2.5) continue
-            const h=surfaceHeight(x,y)
-            if(Math.abs(surfaceHeight(x+1,y)-h)>1 || Math.abs(surfaceHeight(x,y+1)-h)>1) continue
-            placements.push({x,y,z:h,scale:baseScale*(.72+(i%4)*.12),angle})
-        }
+        const size=bounds.getSize(new THREE.Vector3())
+        const placements=grovePlacements(Math.hypot(size.x,size.y)*baseScale/2)
+        // Retain the normalized size for understory placement and collision scale.
+        placements.forEach(p=>{p.treeScale=p.scale;p.scale*=baseScale})
         const dummy=new THREE.Object3D(), trunkShapes=[]
         for(const node of source.children) {
             if(!node.isMesh) continue
-            const material=node.name==='shadeGreen'
-                ? new THREE.MeshBasicMaterial({color:'#969e83'})
-                : new THREE.MeshBasicMaterial({color:'#967568'})
+            const canopy=node.name==='shadeGreen'
+            const material=new THREE.MeshMatcapMaterial({
+                matcap:objects.materials.shades.items.white.uniforms.matcap.value,
+                color:canopy ? '#9cac77' : '#967568',
+            })
             material.color.convertLinearToSRGB()
+            if(canopy) {
+                node.geometry.computeBoundingBox()
+                const {min,max}=node.geometry.boundingBox
+                const breeze={value:0},motion={value:1}
+                const preference=window.matchMedia('(prefers-reduced-motion: reduce)')
+                const syncMotion=()=>{motion.value=preference.matches ? 0 : 1}
+                syncMotion();preference.addEventListener('change',syncMotion)
+                time.on('tick',()=>{breeze.value=time.elapsed*.001})
+                material.onBeforeCompile=shader=>{
+                    shader.uniforms.uBreeze=breeze;shader.uniforms.uGroveMotion=motion
+                    shader.vertexShader='uniform float uBreeze; uniform float uGroveMotion;\n'+shader.vertexShader
+                    shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+                        float crown=clamp((position.z-(${min.z.toFixed(5)}))/${Math.max(.01,max.z-min.z).toFixed(5)},0.0,1.0);
+                        transformed.x+=sin(uBreeze*.8+instanceMatrix[3].x*.17+instanceMatrix[3].y*.11)*crown*crown*.08*uGroveMotion;`)
+                }
+                material.customProgramCacheKey=()=> 'grove-matcap-breeze-v1'
+            }
             const instances=new THREE.InstancedMesh(node.geometry,material,placements.length)
             placements.forEach((p,index)=>{
                 dummy.position.set(p.x,p.y,p.z)
@@ -201,8 +234,8 @@ export default class Landscape {
         for(const p of placements) {
             const trunk=new THREE.Object3D()
             trunk.name='box'
-            trunk.position.set(p.x,p.y,p.z+.75)
-            trunk.scale.set(.55,.55,1.5)
+            trunk.position.set(p.x,p.y,p.z+.75*p.treeScale)
+            trunk.scale.set(.55*p.treeScale,.55*p.treeScale,1.5*p.treeScale)
             trunkShapes.push(trunk)
         }
         if(trunkShapes.length) this.physics.addObjectFromThree({meshes:trunkShapes,offset:new THREE.Vector3(),rotation:new THREE.Euler(),mass:0,sleep:true})

@@ -2,6 +2,7 @@ import { Howler } from 'howler';
 import { projects } from './sakshamProjects.js';
 import { profileSections } from './sakshamProfile.js';
 import { projectStoryHref, readProjectRequest } from '../../../../src/utils/worldNavigation.js';
+import WorldNavigator from './WorldNavigator.js';
 
 export function drivingInterface(app) {
   const start = document.querySelector('#start-drive');
@@ -30,6 +31,7 @@ export function drivingInterface(app) {
     cameraBody.hidden = !expanded;
     cameraTools.dataset.collapsed = String(!expanded);
   });
+  if (window.matchMedia('(max-width: 760px), (pointer: coarse)').matches) cameraToggle.click();
   const syncCameraTools = () => {
     const view = app.camera.view;
     topTools.hidden = view !== 'top';
@@ -85,7 +87,10 @@ export function drivingInterface(app) {
     return link;
   }
   let activeStoryLink = null;
+  let activeStoryId = null;
   function showProjectStory(project) {
+    if ((project?.id || null) === activeStoryId) return;
+    activeStoryId = project?.id || null;
     activeStoryLink?.remove();
     activeStoryLink = project ? storyLink(project, 'Read this project’s story') : null;
     if (activeStoryLink) {
@@ -104,6 +109,11 @@ export function drivingInterface(app) {
     modelStatus.hidden = !event.detail;
   });
   app.time.on('tick', () => {
+    if (started && !index.open) {
+      const position = app.world.physics.car.chassis.body.position;
+      const projectIndex = app.world.sections.projects.items.findIndex(site => Math.abs(position.x - site.x) < 10 && Math.abs(position.y - (site.y - 3)) < 10);
+      showProjectStory(projects[projectIndex] || null);
+    }
     const entry = started && !index.open && app.world.sections.profile.entryAreas.find(entry => entry.area.containsCar());
     if ((entry?.id || null) === (nearby?.id || null)) return;
     nearby = entry || null;
@@ -130,6 +140,7 @@ export function drivingInterface(app) {
     app.camera.carBody = app.world.physics.car.chassis.body;
     cameraTools.hidden = false;
     syncCameraTools();
+    app.worldNavigator = new WorldNavigator({ app, onOpenMap: () => openMap(), onLocation: name => { location.textContent = name.toUpperCase(); } });
     document.querySelectorAll('[data-drive]').forEach(button => { button.disabled = false; });
     if (requestedProject) {
       const destination = app.world.sections.projects.items[projects.indexOf(requestedProject)];
@@ -164,7 +175,8 @@ export function drivingInterface(app) {
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       app.camera.targetEased.set(x, y - 7, 0);
     }
-    for (const key of ['up', 'down', 'left', 'right']) app.world.controls.actions[key] = false;
+    app.world.controls.releaseActions();
+    showProjectStory(null);
     returnToWorld = index.open;
     index.close();
     app.$canvas.focus({ preventScroll: true });

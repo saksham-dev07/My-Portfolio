@@ -10,6 +10,11 @@ export const landscapeSigns = [
 // Z-up metres. Foundations remain at the original elevation; geography grows
 // between destinations, not beneath their existing artwork or interaction pads.
 export const landscapeBounds = { minX: -76, maxX: 180, minY: -148, maxY: 32, step: 2 }
+export const researchTerraces = [
+    { y: -24, title: '01 / APPLIED SYSTEMS', color: '#b6e3d5', ground: '#53747c' },
+    { y: -64, title: '02 / DATA & OPERATIONS', color: '#f5d4b3', ground: '#827080' },
+    { y: -104, title: '03 / SMALL EXPERIMENTS', color: '#d8dcff', ground: '#666e93' },
+]
 export function projectPosition(index) {
     const row = Math.floor(index / 4)
     const column = row % 2 ? 3 - index % 4 : index % 4
@@ -120,11 +125,22 @@ export function terrainHeight(x,y) {
     const {minX,maxX,minY,maxY} = landscapeBounds
     const edge = Math.min(x-minX,maxX-x,y-minY,maxY-y)
     // Deliberate west ridge, north headland, east escarpment, quiet south basin.
-    const macro = hill(x,y,-61,-86,17,45,12) + hill(x,y,29,19,48,18,9)
-        + hill(x,y,176,-62,16,65,10) + hill(x,y,90,-145,65,15,6)
-        + hill(x,y,107,-48,42,8,3.8) + hill(x,y,106,-88,42,8,4.5)
+    const bank = (cx,cy,length,height) => {
+        const spine=cy+1.4*Math.sin((x-cx)*.055)
+        const width=y>spine ? 6 : 11
+        return hill(x,y,cx,spine,length,width,height)
+    }
+    const macro = hill(x,y,-61,-86,17,45,12) + hill(x,y,22,21,35,20,11)
+        + hill(x,y,76,23,32,16,7) + hill(x,y,145,22,28,23,10)
+        + hill(x,y,179,-49,17,34,12) + hill(x,y,178,-105,15,27,9)
+        + hill(x,y,73,-147,34,16,8) + hill(x,y,137,-145,28,13,6)
+        + bank(98,-48,39,5.2) + bank(130,-49,21,2.4)
+        + bank(111,-88,44,5.8) + bank(76,-89,18,2.2)
     const detail = (.28*Math.sin(x*.15)*Math.cos(y*.13)+.1*Math.sin((x+y)*.43)) * smooth(.5,3,macro)
-    const native = Math.max(0,macro+detail+(1-smooth(0,12,edge))*8)
+    // Broad, varying foothills break the tray-like rim without altering bounds.
+    const rimWidth=10+5*(.5+.5*Math.sin(x*.047+y*.031))
+    const rimHeight=8+2*(.5+.5*Math.cos(x*.037-y*.026))
+    const native = Math.max(0,macro+detail+(1-smooth(0,rimWidth,edge))*rimHeight)
     const road = roadDistance(x,y)
     const site = foundationDistance(x,y)
     // The level corridor includes the shoulders and a full heightfield cell.

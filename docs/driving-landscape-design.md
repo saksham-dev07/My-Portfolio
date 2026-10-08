@@ -122,6 +122,33 @@ explicit. First-person stays mounted to the car.
 
 ## Validation
 
+### Desktop gateway and navigation pass — 8 October 2026
+
+The optional world now includes a locally authored Blender research gateway at
+(37, -38). `scripts/assets/create-research-gateway.py` rebuilds the asset in an
+owned Blender scene, preserving unrelated scenes. Its GLB is 322,896 bytes,
+8,556 triangles and four material groups, with no image textures. It loads when
+visible or within 35 m. Two support colliders sit beyond the paved corridor;
+the elevated lintel leaves the driving opening clear. A browser driving check
+crossed the opening from x=34 to x=42 without collision.
+
+Research rows now have restrained district tints, conforming forecourts and
+three chapter labels. Fine road dashes reuse the existing mask's blue channel.
+The 39 added grove trees reuse the original tree geometry with matcap shading
+and gentle, reduced-motion-aware crown movement. The rendered grove shader was
+checked in production after correcting negative-bound GLSL interpolation.
+
+`WorldNavigator.js` adds a static SVG road map with a 10 Hz car marker, live
+location and a session-only 16-stop exploration counter. Browser validation
+confirmed entering a project pad changes 0 to 1. Nearby project stories link
+back to the portfolio. Keyboard/touch cancellation safeguards release held
+actions after focus loss. The production build and 55 tests pass.
+
+The desktop terrain/vegetation follow-up is specified in
+`driving-environment-next-pass.md`. Mobile work is deferred per the latest scope.
+
+### Earlier landscape baseline
+
 - Production build and production-output audit pass; no browser console errors.
 - 39 tests pass, including 150 independent Cannon raycasts against the rendered
   surface, protected foundations, meaningful internal ridges, road grades, route
