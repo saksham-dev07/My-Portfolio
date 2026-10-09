@@ -249,6 +249,10 @@ export default class Application
      */
     destructor()
     {
+        this.activities?.dispose()
+        this.world.sections?.playground?.bowlingGame?.dispose?.()
+        this.world.sections?.profile?.district?.circuit?.destroy?.()
+        this.world.activityProps?.dispose?.()
         this.time.off('tick')
         this.time.off('afterTick')
         this.time.off('render')

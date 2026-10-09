@@ -27,6 +27,7 @@ import Controls from './Controls.js'
 import Sounds from './Sounds.js'
 import gsap from 'gsap'
 import EasterEggs from './EasterEggs.js'
+import ActivityProps from './ActivityProps.js'
 
 export default class World
 {
@@ -85,6 +86,7 @@ export default class World
         suppressRetiredTreeShadows([...(this.landscape.retiredTreeAnchors || []), ...(this.sections.information.retiredShadowAnchors || [])], this.shadows.sun.vector)
         this.setScenery()
         this.setEasterEggs()
+        this.activityProps = new ActivityProps({container:this.container,objects:this.objects,camera:this.camera,time:this.time})
         stabilizeGround(this.container, this.floor.mesh, this.landscape.terrain)
         // Clone reusable trees/signs before baking the existing static props.
         this.objects.merge.update()

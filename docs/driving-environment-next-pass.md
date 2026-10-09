@@ -4,6 +4,56 @@ Scope: desktop driving, original camera, overhead map and first-person view.
 Mobile optimization is deferred. The implementation record below distinguishes
 the completed pass from the original design specification that follows.
 
+## Blender prop refinement and bowling placement — 10 October 2026
+
+- Replaced the generated chai cart with a custom Blender design: bowed striped
+  canopy, scalloped fabric edges, green cabinet, teak grilles, brass vessels,
+  spoked wheels and clay cups. The 3,764-triangle, 224,540-byte export uses one
+  vertex palette mesh and no image maps. Placed at (-52,-119), scale .85; real
+  shipping bounds clear the pond, garden loop, shelter and tree crowns.
+- Replaced Highlights artwork with a hollow brass cup, curved handles, laurel
+  and stepped sandstone podium. Geometric plaques read from both sides. The
+  3,600-triangle, 218,160-byte export has four authored proxies; entry (30,-94)
+  and artwork (30,-83) positions remain. Blender source scripts are in
+  `scripts/assets/`; editable .blend files are in the chat visualization folder.
+- Corrected the bowling start pad from (-28.5,-23.5), where it intersected a
+  dynamic break wall, to (-24.5,-30) at the open lane entrance behind the ball.
+  The 3x4m pad and label move together. Actual static/dynamic GLB footprints,
+  road shoulders and botanical crowns verify clearance. Active game interaction
+  cannot restart a round.
+- Desktop browser checks at 1280x720 verified the cart/pond/shelter composition,
+  trophy opening/plaque/shading and pad position. Enter on the relocated pad
+  started bowling; repeated Enter preserved a rolling attempt with ten pins
+  knocked down. Temporary camera, car pose and viewport changes were reset.
+- Validation: 120 tests / 51,774 assertions across 34 files pass. Check, build
+  and production audit pass: 398 files / 51.93 MiB. Existing large JS chunk
+  warnings remain. No Thrixel credits or new dependencies used for this pass.
+
+## Initial activities and verification — 10 October 2026
+
+- Added scored Maidan Bowling, timed Campus Rally, a shared Play menu and an
+  edge HUD. Games pause under dialogs/hidden tabs and stop when map travel
+  changes destinations. Retry resets motion and refocuses the camera.
+- Added four refined Thrixel props: live scoreboard, campus start arch, garden
+  chai cart and a functional ramp/deck. The kit totals 2,772 triangles and
+  226.5 KiB; optional serialized region loading leaves the core boot unchanged.
+  See `world-activity-assets.md` for source IDs and measured budgets.
+- Moved the bowling entry pad to the lawn at (-28.5,-23.5), with its interaction
+  and PLAY BOWLING lettering together. Rangoli replay lettering now sits farther
+  to the left of the raised ENTER prompt and clear of tree crowns.
+- Camera follow resolves the current chassis after R resets. Dialog braking
+  persists until the dialog closes. The original five regression tests remain
+  intact; the two new vehicle/dialog cases are in a separate test file.
+- Validation: `bun test` passes 118 tests / 51,580 assertions across 33 files.
+  `bun run check`, `bun run build`, `bun run audit:production`, and
+  `git diff --check` pass. Production: 398 files / 51.73 MiB. Large existing
+  world/Three.js chunk warnings remain; no unsupported frame-rate claim is made.
+- Desktop browser checks covered all three bowling attempts (21/30 scored),
+  adjustable aim, menu pause/resume, rally countdown, drive-through arch,
+  map pause, reset rejection and retry from Top view. Art checks include the
+  grouped chai cart, ramp, low-angle pond coping, road terminal and discovery.
+  The 23-angle sampled survey and next phases are in `world-experience-plan.md`.
+
 ## Indian identity and interaction repairs — 9 October 2026
 
 - A custom Blender sandstone arch inspired by India Gate replaces the Eiffel

@@ -3,9 +3,9 @@ import { profileSections } from '../../sakshamProfile.js'
 import { circuitStops } from './ProfileCircuit.js'
 
 export const educationStops = [
-    { x: -19, y: -103, title: '2020 / SCHOOL' },
-    { x: -19, y: -109, title: '2022 / SCIENCE' },
-    { x: -19, y: -115, title: '2023 / VIT' },
+    { x: -19, y: -103, title: '2020 / SCHOOL', chapter: 'school', padOffsetX: -1 },
+    { x: -19, y: -109, title: '2022 / SCIENCE', chapter: 'science', padOffsetX: -1 },
+    { x: -19, y: -115, title: '2023 / VIT', chapter: 'campus', padOffsetX: -1 },
 ]
 
 // One hierarchical route network:
@@ -30,10 +30,15 @@ export const profilePathClearances = [
         { x: section.x, y: section.y - 4, w: 8, h: 4 },
     ]),
     { x: 1.2, y: -65, w: 11, h: 5.5 },
-    { x: 2, y: -73, w: 5.6, h: 5.6 },
-    { x: -4.5, y: -73, w: 4.6, h: 1.1 },
-    { x: 8.5, y: -73, w: 4.6, h: 1.1 },
-    ...educationStops.map(({x,y}) => ({ x, y, w: 7, h: 3.6 })),
+    { x: 2, y: -73, w: 5.5, h: 5.5 },
+    { x: -4.5, y: -73, w: 3.6, h: .65 },
+    { x: 8.5, y: -73, w: 3.6, h: .65 },
+    { x: -4.5, y: -70.5, w: 2.5, h: .9 },
+    { x: 8.5, y: -70.5, w: 2.5, h: .9 },
+    ...educationStops.flatMap(({x,y,padOffsetX}) => [
+        { x: x + padOffsetX, y, w: 3, h: 3 },
+        { x: x + 4, y, w: 2.6, h: 3.2 },
+    ]),
     { x: -19, y: -120, w: 11, h: 1.5 },
     { x: 30, y: -115, w: 6, h: 3 },
     { x: 30, y: -119, w: 12, h: 1.5 },

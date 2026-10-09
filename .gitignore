@@ -5,6 +5,7 @@ node_modules/
 dist/
 dist-ssr/
 public/driving-world/
+thrixel_assets/
 package-lock.json
 .local-history/
 

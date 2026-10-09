@@ -4,6 +4,8 @@ import { profileSections } from './sakshamProfile.js';
 import { projectStoryHref, readProjectRequest } from '../../../../src/utils/worldNavigation.js';
 import WorldNavigator from './WorldNavigator.js';
 import { discoveryNotice } from './DiscoveryNotice.js';
+import { activityInterface } from './ActivityInterface.js';
+import { profileRequest, profileEntryOrder } from './ProfileNavigation.js';
 
 export function drivingInterface(app) {
   discoveryNotice({document,window,focusWorld:()=>app.$canvas.focus({preventScroll:true})});
@@ -70,6 +72,21 @@ export function drivingInterface(app) {
   });
   let started = false;
   let returnToWorld = false;
+  app.activities = activityInterface(app, {
+    isStarted: () => started,
+    onStart: id => {
+      if (cameraToggle.getAttribute('aria-expanded') === 'true') cameraToggle.click();
+      cameraView.value = 'orbit';
+      app.camera.setView('orbit');
+      const body = app.world.physics.car.chassis.body;
+      app.camera.target.copy(body.position);
+      app.camera.target.z = 0;
+      app.camera.targetEased.copy(app.camera.target);
+      if (id === 'bowling') app.camera.frameActivity(app.activities.director.current.snapshot().focus);
+      else app.camera.focusCar();
+      syncCameraTools();
+    },
+  });
   const nearbyButton = document.createElement('button');
   nearbyButton.id = 'nearby-section';
   nearbyButton.hidden = true;
@@ -139,7 +156,8 @@ export function drivingInterface(app) {
     started = true;
     boot.hidden = true;
     home.disabled = false;
-    app.camera.carBody = app.world.physics.car.chassis.body;
+    app.camera.car = app.world.physics.car;
+    app.activities.enable();
     cameraTools.hidden = false;
     syncCameraTools();
     app.worldNavigator = new WorldNavigator({ app, onOpenMap: () => openMap(), onLocation: name => { location.textContent = name.toUpperCase(); } });
@@ -158,6 +176,7 @@ export function drivingInterface(app) {
     if (!started && !start.disabled) app.world.startingScreen.area.trigger('interact');
   });
   function travel(x, y) {
+    app.activities.stop();
     const car = app.world.physics.car;
     const body = car.chassis.body;
     body.position.set(x, y - 7, 1.5);
@@ -196,7 +215,7 @@ export function drivingInterface(app) {
     sound.setAttribute('aria-pressed', String(enabled));
   });
   window.addEventListener('keydown', event => {
-    if (event.key === 'Escape' && !index.open && window.parent !== window) {
+    if (event.key === 'Escape' && !document.querySelector('dialog[open]') && !event.defaultPrevented && window.parent !== window) {
       window.parent.postMessage({ type: 'exit-world' }, window.location.origin);
       return;
     }
@@ -204,21 +223,22 @@ export function drivingInterface(app) {
     sound.textContent = app.world.sounds.muted ? 'Sound off' : 'Sound on';
     sound.setAttribute('aria-pressed', String(!app.world.sounds.muted));
   });
-  function openMap(section = 'projects') {
+  function openMap(section = 'projects', chapter = null) {
     for (const key of Object.keys(app.world.controls.actions)) app.world.controls.actions[key] = false;
     if (started) app.world.physics.car.brake();
-    selectSection(section);
+    selectSection(section, chapter);
     if (!index.open) index.showModal();
   }
   opener.addEventListener('click', () => openMap());
   window.addEventListener('drive-section', event => {
-    if (!profileSections.some(section => section.id === event.detail)) return;
+    const request = profileRequest(event.detail);
+    if (!request) return;
     returnToWorld = true;
-    openMap(event.detail);
+    openMap(request.id, request.chapter);
   });
   document.querySelector('#close-index').addEventListener('click', () => index.close());
   index.addEventListener('close', () => {
-    if (started) app.world.physics.car.unbrake();
+    if (started && !document.querySelector('dialog[open]')) app.world.physics.car.unbrake();
     (returnToWorld ? app.$canvas : opener).focus({ preventScroll: true });
     returnToWorld = false;
   });
@@ -226,7 +246,7 @@ export function drivingInterface(app) {
   const navigation = document.querySelector('#world-navigation');
   const profile = document.querySelector('#profile-content');
   const sectionButtons = new Map();
-  function selectSection(id) {
+  function selectSection(id, chapter = null) {
     const landmarks = app.world.sections?.profile?.landmarks;
     if (id === 'education') landmarks?.loadCampus();
     if (id === 'about') landmarks?.loadAvatar();
@@ -283,8 +303,15 @@ export function drivingInterface(app) {
     profile.append(actionsRow);
     const entries = document.createElement('div');
     entries.className = 'profile-entries';
-    for (const [heading, copy] of section.entries) {
+    for (const { entry: [heading, copy], selected } of profileEntryOrder(id, section.entries, chapter)) {
       const article = document.createElement('article');
+      if (selected) {
+        article.className = 'profile-chapter-current';
+        const marker = document.createElement('p');
+        marker.className = 'profile-chapter-marker';
+        marker.textContent = 'THIS CHAPTER';
+        article.append(marker);
+      }
       const h = document.createElement('h4');
       h.textContent = heading;
       const p = document.createElement('p');

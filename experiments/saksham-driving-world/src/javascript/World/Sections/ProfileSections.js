@@ -51,6 +51,7 @@ export default class ProfileSections {
                     width: index === 2 ? 10 : index === 0 ? 7 : 9,
                     depth: index === 0 ? 5 : 7,
                     height: index === 1 ? 3 : index === 0 ? 4.8 : 5,
+                    authored: index === 2 && options.resources.items.profileHighlights.scene.getObjectByName('highlights-podium')?.userData.assetVersion >= 2,
                 })
             }
             this.container.add(group)

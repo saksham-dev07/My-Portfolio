@@ -137,6 +137,7 @@ export default class Physics
         this.car.forwardSpeed = 0
         this.car.oldPosition = new CANNON.Vec3()
         this.car.goingForward = true
+        this.car.brakeLocked = false
 
         /**
          * Options
@@ -339,6 +340,8 @@ export default class Physics
          */
         this.car.brake = () =>
         {
+            // Map/dialog braking must survive the regular keyboard update.
+            this.car.brakeLocked = true
             this.car.vehicle.setBrake(1, 0)
             this.car.vehicle.setBrake(1, 1)
             this.car.vehicle.setBrake(1, 2)
@@ -350,6 +353,7 @@ export default class Physics
          */
         this.car.unbrake = () =>
         {
+            this.car.brakeLocked = false
             this.car.vehicle.setBrake(0, 0)
             this.car.vehicle.setBrake(0, 1)
             this.car.vehicle.setBrake(0, 2)
@@ -604,7 +608,7 @@ export default class Physics
             /**
              * Brake
              */
-            if(this.controls.actions.brake)
+            if(this.car.brakeLocked || this.controls.actions.brake)
             {
                 this.car.vehicle.setBrake(this.car.options.controlsBrakeStrength, 0)
                 this.car.vehicle.setBrake(this.car.options.controlsBrakeStrength, 1)

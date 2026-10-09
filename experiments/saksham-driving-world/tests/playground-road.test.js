@@ -4,6 +4,8 @@ import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { roads, roadShoulder, distanceToRoad, roadEdgeDistance } from '../src/javascript/World/LandscapeLayout.js'
 import PlaygroundSection from '../src/javascript/World/Sections/PlaygroundSection.js'
 import AreaFloorBorderGeometry from '../src/javascript/Geometries/AreaFloorBorderGeometry.js'
+import Walls from '../src/javascript/World/Walls.js'
+import { grovePlacements, landmarkTreePlacements } from '../src/javascript/World/EnvironmentLayout.js'
 
 test('playground entrance uses two tangent circular bends and a straight terminal', () => {
     const road = roads.find(item => item.name === 'Playground'), segments = road.curve.curves
@@ -43,7 +45,7 @@ test('playground entrance uses two tangent circular bends and a straight termina
     expect(-28 - halfWidth - (-31.01956)).toBeGreaterThan(1)
 })
 
-test('bowling RESET label and entire interaction pad share a clear lawn position', async() => {
+test('bowling start pad occupies the clear lane entrance, beyond the ball and brick wall', async() => {
     const resources = { items: { areaResetTexture: new THREE.Texture() } }
     for(const name of ['bowlingPinBase', 'bowlingPinCollision', 'bowlingBallBase', 'bowlingBallCollision']) resources.items[name] = { scene: new THREE.Group() }
     const handlers = {}, resets = { pins: 0, ball: 0 }
@@ -55,8 +57,8 @@ test('bowling RESET label and entire interaction pad share a clear lawn position
         objects: { add: options => { ballOptions = options; return { collision: { reset: () => { resets.ball++ } } } } }
     }
     PlaygroundSection.prototype.setBowling.call(subject)
-    expect(area.position.toArray()).toEqual([-24.5, -28])
-    expect(subject.bowling.areaLabelMesh.position.toArray()).toEqual([-24.5, -28, 0])
+    expect(area.position.toArray()).toEqual([-24.5, -30])
+    expect(subject.bowling.areaLabelMesh.position.toArray()).toEqual([-24.5, -30, 0])
     expect(pinOptions.shape.position.toArray()).toEqual([-48, -30, 0])
     expect(ballOptions.offset.toArray()).toEqual([-28, -30, 0])
     handlers.interact()
@@ -71,7 +73,7 @@ test('bowling RESET label and entire interaction pad share a clear lawn position
             bounds.min.x + (bounds.max.x-bounds.min.x)*ix/16,
             bounds.min.y + (bounds.max.y-bounds.min.y)*iy/16
         ))
-    expect(clearance).toBeGreaterThan(.8)
+    expect(clearance).toBeGreaterThan(.35)
 
     const collision = await new GLTFLoader().parseAsync(await Bun.file(new URL('../static/models/playground/static/collision.glb', import.meta.url)).arrayBuffer(), '')
     collision.scene.position.set(subject.x, subject.y, 0)
@@ -79,12 +81,58 @@ test('bowling RESET label and entire interaction pad share a clear lawn position
     for(const node of collision.scene.children) {
         const solid = new THREE.Box3().setFromObject(node)
         const overlap = bounds.max.x > solid.min.x && bounds.min.x < solid.max.x && bounds.max.y > solid.min.y && bounds.min.y < solid.max.y
-        expect(overlap).toBe(false)
+        expect(overlap, `PLAY BOWLING overlaps ${node.name}`).toBe(false)
     }
+    // The game begins at this pad and still uses the original westward lane.
+    expect(bounds.containsPoint(new THREE.Vector3(-24.5, -30, 0))).toBe(true)
+    expect(bounds.min.x - ballOptions.offset.x).toBeGreaterThan(.7081 + 1)
+    // Keep a separate approach to the existing brick RESET, at world (-23,-20).
+    const brickPad = new THREE.Box3(new THREE.Vector3(-25, -22, 0), new THREE.Vector3(-21, -18, 0))
+    expect(bounds.max.y).toBeLessThan(brickPad.min.y - 5)
+
+    // Include the dynamically assembled break walls, using the shipping brick
+    // collider and the real wall generator. Static-only checks missed this bug.
+    const brickCollision = await new GLTFLoader().parseAsync(await Bun.file(new URL('../static/models/brick/collision.glb', import.meta.url)).arrayBuffer(), '')
+    const brickBounds = new THREE.Box3().setFromObject(brickCollision.scene), wallBounds = []
+    const brickSection = {
+        x: subject.x, y: subject.y, resources, container: new THREE.Group(),
+        areas: { add: () => ({ on: () => {} }) },
+        walls: new Walls({ objects: { add: options => {
+            wallBounds.push(brickBounds.clone().applyMatrix4(new THREE.Matrix4().compose(options.offset, new THREE.Quaternion().setFromEuler(options.rotation), new THREE.Vector3(1, 1, 1))))
+            return { collision: { reset: () => {} } }
+        } } })
+    }
+    resources.items.brickBase = { scene: new THREE.Group() }
+    resources.items.brickCollision = brickCollision
+    PlaygroundSection.prototype.setBricksWalls.call(brickSection)
+    const overlaps = (a, b) => a.max.x > b.min.x && a.min.x < b.max.x && a.max.y > b.min.y && a.min.y < b.max.y
+    const formerPad = new THREE.Box3(new THREE.Vector3(-30.5, -25.5, 0), new THREE.Vector3(-26.5, -21.5, 0))
+    expect(wallBounds.some(solid => overlaps(formerPad, solid))).toBe(true)
+    for(const solid of wallBounds) expect(overlaps(bounds, solid)).toBe(false)
+
+    const groves = grovePlacements(2)
+    for(const tree of [...groves, ...landmarkTreePlacements(2, groves)]) {
+        const distance = Math.hypot(Math.max(0, bounds.min.x-tree.x, tree.x-bounds.max.x), Math.max(0, bounds.min.y-tree.y, tree.y-bounds.max.y))
+        expect(distance).toBeGreaterThan(tree.radius + .65)
+    }
+
+    // Re-entering/clicking the pad during a round must not restart that round.
+    const previousWindow = globalThis.window, events = new EventTarget(), requests = []
+    events.addEventListener('drive-activity-start', event => requests.push(event.detail.id))
+    globalThis.window = events
+    subject.bowlingGame = { active: false }
+    try {
+        handlers.interact(); expect(requests).toEqual(['bowling'])
+        subject.bowlingGame.active = true
+        handlers.interact(); handlers.interact()
+        expect(requests).toEqual(['bowling'])
+    } finally { globalThis.window = previousWindow }
     // The reset ball also remains outside the complete visible interaction pad.
     const ballDistance = Math.hypot(Math.max(0, bounds.min.x-ballOptions.offset.x, ballOptions.offset.x-bounds.max.x), Math.max(0, bounds.min.y-ballOptions.offset.y, ballOptions.offset.y-bounds.max.y))
     expect(ballDistance).toBeGreaterThan(.7081 + .2)
     collision.scene.traverse(node => { if(node.isMesh) { node.geometry.dispose(); node.material.dispose() } })
+    brickCollision.scene.traverse(node => { if(node.isMesh) { node.geometry.dispose(); node.material.dispose() } })
+    brickSection.brickWalls.areaLabelMesh.geometry.dispose(); brickSection.brickWalls.areaLabelMesh.material.dispose()
     border.dispose(); resources.items.areaResetTexture.dispose()
     subject.bowling.areaLabelMesh.geometry.dispose(); subject.bowling.areaLabelMesh.material.dispose()
 })

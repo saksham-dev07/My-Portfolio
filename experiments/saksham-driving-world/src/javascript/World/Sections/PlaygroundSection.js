@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+import BowlingGame, { resetBowlingBody } from '../Activities/BowlingGame.js'
+import { labelTexture } from '../../StudioLabels.js'
 
 export default class PlaygroundSection
 {
@@ -195,27 +197,41 @@ export default class PlaygroundSection
             // Reset pins
             for(const _pin of this.bowling.pins.items)
             {
-                _pin.collision.reset()
+                if(_pin.collision.body) resetBowlingBody(_pin.collision)
+                else _pin.collision.reset()
             }
 
             // Reset ball
-            this.bowling.ball.collision.reset()
+            if(this.bowling.ball.collision.body) resetBowlingBody(this.bowling.ball.collision)
+            else this.bowling.ball.collision.reset()
         }
 
-        // Reset stays beside the bowling lane, on the lawn above the entrance
-        // bend. Move its whole interaction pad with the label, never the game.
-        this.bowling.resetPosition = new THREE.Vector2(this.bowling.x - 1.5, this.bowling.y + 2)
+        // The scored activity owns rules and timing; the existing scene owns its
+        // eleven reusable visual/physics objects. No bodies are created per roll.
+        if(this.objects.physics?.car && this.time) this.bowlingGame=new BowlingGame({
+            time:this.time,physics:this.objects.physics,pins:this.bowling.pins.items,ball:this.bowling.ball,
+        })
+
+        // Start immediately behind the ball, aligned with the lane and the
+        // activity's car spawn. The narrower pad clears both the entrance bend
+        // and the fence ends; the former north lawn pad crossed a brick wall.
+        this.bowling.resetPosition = new THREE.Vector2(this.bowling.x - 1.5, this.bowling.y)
         this.bowling.resetArea = this.areas.add({
             position: this.bowling.resetPosition,
-            halfExtents: new THREE.Vector2(2, 2)
+            halfExtents: new THREE.Vector2(1.5, 2)
         })
         this.bowling.resetArea.on('interact', () =>
         {
-            this.bowling.reset()
+            // The spawn is inside the start pad. Repeated Enter/click must not
+            // replace an active round through the activity director.
+            if(this.bowlingGame?.active) return
+            if(this.bowlingGame) window.dispatchEvent(new CustomEvent('drive-activity-start',{detail:{id:'bowling'}}))
+            else this.bowling.reset()
         })
 
-        // Reset label
-        this.bowling.areaLabelMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 0.5), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.resources.items.areaResetTexture }))
+        // The playable action and its label share the same entrance pad.
+        this.bowling.labelTexture=this.bowlingGame ? labelTexture(['PLAY BOWLING'],512,128) : this.resources.items.areaResetTexture
+        this.bowling.areaLabelMesh = new THREE.Mesh(new THREE.PlaneGeometry(this.bowlingGame ? 3 : 2, 0.5), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.bowling.labelTexture }))
         this.bowling.areaLabelMesh.position.x = this.bowling.resetPosition.x
         this.bowling.areaLabelMesh.position.y = this.bowling.resetPosition.y
         this.bowling.areaLabelMesh.matrixAutoUpdate = false

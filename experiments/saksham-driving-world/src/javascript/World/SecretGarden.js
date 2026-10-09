@@ -78,7 +78,7 @@ export default class SecretGarden {
         this.setLabel('BLOOM AGAIN')
         // The raised ENTER prompt projects across the near edge of the pad.
         // Place the permanent label farther north and left of its framing tree.
-        this.label.position.x=secretGardenLocation.x-2
+        this.label.position.x=secretGardenLocation.x-5
         this.label.position.y=secretGardenLocation.y+4.5;this.label.updateMatrix()
         this.rangoli.visible=true;this.beacon.visible=true
         this.startedAt=this.time.elapsed;this.playing=!this.preference.matches

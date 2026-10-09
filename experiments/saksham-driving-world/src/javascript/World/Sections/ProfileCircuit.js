@@ -1,12 +1,8 @@
 import * as THREE from 'three'
 import { labelTexture } from '../../StudioLabels.js'
+import CampusRally, { rallyGates } from '../Activities/CampusRally.js'
 
-export const circuitStops = [
-    { x: 2, y: -98.5, angle: 0, label: 'START / FINISH' },
-    { x: 40, y: -112, angle: -Math.PI / 2, label: '01' },
-    { x: 2, y: -124, angle: Math.PI, label: '02' },
-    { x: -26.5, y: -112, angle: Math.PI / 2, label: '03' },
-]
+export const circuitStops = rallyGates
 
 export class CircuitProgress {
     constructor() { this.restart() }
@@ -19,9 +15,10 @@ export class CircuitProgress {
     }
 }
 
-// Four painted checkpoints. No new assets, collisions, lights or tick callback.
+// Painted checkpoints present game state; CampusRally owns timing and rules.
 export default class ProfileCircuit {
-    constructor({ zones, container }) {
+    constructor({ zones, container, physics }) {
+        this.id = 'rally'
         if (!zones) return
         this.progress = new CircuitProgress()
         const button = document.getElementById('circuit-start')
@@ -46,14 +43,32 @@ export default class ProfileCircuit {
             // Keep the labels beside the lane, independent of arrow orientation.
             label.position.set(stop.x, stop.y + (index === 0 ? 3 : -3), .04)
             container.add(label, group)
-            const zone = zones.add({ position: new THREE.Vector2(stop.x, stop.y), halfExtents: new THREE.Vector2(2.8, 2.8), data: {} })
-            zone.on('in', () => { if (this.progress.enter(index)) this.update(status, button) })
         })
-        button?.addEventListener('click', () => {
-            this.progress.restart()
-            this.progress.active = true
-            this.update(status, button)
+        this.startRequest = () => window.dispatchEvent(new CustomEvent('drive-activity-start', { detail: { id: this.id } }))
+        this.button = button
+        button?.addEventListener('click', this.startRequest)
+        if (physics?.world && physics?.car?.chassis?.body) {
+            this.rally = new CampusRally({ physics, onUpdate: detail => this.present(detail, status, button) })
+            this.present(this.rally.snapshot(), status, button)
+        }
+    }
+    start() { return this.rally?.start() ?? false }
+    stop() { this.rally?.stop() }
+    handleAction(action) { return this.rally?.handleAction(action) ?? false }
+    snapshot() { return this.rally?.snapshot() ?? { id: this.id, title: 'Campus Rally', phase: 'idle' } }
+    present(detail, status, button) {
+        this.materials.forEach((material, index) => {
+            const active = detail.phase === 'running' && index === detail.nextGate
+            const complete = detail.phase === 'result' && detail.completed
+            material.color.set(complete ? '#b6e3d5' : active ? '#ffe0a1' : '#fff0d5')
+            material.opacity = active || complete ? .98 : .72
         })
+        if (button) button.textContent = detail.phase === 'idle' ? 'Start rally' : detail.phase === 'result' ? 'Retry rally' : 'Restart rally'
+        if (status) status.textContent = detail.phase === 'idle' ? 'Campus Rally: three gates, one clockwise lap. Your best time is saved.' : detail.message
+    }
+    destroy() {
+        this.rally?.destroy()
+        this.button?.removeEventListener('click', this.startRequest)
     }
     update(status, button) {
         const progress = this.progress

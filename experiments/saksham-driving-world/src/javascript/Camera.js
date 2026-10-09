@@ -28,6 +28,7 @@ export default class Camera
         this.returnPosition = new THREE.Vector3()
         this.returnLook = new THREE.Vector3()
         this.carBody = null
+        this.car = null
         this.topCenter = new THREE.Vector3(52, -58, 0)
         this.viewOffset = new THREE.Vector3()
         this.viewLook = new THREE.Vector3()
@@ -114,9 +115,10 @@ export default class Camera
                 this.instance.lookAt(this.viewLook)
                 return
             }
-            if(this.view === 'first' && this.carBody)
+            const carBody = this.getCarBody()
+            if(this.view === 'first' && carBody)
             {
-                const carPose = this.carVisual || this.carBody
+                const carPose = this.carVisual || carBody
                 this.forward.set(1, 0, 0).applyQuaternion(carPose.quaternion)
                 this.forward.z = 0
                 this.forward.normalize()
@@ -147,11 +149,18 @@ export default class Camera
         })
     }
 
+    getCarBody()
+    {
+        // Reset recreates the chassis; resolve its current body every frame.
+        return this.car?.chassis?.body || this.carBody
+    }
+
     updateDriving()
     {
         // Horizontal speed includes coasting, while ignoring suspension motion.
         // Separate thresholds and a short stop delay avoid camera-mode chatter.
-        const speed = Math.hypot(this.carBody?.velocity?.x || 0, this.carBody?.velocity?.y || 0)
+        const body = this.getCarBody()
+        const speed = Math.hypot(body?.velocity?.x || 0, body?.velocity?.y || 0)
         let driving = this.driving || speed > .18
         if(driving)
         {
@@ -231,6 +240,26 @@ export default class Camera
             }
             this.following = true
         }
+        this.time.trigger('cameraControl')
+    }
+
+    frameActivity(point, distance = 40)
+    {
+        this.setView('orbit')
+        this.following = false
+        this.exploring = false
+        this.driving = false
+        this.stationaryTime = 0
+        this.pan.reset()
+        this.orbitControls.enableDamping = false
+        this.orbitControls.update()
+        this.orbitControls.target.set(point.x, point.y, point.z || 0)
+        this.instance.position.copy(this.angle.items.default).normalize().multiplyScalar(distance).add(this.orbitControls.target)
+        this.instance.lookAt(this.orbitControls.target)
+        this.orbitControls.update()
+        this.orbitControls.enableDamping = !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+        // Driving resumes the usual car follow; a stationary assisted roll
+        // keeps the entire bowling lane visible and mouse exploration usable.
         this.time.trigger('cameraControl')
     }
 

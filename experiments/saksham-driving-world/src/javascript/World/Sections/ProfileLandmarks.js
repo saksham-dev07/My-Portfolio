@@ -2,12 +2,28 @@ import * as THREE from 'three'
 import { groundLayer } from '../GroundLayers.js'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 
+// Blender-authored proxies are in the same Z-up metres as the source script.
+// Their simple compound shapes follow the visible podium's normalization,
+// rather than filling the decorative cup and handle silhouette with a grid.
+export function authoredLandmarkSolids(boxes, factor, translation, rotation = 0) {
+    const transform = new THREE.Matrix4().makeRotationZ(rotation)
+    return boxes.map(({ center, size }) => {
+        const box = new THREE.Object3D()
+        box.name = 'box'
+        box.position.fromArray(center).applyMatrix4(transform).multiplyScalar(factor).add(translation)
+        box.scale.fromArray(size).multiplyScalar(factor)
+        box.rotation.z = rotation
+        return box
+    })
+}
+
 // Keep original materials/textures. Adapt glTF's Y-up into the world's Z-up,
 // normalize its real bounds, then derive coarse solid physics from the geometry.
 export default class ProfileLandmarks {
     constructor({ objects, time, camera }, container, collisions) {
         this.container = container
         this.physics = objects.physics
+        this.matcap = objects.materials?.shades?.items?.white?.uniforms?.matcap?.value
         this.collisions = collisions
         this.models = []
         this.campusState = 'idle'
@@ -42,14 +58,37 @@ export default class ProfileLandmarks {
         })
     }
 
-    add(gltf, { name, x, y, width, depth, height, rotation = 0, cells = 5 }) {
+    add(gltf, { name, x, y, width, depth, height, rotation = 0, cells = 5, authored = false, groundZ = .08 }) {
         const model = new THREE.Group()
         model.name = name
         const oriented = new THREE.Group()
-        oriented.rotation.set(Math.PI / 2, 0, rotation)
+        oriented.rotation.set(Math.PI / 2, 0, rotation, 'ZXY')
         const source = gltf.scene.clone(true)
+        let authoredBoxes
+        const paletteMaterial = authored ? new THREE.MeshMatcapMaterial({ matcap: this.matcap, vertexColors: true }) : null
+        if (paletteMaterial) paletteMaterial.name = 'Highlights podium / shared palette matcap'
         source.traverse(node => {
             if (!node.isMesh) return
+            if (authored && node.userData.assetVersion >= 2) authoredBoxes = node.userData.collisionBoxes
+            if (authored) {
+                // GLTF palette attributes are linear; the original world matcap
+                // expects display-space colours, just like its botanical kit.
+                node.geometry = node.geometry.clone()
+                const colors = node.geometry.getAttribute('color')
+                if (colors) {
+                    const values = new Float32Array(colors.count * 3)
+                    const color = new THREE.Color()
+                    for (let i = 0; i < colors.count; i++) {
+                        color.setRGB(colors.getX(i), colors.getY(i), colors.getZ(i)).convertLinearToSRGB()
+                        values[i * 3] = color.r
+                        values[i * 3 + 1] = color.g
+                        values[i * 3 + 2] = color.b
+                    }
+                    node.geometry.setAttribute('color', new THREE.BufferAttribute(values, 3))
+                }
+                node.material = paletteMaterial
+                return
+            }
             const prepare = material => {
                 const copy = material.clone()
                 // No costly environment capture is needed for these stylized props.
@@ -67,7 +106,7 @@ export default class ProfileLandmarks {
         oriented.scale.setScalar(factor)
         bounds = new THREE.Box3().setFromObject(model)
         const center = bounds.getCenter(new THREE.Vector3())
-        oriented.position.set(-center.x, -center.y, -bounds.min.z + .08)
+        oriented.position.set(-center.x, -center.y, -bounds.min.z + groundZ)
         model.position.set(x, y, 0)
         this.container.add(model)
         model.updateMatrixWorld(true)
@@ -94,8 +133,8 @@ export default class ProfileLandmarks {
                 heights[index] = Math.max(heights[index], point.z)
             }
         })
-        const solids = []
-        for (let iy = 0; iy < cells; iy++) for (let ix = 0; ix < cells; ix++) {
+        const solids = authoredBoxes?.length ? authoredLandmarkSolids(authoredBoxes, factor, oriented.position, rotation) : []
+        if (!authoredBoxes?.length) for (let iy = 0; iy < cells; iy++) for (let ix = 0; ix < cells; ix++) {
             const h = heights[iy * cells + ix]
             if (h < .55) continue
             const box = new THREE.Object3D()
@@ -128,7 +167,7 @@ export default class ProfileLandmarks {
         this.avatarState = 'loading'
         this.report('avatar', 'Loading Saksham’s portrait…')
         new GLTFLoader().load('./saksham/models/saksham-face.glb', gltf => {
-            this.add(gltf, { name: 'Saksham · original portrait', x: 2, y: -73, width: 4.5, depth: 4.5, height: 5, cells: 5 })
+            this.add(gltf, { name: 'Saksham · original portrait', x: 2, y: -73, width: 4.5, depth: 4.5, height: 5, groundZ: .35, cells: 5 })
             this.avatarState = 'ready'
             this.report('avatar', '')
         }, event => this.progress('avatar', 'Saksham’s portrait', event), () => {

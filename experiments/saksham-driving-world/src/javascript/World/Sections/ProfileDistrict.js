@@ -227,6 +227,6 @@ export default class ProfileDistrict {
         this.container = district
         this.solids = solids
         this.trees = []
-        this.circuit = new ProfileCircuit({ zones, container: district })
+        this.circuit = new ProfileCircuit({ zones, container: district, physics: objects.physics })
     }
 }
