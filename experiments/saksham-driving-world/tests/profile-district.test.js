@@ -13,6 +13,7 @@ test('district furniture leaves main and journey entry pads clear', () => {
         const tree = new THREE.Group()
         const canopy = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 3))
         canopy.name = 'shadeGreen'
+        const originalTreeMaterial=canopy.material
         tree.add(canopy)
         const signTemplate = new THREE.Group()
         const pole = new THREE.Mesh(new THREE.BoxGeometry(.3, .3, 4))
@@ -43,9 +44,14 @@ test('district furniture leaves main and journey entry pads clear', () => {
         expect(experimentOptions.shape.widthCount).toBe(4)
         resetExperiment()
         expect(resetCount).toBe(10)
-        expect(district.solids.length).toBeGreaterThan(15)
-        // Test the full canopy footprint, not just a car-width trunk corridor.
-        for(const tree of district.trees) expect(roadEdgeDistance(tree.object.position.x,tree.object.position.y)).toBeGreaterThanOrEqual(tree.radius+.6)
+        expect(district.solids.length).toBeGreaterThan(8)
+        // Tree rendering and collisions are now owned together by the loaded
+        // botanical kit; the district retains every wall and interaction pad.
+        expect(district.trees).toHaveLength(0)
+        const legacyCanopies=[]
+        district.container.traverse(node=>{if(/^shadeGreen/i.test(node.name)) legacyCanopies.push(node)})
+        expect(legacyCanopies).toHaveLength(0)
+        expect(canopy.material).toBe(originalTreeMaterial)
         for (const entry of entries) for (const solid of district.solids) {
             if (solid.position.z - solid.scale.z / 2 > 1.6) continue
             const intersects = Math.abs(solid.position.x - entry.position.x) < solid.scale.x / 2 + entry.halfExtents.x

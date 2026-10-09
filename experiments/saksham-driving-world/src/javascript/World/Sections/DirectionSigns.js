@@ -84,7 +84,9 @@ export default class DirectionSigns {
             for (const side of [-1, 1]) {
                 const label = new THREE.Mesh(geometry, material)
                 label.name = `Raised lettering / ${sign.text} / ${side}`
-                label.rotation.set(Math.PI / 2, 0, side > 0 ? Math.PI : 0)
+                // Turn around the upright world axis after lifting the text
+                // into a vertical plane. XYZ flips the rear label upside down.
+                label.rotation.set(Math.PI / 2, 0, side > 0 ? Math.PI : 0, 'ZYX')
                 label.position.set(textX, (side < 0 ? boardBounds.min.y : boardBounds.max.y) - origin.y + side * .035, boardCenter.z)
                 group.add(label)
             }

@@ -202,9 +202,11 @@ export default class PlaygroundSection
             this.bowling.ball.collision.reset()
         }
 
-        // Reset area
+        // Reset stays beside the bowling lane, on the lawn above the entrance
+        // bend. Move its whole interaction pad with the label, never the game.
+        this.bowling.resetPosition = new THREE.Vector2(this.bowling.x - 1.5, this.bowling.y + 2)
         this.bowling.resetArea = this.areas.add({
-            position: new THREE.Vector2(this.bowling.x, this.bowling.y),
+            position: this.bowling.resetPosition,
             halfExtents: new THREE.Vector2(2, 2)
         })
         this.bowling.resetArea.on('interact', () =>
@@ -214,8 +216,8 @@ export default class PlaygroundSection
 
         // Reset label
         this.bowling.areaLabelMesh = new THREE.Mesh(new THREE.PlaneGeometry(2, 0.5), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.resources.items.areaResetTexture }))
-        this.bowling.areaLabelMesh.position.x = this.bowling.x
-        this.bowling.areaLabelMesh.position.y = this.bowling.y
+        this.bowling.areaLabelMesh.position.x = this.bowling.resetPosition.x
+        this.bowling.areaLabelMesh.position.y = this.bowling.resetPosition.y
         this.bowling.areaLabelMesh.matrixAutoUpdate = false
         this.bowling.areaLabelMesh.updateMatrix()
         this.container.add(this.bowling.areaLabelMesh)

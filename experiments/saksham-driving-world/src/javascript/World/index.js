@@ -12,6 +12,7 @@ import Walls from './Walls.js'
 import Scenery from './Scenery.js'
 import Landscape from './Landscape.js'
 import { stabilizeGround } from './GroundLayers.js'
+import { suppressRetiredTreeShadows } from './RetiredTreeShadows.js'
 import IntroSection from './Sections/IntroSection.js'
 import ProjectsSection from './Sections/ProjectsSection.js'
 import CrossroadsSection from './Sections/CrossroadsSection.js'
@@ -81,6 +82,7 @@ export default class World
         this.setSections()
         this.landscape = new Landscape({ objects: this.objects, scene: this.scene, camera: this.camera, config: this.config, time: this.time, directionSignTemplate: this.sections.crossroads.signTemplate })
         this.container.add(this.landscape.container)
+        suppressRetiredTreeShadows([...(this.landscape.retiredTreeAnchors || []), ...(this.sections.information.retiredShadowAnchors || [])], this.shadows.sun.vector)
         this.setScenery()
         this.setEasterEggs()
         stabilizeGround(this.container, this.floor.mesh, this.landscape.terrain)

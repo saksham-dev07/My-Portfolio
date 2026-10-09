@@ -8,6 +8,7 @@ import { captureVehiclePose } from '../src/javascript/World/VehiclePose.js'
 import { landscapeSigns, roadEdgeDistance } from '../src/javascript/World/LandscapeLayout.js'
 import { educationStops } from '../src/javascript/World/Sections/ProfilePaths.js'
 import Time from '../src/javascript/Utils/Time.js'
+import DirectionSigns from '../src/javascript/World/Sections/DirectionSigns.js'
 
 test('the intro reveal updates the material actually rendered by both instruction labels', () => {
     const intro={config:{touch:false},container:new THREE.Group(),objects:{add:()=>({})},resources:{items:{
@@ -56,6 +57,23 @@ test('journey arrow boards point to nearby matching stops with poles outside the
         expect(board.target.x-board.x).toBeGreaterThan(4)
         expect(board.target.x-board.x).toBeLessThan(6)
         for(const dx of [-.225,.225]) for(const dy of [-.225,.225]) expect(roadEdgeDistance(board.x+dx,board.y+dy)).toBeGreaterThan(.3)
+    }
+})
+
+test('both faces of turned direction boards keep raised lettering upright and front-facing',()=>{
+    const template=new THREE.Group(),container=new THREE.Group()
+    const board=new THREE.Mesh(new THREE.BoxGeometry(.3,8,1));board.name='shadeWhite084';board.position.z=3.4
+    const pole=new THREE.Mesh(new THREE.BoxGeometry(.2,.2,3));pole.name='shadeBrown004';pole.position.z=1.5
+    template.add(board,pole)
+    const signs=new DirectionSigns(template,container,[],[0,Math.PI/2].map((angle,i)=>({text:'SKILLS',x:i*10,y:0,angle,right:!!i})))
+    container.updateMatrixWorld(true)
+    for(const group of signs.items) for(const label of group.children.filter(node=>node.name.startsWith('Raised lettering'))) {
+        const side=Number(label.name.split(' / ').at(-1))
+        const up=new THREE.Vector3(0,1,0).transformDirection(label.matrixWorld)
+        const normal=new THREE.Vector3(0,0,1).transformDirection(label.matrixWorld)
+        const expected=new THREE.Vector3(0,side,0).applyAxisAngle(new THREE.Vector3(0,0,1),group.rotation.z)
+        expect(up.z).toBeCloseTo(1,6)
+        expect(normal.dot(expected)).toBeCloseTo(1,6)
     }
 })
 

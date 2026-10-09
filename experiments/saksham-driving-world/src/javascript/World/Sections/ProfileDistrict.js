@@ -1,10 +1,9 @@
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { labelTexture } from '../../StudioLabels.js'
-import { profilePaths, profilePathMarkers, educationStops } from './ProfilePaths.js'
+import { profilePaths, profilePathMarkers, profilePathClearances, educationStops } from './ProfilePaths.js'
 import ProfileCircuit from './ProfileCircuit.js'
 import DirectionSigns from './DirectionSigns.js'
-import { roadsidePosition, surfaceHeight } from '../LandscapeLayout.js'
 // Authored scenery frames the landmarks; the eastern wall is a physics experiment.
 export default class ProfileDistrict {
     constructor({ objects, areas, resources, walls, zones, time, camera, directionSignTemplate }, container, collisions) {
@@ -12,7 +11,6 @@ export default class ProfileDistrict {
         district.name = 'Lower district · courtyards and discovery loop'
         container.add(district)
         const solids = []
-        const trees = []
         const dummy = new THREE.Object3D()
         const sign = (lines, x, y, w = 8, h = 2, color = '#fff0d5', z = .055, backdrop = false) => {
             if (backdrop) {
@@ -42,41 +40,6 @@ export default class ProfileDistrict {
             )
             mesh.position.set(x, y, .011)
             district.add(mesh)
-        }
-
-        // ── Reuse original tree ────────────────────────────────────────
-        const treeSource = new THREE.Group()
-        const originalTree = objects.items.find(object => object.container.children.some(node => node.name === 'shadeGreen'))
-        for (const node of originalTree.container.children.filter(node => ['shadeGreen', 'shadeBrown003'].includes(node.name))) {
-            const copy = node.clone()
-            treeSource.add(copy)
-        }
-        const bounds = new THREE.Box3().setFromObject(treeSource)
-        const center = bounds.getCenter(new THREE.Vector3())
-        const scale = 3.8 / Math.max(.01, bounds.max.z - bounds.min.z)
-        treeSource.children.forEach(node => {
-            node.position.x -= center.x
-            node.position.y -= center.y
-            node.position.z -= bounds.min.z
-            node.updateMatrix()
-        })
-        const tree = (x, y, size = 1, angle = 0) => {
-            const radius=Math.hypot(bounds.max.x-bounds.min.x,bounds.max.y-bounds.min.y)*scale*size/2+.12
-            const planting=roadsidePosition(x,y,radius)
-            x=planting.x;y=planting.y
-            const ground=surfaceHeight(x,y)
-            const copy = treeSource.clone(true)
-            copy.position.set(x, y, ground+.02)
-            copy.scale.setScalar(scale * size)
-            copy.rotation.z = angle
-            copy.updateMatrix()
-            district.add(copy)
-            trees.push({ object: copy, radius, phase: x * .17 + y * .08 })
-            const trunk = new THREE.Object3D()
-            trunk.name = 'box'
-            trunk.position.set(x, y, ground+.65)
-            trunk.scale.set(.65, .65, 1.3)
-            solids.push(trunk)
         }
 
         // ── Reuse original brick for edges ─────────────────────────────
@@ -109,12 +72,8 @@ export default class ProfileDistrict {
         // ═══════════════════════════════════════════════════════════════
         // 1. PORTRAIT GARDEN — Richer grove framing the bust
         // ═══════════════════════════════════════════════════════════════
-        tree(-15.5, -59.5, .95, -.2)
-        tree(-15.5, -69, .72, .3)
-        tree(-18.5, -64.5, .6, -.5)
-        tree(20, -59.5, 1.1, .5)
-        tree(20, -69, .78, -.4)
-        tree(23, -64.5, .55, .2)
+        // Landscape's shared Blender tree batches frame these courtyards. Keep
+        // this district responsible for its walls, pads and landmark geometry.
         // Scattered accent pools behind the portrait
         groundCircle(-10, -66, 2.5, '#d4e7ef', .025)
         groundCircle(14, -67, 2, '#c3cdf7', .02)
@@ -162,10 +121,6 @@ export default class ProfileDistrict {
         edge(-30, -81, 3, Math.PI / 2, 3)
         edge(-18, -78, 4, 0, 2)
         // Additional low-course wall segment for enclosure feel.
-        tree(-31, -75, .9, .4)
-        tree(-17, -74, 1.05, -.3)
-        tree(-33, -83, .65, .2)    // new: backwall tree
-        tree(-15, -84, .55, -.4)   // new: fill corner
         // Ground accent under the Skills section.
         groundCircle(-24, -85, 5, '#c3cdf7', .025)
         accentRing(-24, -85, 4.7, 5.0, '#c3cdf7', .08)
@@ -175,10 +130,6 @@ export default class ProfileDistrict {
         // ═══════════════════════════════════════════════════════════════
         edge(25, -77, 4)
         edge(35, -77, 4)
-        tree(22, -75, .85, -.2)
-        tree(38, -74, 1.05, .4)
-        tree(40, -82, .6, -.3)    // new: rear accent
-        tree(20, -82, .7, .5)     // new: symmetry
         sign(['CODEVITA / FINTECH / GRIDLOCK'], 30, -78.8, 12, 1.2)
         // Ground accent under Highlights.
         groundCircle(30, -85, 5, '#edc4da', .025)
@@ -192,15 +143,8 @@ export default class ProfileDistrict {
         // Additional wing walls for a more enclosed feeling.
         edge(-12, -112, 3, 0, 2)
         edge(13, -112, 3, 0, 2)
-        tree(-8, -102, 1.15, -.3)
-        tree(-13, -105, .8, .5)
-        tree(10, -96, 1, .2)
-        tree(11, -110, .7, -.3)
-        // New trees framing the campus approaches.
-        tree(-16, -95, .65, .3)
-        tree(18, -94, .75, -.4)
-        tree(-14, -115, .55, .2)
-        tree(15, -115, .6, -.5)
+        // Frame the campus wings while keeping its facade, education title and
+        // timeline pads visible from the lower road.
         // Ground accent under Education.
         groundCircle(2, -108, 6, '#ffe5b8', .02)
         accentRing(2, -108, 5.7, 6.0, '#ffe5b8', .07)
@@ -215,9 +159,6 @@ export default class ProfileDistrict {
             // Subtle ring around each education pad.
             accentRing(x, y, 3.8, 4.0, '#ffe5b8', .1)
         }
-        tree(-31, -97, 1, .4)
-        tree(-31, -117, .8, -.2)
-        tree(-33, -107, .6, .3)    // new: mid-corridor tree
         sign(['THE ROAD SO FAR'], -19, -120, 11, 1.5)
 
         // ═══════════════════════════════════════════════════════════════
@@ -236,9 +177,6 @@ export default class ProfileDistrict {
         reset.on('interact', () => this.experiment.items.forEach(item => item.collision.reset()))
         sign(['REBUILD'], 30, -115, 5, 1)
         sign(['BREAK / BUILD / REPEAT'], 30, -119, 12, 1.5)
-        tree(52, -101, .9, .3)
-        tree(53, -112, 1.1, -.4)
-        tree(52, -107, .65, .2)
         // Ground accent under the physics experiment.
         groundCircle(30, -110, 4, '#edc4da', .02)
 
@@ -283,22 +221,12 @@ export default class ProfileDistrict {
             district.add(new THREE.Mesh(geometry, source.material))
         })
 
-        // Add physics for all tree trunks and edge colliders.
+        // Tree collisions are owned by the loaded Blender botanical batches.
         this.directionSigns = new DirectionSigns(directionSignTemplate, district, solids)
         collisions.push(objects.physics.addObjectFromThree({ meshes: solids, offset: new THREE.Vector3(), rotation: new THREE.Euler(), mass: 0, sleep: true }))
         this.container = district
         this.solids = solids
-        this.trees = trees
+        this.trees = []
         this.circuit = new ProfileCircuit({ zones, container: district })
-        const reducedMotion = typeof matchMedia === 'function' && matchMedia('(prefers-reduced-motion: reduce)').matches
-        if (!reducedMotion && time && camera) time.on('tick', () => {
-            if (Math.hypot(camera.instance.position.x - 2, camera.instance.position.y + 96) > 80) return
-            const wind = time.elapsed * .001
-            for (const tree of trees) {
-                tree.object.rotation.x = Math.sin(wind * .65 + tree.phase) * .012
-                tree.object.rotation.y = Math.cos(wind * .5 + tree.phase) * .009
-                tree.object.updateMatrix()
-            }
-        })
     }
 }

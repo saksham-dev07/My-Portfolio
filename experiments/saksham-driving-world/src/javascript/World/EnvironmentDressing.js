@@ -7,6 +7,7 @@ import { groundLayer } from './GroundLayers.js'
 
 export default class EnvironmentDressing {
     constructor({ container, objects, camera, time, trees }) {
+        this.container=container
         this.placements=dressingPlacements(trees)
         this.state='idle'
         let nextCheck=0
@@ -56,14 +57,26 @@ export default class EnvironmentDressing {
                     mesh.computeBoundingSphere();container.add(mesh);this.instances.push(mesh)
                 })
                 if(solids.length) this.collision=objects.physics.addObjectFromThree({meshes:solids,offset:new THREE.Vector3(),rotation:new THREE.Euler(),mass:0,sleep:true})
-                this.setContactShadows(container,trees)
+                this.setContactShadows(container,this.readyTrees || [])
                 gltf.scene.traverse(node=>{if(node.isMesh){node.geometry.dispose();node.material.dispose()}})
                 this.state='ready';time.off('tick.environmentDressing')
             },undefined,()=>{this.state='error';time.off('tick.environmentDressing')})
         })
     }
 
+    setTreeReady(trees) {
+        this.readyTrees=trees
+        if(this.state==='ready') this.setContactShadows(this.container,trees)
+    }
+
     setContactShadows(container,trees) {
+        if(this.shadow) {
+            container.remove(this.shadow)
+            this.shadow.geometry.dispose()
+            this.shadow.material.map.dispose()
+            this.shadow.material.dispose()
+            this.shadow=null
+        }
         const canvas=document.createElement('canvas');canvas.width=64;canvas.height=64
         const context=canvas.getContext('2d'),gradient=context.createRadialGradient(32,32,3,32,32,31)
         gradient.addColorStop(0,'rgba(34,30,48,.7)');gradient.addColorStop(.5,'rgba(34,30,48,.3)');gradient.addColorStop(1,'rgba(34,30,48,0)')
@@ -81,6 +94,6 @@ export default class EnvironmentDressing {
         const shadow=new THREE.Mesh(mergeGeometries(geometries),new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:.3,depthWrite:false}))
         geometries.forEach(g=>g.dispose())
         shadow.name='Merged terrain-conforming grove and outcrop contact shadows'
-        groundLayer(shadow,'shadow');container.add(shadow)
+        groundLayer(shadow,'shadow');container.add(shadow);this.shadow=shadow
     }
 }

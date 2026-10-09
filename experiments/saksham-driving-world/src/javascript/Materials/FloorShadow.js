@@ -12,6 +12,7 @@ export default function()
     }
 
     const material = new THREE.ShaderMaterial({
+        defines: { ERASED_TREE_COUNT: 0 },
         wireframe: false,
         transparent: true,
         uniforms,

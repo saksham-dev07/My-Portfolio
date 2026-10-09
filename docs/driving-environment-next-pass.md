@@ -4,7 +4,172 @@ Scope: desktop driving, original camera, overhead map and first-person view.
 Mobile optimization is deferred. The implementation record below distinguishes
 the completed pass from the original design specification that follows.
 
-## Implemented — 8 October 2026
+## Indian identity and interaction repairs — 9 October 2026
+
+- A custom Blender sandstone arch inspired by India Gate replaces the Eiffel
+  tower, baguettes and red location pin. The existing Indian flag remains.
+  The new arch has an actual open passage, stepped base, cornices, geometric
+  INDIA lettering and five structural collision boxes. Its 3.5 × 2.5 × 4 m
+  footprint is separate from the flag stand and the personal avenue.
+  Export: 99,576 bytes, 1,740 triangles, one vertex-color mesh/material and no
+  image textures. Eighty-four source parts remain editable in the .blend.
+- `InformationLayout.js` owns the replacement footprint and retired nodes.
+  `prune-information.mjs` removes the old display payload and obsolete physics
+  proxies; the static base shrinks from 57,352 to 39,176 bytes and collision GLB
+  from 6,244 to 5,396 bytes. The two unused baguette GLBs and loader entries
+  are removed. Former display shadows are included in the retired-atlas masks,
+  and the new arch receives a neutral contact shadow.
+- The playground's short final road segment had forced a corner radius below
+  its paved half-width, folding the inner shoulder. Two exact tangent 4 m
+  quarter-circles replace the tight bends, followed by a 3 m straight approach
+  ending at (-28,-42). Its 2.05 m inner shoulder radius stays positive; the
+  end clears the retained bench collider by 1.07 m. Other routes retain their
+  existing geometry and the single union-mask terrain surface.
+- The existing secret area at (-58,-60) previously changed a wig at the distant
+  crossroads. It now reveals a twelve-petal rangoli and a faceted curiosity
+  seed beside the visitor, with a finite petal burst and visible accessible
+  confirmation. Driving in, clicking, or pressing Enter activates it. DISCOVER
+  becomes BLOOM AGAIN, and the notice offers replay/dismissal with canvas focus
+  restoration. A cooldown bounds repeated activation; reduced motion reveals
+  the full scene instantly. Existing Konami behavior remains available.
+- The pond coping's extrusion faces were wound inward: the top faced down and
+  its bottom faced up at the same depth as the lawn. The Blender generator now
+  exports outward faces, and the runtime buries the sole 4 cm below the terrain.
+  Collision tops move with the visible coping to 20 cm above ground; water
+  remains at 14 cm. An actual decoded-triangle regression checks both top and
+  bottom winding, avoiding a render-order workaround for solid stone.
+
+## Personal scenes and coherent landscape — 9 October 2026
+
+This pass supersedes the legacy tree placement and fallback details recorded
+below. The earlier sections remain as implementation history.
+
+- `create-personal-vignettes.py` builds five editable Blender scenes: basketball,
+  coding, watching TV, gym and arcade. The portrait guides the swept hair,
+  glasses, skin tone and facial silhouette; the full body uses approximate slim
+  adult proportions because the reference does not show the whole body. No
+  photograph or image texture is included in the export.
+- The basketball figure is airborne with trailing bent legs, a raised hand
+  meeting the ball above the rim and its head facing the hoop. The arcade
+  player is centered directly in front of the cabinet, with both hands aligned
+  to the controls. Three floor dumbbells, a bench, towel and flask complete the
+  gym. Connected bent limbs improve the silhouettes without detailed anatomy.
+- `personal-vignettes.glb` is 293,680 bytes and 4,280 triangles: basketball 908,
+  coding 800, TV 744, gym 1,048 and arcade 780. Five meshes share one vertex-color
+  material with normalized byte colors; there are no textures or decoders.
+  `PersonalVignettes.js` loads the scenes when visible, places them above the
+  five retained plinths at scale 1.6, and builds aligned prop collisions from
+  GLB extras. Pose landmarks provide a regression check for actual activity
+  positions. The editable `personal-vignettes.blend` is kept outside deployment.
+- `prune-crossroads.mjs` removes the superseded figures and their geometry
+  payload, retaining all five plinths, boards and footing rocks. The hub base
+  falls from 631,364 to 54,304 bytes. Its obsolete baked shadow PNG is removed;
+  the new scenes receive neutral contact shadows. West/east sign groups move
+  4.4 m north, and the southern group 4.5 m west, with their matching colliders.
+- All 16 embedded block trees and their narrow Cannon shapes are retired,
+  preserving rails, rocks and shared source materials. The 21 cloned profile
+  block trees and proxies are removed. The Blender botanical kit now supplies
+  every tree: 48 broadleaf and 20 copper trees in two instanced groups. Of the
+  68 trees, 25 belong to newly composed arrival, playground, information,
+  portrait, skills, highlights, campus and journey groups; 43 valley/garden
+  grove placements remain. Trees use the actual surface heights and reserve
+  their complete moving crowns from roads, signs, art, paths and labels.
+- Trunk collisions and tree contact shadows appear only after the botanical
+  GLB loads. The field kit has 182 supporting props; 42 coral/lilac flower
+  clumps use two further instanced groups. The former tree silhouettes are
+  suppressed in their three original shadow atlases, including the wide baked
+  penumbra and long tails. A source-pixel regression verifies removal of a
+  surviving soft tail while preserving a separate rock shadow.
+- `TerrainPalette.js` blends green valley ground into olive foothills and
+  warm brown exposed slopes/crests. Terrain masks modulate meadow variation,
+  soil and sandstone paths within the existing heightfield shader. The hub
+  island, fog and restrained sunlight glow use the same landscape palette.
+  Road geometry, heights and vehicle physics remain covered by regressions.
+- Live desktop checks confirmed the dunk/arcade/gym alignment, the new
+  branching tree silhouettes and cleared original shadow footprints. The car
+  drove 12.6 m through the hub's east approach without meeting the relocated
+  signs or planting; moving automatically restored camera follow. No browser
+  console or shader errors appeared. A settled 90-frame 1280 × 720 overhead
+  sample recorded 741 aggregate draws, 636,309 triangles, a 7.0 ms median frame
+  interval and 13.9 ms p95. These local observations are not GPU guarantees.
+- 80 tests pass across 24 files, including activity pose, exported bounds,
+  tree retirement, readiness, clearance and existing driving/camera checks.
+  `bun run check`, production build and deployment audit pass. Deployment is
+  395 files / 51.39 MiB, without local instructions or source maps. The existing
+  large-chunk warning remains. No dependency was added. Camera/viewport QA
+  overrides are cleared after capturing the proof views.
+
+## Botanical pass — 9 October 2026
+
+- `create-botanical-kit.py` authors layered broadleaf/copper crowns on branching
+  trunks, coral/lilac petal clumps and a segmented, chamfered stone pond rim in
+  an isolated Blender scene. The editable assembly is saved as
+  `botanical-kit.blend`; the GLB is 201,444 bytes, five meshes, one vertex-color
+  material, normalized byte colors and no textures or decoder requirement.
+- `BotanicalDressing.js` lazily replaces the temporary grove copies after a
+  successful load, retaining them if loading fails. Forty-three trees and
+  48 flower clumps render in four instanced groups. The existing kit supplies
+  155 supporting rocks, shrubs and grass clumps. Large-crown envelopes are
+  reserved before placement, including their small breeze displacement.
+- Irregular, feathered meadow silhouettes replace repeated hard oval patches.
+  Fresh green grass, warm planting soil and sandstone paths use the existing
+  terrain mask; no overlapping ground geometry or extra terrain draw is added.
+  The pink screen glow is reduced from .55 to .27, preserving the atmospheric
+  lighting while retaining the new foliage colors.
+- One garden pond at (-54.3, -115) fits within the walking loop. Its complete
+  shoreline is reserved from planting; 24 low colliders match the visible stone
+  rim. Opaque teal water uses one inexpensive ripple shader with fog support,
+  no reflection render target and no network texture. Reduced-motion preference
+  stops both the new water and foliage movement, verified in the browser.
+- Chapter title strips now have explicit planting exclusions. The flower beds
+  also reject road shoulders, existing dressing, trunks, paths, the shelter and
+  pond. Camera/driving behavior remains covered by the existing regressions.
+- At 1280 × 720, a 90-frame overhead sample recorded 773 aggregate draws and
+  667,236 triangles: four more draws than the garden pass, with a 13.9 ms median
+  interval and 14.1 ms p95. These are local observations, not universal GPU
+  guarantees. First-person driving covered 10.7 m through the approach without
+  encountering the new planting. No browser shader/console errors appeared.
+- 66 tests pass; production build, code checks and production audit pass. The
+  deployment is 51.68 MiB and contains no local instructions or source maps.
+  The existing large-chunk warning remains. No dependency was installed.
+
+## Garden pass — 9 October 2026
+
+- Replaced scattered yellow planting with 16 authored legacy trees in arrival,
+  playground and Information groups, plus 21 trees framing the profile landmarks.
+  Separate sage/moss/olive materials preserve the imported shared materials.
+  Trunks and compound Cannon proxies move, turn and scale with their canopies;
+  unrelated rocks and playground rails retain their transforms and collisions.
+- The west ridge now contains one lawn garden: a level walking loop, a curved
+  pedestrian entrance joined to the actual rounded road, five perimeter trees,
+  border shrubs and grass. Its edges transition gradually into the ridge.
+  Grass meadows also ground the northern and southern groves. Lawn and paths
+  are painted into the shared heightfield shader, avoiding overlapping surfaces.
+- `GardenLayout.js` owns the garden footprint and paths. The same geometry
+  reserves vegetation clearance. Grove placement also rejects legacy canopies.
+  The final scene has 46 instanced grove trees and 156 kit props: 29 rocks,
+  45 shrubs and 82 grass clumps, using the existing six instanced groups.
+- `create-garden-shelter.py` builds an isolated Blender scene with 55 editable
+  parts: rounded stone terrace, splayed timber supports, bowed slat roof, copper
+  trim and one integrated rear seat. Source bevel modifiers remain editable.
+  Its selected export is one colored mesh/material, 2,476 triangles and
+  157,300 bytes, with normalized byte vertex colors and no textures or decoder.
+  `GardenShelter.js` loads only when visible and adds terrace/post/seat collisions.
+- Rear direction-board lettering now rotates around the upright world axis,
+  so both faces remain readable in the first-person camera.
+- Browser checks verified all new assets loaded without console or shader errors,
+  and the car drove 8.5 m through the garden approach without an obstacle.
+  A 90-frame 1280 × 720 top-view sample recorded 769 aggregate draw calls,
+  591,378 triangles, a 7.0 ms median frame interval and 7.1 ms p95. This current
+  local sample is not a direct frame-rate comparison with the previous day's
+  sample or a guarantee for other GPUs. No dependency was installed.
+- 62 tests pass, covering path connections, scaled planting clearance, exported
+  asset bounds, rotated compound tree ownership, upright sign faces and existing
+  driving/camera regressions. Production build and code checks pass. The inherited
+  large-chunk build warning remains; the optional world is separate from the
+  portfolio's initial page load.
+
+## Previous pass — 8 October 2026
 
 - Variable-width perimeter foothills and asymmetric, overlapping research banks
   use the existing 2 m render/physics grid. Roads and protected foundations retain

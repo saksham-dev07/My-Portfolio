@@ -1,4 +1,6 @@
 import * as THREE from 'three'
+import { buildHubStatic } from '../HubWayfinding.js'
+import PersonalVignettes from '../PersonalVignettes.js'
 
 export default class CrossroadsSection
 {
@@ -6,6 +8,7 @@ export default class CrossroadsSection
     {
         // Options
         this.time = _options.time
+        this.camera = _options.camera
         this.resources = _options.resources
         this.objects = _options.objects
         this.areas = _options.areas
@@ -24,14 +27,18 @@ export default class CrossroadsSection
 
         this.setStatic()
         this.setTiles()
+        this.vignettes = new PersonalVignettes({ container: this.container, objects: this.objects, camera: this.camera, time: this.time })
     }
 
     setStatic()
     {
+        const { base, collision } = buildHubStatic(
+            this.resources.items.crossroadsStaticBase.scene,
+            this.resources.items.crossroadsStaticCollision.scene
+        )
         this.objects.add({
-            base: this.resources.items.crossroadsStaticBase.scene,
-            collision: this.resources.items.crossroadsStaticCollision.scene,
-            floorShadowTexture: this.resources.items.crossroadsStaticFloorShadowTexture,
+            base,
+            collision,
             offset: new THREE.Vector3(this.x, this.y, 0),
             mass: 0
         })

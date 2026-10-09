@@ -61,25 +61,69 @@ test('every avenue belongs to one connected network and the hub island stays cle
     for(const p of hub.samples) expect(Math.hypot(p.x,p.y+30)).toBeCloseTo(6,5)
 })
 
-test('relocating an original roadside tree moves its trunk collision without ghost obstacles', () => {
+test('retiring an original tree removes its rendering and proxy while exposing its baked shadow footprint', () => {
     const container=new THREE.Group()
     const canopy=new THREE.Mesh(new THREE.BoxGeometry(1.5,1.5,3))
     canopy.name='shadeGreen';canopy.position.set(13,-90,2.5)
     const trunk=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,1))
     trunk.name='shadeBrown003';trunk.position.set(13,-90,.5)
-    container.add(canopy,trunk)
+    const floor=new THREE.Mesh(new THREE.PlaneGeometry(40,40),new THREE.ShaderMaterial({uniforms:{tShadow:{value:null}}}))
+    container.add(canopy,trunk,floor)
     const body=new CANNON.Body({mass:0})
     body.addShape(new CANNON.Box(new CANNON.Vec3(.25,.25,.5)),new CANNON.Vec3(13,-90,.5))
     body.addShape(new CANNON.Box(new CANNON.Vec3(2,2,1)),new CANNON.Vec3(30,-80,1))
     const debugTrunk=new THREE.Object3D();debugTrunk.position.copy(trunk.position)
-    const subject={relocatedTrees:[]}
-    Landscape.prototype.clearOriginalTrees.call(subject,{items:[{shouldMerge:true,container,collision:{body,model:{meshes:[debugTrunk]}}}]})
-    expect(subject.relocatedTrees).toHaveLength(1)
-    expect(roadEdgeDistance(canopy.position.x,canopy.position.y)).toBeGreaterThan(Math.hypot(1.5,1.5)/2+.59)
-    expect(trunk.position.x).toBeCloseTo(canopy.position.x,5)
-    expect(trunk.position.y).toBeCloseTo(canopy.position.y,5)
-    expect(body.shapeOffsets[0].x).toBeCloseTo(trunk.position.x,5)
-    expect(body.shapeOffsets[0].y).toBeCloseTo(trunk.position.y,5)
-    expect(body.shapeOffsets[1].x).toBe(30)
+    const collision={body,model:{meshes:[debugTrunk]}},item={shouldMerge:true,container,collision},subject={}
+    Landscape.prototype.clearOriginalTrees.call(subject,{items:[item]})
+    expect(subject.retiredTreeAnchors).toHaveLength(1)
+    const retired=subject.retiredTreeAnchors[0]
+    expect(retired.x).toBe(13);expect(retired.y).toBe(-90)
+    expect(retired.height).toBe(4);expect(retired.radius).toBeCloseTo(Math.hypot(1.5,1.5)/2,5)
+    expect(retired.sourceObject).toBe(item);expect(retired.floorMeshes).toEqual([floor])
+    expect(canopy.parent).toBeNull();expect(trunk.parent).toBeNull()
+    expect(floor.parent).toBe(container)
+    expect(body.shapes).toHaveLength(1)
+    expect(body.shapeOffsets[0].x).toBe(30)
+    expect(body.shapeOffsets).toHaveLength(body.shapes.length)
+    expect(body.shapeOrientations).toHaveLength(body.shapes.length)
+    expect(collision.model.meshes).toHaveLength(0)
     expect(body.aabbNeedsUpdate).toBe(true)
+})
+
+test('retiring rotated compound trees preserves rails, shared materials and their collisions', () => {
+    const container=new THREE.Group()
+    container.position.set(1.2,-55,0);container.rotation.z=.65
+    const originalGreen=new THREE.MeshBasicMaterial({color:'#e9d554'})
+    const originalBrown=new THREE.MeshBasicMaterial({color:'#aa7733'})
+    const body=new CANNON.Body({mass:0})
+    body.position.set(1.2,-55,0);body.quaternion.setFromEuler(0,0,.65)
+    const pairs=[],debug=[]
+    for(const [index,[x,y]] of [[0,[-2,2]],[1,[3,-1]]]) {
+        const canopy=new THREE.Mesh(new THREE.BoxGeometry(1.5,1.5,3),originalGreen)
+        canopy.name=index ? 'shadeGreen001' : 'shadeGreen';canopy.position.set(x,y,2.4)
+        const trunk=new THREE.Mesh(new THREE.BoxGeometry(.5,.5,1),originalBrown)
+        trunk.name=index ? 'shadeBrown004' : 'shadeBrown003';trunk.position.set(x,y,.5)
+        container.add(canopy,trunk)
+        body.addShape(new CANNON.Box(new CANNON.Vec3(.5,.5,1.5)),new CANNON.Vec3(x,y,1.5))
+        const mesh=new THREE.Object3D();mesh.position.set(x,y,1.5);mesh.scale.set(1,1,3)
+        debug.push(mesh);pairs.push({canopy,trunk})
+    }
+    const rail=new THREE.Mesh(new THREE.BoxGeometry(4,.3,1),originalBrown)
+    rail.name='shadeBrownRail';rail.position.set(-2,4,.5);container.add(rail)
+    body.addShape(new CANNON.Box(new CANNON.Vec3(2,.15,.5)),new CANNON.Vec3(-2,4,.5))
+    const oldRailPosition=rail.position.clone(),oldRailOffset=body.shapeOffsets[2].clone(),oldRailShape=body.shapes[2]
+    container.updateWorldMatrix(true,true)
+    const roots=pairs.map(({canopy})=>new THREE.Box3().setFromObject(canopy).getCenter(new THREE.Vector3()))
+    const subject={}
+    Landscape.prototype.clearOriginalTrees.call(subject,{items:[{shouldMerge:true,container,collision:{body,model:{meshes:debug}}}]})
+    expect(subject.retiredTreeAnchors).toHaveLength(2)
+    for(const [index,{canopy,trunk}] of pairs.entries()) {
+        expect(subject.retiredTreeAnchors[index].x).toBeCloseTo(roots[index].x,5)
+        expect(subject.retiredTreeAnchors[index].y).toBeCloseTo(roots[index].y,5)
+        expect(canopy.parent).toBeNull();expect(trunk.parent).toBeNull()
+    }
+    expect(rail.position).toEqual(oldRailPosition);expect(rail.material).toBe(originalBrown)
+    expect(body.shapeOffsets).toEqual([oldRailOffset]);expect(body.shapes).toEqual([oldRailShape])
+    expect(originalGreen.color.getHexString()).toBe('e9d554')
+    expect(container.children).toEqual([rail])
 })

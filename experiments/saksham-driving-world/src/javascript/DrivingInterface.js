@@ -3,8 +3,10 @@ import { projects } from './sakshamProjects.js';
 import { profileSections } from './sakshamProfile.js';
 import { projectStoryHref, readProjectRequest } from '../../../../src/utils/worldNavigation.js';
 import WorldNavigator from './WorldNavigator.js';
+import { discoveryNotice } from './DiscoveryNotice.js';
 
 export function drivingInterface(app) {
+  discoveryNotice({document,window,focusWorld:()=>app.$canvas.focus({preventScroll:true})});
   const start = document.querySelector('#start-drive');
   const boot = document.querySelector('.drive-boot');
   const progress = document.querySelector('#world-progress');

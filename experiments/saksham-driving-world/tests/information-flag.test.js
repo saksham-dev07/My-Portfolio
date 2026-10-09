@@ -2,7 +2,7 @@ import { test, expect } from 'bun:test'
 import * as THREE from 'three'
 import InformationSection from '../src/javascript/World/Sections/InformationSection.js'
 
-test('information section excludes French flag and adds Indian flag model', () => {
+test('information section replaces the French display while retaining its Indian flag', () => {
     const previousDocument = globalThis.document
     globalThis.document = {
         createElement: () => ({
@@ -30,7 +30,9 @@ test('information section excludes French flag and adds Indian flag model', () =
         const otherMesh = new THREE.Mesh()
         otherMesh.name = 'otherBaseMesh'
 
-        mockFrenchBase.add(poleMesh, ballMesh, whiteStripe, redStripe, blueStripe, otherMesh)
+        const towerMesh = new THREE.Mesh(); towerMesh.name = 'shadeGray007'
+        const pinMesh = new THREE.Mesh(); pinMesh.name = 'shadeRed001'
+        mockFrenchBase.add(poleMesh, ballMesh, whiteStripe, redStripe, blueStripe, towerMesh, pinMesh, otherMesh)
 
         const mockIndiaGltf = {
             scene: new THREE.Group()
@@ -52,8 +54,6 @@ test('information section excludes French flag and adds Indian flag model', () =
                 informationStaticCollision: { scene: new THREE.Group() },
                 informationStaticFloorShadowTexture: null,
                 informationFlagIndia: mockIndiaGltf,
-                informationBaguetteBase: { scene: new THREE.Group() },
-                informationBaguetteCollision: { scene: new THREE.Group() },
                 informationContactTwitterLabel: null,
                 informationContactGithubLabel: null,
                 informationContactLinkedinLabel: null,
@@ -80,7 +80,7 @@ test('information section excludes French flag and adds Indian flag model', () =
         })
 
         // 1. Verify filtered base has NO French flag meshes
-        const staticBaseCall = addedObjects.find(call => call.collision === mockResources.items.informationStaticCollision.scene)
+        const staticBaseCall = addedObjects[0]
         expect(staticBaseCall).toBeDefined()
         const staticChildrenNames = staticBaseCall.base.children.map(c => c.name)
         expect(staticChildrenNames).toContain('otherBaseMesh')
@@ -89,6 +89,10 @@ test('information section excludes French flag and adds Indian flag model', () =
         expect(staticChildrenNames).not.toContain('shadeWhite112')
         expect(staticChildrenNames).not.toContain('shadeRed005')
         expect(staticChildrenNames).not.toContain('shadeBlue')
+        expect(staticChildrenNames).not.toContain('shadeGray007')
+        expect(staticChildrenNames).not.toContain('shadeRed001')
+        expect(mockFrenchBase.children).toHaveLength(8)
+        expect(addedObjects).toHaveLength(1)
 
         // 2. Verify Indian flag container is added to info.container
         const flagNode = info.container.children.find(c => c.name === 'flagIndia')

@@ -1,4 +1,5 @@
 import * as THREE from 'three'
+import SecretGarden from './SecretGarden.js'
 
 export default class EasterEggs
 {
@@ -269,7 +270,6 @@ export default class EasterEggs
             position: new THREE.Vector2(-58, -60),
             halfExtents: new THREE.Vector2(2, 2)
         })
-        this.wigs.area.on('interact', this.wigs.change)
 
         // Label
         this.resources.items.areaQuestionMarkTexture.magFilter = THREE.NearestFilter
@@ -281,6 +281,7 @@ export default class EasterEggs
         this.wigs.areaLabel.matrixAutoUpdate = false
         this.wigs.areaLabel.updateMatrix()
         this.container.add(this.wigs.areaLabel)
+        this.secretGarden=new SecretGarden({area:this.wigs.area,label:this.wigs.areaLabel,container:this.container,time:this.areas.time})
     }
 
     setEggs()

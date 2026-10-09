@@ -3,6 +3,7 @@ import { labelTexture } from '../StudioLabels.js'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { projectSites, researchTerraces, surfaceHeight } from './LandscapeLayout.js'
 import { groundLayer } from './GroundLayers.js'
+import { terrainPalette } from './TerrainPalette.js'
 
 // Quiet wayfinding replaces duplicate tile lanes, decorative pools and
 // uncollidable trees. Landscape owns the terrain, roads and roadside groves.
@@ -40,12 +41,12 @@ export default class Scenery {
             groundLayer(forecourts,'accent')
         })
         label('02 / FIELD NOTES',2,-128,22,'#d5dded')
-        const plazaMaterial=new THREE.MeshBasicMaterial({color:'#747998'})
+        const plazaMaterial=new THREE.MeshBasicMaterial({color:terrainPalette.foothill})
         plazaMaterial.color.convertLinearToSRGB()
         const plaza=new THREE.Mesh(new THREE.CircleGeometry(3.8,64),plazaMaterial)
         plaza.position.set(0,-30,.017)
         this.container.add(plaza)
-        const hub = new THREE.Mesh(new THREE.RingGeometry(3.8,3.95,64),new THREE.MeshBasicMaterial({color:'#c3cdf7',transparent:true,opacity:.4,depthWrite:false}))
+        const hub = new THREE.Mesh(new THREE.RingGeometry(3.8,3.95,64),new THREE.MeshBasicMaterial({color:'#c6c9a8',transparent:true,opacity:.4,depthWrite:false}))
         hub.position.set(0,-30,.023)
         this.container.add(hub)
     }

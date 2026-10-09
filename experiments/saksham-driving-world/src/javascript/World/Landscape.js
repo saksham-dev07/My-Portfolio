@@ -1,10 +1,14 @@
 import * as THREE from 'three'
-import { landscapeGrid, surfaceHeight, roadEdgeDistance, roads, landscapeBounds, roadsidePosition, roadShoulder, landscapeSigns, researchTerraces, smooth } from './LandscapeLayout.js'
+import { landscapeGrid, surfaceHeight, roads, landscapeBounds, roadShoulder, landscapeSigns, researchTerraces, smooth } from './LandscapeLayout.js'
 import { roadMaskPixels } from './RoadMask.js'
 import DirectionSigns from './Sections/DirectionSigns.js'
 import ResearchGateway from './ResearchGateway.js'
-import { grovePlacements } from './EnvironmentLayout.js'
+import { grovePlacements, landmarkTreePlacements, flowerBeds } from './EnvironmentLayout.js'
 import EnvironmentDressing from './EnvironmentDressing.js'
+import { garden, gardenPaths, meadowPatches, meadowOutline } from './GardenLayout.js'
+import GardenShelter from './GardenShelter.js'
+import BotanicalDressing from './BotanicalDressing.js'
+import { terrainPalette, terrainBlendWeights } from './TerrainPalette.js'
 
 export default class Landscape {
     constructor({ objects, scene, camera, config, time, directionSignTemplate }) {
@@ -14,15 +18,17 @@ export default class Landscape {
         this.setTerrain()
         this.setRoads()
         this.clearOriginalTrees(objects)
-        this.setGroves(objects, time)
+        this.setGroves()
         this.dressing = new EnvironmentDressing({ container: this.container, objects, camera, time, trees: this.groves || [] })
+        this.botanicals = new BotanicalDressing({container:this.container,objects,camera,time,trees:this.groves,props:this.dressing.placements,onReady:trees=>this.dressing.setTreeReady(trees)})
+        this.garden = new GardenShelter({container:this.container,objects,camera,time})
         this.setSignalArch()
         this.gateway = new ResearchGateway({ container: this.container, physics: this.physics, camera, time })
         const signSolids=[]
         const signs=landscapeSigns.map(sign=>({...sign,z:surfaceHeight(sign.x,sign.y)}))
         this.directionSigns=new DirectionSigns(directionSignTemplate,this.container,signSolids,signs)
         if(signSolids.length) this.physics.addObjectFromThree({meshes:signSolids,offset:new THREE.Vector3(),rotation:new THREE.Euler(),mass:0,sleep:true})
-        scene.fog = new THREE.FogExp2('#9299bc', .0032)
+        scene.fog = new THREE.FogExp2(terrainPalette.fog, .0032)
         scene.fog.color.convertLinearToSRGB()
         time.on('tick', () => { scene.fog.density = camera.view === 'top' ? 0 : .0032 })
         camera.instance.far = 300
@@ -47,17 +53,19 @@ export default class Landscape {
         geometry.setAttribute('position',new THREE.Float32BufferAttribute(vertices,3))
         geometry.setIndex(indices)
         geometry.computeVertexNormals()
-        const colors=[], normal=geometry.attributes.normal, position=geometry.attributes.position
-        const valley=new THREE.Color('#72769f'), stone=new THREE.Color('#b6a6a0'), crest=new THREE.Color('#e3c7ab')
-        const terraceColors=researchTerraces.map(terrace=>new THREE.Color(terrace.ground))
+        const colors=[], vegetation=[], normal=geometry.attributes.normal, position=geometry.attributes.position
+        const valley=new THREE.Color(terrainPalette.valley), foothill=new THREE.Color(terrainPalette.foothill)
+        const stone=new THREE.Color(terrainPalette.stone), crest=new THREE.Color(terrainPalette.crest)
+        const terraceColors=terrainPalette.terraces.map(color=>new THREE.Color(color))
         const light=new THREE.Vector3(-.5,-.35,1).normalize(), n=new THREE.Vector3()
         for(let i=0;i<position.count;i++) {
-            const h=position.getZ(i), slope=1-normal.getZ(i)
-            const color=valley.clone().lerp(stone,THREE.MathUtils.clamp(h/10+slope*.8,0,1)).lerp(crest,THREE.MathUtils.clamp((h-7)/14,0,.55))
+            const weights=terrainBlendWeights(position.getZ(i),normal.getZ(i))
+            const color=valley.clone().lerp(foothill,weights.foothill).lerp(stone,weights.rock).lerp(crest,weights.crest)
+            vegetation.push(weights.meadow)
             researchTerraces.forEach((terrace,index)=>{
                 const edgeX=1-smooth(51,58,Math.abs(position.getX(i)-105))
                 const edgeY=1-smooth(10,16,Math.abs(position.getY(i)-terrace.y))
-                color.lerp(terraceColors[index],edgeX*edgeY*.62)
+                color.lerp(terraceColors[index],edgeX*edgeY*.18*weights.meadow)
             })
             const illumination=.78+Math.max(0,n.fromBufferAttribute(normal,i).dot(light))*.25
             const variation=1+.035*Math.sin(position.getX(i)*.19+position.getY(i)*.11)
@@ -68,6 +76,7 @@ export default class Landscape {
             colors.push(color.r,color.g,color.b)
         }
         geometry.setAttribute('color',new THREE.Float32BufferAttribute(colors,3))
+        geometry.setAttribute('terrainVegetation',new THREE.Float32BufferAttribute(vegetation,1))
         // Baked vertex lighting keeps the cliff hierarchy without shadow maps.
         this.terrain=new THREE.Mesh(geometry,new THREE.MeshBasicMaterial({vertexColors:true}))
         this.terrain.name='Shared Cannon heightfield terrain'
@@ -117,129 +126,137 @@ export default class Landscape {
         this.roadMask.generateMipmaps=true
         this.roadMask.minFilter=THREE.LinearMipmapLinearFilter
         this.roadMask.anisotropy=4
-        const asphalt=new THREE.Color('#494e70').convertLinearToSRGB()
-        const shoulder=new THREE.Color('#aba7b2').convertLinearToSRGB()
+        const asphalt=new THREE.Color('#454d4b').convertLinearToSRGB()
+        const shoulder=new THREE.Color('#a7ac90').convertLinearToSRGB()
+        const gardenMask=this.setGardenSurface()
+        const grass=new THREE.Color('#50884d').convertLinearToSRGB()
+        const path=new THREE.Color('#c4ae86').convertLinearToSRGB()
+        const soil=new THREE.Color('#997955').convertLinearToSRGB()
         this.terrain.material.onBeforeCompile=shader=>{
             shader.uniforms.roadMask={value:this.roadMask}
             shader.uniforms.roadAsphalt={value:asphalt}
             shader.uniforms.roadShoulder={value:shoulder}
-            shader.vertexShader='varying vec2 vRoadUv;\n'+shader.vertexShader
+            shader.uniforms.gardenMask={value:gardenMask}
+            shader.uniforms.gardenGrass={value:grass}
+            shader.uniforms.gardenPath={value:path}
+            shader.uniforms.gardenSoil={value:soil}
+            shader.vertexShader='attribute float terrainVegetation; varying float vMeadowWeight; varying vec2 vRoadUv;\n'+shader.vertexShader
             shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
+                vMeadowWeight=terrainVegetation;
                 vRoadUv=(position.xy-vec2(${minX}.0,${minY}.0))/vec2(${maxX-minX}.0,${maxY-minY}.0);`)
-            shader.fragmentShader='uniform sampler2D roadMask; uniform vec3 roadAsphalt; uniform vec3 roadShoulder; varying vec2 vRoadUv;\n'+shader.fragmentShader
+            shader.fragmentShader='uniform sampler2D roadMask; uniform sampler2D gardenMask; uniform vec3 gardenGrass; uniform vec3 gardenPath; uniform vec3 gardenSoil; uniform vec3 roadAsphalt; uniform vec3 roadShoulder; varying float vMeadowWeight; varying vec2 vRoadUv;\n'+shader.fragmentShader
             shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
                 vec3 coverage=texture2D(roadMask,vRoadUv).rgb;
+                vec3 gardenPaint=texture2D(gardenMask,vRoadUv).rgb;
+                float grassVariation=.97+.03*sin(vRoadUv.x*370.0+sin(vRoadUv.y*230.0));
+                diffuseColor.rgb=mix(diffuseColor.rgb,gardenGrass*grassVariation,gardenPaint.r*.64*vMeadowWeight);
+                diffuseColor.rgb=mix(diffuseColor.rgb,gardenSoil,gardenPaint.b*.7);
+                diffuseColor.rgb=mix(diffuseColor.rgb,gardenPath,gardenPaint.g);
                 diffuseColor.rgb=mix(diffuseColor.rgb,roadShoulder,coverage.r);
                 diffuseColor.rgb=mix(diffuseColor.rgb,roadAsphalt,coverage.g);
                 diffuseColor.rgb=mix(diffuseColor.rgb,vec3(.91,.86,.74),coverage.b*.65);`)
         }
-        this.terrain.material.customProgramCacheKey=()=> 'heightfield-road-union-v3'
+        this.terrain.material.customProgramCacheKey=()=> 'heightfield-green-valley-rock-v6'
         this.terrain.material.needsUpdate=true
     }
 
+    setGardenSurface() {
+        const {minX,maxX,minY,maxY}=landscapeBounds
+        const canvas=document.createElement('canvas');canvas.width=1024;canvas.height=720
+        const context=canvas.getContext('2d'),scale=canvas.width/(maxX-minX)
+        const px=x=>(x-minX)*scale,py=y=>(maxY-y)*scale
+        const image=context.createImageData(canvas.width,canvas.height)
+        const trace=(points)=>{
+            context.beginPath();points.forEach(([x,y],i)=>context[i ? 'lineTo' : 'moveTo'](px(x),py(y)));context.closePath()
+        }
+        meadowPatches.forEach((patch,index)=>{
+            context.filter=patch.garden ? 'blur(1px)' : 'blur(4px)'
+            trace(meadowOutline(patch,index))
+            context.fillStyle='#fff';context.fill()
+        })
+        context.filter='none'
+        const grass=context.getImageData(0,0,canvas.width,canvas.height).data
+        context.clearRect(0,0,canvas.width,canvas.height)
+        context.lineCap='round';context.lineJoin='round';context.strokeStyle='#fff'
+        for(const path of gardenPaths) {
+            context.beginPath();path.points.forEach(([x,y],i)=>context[i ? 'lineTo' : 'moveTo'](px(x),py(y)))
+            context.lineWidth=path.width*scale;context.stroke()
+        }
+        const s=garden.shelter
+        context.beginPath();context.roundRect(px(s.x-s.w/2),py(s.y+s.h/2),s.w*scale,s.h*scale,1.2*scale)
+        context.fillStyle='#fff';context.fill()
+        const paths=context.getImageData(0,0,canvas.width,canvas.height).data
+        context.clearRect(0,0,canvas.width,canvas.height);context.filter='blur(1px)'
+        flowerBeds.forEach(([x,y,rx,ry],index)=>{
+            trace(meadowOutline({x,y,rx,ry},index));context.fill()
+        })
+        const soil=context.getImageData(0,0,canvas.width,canvas.height).data
+        for(let i=0;i<grass.length;i+=4) {
+            image.data[i]=grass[i+3];image.data[i+1]=paths[i+3];image.data[i+2]=soil[i+3];image.data[i+3]=255
+        }
+        context.putImageData(image,0,0)
+        const texture=new THREE.CanvasTexture(canvas)
+        texture.minFilter=THREE.LinearMipmapLinearFilter;texture.anisotropy=4
+        this.gardenMask=texture
+        return texture
+    }
+
     clearOriginalTrees(objects) {
+        this.retiredTreeAnchors=[]
+        this.legacyTrees=[]
         this.relocatedTrees=[]
         for(const item of objects.items) {
             if(!item.shouldMerge) continue
             item.container.updateWorldMatrix(true,true)
+            const floorMeshes=item.container.children.filter(node=>node.material?.uniforms?.tShadow)
             for(const canopy of item.container.children.filter(node=>/^shadeGreen/i.test(node.name))) {
                 const bounds=new THREE.Box3().setFromObject(canopy)
-                const center=bounds.getCenter(new THREE.Vector3())
-                const size=bounds.getSize(new THREE.Vector3())
-                const radius=Math.hypot(size.x,size.y)/2
-                if(roadEdgeDistance(center.x,center.y)>=radius+.6) continue
-                // The old Information tree joins the western grove, rather than
-                // landing directly behind the portrait when moved by proximity.
-                const gardenTree=center.x>-8 && center.x<0 && center.y>-68 && center.y<-62
-                const target=roadsidePosition(gardenTree ? -14 : center.x,gardenTree ? -65 : center.y,radius)
-                const delta=new THREE.Vector3(target.x-center.x,target.y-center.y,0)
-                if(delta.lengthSq()<.01) continue
-                delta.z=surfaceHeight(target.x,target.y)-surfaceHeight(center.x,center.y)
-                const baseZ=bounds.min.z
-                // Move the canopy and its matching trunk before static batching.
-                for(const node of item.container.children) {
-                    if(node!==canopy && !/^shadeBrown/i.test(node.name)) continue
+                const center=bounds.getCenter(new THREE.Vector3()),size=bounds.getSize(new THREE.Vector3())
+                const trunks=item.container.children.filter(node=>{
+                    if(!/^shadeBrown/i.test(node.name)) return false
                     const b=new THREE.Box3().setFromObject(node),p=b.getCenter(new THREE.Vector3())
-                    if(node!==canopy && (Math.hypot(p.x-center.x,p.y-center.y)>.4 || b.max.z>baseZ+.5)) continue
-                    const localDelta=delta.clone().transformDirection(item.container.matrixWorld.clone().invert()).multiplyScalar(delta.length())
-                    node.position.add(localDelta);node.updateMatrix()
-                }
-                // The original trunks live inside compound Cannon bodies. Move
-                // their offsets too, otherwise a ghost trunk would block the road.
-                const body=item.collision.body
-                body.shapeOffsets.forEach((offset,index)=>{
-                    const point=body.pointToWorldFrame(offset)
-                    const shape=body.shapes[index]
-                    if(Math.hypot(point.x-center.x,point.y-center.y)>.6 || !shape.halfExtents || Math.max(shape.halfExtents.x,shape.halfExtents.y)>1.5) return
-                    const local=body.quaternion.inverse().vmult({x:delta.x,y:delta.y,z:delta.z})
-                    offset.vadd(local,offset)
-                    item.collision.model.meshes[index]?.position.add(new THREE.Vector3(local.x,local.y,local.z))
+                    return Math.hypot(p.x-center.x,p.y-center.y)<.4 && b.max.z<=bounds.min.z+.5
                 })
-                body.updateBoundingRadius();body.aabbNeedsUpdate=true
-                this.relocatedTrees.push({from:[center.x,center.y],to:[target.x,target.y],radius})
+                const baseZ=Math.min(bounds.min.z,...trunks.map(node=>new THREE.Box3().setFromObject(node).min.z))
+                this.retiredTreeAnchors.push({
+                    x:center.x,y:center.y,z:baseZ,
+                    radius:Math.hypot(size.x,size.y)/2,height:bounds.max.z-baseZ,
+                    sourceObject:item,floorMeshes,
+                })
+                const collision=item.collision,body=collision?.body
+                if(body) {
+                    // A compound body also owns rails, boulders and benches.
+                    // Remove only the narrow proxy directly beneath this crown.
+                    const remove=[]
+                    body.shapeOffsets.forEach((offset,index)=>{
+                        const point=body.pointToWorldFrame(offset),shape=body.shapes[index]
+                        if(Math.hypot(point.x-center.x,point.y-center.y)>.6 || !shape.halfExtents || Math.max(shape.halfExtents.x,shape.halfExtents.y)>1.5) return
+                        if(point.z<baseZ-.2 || point.z>bounds.max.z+.2) return
+                        remove.push(index)
+                    })
+                    for(const index of remove.reverse()) {
+                        const shape=body.shapes.splice(index,1)[0]
+                        body.shapeOffsets.splice(index,1);body.shapeOrientations.splice(index,1)
+                        if(shape.body===body) shape.body=null
+                        const debug=collision.model?.meshes.splice(index,1)[0]
+                        if(debug) {debug.removeFromParent();debug.geometry?.dispose()}
+                    }
+                    body.updateMassProperties();body.updateBoundingRadius();body.aabbNeedsUpdate=true
+                }
+                for(const node of [canopy,...trunks]) item.container.remove(node)
             }
         }
     }
 
-    setGroves(objects, time) {
-        const tree=objects.items.find(item=>item.container.children.some(node=>node.name==='shadeGreen'))
-        if(!tree) return
-        const source=new THREE.Group()
-        tree.container.children.filter(node=>['shadeGreen','shadeBrown003'].includes(node.name)).forEach(node=>source.add(node.clone()))
-        source.updateMatrixWorld(true)
-        const bounds=new THREE.Box3().setFromObject(source), center=bounds.getCenter(new THREE.Vector3())
-        const baseScale=4.5/Math.max(.01,bounds.max.z-bounds.min.z)
-        const size=bounds.getSize(new THREE.Vector3())
-        const placements=grovePlacements(Math.hypot(size.x,size.y)*baseScale/2)
-        // Retain the normalized size for understory placement and collision scale.
-        placements.forEach(p=>{p.treeScale=p.scale;p.scale*=baseScale})
-        const dummy=new THREE.Object3D(), trunkShapes=[]
-        for(const node of source.children) {
-            if(!node.isMesh) continue
-            const canopy=node.name==='shadeGreen'
-            const material=new THREE.MeshMatcapMaterial({
-                matcap:objects.materials.shades.items.white.uniforms.matcap.value,
-                color:canopy ? '#9cac77' : '#967568',
-            })
-            material.color.convertLinearToSRGB()
-            if(canopy) {
-                node.geometry.computeBoundingBox()
-                const {min,max}=node.geometry.boundingBox
-                const breeze={value:0},motion={value:1}
-                const preference=window.matchMedia('(prefers-reduced-motion: reduce)')
-                const syncMotion=()=>{motion.value=preference.matches ? 0 : 1}
-                syncMotion();preference.addEventListener('change',syncMotion)
-                time.on('tick',()=>{breeze.value=time.elapsed*.001})
-                material.onBeforeCompile=shader=>{
-                    shader.uniforms.uBreeze=breeze;shader.uniforms.uGroveMotion=motion
-                    shader.vertexShader='uniform float uBreeze; uniform float uGroveMotion;\n'+shader.vertexShader
-                    shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
-                        float crown=clamp((position.z-(${min.z.toFixed(5)}))/${Math.max(.01,max.z-min.z).toFixed(5)},0.0,1.0);
-                        transformed.x+=sin(uBreeze*.8+instanceMatrix[3].x*.17+instanceMatrix[3].y*.11)*crown*crown*.08*uGroveMotion;`)
-                }
-                material.customProgramCacheKey=()=> 'grove-matcap-breeze-v1'
-            }
-            const instances=new THREE.InstancedMesh(node.geometry,material,placements.length)
-            placements.forEach((p,index)=>{
-                dummy.position.set(p.x,p.y,p.z)
-                dummy.rotation.set(0,0,p.angle)
-                dummy.scale.setScalar(p.scale)
-                dummy.updateMatrix()
-                const origin=new THREE.Matrix4().makeTranslation(-center.x,-center.y,-bounds.min.z)
-                instances.setMatrixAt(index,dummy.matrix.clone().multiply(origin).multiply(node.matrixWorld))
-            })
-            instances.computeBoundingSphere()
-            this.container.add(instances)
-        }
-        for(const p of placements) {
-            const trunk=new THREE.Object3D()
-            trunk.name='box'
-            trunk.position.set(p.x,p.y,p.z+.75*p.treeScale)
-            trunk.scale.set(.55*p.treeScale,.55*p.treeScale,1.5*p.treeScale)
-            trunkShapes.push(trunk)
-        }
-        if(trunkShapes.length) this.physics.addObjectFromThree({meshes:trunkShapes,offset:new THREE.Vector3(),rotation:new THREE.Euler(),mass:0,sleep:true})
-        this.groves=placements
+    setGroves() {
+        // The Blender kit is normalized to 4.8m trees with a <2m crown radius.
+        // Keep the existing valley groves and add deliberately framed courtyard
+        // groups; no source blocks or mismatched legacy trunk proxies remain.
+        const groves=grovePlacements(2)
+        groves.forEach(p=>{p.treeScale=p.scale})
+        this.landmarkTrees=landmarkTreePlacements(2,groves)
+        this.groves=[...groves,...this.landmarkTrees]
+        this.groveMeshes=[]
     }
 
     setSignalArch() {

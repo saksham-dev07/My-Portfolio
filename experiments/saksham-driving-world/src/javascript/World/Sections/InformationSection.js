@@ -1,5 +1,8 @@
 import { labelTexture } from '../../StudioLabels.js'
 import * as THREE from 'three'
+import { buildInformationStatic, informationLandmark, retiredInformationShadows } from '../InformationLayout.js'
+import { vignetteGeometry } from '../PersonalVignettes.js'
+import { groundLayer } from '../GroundLayers.js'
 
 export default class InformationSection
 {
@@ -21,7 +24,7 @@ export default class InformationSection
 
         this.setStatic()
         this.setFlag()
-        this.setBaguettes()
+        this.setLandmark()
         this.setLinks()
         this.setActivities()
         this.setTiles()
@@ -29,24 +32,16 @@ export default class InformationSection
 
     setStatic()
     {
-        // Exclude the French flag meshes (pole, ball, blue/white/red stripes)
-        const frenchFlagMeshNames = new Set(['shadeWhite111', 'shadeWhite', 'shadeWhite112', 'shadeRed005', 'shadeBlue'])
-        const filteredBaseChildren = this.resources.items.informationStaticBase.scene.children.filter(
-            child => !frenchFlagMeshNames.has(child.name)
-        )
-        const filteredBaseScene = new THREE.Group()
-        for(const child of filteredBaseChildren)
-        {
-            filteredBaseScene.add(child.clone(true))
-        }
-
-        this.objects.add({
-            base: filteredBaseScene,
-            collision: this.resources.items.informationStaticCollision.scene,
+        const { base, collision } = buildInformationStatic(this.resources.items.informationStaticBase.scene, this.resources.items.informationStaticCollision.scene)
+        const object = this.objects.add({
+            base,
+            collision,
             floorShadowTexture: this.resources.items.informationStaticFloorShadowTexture,
             offset: new THREE.Vector3(this.x, this.y, 0),
             mass: 0
         })
+        const floorMeshes = object.container?.children.filter(node => node.material?.uniforms?.tShadow) || []
+        this.retiredShadowAnchors = retiredInformationShadows.map(p => ({ ...p, x: this.x + p.x, y: this.y + p.y, floorMeshes }))
     }
 
     setFlag()
@@ -97,35 +92,38 @@ export default class InformationSection
         this.container.add(shadow)
     }
 
-    setBaguettes()
+    setLandmark()
     {
-        this.baguettes = {}
-
-        this.baguettes.x = - 4
-        this.baguettes.y = 6
-
-        this.baguettes.a = this.objects.add({
-            base: this.resources.items.informationBaguetteBase.scene,
-            collision: this.resources.items.informationBaguetteCollision.scene,
-            offset: new THREE.Vector3(this.x + this.baguettes.x - 0.56, this.y + this.baguettes.y - 0.666, 0.2),
-            rotation: new THREE.Euler(0, 0, - Math.PI * 37 / 180),
-            duplicated: true,
-            shadow: { sizeX: 0.6, sizeY: 3.5, offsetZ: - 0.15, alpha: 0.35 },
-            mass: 1.5,
-            // soundName: 'woodHit'
+        const gltf = this.resources.items.informationLandmarkIndia
+        if (!gltf?.scene) return
+        gltf.scene.updateMatrixWorld(true)
+        const landmark = new THREE.Group(), solids = []
+        landmark.name = 'Indian identity / sandstone arch'
+        landmark.position.set(this.x + informationLandmark.x, this.y + informationLandmark.y, .01)
+        landmark.scale.setScalar(informationLandmark.scale)
+        const material = new THREE.MeshMatcapMaterial({ matcap: this.objects.materials.shades.items.white.uniforms.matcap.value, vertexColors: true })
+        landmark.updateMatrix()
+        gltf.scene.traverse(node => {
+            if (!node.isMesh) return
+            const mesh = new THREE.Mesh(vignetteGeometry(node), material)
+            mesh.name = 'India Gate inspired landmark'
+            landmark.add(mesh)
+            for (const box of node.userData.collisionBoxes || []) {
+                const solid = new THREE.Object3D(); solid.name = 'box'
+                solid.position.fromArray(box.center).applyMatrix4(landmark.matrix)
+                solid.scale.fromArray(box.size).multiplyScalar(informationLandmark.scale)
+                solid.rotation.z = box.angle || 0
+                solids.push(solid)
+            }
         })
-
-        this.baguettes.b = this.objects.add({
-            base: this.resources.items.informationBaguetteBase.scene,
-            collision: this.resources.items.informationBaguetteCollision.scene,
-            offset: new THREE.Vector3(this.x + this.baguettes.x - 0.8, this.y + this.baguettes.y - 2, 0.5),
-            rotation: new THREE.Euler(0, - 0.5, Math.PI * 60 / 180),
-            duplicated: true,
-            shadow: { sizeX: 0.6, sizeY: 3.5, offsetZ: - 0.15, alpha: 0.35 },
-            mass: 1.5,
-            sleep: false,
-            // soundName: 'woodHit'
-        })
+        this.container.add(landmark)
+        this.landmark = landmark
+        if (solids.length) this.landmarkCollision = this.objects.physics.addObjectFromThree({ meshes: solids, offset: new THREE.Vector3(), rotation: new THREE.Euler(), mass: 0, sleep: true })
+        const shadow = new THREE.Mesh(new THREE.CircleGeometry(1, 32), new THREE.MeshBasicMaterial({ color: '#2c4230', transparent: true, opacity: .18, depthWrite: false }))
+        shadow.position.set(landmark.position.x, landmark.position.y, 0)
+        shadow.scale.set(2.2, 1.7, 1)
+        groundLayer(shadow, 'shadow')
+        this.container.add(shadow)
     }
 
     setLinks()

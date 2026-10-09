@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import { profilePaths, profilePathClearances, educationStops } from './Sections/ProfilePaths.js'
+import { garden } from './GardenLayout.js'
 
 export const landscapeSigns = [
     { text: 'PROJECTS', x: 30, y: -32, right: true, angle: 0 },
@@ -29,6 +30,7 @@ export const foundations = [
     { x: 7, y: -97, w: 88, h: 58 },
     { x: -60, y: -100, w: 12, h: 10 },
     { x: -58, y: -60, w: 10, h: 10 },
+    { ...garden.shelter },
     ...projectSites.map(site => ({ x: site.x, y: site.y - 2, w: 23, h: 22 })),
 ]
 
@@ -39,7 +41,9 @@ export const roadDefinitions = [
     { name: 'Arrival', points: [[0,-10],[0,-24]], width: 3.2, shoulder: .35 },
     { name: 'Research approach', points: [[6,-30],[22,-30],[22,-38],[60,-38]], width: 4.4, cornerRadius: 6 },
     { name: 'Research promenade', points: [[60,-38],[165,-38],[165,-78],[46,-78],[46,-118],[165,-118],[165,-136],[40,-136],[40,-119]], width: 4.4, cornerRadius: 12 },
-    { name: 'Playground', points: [[-6,-30],[-21,-30],[-21,-42],[-24,-42]], width: 3.2, cornerRadius: 5 },
+    // Two true quarter-turns lead into a straight playground entrance. The old
+    // 3m end stub forced a bend tighter than the lane, folding its inner curb.
+    { name: 'Playground', points: [[-6,-30],[-21,-30],[-21,-42],[-28,-42]], width: 3.2, cornerRadius: 4, circularCorners: true },
     { name: 'Personal avenue', points: [[0,-36],[0,-60.5]], width: 3.2, shoulder: .35 },
     { name: 'Garden west', points: [[0,-60.5],[-9,-60.5],[-9,-71.5]], width: 3.2, cornerRadius: 6 },
     { name: 'Garden east', points: [[0,-60.5],[13,-60.5],[13,-71.5]], width: 3.2, cornerRadius: 6 },
@@ -49,7 +53,7 @@ export const roadDefinitions = [
 ]
 export const roadShoulder = .35
 
-export function roadCurve({ points, center, radius, cornerRadius = 3.5 }) {
+export function roadCurve({ points, center, radius, cornerRadius = 3.5, circularCorners = false }) {
     if (center) {
         const curve = new THREE.CurvePath()
         const circle = new THREE.EllipseCurve(...center,radius,radius,0,Math.PI*2,false,0)
@@ -64,11 +68,33 @@ export function roadCurve({ points, center, radius, cornerRadius = 3.5 }) {
     let previous = vectors[0]
     for (let i = 1; i < vectors.length - 1; i++) {
         const corner = vectors[i]
-        const radius = Math.min(cornerRadius, corner.distanceTo(vectors[i-1])*.45, corner.distanceTo(vectors[i+1])*.45)
+        const beforeAllowance = corner.distanceTo(vectors[i-1]) * (circularCorners && i === 1 ? .9 : .45)
+        const afterAllowance = corner.distanceTo(vectors[i+1]) * (circularCorners && i === vectors.length - 2 ? .9 : .45)
+        const radius = Math.min(cornerRadius, beforeAllowance, afterAllowance)
         const before = corner.clone().add(vectors[i-1].clone().sub(corner).normalize().multiplyScalar(radius))
         const after = corner.clone().add(vectors[i+1].clone().sub(corner).normalize().multiplyScalar(radius))
         curve.add(new THREE.LineCurve3(previous,before))
-        curve.add(new THREE.QuadraticBezierCurve3(before,corner,after))
+        if(circularCorners) {
+            const incoming = corner.clone().sub(vectors[i-1]).normalize()
+            const outgoing = vectors[i+1].clone().sub(corner).normalize()
+            if(Math.abs(incoming.dot(outgoing)) > .000001) throw new Error('Circular road corners require perpendicular approach segments')
+            const arcCenter = before.clone().add(outgoing.clone().multiplyScalar(radius))
+            const startAngle = Math.atan2(before.y - arcCenter.y, before.x - arcCenter.x)
+            const sweep = Math.sign(incoming.x*outgoing.y - incoming.y*outgoing.x) * Math.PI / 2
+            const arc = new THREE.Curve()
+            arc.getPoint = (t, target = new THREE.Vector3()) => target.set(
+                arcCenter.x + radius*Math.cos(startAngle + sweep*t),
+                arcCenter.y + radius*Math.sin(startAngle + sweep*t), 0
+            )
+            arc.getPointAt = arc.getPoint
+            arc.getLength = () => radius*Math.abs(sweep)
+            arc.getTangent = (t, target = new THREE.Vector3()) => target.set(
+                -Math.sin(startAngle + sweep*t)*Math.sign(sweep),
+                Math.cos(startAngle + sweep*t)*Math.sign(sweep), 0
+            )
+            arc.getTangentAt = arc.getTangent
+            curve.add(arc)
+        } else curve.add(new THREE.QuadraticBezierCurve3(before,corner,after))
         previous = after
     }
     curve.add(new THREE.LineCurve3(previous,vectors.at(-1)))
@@ -146,7 +172,11 @@ export function terrainHeight(x,y) {
     // The level corridor includes the shoulders and a full heightfield cell.
     // Ridge roads rise gently to 1 m; every old foundation stays at zero.
     const ridgeElevation = hill(x,y,-55,-87,18,36,1) * smooth(0,8,site)
-    return (native*smooth(5.5,9.5,road)+ridgeElevation*(1-smooth(5.5,9.5,road))) * smooth(2,7,site)
+    const elevation=(native*smooth(5.5,9.5,road)+ridgeElevation*(1-smooth(5.5,9.5,road))) * smooth(2,7,site)
+    // A level garden lawn and walking loop transition into the west ridge's
+    // planted berm. The shelter never sits on an isolated raised terrain island.
+    const gardenEdge=Math.hypot((x-garden.x)/garden.rx,(y-garden.y)/garden.ry)
+    return elevation*smooth(.78,1.3,gardenEdge)
 }
 
 let cached
