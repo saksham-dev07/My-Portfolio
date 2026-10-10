@@ -10,6 +10,35 @@ import { educationStops } from '../src/javascript/World/Sections/ProfilePaths.js
 import Time from '../src/javascript/Utils/Time.js'
 import DirectionSigns from '../src/javascript/World/Sections/DirectionSigns.js'
 
+test('the car editor attaches a hidden scene helper and keeps gizmo visibility in sync', () => {
+    const previousDocument = globalThis.document
+    globalThis.document = new EventTarget()
+    const canvas = new EventTarget()
+    canvas.style = {}
+    canvas.ownerDocument = new EventTarget()
+    canvas.getRootNode = () => canvas.ownerDocument
+    let toggle
+    const folder = { open() {}, add: () => ({ onChange: callback => { toggle = callback } }) }
+    const car = { chassis: { object: new THREE.Group() }, container: new THREE.Group(),
+        camera: { instance: new THREE.PerspectiveCamera(), orbitControls: { enabled: true } },
+        renderer: { domElement: canvas }, debug: true, debugFolder: { addFolder: () => folder } }
+    try {
+        Car.prototype.setTransformControls.call(car)
+        expect(car.container.children).toEqual([car.transformControls.getHelper()])
+        expect(car.transformControlsHelper.visible).toBe(false)
+        car.transformControls.enabled = true
+        toggle()
+        expect(car.transformControlsHelper.visible).toBe(true)
+        car.transformControls.dispatchEvent({ type: 'dragging-changed', value: true })
+        expect(car.camera.orbitControls.enabled).toBe(false)
+        car.transformControls.dispatchEvent({ type: 'dragging-changed', value: false })
+        expect(car.camera.orbitControls.enabled).toBe(true)
+    } finally {
+        car.transformControls?.dispose()
+        globalThis.document = previousDocument
+    }
+})
+
 test('the intro reveal updates the material actually rendered by both instruction labels', () => {
     const intro={config:{touch:false},container:new THREE.Group(),objects:{add:()=>({})},resources:{items:{
         introInstructionsArrowsTexture:new THREE.Texture(),introInstructionsOtherTexture:new THREE.Texture(),

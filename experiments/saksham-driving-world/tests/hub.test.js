@@ -1,7 +1,5 @@
 import { expect, test } from 'bun:test'
-import { createRequire } from 'node:module'
-import { dirname } from 'node:path'
-import { fileURLToPath } from 'node:url'
+import draco3d from 'draco3d'
 import * as THREE from 'three'
 import * as CANNON from 'cannon'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
@@ -16,16 +14,9 @@ const asset = new URL('../static/models/crossroads/static/base.glb', import.meta
 const collisionAsset = new URL('../static/models/crossroads/static/collision.glb', import.meta.url)
 const readJson = bytes => JSON.parse(new TextDecoder().decode(new Uint8Array(bytes, 20, new DataView(bytes).getUint32(12, true))))
 
-// Exercise the same bundled Draco decoder and GLTFLoader used in the browser.
-// A small synchronous adapter avoids browser workers in Bun, with no dependency.
+// Exercise GLTFLoader with a synchronous Draco adapter outside browser workers.
 async function loadHub() {
-    const decoderFile = new URL('../static/draco/draco_decoder.js', import.meta.url)
-    const source = await Bun.file(decoderFile).text()
-    const module = { exports: {} }
-    const factory = new Function('module', 'exports', 'require', '__dirname', '__filename', `${source}; return DracoDecoderModule;`)(
-        module, module.exports, createRequire(import.meta.url), dirname(fileURLToPath(decoderFile)), fileURLToPath(decoderFile)
-    )
-    const draco = await factory()
+    const draco = await draco3d.createDecoderModule()
     const adapter = {
         preload() {},
         decodeDracoFile(bytes, onLoad, attributeIds, attributeTypes, _colorSpace, onError) {

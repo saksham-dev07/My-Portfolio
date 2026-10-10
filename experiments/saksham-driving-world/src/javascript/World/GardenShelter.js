@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { modelLoader } from '../Utils/ModelLoader.js'
 import { garden } from './GardenLayout.js'
 import { surfaceHeight } from './LandscapeLayout.js'
 import { groundLayer } from './GroundLayers.js'
@@ -20,7 +20,7 @@ export default class GardenShelter {
             frustum.setFromProjectionMatrix(matrix)
             if(camera.view!=='top' && !frustum.intersectsSphere(sphere)) return
             this.state='loading'
-            new GLTFLoader().load('./saksham/models/garden-shelter.glb',gltf=>{
+            modelLoader.load('./saksham/models/garden-shelter.glb',gltf=>{
                 const material=new THREE.MeshMatcapMaterial({matcap:objects.materials.shades.items.white.uniforms.matcap.value,vertexColors:true})
                 const color=new THREE.Color()
                 gltf.scene.traverse(node=>{

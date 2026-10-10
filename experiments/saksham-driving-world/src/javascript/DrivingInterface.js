@@ -1,4 +1,3 @@
-import { Howler } from 'howler';
 import { projects } from './sakshamProjects.js';
 import { profileSections } from './sakshamProfile.js';
 import { projectStoryHref, readProjectRequest } from '../../../../src/utils/worldNavigation.js';
@@ -35,7 +34,8 @@ export function drivingInterface(app) {
     cameraBody.hidden = !expanded;
     cameraTools.dataset.collapsed = String(!expanded);
   });
-  if (window.matchMedia('(max-width: 760px), (pointer: coarse)').matches) cameraToggle.click();
+  // Keep the playfield open; detailed camera and driving controls are opt-in.
+  cameraToggle.click();
   const syncCameraTools = () => {
     const view = app.camera.view;
     topTools.hidden = view !== 'top';
@@ -144,16 +144,29 @@ export function drivingInterface(app) {
   });
   app.resources.on('progress', value => {
     progress.value = value;
-    status.textContent = `Loading scene assets · ${Math.round(value * 100)}%`;
+    if (!app.resources.loader.failures.size) status.textContent = `Preparing your drive · ${Math.round(value * 100)}%`;
+  });
+  const retryLoading = document.querySelector('#retry-loading');
+  app.resources.on('error', () => {
+    status.textContent = 'Some scene files could not load. Retry to continue.';
+    retryLoading.hidden = false;
+    retryLoading.disabled = false;
+  });
+  retryLoading.addEventListener('click', () => {
+    retryLoading.disabled = true;
+    status.textContent = 'Reconnecting. Your loaded scenery is kept.';
+    app.resources.loader.retryFailed();
   });
   app.resources.on('ready', () => {
     start.disabled = false;
+    retryLoading.hidden = true;
     start.textContent = 'Enter the world';
     status.textContent = 'World ready. Your curiosity supplies the direction.';
   });
   app.world.startingScreen.area.on('interact', () => {
     if (started) return;
     started = true;
+    app.world.sounds.enable();
     boot.hidden = true;
     home.disabled = false;
     app.camera.car = app.world.physics.car;
@@ -210,9 +223,8 @@ export function drivingInterface(app) {
   });
   sound.addEventListener('click', () => {
     const enabled = app.world.sounds.muted;
-    app.world.sounds.muted = !enabled;
-    Howler.mute(!enabled);
-    sound.textContent = enabled ? 'Sound on' : 'Sound off';
+    app.world.sounds.setMuted(!enabled);
+    sound.querySelector('span').textContent = enabled ? 'Sound on' : 'Sound off';
     sound.setAttribute('aria-pressed', String(enabled));
   });
   window.addEventListener('keydown', event => {
@@ -221,7 +233,7 @@ export function drivingInterface(app) {
       return;
     }
     if (event.key.toLowerCase() !== 'm') return;
-    sound.textContent = app.world.sounds.muted ? 'Sound off' : 'Sound on';
+    sound.querySelector('span').textContent = app.world.sounds.muted ? 'Sound off' : 'Sound on';
     sound.setAttribute('aria-pressed', String(!app.world.sounds.muted));
   });
   function openMap(section = 'projects', chapter = null) {
@@ -251,6 +263,8 @@ export function drivingInterface(app) {
     const landmarks = app.world.sections?.profile?.landmarks;
     if (id === 'education') landmarks?.loadCampus();
     if (id === 'about') landmarks?.loadAvatar();
+    if (id === 'skills') landmarks?.loadSkills();
+    if (id === 'highlights') landmarks?.loadHighlights();
     list.hidden = id !== 'projects';
     profile.hidden = id === 'projects';
     for (const [key, button] of sectionButtons) button.setAttribute('aria-pressed', String(key === id));

@@ -1,6 +1,25 @@
 import * as THREE from 'three'
 import { groundLayer } from '../GroundLayers.js'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { modelLoader } from '../../Utils/ModelLoader.js'
+import assets from './landmark-assets.json'
+
+export function prepareLandmarkMaterial(material, kind) {
+    const copy = material.clone()
+    if ('metalness' in copy) { copy.metalness = 0; copy.metalnessMap = null }
+    if ('roughness' in copy) copy.roughness = kind === 'avatar' ? .86 : .94
+    if ('specularIntensity' in copy) copy.specularIntensity = kind === 'avatar' ? .22 : .3
+    if (copy.specularColor) copy.specularColor.set('#ffffff')
+    if (copy.normalScale) copy.normalScale.setScalar(kind === 'avatar' ? .55 : .75)
+    // A tiny texture-coloured fill preserves dark, baked details without an
+    // environment capture or additional shadow map. Keep the original pixels.
+    if (kind === 'avatar' || kind === 'campus') {
+        copy.emissive.set('#ffffff')
+        copy.emissiveMap = copy.map
+        copy.emissiveIntensity = kind === 'avatar' ? .035 : .08
+    }
+    for (const texture of [copy.map, copy.normalMap, copy.roughnessMap]) if (texture) texture.anisotropy = 4
+    return copy
+}
 
 // Blender-authored proxies are in the same Z-up metres as the source script.
 // Their simple compound shapes follow the visible podium's normalization,
@@ -20,25 +39,30 @@ export function authoredLandmarkSolids(boxes, factor, translation, rotation = 0)
 // Keep original materials/textures. Adapt glTF's Y-up into the world's Z-up,
 // normalize its real bounds, then derive coarse solid physics from the geometry.
 export default class ProfileLandmarks {
-    constructor({ objects, time, camera }, container, collisions) {
+    constructor({ objects, time, camera, loader = modelLoader }, container, collisions) {
         this.container = container
         this.physics = objects.physics
         this.matcap = objects.materials?.shades?.items?.white?.uniforms?.matcap?.value
         this.collisions = collisions
         this.models = []
+        this.loader = loader
         this.campusState = 'idle'
         this.avatarState = 'idle'
+        this.skillsState = 'idle'
+        this.highlightsState = 'idle'
         this.pending = new Map()
         const frustum = new THREE.Frustum()
         const viewProjection = new THREE.Matrix4()
         const campusBounds = new THREE.Sphere(new THREE.Vector3(2, -105, 2), 8)
         const avatarBounds = new THREE.Sphere(new THREE.Vector3(2, -73, 2.5), 4)
+        const skillsBounds = new THREE.Sphere(new THREE.Vector3(-24, -81, 2), 6)
+        const highlightsBounds = new THREE.Sphere(new THREE.Vector3(30, -83, 2), 6)
         let nextCheck = 0
-        container.add(new THREE.HemisphereLight('#dae7ff', '#756154', 2.1))
-        const sun = new THREE.DirectionalLight('#ffe6c5', 2.8)
+        container.add(new THREE.HemisphereLight('#edf3ff', '#a5b5a0', 2.3))
+        const sun = new THREE.DirectionalLight('#fff7ee', 1.65)
         sun.position.set(-30, -60, 70)
         container.add(sun)
-        const portraitLight = new THREE.DirectionalLight('#fff4ea', 2.0)
+        const portraitLight = new THREE.DirectionalLight('#e8f1ff', 1.6)
         portraitLight.position.set(0, -90, 25)
         portraitLight.target.position.set(2, -73, 2.5)
         container.add(portraitLight)
@@ -48,17 +72,19 @@ export default class ProfileLandmarks {
         time.on('tick', () => {
             if (performance.now() < nextCheck) return
             nextCheck = performance.now() + 250
-            if (this.campusState !== 'idle' && this.avatarState !== 'idle') return
+            if (['campus', 'avatar', 'skills', 'highlights'].every(id => this[`${id}State`] !== 'idle')) return
             const car = this.physics.car.chassis.body.position
             camera.instance.updateMatrixWorld()
             viewProjection.multiplyMatrices(camera.instance.projectionMatrix, camera.instance.matrixWorldInverse)
             frustum.setFromProjectionMatrix(viewProjection)
-            if (this.campusState === 'idle' && (Math.hypot(car.x - 2, car.y + 112) < 22 || frustum.intersectsSphere(campusBounds))) this.loadCampus()
-            if (this.avatarState === 'idle' && (Math.hypot(car.x - 2, car.y + 80) < 20 || frustum.intersectsSphere(avatarBounds))) this.loadAvatar()
+            if (this.campusState === 'idle' && (Math.hypot(car.x - 2, car.y + 112) < 28 || frustum.intersectsSphere(campusBounds))) this.loadCampus(10)
+            if (this.avatarState === 'idle' && (Math.hypot(car.x - 2, car.y + 80) < 26 || frustum.intersectsSphere(avatarBounds))) this.loadAvatar(10)
+            if (this.skillsState === 'idle' && (Math.hypot(car.x + 24, car.y + 88) < 24 || frustum.intersectsSphere(skillsBounds))) this.loadSkills(10)
+            if (this.highlightsState === 'idle' && (Math.hypot(car.x - 30, car.y + 90) < 24 || frustum.intersectsSphere(highlightsBounds))) this.loadHighlights(10)
         })
     }
 
-    add(gltf, { name, x, y, width, depth, height, rotation = 0, cells = 5, authored = false, groundZ = .08 }) {
+    add(gltf, { name, x, y, width, depth, height, rotation = 0, cells = 5, authored = false, groundZ = .08, kind = 'campus' }) {
         const model = new THREE.Group()
         model.name = name
         const oriented = new THREE.Group()
@@ -89,13 +115,7 @@ export default class ProfileLandmarks {
                 node.material = paletteMaterial
                 return
             }
-            const prepare = material => {
-                const copy = material.clone()
-                // No costly environment capture is needed for these stylized props.
-                if ('metalness' in copy) copy.metalness = Math.min(copy.metalness, .25)
-                if ('roughness' in copy) copy.roughness = Math.max(copy.roughness, .5)
-                return copy
-            }
+            const prepare = material => prepareLandmarkMaterial(material, kind)
             node.material = Array.isArray(node.material) ? node.material.map(prepare) : prepare(node.material)
         })
         oriented.add(source)
@@ -148,32 +168,43 @@ export default class ProfileLandmarks {
         return model
     }
 
-    loadCampus() {
-        if (this.campusState === 'loading' || this.campusState === 'ready') return
-        this.campusState = 'loading'
-        this.report('campus', 'Loading VIT Bhopal…')
-        new GLTFLoader().load('./saksham/models/vit-bhopal.glb', gltf => {
-            this.add(gltf, { name: 'VIT Bhopal · supplied campus model', x: 2, y: -105, width: 13, depth: 8, height: 6, cells: 8 })
-            this.campusState = 'ready'
-            this.report('campus', '')
-        }, event => this.progress('campus', 'VIT Bhopal', event), () => {
-            this.campusState = 'error'
-            this.report('campus', 'Campus artwork unavailable. Select Education in World Map to retry.')
-        })
+    loadCampus(priority = 0) {
+        this.load('campus', 'VIT Bhopal', assets.campus.url,
+            { name: 'VIT Bhopal · supplied campus model', x: 2, y: -105, width: 13, depth: 8, height: 6, cells: 8, kind: 'campus' }, priority)
     }
 
-    loadAvatar() {
-        if (this.avatarState === 'loading' || this.avatarState === 'ready') return
-        this.avatarState = 'loading'
-        this.report('avatar', 'Loading Saksham’s portrait…')
-        new GLTFLoader().load('./saksham/models/saksham-face.glb', gltf => {
-            this.add(gltf, { name: 'Saksham · original portrait', x: 2, y: -73, width: 4.5, depth: 4.5, height: 5, groundZ: .35, cells: 5 })
-            this.avatarState = 'ready'
-            this.report('avatar', '')
-        }, event => this.progress('avatar', 'Saksham’s portrait', event), () => {
-            this.avatarState = 'error'
-            this.report('avatar', 'Portrait unavailable. Select About in World Map to retry.')
-        })
+    loadAvatar(priority = 0) {
+        this.load('avatar', 'Saksham’s portrait', assets.avatar.url,
+            { name: 'Saksham · original portrait', x: 2, y: -73, width: 4.5, depth: 4.5, height: 5, groundZ: .35, cells: 5, kind: 'avatar' }, priority)
+    }
+
+    loadSkills(priority = 0) {
+        this.load('skills', 'Skills Garage', assets.skills.url,
+            { name: 'Skills Garage', x: -24, y: -81, width: 7, depth: 5, height: 4.8, kind: 'skills' }, priority)
+    }
+
+    loadHighlights(priority = 0) {
+        this.load('highlights', 'Highlights podium', './saksham/models/highlights-podium.glb',
+            { name: 'Highlights', x: 30, y: -83, width: 10, depth: 7, height: 5, authored: true }, priority)
+    }
+
+    load(id, title, url, placement, priority) {
+        if (this[`${id}State`] === 'ready') return
+        if (this[`${id}State`] === 'loading') {
+            // A map selection can promote a background request still queued.
+            this.loader.load(url, () => {}, undefined, () => {}, priority)
+            return
+        }
+        this[`${id}State`] = 'loading'
+        this.report(id, `Loading ${title}…`)
+        this.loader.load(url, gltf => {
+            this.add(gltf, placement)
+            this[`${id}State`] = 'ready'
+            this.report(id, '')
+        }, event => this.progress(id, title, event), () => {
+            this[`${id}State`] = 'error'
+            this.report(id, `${title} unavailable. Select its World Map stop to retry.`)
+        }, priority)
     }
 
     progress(id, name, event) {

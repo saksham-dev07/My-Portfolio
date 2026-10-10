@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { modelLoader } from '../Utils/ModelLoader.js'
 import { flowerPlacements } from './EnvironmentLayout.js'
 import { garden } from './GardenLayout.js'
 import { surfaceHeight } from './LandscapeLayout.js'
@@ -29,7 +29,7 @@ export default class BotanicalDressing {
             frustum.setFromProjectionMatrix(matrix)
             if(camera.view!=='top' && !regions.some(region=>frustum.intersectsSphere(region))) return
             this.state='loading'
-            new GLTFLoader().load('./saksham/models/botanical-kit.glb',gltf=>{
+            modelLoader.load('./saksham/models/botanical-kit.glb',gltf=>{
                 const material=new THREE.MeshMatcapMaterial({matcap:objects.materials.shades.items.white.uniforms.matcap.value,vertexColors:true})
                 const wind=material.clone()
                 wind.onBeforeCompile=shader=>{

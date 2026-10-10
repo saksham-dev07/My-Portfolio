@@ -1,0 +1,170 @@
+{
+  "avatar": {
+    "url": "./saksham/models/optimized/saksham-face-5432f3629659.glb",
+    "bytes": 1995564,
+    "originalBytes": 3935080,
+    "triangles": 87472,
+    "bounds": {
+      "min": [
+        -0.3362419903278351,
+        -9.760230000947479e-9,
+        -0.2934020256793239
+      ],
+      "max": [
+        0.33659398555755615,
+        0.8648961189365575,
+        0.21909402284575982
+      ]
+    },
+    "textures": [
+      {
+        "width": 2048,
+        "height": 2048,
+        "originalBytes": 396836,
+        "bytes": 396836,
+        "format": "image/jpeg",
+        "pixelHash": "1cc42fc0ecc7568d1e0a22f28d6ddf7dba882557973e94ab25c76a950b0b5f64"
+      },
+      {
+        "width": 2048,
+        "height": 2048,
+        "originalBytes": 619968,
+        "bytes": 619968,
+        "format": "image/jpeg",
+        "pixelHash": "0b68bfc8559ad874396d25f9884c8de2ea99f456a90eecc32a7b2842e8c22714"
+      },
+      {
+        "width": 2048,
+        "height": 2048,
+        "originalBytes": 399884,
+        "bytes": 399884,
+        "format": "image/jpeg",
+        "pixelHash": "4bca68e851490944fc6348311f1dcb825220cded8a43df6e9578b254afc8059b"
+      }
+    ]
+  },
+  "campus": {
+    "url": "./saksham/models/optimized/vit-bhopal-6b2e9231e263.glb",
+    "bytes": 2845944,
+    "originalBytes": 6400120,
+    "triangles": 137180,
+    "bounds": {
+      "min": [
+        -0.9512109756469727,
+        -0.2689509987831116,
+        -0.4252209961414337
+      ],
+      "max": [
+        0.9475470185279846,
+        0.2648169994354248,
+        0.4223330020904541
+      ]
+    },
+    "textures": [
+      {
+        "width": 2048,
+        "height": 2048,
+        "originalBytes": 509324,
+        "bytes": 509324,
+        "format": "image/jpeg",
+        "pixelHash": "294180420e853731548255732ea6f47214f20b6ce4153d34f46a676c4721ba19"
+      },
+      {
+        "width": 2048,
+        "height": 2048,
+        "originalBytes": 1012528,
+        "bytes": 1012528,
+        "format": "image/jpeg",
+        "pixelHash": "edc80d8df4a1a12814cc6bdf6128d144da1e2366def539f8329b165b65ca4449"
+      },
+      {
+        "width": 2048,
+        "height": 2048,
+        "originalBytes": 583920,
+        "bytes": 583920,
+        "format": "image/jpeg",
+        "pixelHash": "75dac10dcb3ff2cb891ea1891b26d8346828d533bbff32f2e202c0e3dc1d6ce1"
+      }
+    ]
+  },
+  "skills": {
+    "url": "./saksham/models/optimized/skills-pc-43a5b7a2067f.glb",
+    "bytes": 921872,
+    "originalBytes": 2106720,
+    "triangles": 29962,
+    "bounds": {
+      "min": [
+        -0.8537671860543716,
+        0.6123593469567425,
+        -0.6291177380355676
+      ],
+      "max": [
+        1.5058744607804224,
+        2.25444751520217,
+        1.1811056459128548
+      ]
+    },
+    "textures": [
+      {
+        "width": 1024,
+        "height": 1024,
+        "originalBytes": 437013,
+        "bytes": 437013,
+        "format": "image/jpeg",
+        "pixelHash": "44e1981127956bb2f48510008a7ea013b125e758d4ae94c92c80aa62dca0b2fb"
+      },
+      {
+        "width": 1024,
+        "height": 1024,
+        "originalBytes": 91930,
+        "bytes": 53398,
+        "format": "image/webp",
+        "pixelHash": "6009bbd6fc319bd384c5f8fda993f979de64ab28c9e6fa3cf16ce23443822a17"
+      },
+      {
+        "width": 1024,
+        "height": 1024,
+        "originalBytes": 58182,
+        "bytes": 44768,
+        "format": "image/webp",
+        "pixelHash": "9d3a7f89ec92f9d0803f2b755b524157ff44420b4c4edde0368fdc5081c9f987"
+      },
+      {
+        "width": 1024,
+        "height": 1024,
+        "originalBytes": 164610,
+        "bytes": 126328,
+        "format": "image/webp",
+        "pixelHash": "a45187d97b8b80f5765b5f995a87ac0bfc1c65bbec1478c0873a0f75290a9763"
+      }
+    ]
+  },
+  "flag": {
+    "url": "./saksham/models/optimized/flag-india-e5cecab4a406.glb",
+    "bytes": 350708,
+    "originalBytes": 656156,
+    "triangles": 4296,
+    "bounds": {
+      "min": [
+        0.45220449566841125,
+        0.25385265074572194,
+        0.682751951695824
+      ],
+      "max": [
+        1.4891438655839924,
+        2.017782378725724,
+        1.0441075139032368
+      ]
+    },
+    "textures": [
+      {
+        "width": 1024,
+        "height": 1024,
+        "originalBytes": 424706,
+        "bytes": 322754,
+        "format": "image/webp",
+        "pixelHash": "2698cd0f3fb4beec65890ce07c81d1dc059257d3507266060f994fb67426453b"
+      }
+    ]
+  }
+}

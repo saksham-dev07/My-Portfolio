@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { modelLoader } from '../Utils/ModelLoader.js'
 import { surfaceHeight } from './LandscapeLayout.js'
 import { groundLayer } from './GroundLayers.js'
 
@@ -23,7 +23,7 @@ export default class ResearchGateway {
             const car = physics.car.chassis.body.position
             if (camera.view !== 'top' && !frustum.intersectsSphere(sphere) && Math.hypot(car.x-x,car.y-y)>35) return
             this.state = 'loading'
-            new GLTFLoader().load('./saksham/models/research-gateway.glb', gltf => {
+            modelLoader.load('./saksham/models/research-gateway.glb', gltf => {
                 const model = new THREE.Group()
                 model.name = 'Research gateway / Blender limestone and copper'
                 gltf.scene.rotation.x = Math.PI/2

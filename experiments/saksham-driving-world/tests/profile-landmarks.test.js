@@ -1,6 +1,6 @@
 import { test, expect, spyOn } from 'bun:test'
 import * as THREE from 'three'
-import ProfileLandmarks from '../src/javascript/World/Sections/ProfileLandmarks.js'
+import ProfileLandmarks, { prepareLandmarkMaterial } from '../src/javascript/World/Sections/ProfileLandmarks.js'
 
 test('panning to the profile landmarks loads them while the car stays at the start', () => {
     const clock = spyOn(performance, 'now').mockReturnValue(0)
@@ -20,6 +20,8 @@ test('panning to the profile landmarks loads them while the car stays at the sta
         let campusLoads = 0, avatarLoads = 0
         landmarks.loadCampus = () => { campusLoads++; landmarks.campusState = 'loading' }
         landmarks.loadAvatar = () => { avatarLoads++; landmarks.avatarState = 'loading' }
+        landmarks.loadSkills = () => { landmarks.skillsState = 'loading' }
+        landmarks.loadHighlights = () => { landmarks.highlightsState = 'loading' }
         tick()
         // Normal entry must still avoid downloading the two large offscreen GLBs.
         expect([campusLoads, avatarLoads]).toEqual([0, 0])
@@ -37,4 +39,25 @@ test('panning to the profile landmarks loads them while the car stays at the sta
     } finally {
         clock.mockRestore()
     }
+})
+
+test('portrait and campus materials retain image detail without metallic skin or excessive specular', () => {
+    const source = new THREE.MeshPhysicalMaterial({ metalness: 1, roughness: .1, specularIntensity: 1 })
+    source.specularColor.setRGB(2, 2, 2)
+    source.map = new THREE.Texture()
+    source.normalMap = new THREE.Texture()
+    source.metalnessMap = new THREE.Texture()
+    for (const kind of ['avatar', 'campus']) {
+        const material = prepareLandmarkMaterial(source, kind)
+        expect(material).not.toBe(source)
+        expect(material.map).toBe(source.map)
+        expect(material.normalMap).toBe(source.normalMap)
+        expect(material.metalness).toBe(0)
+        expect(material.metalnessMap).toBeNull()
+        expect(material.roughness).toBeGreaterThan(.8)
+        expect(material.specularIntensity).toBeLessThan(.35)
+        expect(material.specularColor.toArray()).toEqual([1, 1, 1])
+    }
+    expect(source.metalness).toBe(1)
+    expect(source.specularColor.toArray()).toEqual([2, 2, 2])
 })

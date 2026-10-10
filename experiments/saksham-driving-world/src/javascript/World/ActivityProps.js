@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import CANNON from 'cannon'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { modelLoader } from '../Utils/ModelLoader.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { surfaceHeight } from './LandscapeLayout.js'
 import { groundLayer } from './GroundLayers.js'
@@ -139,7 +139,7 @@ export function propLabelPlanes({texture,width,height,z,frontY,backY}) {
 }
 
 export default class ActivityProps {
-    constructor({container,objects,camera,time,loader=new GLTFLoader(),window:host=window,document:page=document}) {
+    constructor({container,objects,camera,time,loader=modelLoader,window:host=window,document:page=document}) {
         this.container=container;this.objects=objects;this.camera=camera;this.time=time;this.loader=loader;this.window=host;this.document=page
         this.items=activityPropPlacements.map(placement=>({placement,state:'idle'}));this.loadedTriangles=0;this.disposed=false;this.loading=false
         this.labels=[];this.collisions=[];this.nextCheck=time.elapsed+750

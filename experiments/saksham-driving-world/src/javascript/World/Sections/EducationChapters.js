@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import CANNON from 'cannon'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { modelLoader } from '../../Utils/ModelLoader.js'
 import { activityPropGeometry } from '../ActivityProps.js'
 import { surfaceHeight } from '../LandscapeLayout.js'
 import { groundLayer } from '../GroundLayers.js'
@@ -67,7 +67,7 @@ function disposeSource(scene) {
 }
 
 export default class EducationChapters {
-    constructor({ container, objects, camera, time, loader = new GLTFLoader(), document: page = globalThis.document }) {
+    constructor({ container, objects, camera, time, loader = modelLoader, document: page = globalThis.document }) {
         this.container = container
         this.objects = objects
         this.camera = camera

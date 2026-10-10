@@ -20,7 +20,8 @@
     "preview": "vite preview",
     "install:world": "bun install --cwd experiments/saksham-driving-world --frozen-lockfile",
     "audit:production": "bun scripts/audit-production.mjs",
-    "assets:optimize": "bun scripts/assets/optimize-images.mjs && biome check src/assets/responsive/index.js --write"
+    "assets:optimize": "bun scripts/assets/optimize-images.mjs && biome check src/assets/responsive/index.js --write",
+    "assets:world": "bun scripts/assets/optimize-world-landmarks.mjs"
   },
   "dependencies": {
     "@react-three/drei": "10.0.8",
@@ -35,10 +36,14 @@
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.14",
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.1",
     "autoprefixer": "^10.6.1",
+    "draco3d": "^1.5.7",
     "esbuild": "^0.28.2",
     "postcss": "^8.5.28",
     "sharp": "^0.35.5",

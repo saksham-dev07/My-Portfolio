@@ -8,7 +8,7 @@ export const introLayout = Object.freeze({
     title: { x: 0, y: 12.2, width: 12, height: 3.1 },
     signs: [
         { x: -6.4, y: 3.3, lines: ['START HERE', 'DRIVE. DISCOVER. PLAY.'] },
-        { x: 6.4, y: 3.3, lines: ['GO EXPLORE', 'FOLLOW THE STONE TRAIL'] },
+        { x: 6.4, y: 3.3, lines: ['GO EXPLORE', 'FOLLOW THE ROAD AHEAD'] },
     ],
     brickCorners: [
         { x: -10.3, y: 1.5, angle: Math.PI / 2 },

@@ -32,7 +32,10 @@ export function groundLayer(mesh, kind = 'label') {
         texture.anisotropy = 4
         texture.needsUpdate = true
     }
-    mesh.updateWorldMatrix(true, false)
+    // Static children can retain a cached world matrix after their parent is
+    // moved. Three r186 requires an explicit force for this one-time layout
+    // calculation, otherwise world-to-local conversion cancels the bay offset.
+    mesh.updateWorldMatrix(true, false, true)
     const world = mesh.getWorldPosition(new THREE.Vector3())
     world.z += layer.height
     if (mesh.parent) mesh.parent.worldToLocal(world)
@@ -46,7 +49,7 @@ export function groundLayer(mesh, kind = 'label') {
 // Imported ground lettering shares materials with solid props. Classify only
 // horizontal, near-ground meshes, then split their static batch material.
 export function stabilizeGround(root, background, terrain) {
-    root.updateWorldMatrix(true, true)
+    root.updateWorldMatrix(true, true, true)
     const bounds = new THREE.Box3()
     root.traverse(mesh => {
         if (!mesh.isMesh || mesh === background || mesh === terrain || mesh.isInstancedMesh || mesh.userData.terrainShadow || mesh.userData.groundLayer) return

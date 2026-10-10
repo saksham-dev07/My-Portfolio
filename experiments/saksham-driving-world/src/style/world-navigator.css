@@ -1,18 +1,19 @@
 .world-navigator {
     position: fixed;
-    top: 105px;
-    right: 36px;
+    top: auto;
+    bottom: 28px;
+    right: 28px;
     z-index: 8;
     display: flex;
     flex-direction: column;
-    width: 184px;
-    padding: 13px;
+    width: 154px;
+    padding: 12px;
     overflow: hidden;
-    border: 1px solid #d6dbf23d;
-    border-radius: 14px;
-    background: linear-gradient(145deg, #292d46f5, #181c30f5);
-    box-shadow: 0 12px 32px #11152830, inset 0 1px #ffffff0a;
-    color: #f1f0eb;
+    border: 1px solid var(--hud-line, #d9d6b82e);
+    border-radius: 12px;
+    background: var(--hud-panel, #18332af2);
+    box-shadow: 0 8px 30px #10221826;
+    color: var(--hud-paper, #f4ecd9);
     text-align: left;
     cursor: pointer;
     touch-action: manipulation;
@@ -37,9 +38,15 @@
 .world-navigator__key--profile::before { background: #ffe0b4; }
 .world-navigator__key--visited::before { background: #a7e6cb; }
 .world-navigator__key--car::before { background: #fffdf3; }
-.world-navigator__location { display: block; width: 100%; overflow: hidden; margin-top: 11px; padding-top: 10px; border-top: 1px solid #ffffff14; color: #e7e9f3; font-size: 10px; line-height: 1.45; text-overflow: ellipsis; white-space: nowrap; }
+.world-navigator__location { display: none; }
 .world-navigator__progress { margin-top: 4px; color: #b8c2df; font-size: 9px; font-variant-numeric: tabular-nums; line-height: 1.4; }
 .world-navigator.is-complete .world-navigator__progress { color: #a7e6cb; }
+.world-navigator__legend { display: none; }
+.world-navigator__heading svg { stroke: var(--hud-brass, #e5c38c); }
+.world-navigator__road { stroke: #c2cbb980; }
+.world-navigator__stop--project { fill: #c2cbb9; }
+.world-navigator__stop--profile { fill: #e5c38c; }
+.world-navigator__progress { color: var(--hud-muted, #c2cbb9); }
 
 /* The touch joystick ends 180px above the bottom; throttle buttons occupy
    the rightmost 95px. Keep the compact map action outside both regions. */

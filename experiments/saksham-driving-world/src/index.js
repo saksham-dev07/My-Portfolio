@@ -8,4 +8,6 @@ window.application = new Application({
 
 import './style/saksham.css'
 import { drivingInterface } from './javascript/DrivingInterface.js'
+// Apply the shared theme after all component styles, in dev and production.
+import './style/driving-hud.css'
 drivingInterface(window.application)

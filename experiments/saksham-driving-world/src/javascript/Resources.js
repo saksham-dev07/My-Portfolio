@@ -2,6 +2,7 @@ import * as THREE from 'three'
 
 import Loader from './Utils/Loader.js'
 import EventEmitter from './Utils/EventEmitter.js'
+import landmarkAssets from './World/Sections/landmark-assets.json'
 
 export default class Resources extends EventEmitter
 {
@@ -13,9 +14,7 @@ export default class Resources extends EventEmitter
         this.items = {}
 
         this.loader.load([
-            // Supplied portfolio landmarks. The larger campus scene loads nearby.
-            { name: 'profileSkills', source: './saksham/models/skills-pc.glb' },
-            { name: 'profileHighlights', source: './saksham/models/highlights-podium.glb' },
+            // Profile artwork is optional and streams near its district.
             // Matcaps
             { name: 'matcapBeige', source: './models/matcaps/beige.png', type: 'texture' },
             { name: 'matcapBlack', source: './models/matcaps/black.png', type: 'texture' },
@@ -81,7 +80,7 @@ export default class Resources extends EventEmitter
 
 
             // Information
-            { name: 'informationFlagIndia', source: './saksham/models/flag-india.glb' },
+            { name: 'informationFlagIndia', source: landmarkAssets.flag.url },
             { name: 'informationLandmarkIndia', source: './saksham/models/indian-landmark.glb' },
             { name: 'informationStaticBase', source: './models/information/static/base.glb' },
             { name: 'informationStaticCollision', source: './models/information/static/collision.glb' },
@@ -159,5 +158,6 @@ export default class Resources extends EventEmitter
             // Trigger ready
             this.trigger('ready')
         })
+        this.loader.on('error', failed => this.trigger('error', [failed]))
     }
 }

@@ -273,7 +273,10 @@ export default class Car
         this.transformControls.size = 0.5
         this.transformControls.attach(this.chassis.object)
         this.transformControls.enabled = false
-        this.transformControls.visible = this.transformControls.enabled
+        // Modern TransformControls owns a scene helper; the controller itself
+        // is an input handler and cannot be attached to an Object3D.
+        this.transformControlsHelper = this.transformControls.getHelper()
+        this.transformControlsHelper.visible = this.transformControls.enabled
 
         document.addEventListener('keydown', (_event) =>
         {
@@ -295,7 +298,7 @@ export default class Car
             this.camera.orbitControls.enabled = !_event.value
         })
 
-        this.container.add(this.transformControls)
+        this.container.add(this.transformControlsHelper)
 
         if(this.debug)
         {
@@ -304,7 +307,7 @@ export default class Car
 
             folder.add(this.transformControls, 'enabled').onChange(() =>
             {
-                this.transformControls.visible = this.transformControls.enabled
+                this.transformControlsHelper.visible = this.transformControls.enabled
             })
         }
     }

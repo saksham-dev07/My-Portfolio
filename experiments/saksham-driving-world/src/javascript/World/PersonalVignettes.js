@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { modelLoader } from '../Utils/ModelLoader.js'
 import { hubActivities, hubPadTop } from './HubLayout.js'
 import { groundLayer } from './GroundLayers.js'
 
@@ -54,7 +54,7 @@ export default class PersonalVignettes {
             frustum.setFromProjectionMatrix(matrix)
             if (camera.view !== 'top' && !frustum.intersectsSphere(region)) return
             this.state = 'loading'
-            new GLTFLoader().load('./saksham/models/personal-vignettes.glb', gltf => {
+            modelLoader.load('./saksham/models/personal-vignettes.glb', gltf => {
                 this.addAsset(gltf, { container, objects })
                 this.setContactShadows(container)
                 this.state = 'ready'

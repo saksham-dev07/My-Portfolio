@@ -2,6 +2,7 @@ import * as THREE from 'three'
 
 import ProjectBoardMaterial from '../../Materials/ProjectBoard.js'
 import gsap from 'gsap'
+import { assetQueue } from '../../Utils/AssetQueue.js'
 
 export default class Project
 {
@@ -96,13 +97,22 @@ export default class Project
             const frustum = new THREE.Frustum(), matrix = new THREE.Matrix4()
             const bounds = new THREE.Sphere(new THREE.Vector3(board.x,board.y,2),6)
             this.time.on('tick', () => {
-                if(image.src || this.time.elapsed < nextCheck) return
+                if(board.requested || this.time.elapsed < nextCheck) return
                 nextCheck = this.time.elapsed + 250
                 this.camera.instance.updateMatrixWorld()
                 matrix.multiplyMatrices(this.camera.instance.projectionMatrix,this.camera.instance.matrixWorldInverse)
                 frustum.setFromProjectionMatrix(matrix)
                 if(this.camera.view === 'top' || frustum.intersectsSphere(bounds)
-                    || this.camera.instance.position.distanceTo(bounds.center) < 35) image.src = _imageSource
+                    || this.camera.instance.position.distanceTo(bounds.center) < 35) {
+                    board.requested = true
+                    assetQueue.schedule(() => new Promise((resolve, reject) => {
+                        const timeout = setTimeout(() => { image.src = ''; reject(new Error('Board image timed out')) }, 90000)
+                        image.addEventListener('load', () => { clearTimeout(timeout); resolve() }, { once: true })
+                        image.addEventListener('error', () => { clearTimeout(timeout); reject(new Error('Board image unavailable')) }, { once: true })
+                        image.decoding = 'async'
+                        image.src = _imageSource
+                    }), 10).catch(() => { board.failed = true })
+                }
             })
 
             // Plane

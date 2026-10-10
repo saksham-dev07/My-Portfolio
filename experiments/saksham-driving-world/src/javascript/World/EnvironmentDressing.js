@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { modelLoader } from '../Utils/ModelLoader.js'
 import { dressingPlacements } from './EnvironmentLayout.js'
 import { surfaceHeight } from './LandscapeLayout.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
@@ -21,7 +21,7 @@ export default class EnvironmentDressing {
             frustum.setFromProjectionMatrix(matrix)
             if(camera.view!=='top' && !regions.some(region=>frustum.intersectsSphere(region))) return
             this.state='loading'
-            new GLTFLoader().load('./saksham/models/environment-kit.glb',gltf=>{
+            modelLoader.load('./saksham/models/environment-kit.glb',gltf=>{
                 const material=new THREE.MeshMatcapMaterial({matcap:objects.materials.shades.items.white.uniforms.matcap.value,vertexColors:true})
                 gltf.scene.updateMatrixWorld(true)
                 const dummy=new THREE.Object3D(),conversion=new THREE.Matrix4().makeRotationX(Math.PI/2),solids=[]

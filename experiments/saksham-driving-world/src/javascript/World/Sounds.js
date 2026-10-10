@@ -17,6 +17,7 @@ export default class Sounds
 
         // Set up
         this.items = []
+        this.enabled = false
 
         this.setSettings()
         this.setMasterVolume()
@@ -180,16 +181,15 @@ export default class Sounds
     setMute()
     {
         // Set up
-        this.muted = true
+        this.muted = false
         Howler.mute(this.muted)
 
         // M Key
         window.addEventListener('keydown', (_event) =>
         {
-            if(_event.key === 'm')
+            if(_event.key.toLowerCase() === 'm' && !_event.repeat && !_event.ctrlKey && !_event.metaKey && !_event.altKey && !_event.target.closest?.('dialog, input, textarea, select'))
             {
-                this.muted = !this.muted
-                Howler.mute(this.muted)
+                this.setMuted(!this.muted)
             }
         })
 
@@ -202,7 +202,7 @@ export default class Sounds
             }
             else
             {
-                Howler.mute(this.muted)
+                this.setMuted(this.muted)
             }
         })
 
@@ -214,6 +214,26 @@ export default class Sounds
                 Howler.mute(this.muted)
             })
         }
+    }
+
+    setMuted(muted)
+    {
+        this.muted = muted
+        Howler.mute(muted || Boolean(globalThis.document?.hidden))
+        if(muted || !this.enabled) return
+        // Resume during the user's click/key gesture, before a deferred fetch.
+        if(Howler.ctx?.state === 'suspended') Howler.ctx.resume().catch(() => {})
+        const sound = this.engine?.sound
+        if(!sound || sound.state() === 'loading' || sound.playing()) return
+        // Howler's play() queues playback but does not load preload:false files.
+        if(sound.state() === 'unloaded') sound.load()
+        sound.play()
+    }
+
+    enable()
+    {
+        this.enabled = true
+        this.setMuted(this.muted)
     }
 
     setEngine()
@@ -241,10 +261,14 @@ export default class Sounds
 
         this.engine.sound = new Howl({
             src: ['./sounds/engines/1/low_off.mp3'],
-            loop: true
+            loop: true,
+            preload: false,
+            onplayerror: () => {
+                this.engine.sound.once('unlock', () => {
+                    if(!this.muted) this.setMuted(false)
+                })
+            }
         })
-
-        this.engine.sound.play()
 
         // Time tick
         this.time.on('tick', () =>
@@ -298,7 +322,7 @@ export default class Sounds
 
         for(const _sound of _options.sounds)
         {
-            const sound = new Howl({ src: [_sound] })
+            const sound = new Howl({ src: [_sound], preload: false })
 
             item.sounds.push(sound)
         }
@@ -308,6 +332,7 @@ export default class Sounds
 
     play(_name, _velocity)
     {
+        if(this.muted || !this.enabled) return
         const item = this.items.find((_item) => _item.name === _name)
         const time = Date.now()
         const velocity = typeof _velocity === 'undefined' ? 0 : _velocity
@@ -316,6 +341,8 @@ export default class Sounds
         {
             // Find random sound
             const sound = item.sounds[Math.floor(Math.random() * item.sounds.length)]
+            if(sound.state() === 'loading') return
+            if(sound.state() === 'unloaded') sound.load()
 
             // Update volume
             let volume = Math.min(Math.max((velocity - item.velocityMin) * item.velocityMultiplier, item.volumeMin), item.volumeMax)

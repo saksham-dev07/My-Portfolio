@@ -43,17 +43,8 @@ export default class ProfileSections {
             const ground = new THREE.Mesh(label, new THREE.MeshBasicMaterial({ color: section.color, alphaMap: labelTexture(section.sign), transparent: true, depthWrite: false }))
             ground.position.set(0, 1, .03)
             group.add(ground)
-            // PC and podium are essential; campus and portrait load only nearby.
-            const assets = ['profileSkills', null, 'profileHighlights']
-            if (assets[index]) {
-                this.landmarks.add(options.resources.items[assets[index]], {
-                    name: section.name, x: section.x, y: section.y + 7,
-                    width: index === 2 ? 10 : index === 0 ? 7 : 9,
-                    depth: index === 0 ? 5 : 7,
-                    height: index === 1 ? 3 : index === 0 ? 4.8 : 5,
-                    authored: index === 2 && options.resources.items.profileHighlights.scene.getObjectByName('highlights-podium')?.userData.assetVersion >= 2,
-                })
-            }
+            // All four artworks stream independently; labels and entry pads
+            // remain available while a distant landmark is downloading.
             this.container.add(group)
             const hint = new THREE.Mesh(new THREE.PlaneGeometry(6, 1), new THREE.MeshBasicMaterial({ color: '#ffffff', alphaMap: labelTexture(['OPEN DETAILS'], 512, 128), transparent: true, depthWrite: false }))
             hint.position.set(section.x, section.y - 4, .04)

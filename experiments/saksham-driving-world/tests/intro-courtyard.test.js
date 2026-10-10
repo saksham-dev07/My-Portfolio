@@ -107,6 +107,21 @@ test('arrival lettering remains upright on both sign faces and owns its cleanup'
     expect(geometryDisposals).toBe(1)
 }))
 
+test('control instructions occupy the right bay and leave the departure lane clear', () => withCanvas(() => {
+    const { intro } = createIntro()
+    intro.container.updateMatrixWorld(true)
+    const label = intro.otherInstructions.label.mesh
+    const position = label.getWorldPosition(new THREE.Vector3())
+    const bounds = new THREE.Box3().setFromObject(label)
+    expect(position.x).toBeCloseTo(introLayout.other.x, 6)
+    expect(position.y).toBeCloseTo(introLayout.other.y, 6)
+    expect(bounds.min.x).toBeGreaterThan(introLayout.departure.halfWidth)
+    expect(bounds.min.x).toBeGreaterThanOrEqual(introLayout.other.x - 2.75)
+    expect(bounds.max.x).toBeLessThanOrEqual(introLayout.other.x + 2.75)
+    expect(label.material.depthTest).toBe(true)
+    expect(label.material.depthWrite).toBe(false)
+}))
+
 test('shipping arrow keys with an authored scene origin land inside the left demonstration bay', async () => {
     const bytes = await Bun.file(new URL('../static/models/intro/arrowKey/collision.glb', import.meta.url)).arrayBuffer()
     const view = new DataView(bytes)
