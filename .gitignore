@@ -1,37 +1,48 @@
 # Dependencies
 node_modules/
+package-lock.json
 
 # Build output
 dist/
 dist-ssr/
 public/driving-world/
-thrixel_assets/
-package-lock.json
-.local-history/
-
-# Environment
-.env
-.env.*
-!.env.example
-.vercel/
 coverage/
 .cache/
 *.tsbuildinfo
 
+# Scratch & local caches
+thrixel_assets/
+.local-history/
+.cache-world-*.log
+
+# Environment & local credentials
+.env
+.env.*
+!.env.example
+.vercel/
+
 # Logs
 *.log
 npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
-# Editor
+# Python & Blender caches (scripts/assets)
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+
+# Editor & IDE
 .vscode/
 .idea/
 *.sw?
-.DS_Store
-
-# Components
 .Components/
 
-# OS
+# OS metadata
+.DS_Store
 Thumbs.db
 Desktop.ini
 
@@ -41,4 +52,3 @@ Desktop.ini
 [Ss][Kk][Ii][Ll][Ll]*.md
 .agents/
 .agent/
-
