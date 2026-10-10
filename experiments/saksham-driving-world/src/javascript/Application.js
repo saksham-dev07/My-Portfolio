@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import * as dat from 'dat.gui'
+import GUI from 'lil-gui'
 
 import Sizes from './Utils/Sizes.js'
 import Time from './Utils/Time.js'
@@ -69,7 +69,7 @@ export default class Application
     {
         if(this.config.debug)
         {
-            this.debug = new dat.GUI({ width: 420 })
+            this.debug = new GUI({ width: 420 })
         }
     }
 

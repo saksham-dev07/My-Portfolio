@@ -45,6 +45,7 @@ function harness() {
         const e = new Event(type, { cancelable: true })
         Object.assign(e, { clientX: x, clientY: y, pageX: x, pageY: y, button, pointerId: 1, pointerType: 'mouse', isPrimary: true })
         canvas.dispatchEvent(e)
+        canvas.ownerDocument.dispatchEvent(e)
         globalThis.window.dispatchEvent(e)
     }
     const drag = (button = 0) => {

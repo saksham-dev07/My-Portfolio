@@ -2,7 +2,7 @@ import * as THREE from 'three'
 import { FontLoader } from 'three/addons/loaders/FontLoader.js'
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 import { mergeGroups } from 'three/addons/utils/BufferGeometryUtils.js'
-import fontData from 'three/examples/fonts/helvetiker_bold.typeface.json'
+import fontData from '../../../fonts/helvetiker_bold.typeface.json'
 
 const signFont = new FontLoader().parse(fontData)
 
