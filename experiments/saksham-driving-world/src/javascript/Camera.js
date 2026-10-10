@@ -2,6 +2,10 @@ import * as THREE from 'three'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import gsap from 'gsap'
 
+// Below 1.1 km/h, a released accelerator can leave harmless solver creep.
+// Keep that distinct from an intentional drive or a car still visibly coasting.
+const drivingMotion = { startSpeed: .45, stopSpeed: .30, stopDelay: .25 }
+
 export default class Camera
 {
     constructor(_options)
@@ -12,6 +16,7 @@ export default class Camera
         this.renderer = _options.renderer
         this.debug = _options.debug
         this.config = _options.config
+        this.controls = _options.controls
 
         // Set up
         this.container = new THREE.Object3D()
@@ -155,18 +160,25 @@ export default class Camera
         return this.car?.chassis?.body || this.carBody
     }
 
-    updateDriving()
+    updateDriving({ manualExploration = false } = {})
     {
-        // Horizontal speed includes coasting, while ignoring suspension motion.
-        // Separate thresholds and a short stop delay avoid camera-mode chatter.
+        // Use planar speed: a settling suspension must not take away the map.
+        // Accelerator intent resumes follow before the car crosses the speed
+        // threshold; Space and activity parking brakes do not count as driving.
         const body = this.getCarBody()
         const speed = Math.hypot(body?.velocity?.x || 0, body?.velocity?.y || 0)
-        let driving = this.driving || speed > .18
+        const actions = this.controls?.actions
+        const intentionalDrive = Boolean(body && (actions?.up || actions?.down) && !actions?.brake && !this.car?.brakeLocked)
+        let driving = intentionalDrive || this.driving || speed > drivingMotion.startSpeed
         if(driving)
         {
-            this.stationaryTime = speed < .05 ? this.stationaryTime + Math.min(this.time.delta || 16, 60) / 1000 : 0
-            if(this.stationaryTime >= .3) driving = false
+            const settling = !intentionalDrive && speed <= drivingMotion.stopSpeed
+            this.stationaryTime = settling ? this.stationaryTime + Math.min(this.time.delta || 16, 60) / 1000 : 0
+            // A deliberate map gesture can claim the camera as soon as the
+            // car is effectively parked, without waiting for perfect zero.
+            if(settling && (manualExploration || this.stationaryTime >= drivingMotion.stopDelay)) driving = false
         }
+        if(!driving) this.stationaryTime = 0
         const changed = driving !== this.driving
         this.driving = driving
         if(driving && !this.following && !this.exploring) this.focusCar()
@@ -491,6 +503,7 @@ export default class Camera
         this.orbitControls.addEventListener('start', () =>
         {
             this.exploring = true
+            this.updateDriving({ manualExploration: true })
             changed = false
             wasFollowing = this.following
             this.following = false
@@ -505,6 +518,8 @@ export default class Camera
         })
         this.orbitControls.addEventListener('end', () =>
         {
+            // Read the current body again if the car stopped during this drag.
+            this.updateDriving({ manualExploration: true })
             this.exploring = false
             if(this.driving) this.focusCar()
             else if(!changed) this.following = wasFollowing

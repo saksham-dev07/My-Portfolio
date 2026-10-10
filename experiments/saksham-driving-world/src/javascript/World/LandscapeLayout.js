@@ -38,7 +38,7 @@ export const foundations = [
 // coordinates; no freeform spline overshoot or independently stacked surfaces.
 export const roadDefinitions = [
     { name: 'Hub roundabout', center: [0,-30], radius: 6, width: 3.2, shoulder: .35, closed: true },
-    { name: 'Arrival', points: [[0,-10],[0,-24]], width: 3.2, shoulder: .35 },
+    { name: 'Arrival', points: [[0,-9],[0,-24]], width: 3.2, shoulder: .35 },
     { name: 'Research approach', points: [[6,-30],[22,-30],[22,-38],[60,-38]], width: 4.4, cornerRadius: 6 },
     { name: 'Research promenade', points: [[60,-38],[165,-38],[165,-78],[46,-78],[46,-118],[165,-118],[165,-136],[40,-136],[40,-119]], width: 4.4, cornerRadius: 12 },
     // Two true quarter-turns lead into a straight playground entrance. The old

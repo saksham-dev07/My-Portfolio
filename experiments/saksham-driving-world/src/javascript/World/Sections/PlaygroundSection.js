@@ -12,7 +12,6 @@ export default class PlaygroundSection
         this.objects = _options.objects
         this.areas = _options.areas
         this.walls = _options.walls
-        this.tiles = _options.tiles
         this.debug = _options.debug
         this.x = _options.x
         this.y = _options.y

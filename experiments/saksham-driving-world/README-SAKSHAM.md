@@ -1,6 +1,6 @@
 # Saksham's Driving World
 
-A separate adaptation of Bruno Simon's Folio 2019, revision `540f13573a6da282eae942a4c67335b97cd18970`. The original driving, physics, environment and rendering engine remain Bruno's work. The original MIT copyright/license is retained in `license.md`; visible credit links to the upstream repository.
+A personal driving world built on an inherited MIT-licensed runtime, revision `540f13573a6da282eae942a4c67335b97cd18970`. Driving, physics and rendering still contain inherited code; the original copyright and permission notice are retained in `license.md` and copied into deployment. The visible identity, environment, projects and activities are personalized.
 
 ## Run
 
@@ -20,7 +20,7 @@ This is the source application embedded by the portfolio at `/world`. From the r
 - Parking inside a section outline enables Enter/E/F and a touch-friendly Enter button. Keyboard entry checks the car's actual position independently of hover. Enter cancels native button activation so the newly focused dialog Close button does not immediately dismiss it.
 - The starting ground label shows Saksham Agarwal, Software / Applied AI, and VIT Bhopal / Class of 2027.
 - About activities, GitHub, LinkedIn, email, résumé, page metadata and identity are personalized.
-- No original project awards are attached to Saksham's projects. Bruno's promotional popup and analytics are removed from the active page.
+- No original project awards are attached to Saksham's projects. The unused promotional popup and analytics are removed.
 - Violet / periwinkle environment, bounded DPR (1.25 touch, 1.5 desktop), muted default audio and reduced-motion camera-angle transitions.
 - Keyboard world controls ignore dialog/form/button interactions. Quick travel clears vehicle velocity and restores focus to the canvas. Original touch controls remain available on touch devices.
 

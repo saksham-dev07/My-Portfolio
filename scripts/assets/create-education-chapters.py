@@ -166,7 +166,15 @@ box('School / chalkboard timber frame', (0, 1.11, 1.86), (1.72, .10, 1.05), TEAK
 box('School / chalkboard emerald face', (0, 1.049, 1.86), (1.54, .018, .87), INK)
 box('School / chalk tray', (0, 1.012, 1.36), (1.69, .17, .06), TEAK_LIGHT)
 # Quiet chalk marks: simple arithmetic without invented academic performance.
-for n, (a, b) in enumerate([((-.48, 1.86), (-.48, 2.13)), ((-.55, 2.07), (-.48, 2.13)), ((-.23, 1.99), (-.02, 1.99)), ((-.125, 1.88), (-.125, 2.10)), ((.21, 1.94), (.44, 1.94)), ((.21, 2.04), (.44, 2.04)), ((-.55, 1.62), (.55, 1.62))]):
+chalk_strokes = [
+    ((-.60, 1.88), (-.60, 2.13)), ((-.67, 2.07), (-.60, 2.13)),
+    ((-.45, 1.99), (-.25, 1.99)), ((-.35, 1.89), (-.35, 2.09)),
+    ((-.10, 1.88), (-.10, 2.13)), ((-.17, 2.07), (-.10, 2.13)),
+    ((.12, 1.95), (.30, 1.95)), ((.12, 2.04), (.30, 2.04)),
+    ((.45, 2.13), (.64, 2.13)), ((.64, 2.13), (.45, 1.88)),
+    ((.45, 1.88), (.66, 1.88)), ((-.67, 1.62), (.67, 1.62)),
+]
+for n, (a, b) in enumerate(chalk_strokes):
     beam('School / chalk stroke %02d' % n, (a[0], 1.034, a[1]), (b[0], 1.034, b[1]), .027, CREAM)
 chapters['school']['boxes'] = [
     {'center': [0, 0, .165], 'size': [2.2, 2.8, .33]},
@@ -276,7 +284,11 @@ for export in exports:
     export.select_set(True)
 bpy.context.view_layer.objects.active = exports[0]
 OUTPUT.parent.mkdir(parents=True, exist_ok=True)
-bpy.ops.export_scene.gltf(filepath=str(OUTPUT), export_format='GLB', use_selection=True, use_active_scene=True,
+formats = [i.identifier for i in bpy.ops.export_scene.gltf.get_rna_type().properties['export_format'].enum_items]
+if not formats:
+    from io_scene_gltf2 import ExportGLTF2_Base
+    formats = [i[0] for i in ExportGLTF2_Base.__annotations__['export_format'].keywords['items'](None, bpy.context)]
+bpy.ops.export_scene.gltf(filepath=str(OUTPUT), export_format=next(i for i in formats if i == 'GLB'), use_selection=True, use_active_scene=True,
                           export_yup=True, export_animations=False, export_cameras=False, export_lights=False, export_extras=True)
 
 # Standard byte vertex-colours: compact shipping without a decoder or textures.

@@ -23,9 +23,11 @@ function harness() {
     globalThis.document = new EventTarget()
     const canvas = new Surface()
     const time = new EventEmitter()
+    time.delta = 1000 / 60
+    const controls = { actions: { up: false, down: false, brake: false } }
     const sizes = new EventEmitter()
     sizes.viewport = { width: 1280, height: 720 }
-    const camera = new Camera({ time, sizes, renderer: { domElement: canvas }, config: {} })
+    const camera = new Camera({ time, sizes, renderer: { domElement: canvas }, config: {}, controls })
     const body = new CANNON.Body({ mass: 40, linearDamping: 0 })
     const simulation = new CANNON.World()
     simulation.addBody(body)
@@ -58,7 +60,7 @@ function harness() {
         settle()
     }
     frame()
-    return { camera, body, drag, settle, event, frame, click() {
+    return { camera, body, controls, drag, settle, event, frame, click() {
         event('pointerdown', 800, 350)
         event('pointerup', 800, 350)
         settle()
@@ -128,8 +130,9 @@ test('Original view follows a moving car and allows exploration again after stop
         expect(h.camera.following).toBe(true)
         expect(h.camera.orbitControls.target.distanceTo(h.camera.target)).toBeLessThan(1)
         // Coasting still counts as driving after the accelerator is released.
-        h.body.velocity.set(.3, 0, 0)
+        h.body.velocity.set(.7, 0, 0)
         h.settle()
+        expect(h.camera.driving).toBe(true)
         expect(h.camera.orbitControls.enabled).toBe(true)
         h.body.velocity.set(0, 0, 0)
         h.settle()
@@ -144,6 +147,103 @@ test('Original view follows a moving car and allows exploration again after stop
         h.settle()
         expect(h.camera.following).toBe(true)
         expect(h.camera.orbitControls.target.distanceTo(h.camera.target)).toBeLessThan(1)
+    } finally { h.cleanup() }
+})
+
+test('a creeping car releases follow and solver jitter cannot recapture a panned map', () => {
+    const h = harness()
+    try {
+        h.body.velocity.set(4, 0, 0)
+        h.settle()
+        expect(h.camera.driving).toBe(true)
+        // The car never reaches exact zero: its suspension and planar creep
+        // continue while the visitor explores the map.
+        h.body.velocity.set(.24, .08, .6)
+        h.settle()
+        expect(h.camera.driving).toBe(false)
+        h.drag()
+        expect(h.camera.following).toBe(false)
+        const held = h.camera.instance.position.clone()
+        for(let frame = 0; frame < 180; frame++) {
+            h.body.velocity.set([.28, .36, .29, .41, .27, .38][frame % 6], 0, frame % 2 ? .5 : -.5)
+            h.frame()
+            expect(h.camera.driving).toBe(false)
+        }
+        expect(h.camera.instance.position.distanceTo(held)).toBeLessThan(.001)
+        // Deliberate motion without input still includes downhill/coasting.
+        h.body.velocity.set(.8, 0, 0)
+        h.settle()
+        expect(h.camera.driving).toBe(true)
+        expect(h.camera.following).toBe(true)
+    } finally { h.cleanup() }
+})
+
+test('a drag claims a newly parked camera without waiting for the stop timer', () => {
+    const h = harness()
+    try {
+        h.body.velocity.set(5, 0, 0)
+        h.settle()
+        // Pointer down occurs before another render can classify the stop.
+        h.body.velocity.set(.21, .05, .8)
+        h.event('pointerdown', 800, 350)
+        expect(h.camera.driving).toBe(false)
+        h.event('pointermove', 950, 350)
+        h.frame()
+        h.event('pointerup', 950, 350)
+        h.settle()
+        expect(h.camera.following).toBe(false)
+        const held = h.camera.instance.position.clone()
+        h.settle()
+        expect(h.camera.instance.position.distanceTo(held)).toBeLessThan(.001)
+    } finally { h.cleanup() }
+})
+
+test('stopping during a drag keeps exploration on release instead of returning to the car', () => {
+    const h = harness()
+    try {
+        h.body.velocity.set(5, 0, 0)
+        h.settle()
+        h.event('pointerdown', 800, 350)
+        h.event('pointermove', 950, 350)
+        h.frame()
+        // No render between the velocity change and pointer up.
+        h.body.velocity.set(.22, .08, .7)
+        h.event('pointerup', 950, 350)
+        h.settle()
+        expect(h.camera.driving).toBe(false)
+        expect(h.camera.following).toBe(false)
+    } finally { h.cleanup() }
+})
+
+test('forward and reverse intent resume follow immediately while brakes preserve parked exploration', () => {
+    const h = harness()
+    try {
+        h.drag()
+        h.controls.actions.up = true
+        h.frame()
+        expect(h.camera.driving).toBe(true)
+        expect(h.camera.following).toBe(true)
+        // Brake plus accelerator must not classify a parked car as driving.
+        h.controls.actions.brake = true
+        h.settle()
+        h.drag()
+        expect(h.camera.driving).toBe(false)
+        expect(h.camera.following).toBe(false)
+        h.controls.actions.brake = false
+        h.controls.actions.up = false
+        h.controls.actions.down = true
+        h.frame()
+        expect(h.camera.driving).toBe(true)
+        expect(h.camera.following).toBe(true)
+        h.camera.car = { chassis: { body: h.body }, brakeLocked: true }
+        h.settle()
+        h.drag()
+        expect(h.camera.driving).toBe(false)
+        expect(h.camera.following).toBe(false)
+        h.camera.car.brakeLocked = false
+        h.frame()
+        expect(h.camera.driving).toBe(true)
+        expect(h.camera.following).toBe(true)
     } finally { h.cleanup() }
 })
 

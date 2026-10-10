@@ -17,7 +17,6 @@ export default class ProjectsSection
         this.objects = _options.objects
         this.areas = _options.areas
         this.zones = _options.zones
-        this.tiles = _options.tiles
         this.debug = _options.debug
         this.x = _options.x
         this.y = _options.y

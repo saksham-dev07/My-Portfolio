@@ -31,8 +31,9 @@ export default class ProfileCircuit {
             const material = new THREE.MeshBasicMaterial({ color: '#fff0d5', transparent: true, opacity: .85 })
             this.materials.push(material)
             // Lane crossing stripe and directional arrow, facing clockwise.
-            const stripe = new THREE.Mesh(new THREE.PlaneGeometry(.35, 4), material)
-            group.add(stripe)
+            // The start/finish checker is painted in the terrain mask. Other
+            // gates retain their status stripe, bounded inside the lane.
+            if (index !== 0) group.add(new THREE.Mesh(new THREE.PlaneGeometry(.18, 2.8), material))
             const arrow = new THREE.Shape()
             arrow.moveTo(.9, -.35); arrow.lineTo(1.8, -.35)
             arrow.lineTo(1.8, -.75); arrow.lineTo(2.7, 0)

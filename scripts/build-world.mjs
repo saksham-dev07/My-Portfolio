@@ -28,6 +28,8 @@ if (build.status !== 0) process.exit(build.status || 1);
 // This target is a fixed generated directory inside this repository.
 rmSync(output, { recursive: true, force: true });
 cpSync(join(world, "dist"), output, { recursive: true });
+// The inherited runtime retains its MIT notice in the distributed files.
+copyFileSync(join(world, "license.md"), join(output, "license.md"));
 copyFileSync(
   join(root, "public", "resume.pdf"),
   join(output, "saksham", "resume.pdf"),

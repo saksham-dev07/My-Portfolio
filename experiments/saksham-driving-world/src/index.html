@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Saksham Agarwal | The Driving World</title>
-  <meta name="description" content="Drive through Saksham Agarwal's projects in applied AI and full-stack engineering. An optional interactive portfolio adapted from Bruno Simon.">
+  <meta name="description" content="Drive through Saksham Agarwal's projects in applied AI and full-stack engineering. Explore a personal campus valley of projects, games and discoveries.">
   <meta name="theme-color" content="#16192b">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%2316192b'/%3E%3Ctext x='32' y='42' text-anchor='middle' font-size='28' font-family='Arial' fill='%23b9c5eb'%3ESA%3C/text%3E%3C/svg%3E">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -222,19 +222,6 @@
       font-weight: 400;
       letter-spacing: 0.12em;
     }
-    .drive-credit {
-      position: fixed;
-      bottom: 16px;
-      left: 36px;
-      z-index: 6;
-      color: #edefff;
-      font-size: 9px;
-      text-shadow: 0 1px 5px #16192b;
-    }
-    .drive-credit a {
-      text-decoration: underline;
-      text-underline-offset: 3px;
-    }
     @media(max-width:650px) {
       .drive-header { padding: 16px; gap: 10px; }
       .drive-brand { font-size: 34px; }
@@ -249,7 +236,6 @@
       .drive-bottom > div { gap: 5px; }
       .drive-bottom button, .drive-bottom a { padding: 9px; font-size: 9px; }
       .drive-bottom p { max-width: 95px; font-size: 9px; }
-      .drive-credit { left: 16px; bottom: 12px; font-size: 8px; }
     }
   </style>
 </head>
@@ -285,7 +271,6 @@
     </div>
   </section>
   <div class="drive-bottom"><p><span id="world-location">THE STARTING LINE</span><small>ARROWS / WASD · SPACE BRAKES · R RESET</small></p><div><button id="drive-home" disabled>Start line</button><button id="drive-sound" aria-pressed="false">Sound off</button><a href="./saksham/resume.pdf" target="_blank" rel="noopener">Résumé</a></div></div>
-  <p class="drive-credit">Adapted from <a href="https://github.com/brunosimon/folio-2019" target="_blank" rel="noopener">Bruno Simon’s Folio 2019</a> · MIT</p>
   <dialog class="drive-index" aria-labelledby="index-title"><div class="index-header"><div><p class="drive-eyebrow">YOUR ROUTE THROUGH MY WORK</p><h2 id="index-title">More than projects.</h2></div><button id="close-index" aria-label="Close world map">Close</button></div><p>Pick a stop. Explore my background, see the tools behind my work, or visit a project. Driving is always optional.</p><nav id="world-navigation" aria-label="World sections"></nav><section id="profile-content" aria-label="Profile details" hidden></section><div id="project-list"></div><div class="index-links"><a href="https://github.com/saksham-dev07" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/saksham-agarwal-b44910289/" target="_blank" rel="noopener">LinkedIn</a><a href="mailto:sakmmm07@gmail.com">Contact</a></div><details class="model-credits"><summary>3D artwork &amp; licenses</summary><p>Models keep their own licenses, separate from the driving engine.</p><p><a href="https://sketchfab.com/3d-models/stylized-hacked-pc-sketchfabweeklychallenge-192ab9d4706f4ffaaf22f9a299289d75" target="_blank" rel="noopener">Stylized Hacked PC</a> by ottobite — CC BY 4.0.</p><p><a href="https://sketchfab.com/3d-models/trophy-podium-c24980e83e3c4b8393980358486b100c" target="_blank" rel="noopener">Trophy podium</a> by Anilz — Sketchfab Standard license.</p><p>VIT Bhopal campus — supplied by Saksham; Meshy AI asset. Original face portrait — supplied by Saksham, reused from the main portfolio.</p><p>Adaptation: normalized scale and orientation, adjusted material response, and added collision proxies.</p></details></dialog>
   <noscript><p class="no-script">This driving world needs JavaScript. <a href="/">Visit the normal portfolio.</a></p></noscript>
   <script type="module" src="./index.js"></script>

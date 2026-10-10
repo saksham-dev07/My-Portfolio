@@ -33,9 +33,6 @@ export default class Resources extends EventEmitter
             // { name: 'matcapGold', source: './models/matcaps/gold.png', type: 'texture' },
 
             // Intro
-            { name: 'introStaticBase', source: './models/intro/static/base.glb' },
-            { name: 'introStaticCollision', source: './models/intro/static/collision.glb' },
-            { name: 'introStaticFloorShadow', source: './models/intro/static/floorShadow.png', type: 'texture' },
 
             { name: 'introInstructionsLabels', source: './models/intro/instructions/labels.glb' },
             { name: 'introInstructionsArrows', source: './models/intro/instructions/arrows.png', type: 'texture' },
@@ -155,22 +152,6 @@ export default class Resources extends EventEmitter
             { name: 'areaOpen', source: './models/area/open.png', type: 'texture' },
             { name: 'areaReset', source: './models/area/reset.png', type: 'texture' },
             { name: 'areaQuestionMark', source: './models/area/questionMark.png', type: 'texture' },
-
-            // Tiles
-            { name: 'tilesABase', source: './models/tiles/a/base.glb' },
-            { name: 'tilesACollision', source: './models/tiles/a/collision.glb' },
-
-            { name: 'tilesBBase', source: './models/tiles/b/base.glb' },
-            { name: 'tilesBCollision', source: './models/tiles/b/collision.glb' },
-
-            { name: 'tilesCBase', source: './models/tiles/c/base.glb' },
-            { name: 'tilesCCollision', source: './models/tiles/c/collision.glb' },
-
-            { name: 'tilesDBase', source: './models/tiles/d/base.glb' },
-            { name: 'tilesDCollision', source: './models/tiles/d/collision.glb' },
-
-            { name: 'tilesEBase', source: './models/tiles/e/base.glb' },
-            { name: 'tilesECollision', source: './models/tiles/e/collision.glb' },
 
             // Konami
             { name: 'konamiLabel', source: './models/konami/label.png', type: 'texture' },

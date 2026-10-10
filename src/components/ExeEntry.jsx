@@ -14,7 +14,7 @@ export default function ExeEntry({ onEnter }) {
         </h2>
         <p>
           Take the wheel. Drive through my projects, technical skills, and
-          journey in an interactive 3D miniature world adapted from Bruno Simon.
+          journey in an interactive 3D miniature world.
         </p>
       </div>
       <div className="exe-entry-action">

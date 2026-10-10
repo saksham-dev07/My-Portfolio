@@ -13,7 +13,6 @@ export default class InformationSection
         this.resources = _options.resources
         this.objects = _options.objects
         this.areas = _options.areas
-        this.tiles = _options.tiles
         this.debug = _options.debug
         this.x = _options.x
         this.y = _options.y
@@ -27,7 +26,6 @@ export default class InformationSection
         this.setLandmark()
         this.setLinks()
         this.setActivities()
-        this.setTiles()
     }
 
     setStatic()
@@ -245,11 +243,4 @@ export default class InformationSection
         this.container.add(this.activities.mesh)
     }
 
-    setTiles()
-    {
-        const paths = [
-            [[0, -42], [0, -58]],
-        ]
-        for (const [from, to] of paths) this.tiles.add({ start: new THREE.Vector2(...from), delta: new THREE.Vector2(to[0] - from[0], to[1] - from[1]) })
-    }
 }

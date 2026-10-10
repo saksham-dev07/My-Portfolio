@@ -1,9 +1,12 @@
 import * as THREE from 'three'
 import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
 import { labelTexture } from '../../StudioLabels.js'
-import { profilePaths, profilePathMarkers, profilePathClearances, educationStops } from './ProfilePaths.js'
+import { profilePaths, educationStops } from './ProfilePaths.js'
 import ProfileCircuit from './ProfileCircuit.js'
 import DirectionSigns from './DirectionSigns.js'
+import EducationChapters from './EducationChapters.js'
+import BrickWorkshop, { workshopLayout } from './BrickWorkshop.js'
+import { groundLayer } from '../GroundLayers.js'
 // Authored scenery frames the landmarks; the eastern wall is a physics experiment.
 export default class ProfileDistrict {
     constructor({ objects, areas, resources, walls, zones, time, camera, directionSignTemplate }, container, collisions) {
@@ -12,14 +15,16 @@ export default class ProfileDistrict {
         container.add(district)
         const solids = []
         const dummy = new THREE.Object3D()
-        const sign = (lines, x, y, w = 8, h = 2, color = '#fff0d5', z = .055, backdrop = false) => {
+        const sign = (lines, x, y, w = 8, h = 2, color = '#fff0d5', z = .055, backdrop = false, titleSize = 60) => {
             if (backdrop) {
                 const plate = new THREE.Mesh(new THREE.PlaneGeometry(w + .4, h + .2), new THREE.MeshBasicMaterial({ color: '#181b2c', transparent: true, opacity: .7, depthWrite: false }))
                 plate.position.set(x, y, z - .005)
+                groundLayer(plate, 'backdrop')
                 district.add(plate)
             }
-            const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color, alphaMap: labelTexture(lines, 1024, 256), transparent: true, depthWrite: false }))
+            const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color, alphaMap: labelTexture(lines, 1024, 256, { titleSize }), transparent: true, depthWrite: false }))
             mesh.position.set(x, y, z)
+            groundLayer(mesh, 'label')
             district.add(mesh)
         }
 
@@ -30,6 +35,7 @@ export default class ProfileDistrict {
                 new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false })
             )
             mesh.position.set(x, y, .013)
+            groundLayer(mesh, 'accent')
             district.add(mesh)
         }
 
@@ -39,6 +45,7 @@ export default class ProfileDistrict {
                 new THREE.MeshBasicMaterial({ color, transparent: true, opacity, depthWrite: false })
             )
             mesh.position.set(x, y, .011)
+            groundLayer(mesh, 'accent')
             district.add(mesh)
         }
 
@@ -79,41 +86,105 @@ export default class ProfileDistrict {
         groundCircle(14, -67, 2, '#c3cdf7', .02)
 
         // ═══════════════════════════════════════════════════════════════
-        // 2. ABOUT COURTYARD — Multi-ring plaza with mosaic pattern
+        // 2. ABOUT COURTYARD — Stone, emerald and brass portrait garden
         // ═══════════════════════════════════════════════════════════════
-        // Outer soft ground fill.
-        // Main courtyard circle.
-        const courtyard = new THREE.Mesh(new THREE.CircleGeometry(9.3, 64), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: .07, depthWrite: false }))
-        courtyard.position.set(2, -79, .012)
-        district.add(courtyard)
-        // Primary courtyard edge.
-        const courtyardEdge = new THREE.Mesh(new THREE.RingGeometry(9.15, 9.3, 96), new THREE.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: .28, depthWrite: false }))
-        courtyardEdge.position.set(2, -79, .014)
-        district.add(courtyardEdge)
-        // Secondary outer accent ring for depth.
-        // Inner decorative mosaic ring surrounding the plinth.
-        // Stepped radial accents (subtle compass rose effect).
+        // A smaller asymmetric lawn leaves the forecourt, title and all road
+        // approaches open. Split inlays frame the sculpture without a giant
+        // enclosing circle or a new barrier around the visitor.
+        const lawnShape = new THREE.Shape()
+        lawnShape.moveTo(-7.7, -.4)
+        lawnShape.bezierCurveTo(-7.7, 3.5, -3.9, 5.5, .8, 4.7)
+        lawnShape.bezierCurveTo(5.4, 5.1, 7.7, 3.4, 7.7, -.2)
+        lawnShape.bezierCurveTo(7.7, -3.4, 3.1, -4.2, -.7, -4.2)
+        lawnShape.bezierCurveTo(-4.9, -4.4, -7.7, -3.2, -7.7, -.4)
+        const lawn = new THREE.Mesh(new THREE.ShapeGeometry(lawnShape, 16), new THREE.MeshBasicMaterial({ color: '#284f39', transparent: true, opacity: .20, depthWrite: false }))
+        lawn.name = 'About courtyard / composed lawn'
+        lawn.position.set(2, -75.1, 0)
+        groundLayer(lawn, 'accent')
+        district.add(lawn)
+        const mosaic = new THREE.Group()
+        mosaic.name = 'About courtyard / split stone inlays'
+        district.add(mosaic)
+        for (const start of [.10, Math.PI + .10]) {
+            const arc = new THREE.Mesh(new THREE.RingGeometry(3.24, 3.43, 24, 1, start, Math.PI * .71), new THREE.MeshBasicMaterial({ color: '#e3d4ac', transparent: true, opacity: .48, depthWrite: false }))
+            arc.position.set(2, -73, .016)
+            mosaic.add(arc)
+            groundLayer(arc, 'accent')
+        }
+        for (let i = 0; i < 6; i++) {
+            const angle = .35 + i * Math.PI / 5
+            const inset = new THREE.Mesh(new THREE.PlaneGeometry(.24, .24), new THREE.MeshBasicMaterial({ color: '#c3a66a', transparent: true, opacity: .58, depthWrite: false }))
+            inset.position.set(2 + Math.cos(angle) * 3.72, -73 + Math.sin(angle) * 3.72, .016)
+            inset.rotation.z = angle + Math.PI / 4
+            mosaic.add(inset)
+            groundLayer(inset, 'accent')
+        }
 
-        // ── Portrait plinth — stepped dark pedestal + marble top + halo ──
-        const plinthBase = new THREE.Mesh(new THREE.CylinderGeometry(2.9, 3.0, .14, 48), new THREE.MeshStandardMaterial({ color: '#25293d', roughness: .7 }))
-        plinthBase.rotation.x = Math.PI / 2
-        plinthBase.position.set(2, -73, .07)
-        district.add(plinthBase)
-        const plinth = new THREE.Mesh(new THREE.CylinderGeometry(2.5, 2.65, .28, 48), new THREE.MeshStandardMaterial({ color: '#eee5d8', roughness: .85 }))
-        plinth.rotation.x = Math.PI / 2
-        plinth.position.set(2, -73, .24)
-        district.add(plinth)
-        // Double halo — inner bright + outer soft.
-        const halo = new THREE.Mesh(new THREE.RingGeometry(2.95, 3.25, 64), new THREE.MeshBasicMaterial({ color: '#c3cdf7', transparent: true, opacity: .45, depthWrite: false }))
-        halo.position.set(2, -73, .015)
-        district.add(halo)
+        const matcap = objects.materials?.shades?.items?.white?.uniforms?.matcap?.value
+        const palette = new Map()
+        const material = color => {
+            // These colours share the display-space matcap convention used by
+            // the Blender botanical and activity assets, rather than applying
+            // a second sRGB-to-linear conversion to the small authored palette.
+            if (!palette.has(color)) palette.set(color, matcap ? new THREE.MeshMatcapMaterial({ matcap, color: new THREE.Color(color).convertLinearToSRGB() }) : new THREE.MeshBasicMaterial({ color }))
+            return palette.get(color)
+        }
+        const block = (name, x, y, z, w, d, h, color, solid = false) => {
+            const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, d, h), material(color))
+            mesh.name = name
+            mesh.position.set(x, y, z)
+            district.add(mesh)
+            if (solid) {
+                const box = new THREE.Object3D()
+                box.name = 'box'
+                box.userData.feature = name
+                box.position.copy(mesh.position)
+                box.scale.set(w, d, h)
+                solids.push(box)
+            }
+            return mesh
+        }
+        const plinthLayers = [
+            { name: 'warm stone foundation', radius: 2.9, bottom: 0, top: .16, color: '#d9c8a7' },
+            { name: 'emerald drum', radius: 2.7, bottom: .16, top: .31, color: '#285545' },
+            { name: 'brass portrait cap', radius: 2.55, bottom: .31, top: .35, color: '#d4b67b' },
+        ]
+        for (const layer of plinthLayers) {
+            const mesh = new THREE.Mesh(new THREE.CylinderGeometry(layer.radius, layer.radius, layer.top - layer.bottom, 48), material(layer.color))
+            mesh.name = `About portrait / ${layer.name}`
+            mesh.rotation.x = Math.PI / 2
+            mesh.position.set(2, -73, (layer.bottom + layer.top) / 2)
+            district.add(mesh)
+        }
         const base = new THREE.Object3D()
         base.name = 'box'
-        base.position.set(2, -73, .16)
+        base.userData.feature = 'About portrait / plinth'
+        base.position.set(2, -73, .175)
         base.scale.set(5.8, 5.8, .35)
         solids.push(base)
-        sign(['APPLIED AI'], -4.5, -73, 4.6, 1.1, '#ffffff', .055, true)
-        sign(['FULL STACK'], 8.5, -73, 4.6, 1.1, '#ffffff', .055, true)
+        for (const [title, x] of [['APPLIED AI', -4.5], ['FULL STACK', 8.5]]) {
+            const prefix = `About skills / ${title}`
+            block(`${prefix} / green board`, x, -73, 1.45, 3.6, .28, 1.22, '#25483b', true)
+            block(`${prefix} / brass lower trim`, x, -73, .89, 3.56, .30, .08, '#c9aa70')
+            block(`${prefix} / brass upper trim`, x, -73, 2.01, 3.56, .30, .08, '#c9aa70')
+            for (const offset of [-1.75, 1.75]) block(`${prefix} / brass side trim`, x + offset, -73, 1.45, .08, .30, 1.10, '#c9aa70')
+            for (const offset of [-1.18, 1.18]) {
+                block(`${prefix} / brass post`, x + offset, -73, .64, .10, .10, 1.18, '#b49760', true)
+                block(`${prefix} / stone foot`, x + offset, -73, .11, .65, .65, .22, '#d9c8a7', true)
+            }
+            const texture = labelTexture([title], 1024, 256, { titleSize: 176 })
+            texture.generateMipmaps = true
+            texture.minFilter = THREE.LinearMipmapLinearFilter
+            texture.anisotropy = 4
+            const faceMaterial = new THREE.MeshBasicMaterial({ color: '#f5e2b4', alphaMap: texture, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -2 })
+            for (const [face, direction] of [['front', -1], ['back', 1]]) {
+                const label = new THREE.Mesh(new THREE.PlaneGeometry(3.1, .67), faceMaterial)
+                label.name = `${prefix} / ${face}`
+                label.position.set(x, -73 + direction * .145, 1.46)
+                label.rotation.set(Math.PI / 2, 0, direction > 0 ? Math.PI : 0, 'ZXY')
+                district.add(label)
+            }
+        }
 
         // ═══════════════════════════════════════════════════════════════
         // 3. SKILLS WORK YARD — Denser, more intentional arrangement
@@ -152,17 +223,19 @@ export default class ProfileDistrict {
         // ═══════════════════════════════════════════════════════════════
         // 6. EDUCATION TIMELINE — Western ring road stops
         // ═══════════════════════════════════════════════════════════════
-        for (const { x, y, title } of educationStops) {
-            sign([title], x, y - .3, 7, 1.4)
-            const area = areas.add({ position: new THREE.Vector2(x, y), halfExtents: new THREE.Vector2(3.5, 1.8) })
-            area.on('interact', () => window.dispatchEvent(new CustomEvent('drive-section', { detail: 'education' })))
-            // Subtle ring around each education pad.
-            accentRing(x, y, 3.8, 4.0, '#ffe5b8', .1)
+        this.educationAreas = []
+        for (const { x, y, title, chapter, padOffsetX } of educationStops) {
+            const padX = x + padOffsetX
+            sign([title], padX, y + 1.10, 3.4, .72, '#fff0d5', .055, false, 112)
+            const area = areas.add({ position: new THREE.Vector2(padX, y), halfExtents: new THREE.Vector2(1.5, 1.5) })
+            area.on('interact', () => window.dispatchEvent(new CustomEvent('drive-section', { detail: { id: 'education', chapter } })))
+            this.educationAreas.push({ chapter, position: new THREE.Vector2(padX, y), halfExtents: new THREE.Vector2(1.5, 1.5), area })
         }
         sign(['THE ROAD SO FAR'], -19, -120, 11, 1.5)
+        if (time && camera) this.educationChapters = new EducationChapters({ container: district, objects, camera, time })
 
         // ═══════════════════════════════════════════════════════════════
-        // 7. EASTERN CLEARING — Physics experiment with better framing
+        // 7. MAKER YARD — A framed, reusable ten-brick physics workshop
         // ═══════════════════════════════════════════════════════════════
         this.experiment = walls.add({
             object: { base: resources.items.brickBase.scene, collision: resources.items.brickCollision.scene,
@@ -173,12 +246,42 @@ export default class ProfileDistrict {
                 offsetWidth: new THREE.Vector3(0, 1.05, 0), offsetHeight: new THREE.Vector3(0, 0, .45),
                 randomOffset: new THREE.Vector3(), randomRotation: new THREE.Vector3() }
         })
-        const reset = areas.add({ position: new THREE.Vector2(30, -115), halfExtents: new THREE.Vector2(3, 1.5) })
-        reset.on('interact', () => this.experiment.items.forEach(item => item.collision.reset()))
-        sign(['REBUILD'], 30, -115, 5, 1)
-        sign(['BREAK / BUILD / REPEAT'], 30, -119, 12, 1.5)
-        // Ground accent under the physics experiment.
-        groundCircle(30, -110, 4, '#edc4da', .02)
+        const courtShape = new THREE.Shape()
+        const { x: courtX, y: courtY, width: courtW, depth: courtD } = workshopLayout.court
+        const hw = courtW / 2, hd = courtD / 2, corner = .9
+        courtShape.moveTo(-hw + corner, -hd)
+        courtShape.lineTo(hw - corner, -hd)
+        courtShape.quadraticCurveTo(hw, -hd, hw, -hd + corner)
+        courtShape.lineTo(hw, hd - corner)
+        courtShape.quadraticCurveTo(hw, hd, hw - corner, hd)
+        courtShape.lineTo(-hw + corner, hd)
+        courtShape.quadraticCurveTo(-hw, hd, -hw, hd - corner)
+        courtShape.lineTo(-hw, -hd + corner)
+        courtShape.quadraticCurveTo(-hw, -hd, -hw + corner, -hd)
+        const court = new THREE.Mesh(new THREE.ShapeGeometry(courtShape, 8), new THREE.MeshBasicMaterial({ color: '#c6bb9f', transparent: true, opacity: .64, depthWrite: false }))
+        court.name = 'Maker yard / warm stone court'
+        court.position.set(courtX, courtY, .018)
+        groundLayer(court, 'accent')
+        court.renderOrder = 21
+        district.add(court)
+        const inlayMaterial = new THREE.MeshBasicMaterial({ color: '#dfc68e', transparent: true, opacity: .7, depthWrite: false })
+        for (const dx of [-6.2, 6.2]) for (const dy of [-7.7, 7.7]) {
+            for (const [w, d, ox, oy] of [[1.4, .09, -Math.sign(dx) * .7, 0], [.09, 1.4, 0, -Math.sign(dy) * .7]]) {
+                const inlay = new THREE.Mesh(new THREE.PlaneGeometry(w, d), inlayMaterial)
+                inlay.name = 'Maker yard / brass corner inlay'
+                inlay.position.set(courtX + dx + ox, courtY + dy + oy, .034)
+                groundLayer(inlay, 'accent')
+                inlay.renderOrder = 23
+                district.add(inlay)
+            }
+        }
+        this.workshop = new BrickWorkshop({ items: this.experiment.items, container: district, solids, time, matcap })
+        const { x: resetX, y: resetY, halfWidth, halfDepth } = workshopLayout.rebuild
+        const reset = areas.add({ position: new THREE.Vector2(resetX, resetY), halfExtents: new THREE.Vector2(halfWidth, halfDepth) })
+        reset.on('interact', () => this.workshop.rebuild())
+        sign(['REBUILD'], resetX, resetY, 5, 1, '#fff0d5', .055, false, 96)
+        sign(['NUDGE THE STACK'], 30, -108.8, 6.5, 1, '#fff0d5', .055, false, 112)
+        sign(['BREAK / BUILD / REPEAT'], 30, -119.9, 12, 1.2, '#e6c994', .055, false, 96)
 
         // ═══════════════════════════════════════════════════════════════
         // 8. RING ROAD JUNCTION ACCENTS
@@ -203,23 +306,9 @@ export default class ProfileDistrict {
         })
 
         // ═══════════════════════════════════════════════════════════════
-        // 10. TILE ROAD NETWORK — same path markers as original
+        // 10. ROAD NETWORK — paint belongs to the shared terrain surface.
         // ═══════════════════════════════════════════════════════════════
         this.paths = profilePaths
-        this.markers = profilePathMarkers()
-        const tileSource = objects.getConvertedMesh(resources.items.tilesABase.scene.children, { duplicated: true })
-        tileSource.updateMatrixWorld(true)
-        tileSource.children.forEach(source => {
-            if (!source.isMesh) return
-            const pieces = this.markers.map(({ point, angle }) => {
-                const matrix = new THREE.Matrix4().makeRotationZ(angle)
-                matrix.setPosition(point.x, point.y, .015)
-                return source.geometry.clone().applyMatrix4(matrix.multiply(source.matrixWorld))
-            })
-            const geometry = mergeGeometries(pieces)
-            pieces.forEach(piece => piece.dispose())
-            district.add(new THREE.Mesh(geometry, source.material))
-        })
 
         // Tree collisions are owned by the loaded Blender botanical batches.
         this.directionSigns = new DirectionSigns(directionSignTemplate, district, solids)

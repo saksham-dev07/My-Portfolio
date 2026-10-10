@@ -27,7 +27,7 @@ test('retired trees erase their own atlas footprints without altering reveal or 
 })
 
 test('the original atlas tree penumbra disappears while a separate rock shadow remains', async () => {
-    const atlas = fileURLToPath(new URL('../static/models/intro/static/floorShadow.png', import.meta.url))
+    const atlas = fileURLToPath(new URL('./fixtures/legacy-intro-shadow.png', import.meta.url))
     const { data, info } = await sharp(atlas).removeAlpha().raw().toBuffer({ resolveWithObject: true })
     const alphaAt = (x, y) => {
         const px = Math.round((x + 15) / 30 * 512), py = Math.round((15 - y) / 30 * 512)

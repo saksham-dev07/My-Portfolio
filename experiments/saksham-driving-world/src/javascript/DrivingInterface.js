@@ -157,6 +157,7 @@ export function drivingInterface(app) {
     boot.hidden = true;
     home.disabled = false;
     app.camera.car = app.world.physics.car;
+    app.camera.controls = app.world.controls;
     app.activities.enable();
     cameraTools.hidden = false;
     syncCameraTools();

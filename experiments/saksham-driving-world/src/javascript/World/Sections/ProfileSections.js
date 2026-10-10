@@ -7,7 +7,7 @@ import ProfileDistrict from './ProfileDistrict.js'
 // Section roads, accessible entry pads, and supplied GLB landmarks.
 export default class ProfileSections {
     constructor(options) {
-        const { areas, tiles, zones, camera } = options
+        const { areas, zones, camera } = options
         this.container = new THREE.Group()
         this.items = profileSections
         this.collisions = []

@@ -7,7 +7,6 @@ import Zones from './Zones.js'
 import Objects from './Objects.js'
 import Car from './Car.js'
 import Areas from './Areas.js'
-import Tiles from './Tiles.js'
 import Walls from './Walls.js'
 import Scenery from './Scenery.js'
 import Landscape from './Landscape.js'
@@ -28,6 +27,7 @@ import Sounds from './Sounds.js'
 import gsap from 'gsap'
 import EasterEggs from './EasterEggs.js'
 import ActivityProps from './ActivityProps.js'
+import CourtyardProps from './CourtyardProps.js'
 
 export default class World
 {
@@ -78,7 +78,6 @@ export default class World
         this.setObjects()
         this.setCar()
         this.areas.car = this.car
-        this.setTiles()
         this.setWalls()
         this.setSections()
         this.landscape = new Landscape({ objects: this.objects, scene: this.scene, camera: this.camera, config: this.config, time: this.time, directionSignTemplate: this.sections.crossroads.signTemplate })
@@ -87,6 +86,7 @@ export default class World
         this.setScenery()
         this.setEasterEggs()
         this.activityProps = new ActivityProps({container:this.container,objects:this.objects,camera:this.camera,time:this.time})
+        this.courtyardProps = new CourtyardProps({container:this.container,objects:this.objects,camera:this.camera,time:this.time})
         stabilizeGround(this.container, this.floor.mesh, this.landscape.terrain)
         // Clone reusable trees/signs before baking the existing static props.
         this.objects.merge.update()
@@ -353,15 +353,6 @@ export default class World
         this.container.add(this.areas.container)
     }
 
-    setTiles()
-    {
-        this.tiles = new Tiles({
-            resources: this.resources,
-            objects: this.objects,
-            debug: this.debug
-        })
-    }
-
     setWalls()
     {
         this.walls = new Walls({
@@ -424,7 +415,6 @@ export default class World
             areas: this.areas,
             zones: this.zones,
             walls: this.walls,
-            tiles: this.tiles,
             debug: this.debugFolder
         }
 
@@ -514,8 +504,7 @@ export default class World
     {
         this.scenery = new Scenery({
             objects: this.objects,
-            resources: this.resources,
-            tiles: this.tiles
+            resources: this.resources
         })
         this.container.add(this.scenery.container)
     }

@@ -4,6 +4,80 @@ Scope: desktop driving, original camera, overhead map and first-person view.
 Mobile optimization is deferred. The implementation record below distinguishes
 the completed pass from the original design specification that follows.
 
+## Arrival courtyard and Maker Yard — 10 October 2026
+
+- Replaced the scattered starting composition with a warm limestone forecourt,
+  emerald control bays on the left and right, upright two-sided instruction
+  boards, and brass lane edges. The centre remains open from the car spawn to
+  the first stone trail; surface paint has no raised curb or physics barrier.
+  The arrow-key demonstration and horn remain usable in the side bays.
+- Added a custom Blender garage pergola with an open front, sheltered teak
+  bench, tool counter, driving helmet and spare wheel. Its posts, furnishings
+  and overhead structure use authored compound proxies; the departure corridor
+  stays clear. The kit has no floor slab to overlap the courtyard paving.
+- Turned the eastern clearing into a Maker Yard with a rounded warm-stone
+  court, brass corner inlays, a clear push approach, and a crafted workbench
+  beside the existing brick stack. The workbench has a pegboard tool rack,
+  three drawers, blueprint, vice, toolbox and three decorative spare bricks.
+  The visible REBUILD pad remains at (30,-115), clear of the workshop furniture.
+- The ten original Cannon bricks remain real dynamic bodies. A two-sided
+  MAKER YARD board samples their current displacement at 10 Hz and redraws only
+  when the count changes. This is a local physics toy, not a cumulative score.
+  REBUILD restores the same bodies, clears velocity, angular velocity, force
+  and torque, and synchronizes interpolation to avoid a stale moving pose.
+- `scripts/assets/create-courtyard-kit.py` reproduces the two named Blender
+  meshes: arrival 1,560 triangles and maker 984 triangles. The shared export
+  is 152,320 bytes / 2,544 triangles with one vertex palette material, twelve
+  arrival proxies and five maker proxies. The single optional request waits
+  for a relevant camera frustum after entry. Failed art creates no invisible
+  walls; disposal releases the compound bodies and shared drawing resources.
+- Retired the legacy intro static base, collision and atlas shadow from the
+  loader and shipping files. One original atlas remains only as
+  `tests/fixtures/legacy-intro-shadow.png` for the shadow regression.
+  No shipped image textures, dependencies or paid generation were added.
+
+Validation: `bun test` passes 139 tests (54,534 assertions), `bun run check`
+passes, and `bun run build` completes. The production audit reports 397 files /
+52.22 MiB without source maps, environment files or local agent instructions.
+Existing large JavaScript chunk warnings remain. Desktop browser checks at
+1280×720 cover front and reverse views of both courts; explicit surface paint
+ordering keeps the instruction bays and brass inlays visible at oblique angles.
+The arrow props now compensate for their authored GLB collision centre.
+In the browser, a two-second Arrow Up drive displaced all ten bricks and changed
+the board to 10 / 10; Enter on REBUILD restored 0 / 10, with zero horizontal
+origin error, speed and force across the same ten bodies. No warning or error
+messages appeared in the inspected browser log. Saved proofs:
+[arrival court](C:/Users/agarw/.codex/visualizations/2026/10/08/01a11b9f-5064-7930-aa57-1dcb0a1f368e/arrival-courtyard-world.png),
+[Maker Yard](C:/Users/agarw/.codex/visualizations/2026/10/08/01a11b9f-5064-7930-aa57-1dcb0a1f368e/maker-yard-world.png),
+[real brick push](C:/Users/agarw/.codex/visualizations/2026/10/08/01a11b9f-5064-7930-aa57-1dcb0a1f368e/maker-yard-push-proof.png).
+
+## Education chapters and About courtyard — 10 October 2026
+
+- Replaced the empty timeline composition with three custom Blender dioramas:
+  classroom desk/book/chalkboard, brass atom/flask/lab notebook, and a campus
+  gateway/laptop. The VIT scene marks college entry rather than graduation.
+  One 200,912-byte GLB contains 3,448 triangles, three named meshes, one vertex
+  palette material and no textures or extra decoder. Authored source remains
+  reproducible in `scripts/assets/create-education-chapters.py`.
+- Artwork sits at (-15,-103/-109/-115), beside compact 3x3m interaction pads
+  at X -20. Their actual geometry and collision bounds clear roads, walls,
+  pads and planting. The single optional download waits for camera visibility;
+  offline or malformed art leaves the education interactions available.
+- Each year pad selects its real education entry in the map, marked THIS
+  CHAPTER; other entries remain accessible. Desktop browser activation of the
+  Science pad verified that the CBSE Science entry appears first.
+- The About portrait now rests on a 0.35m stone/emerald/brass plinth, with
+  a shaped lawn and split inlays. Upright framed signs replace the flat black
+  slabs; both faces read upright and keep the forecourt and adjacent roads open.
+  The original photographic portrait remains, with its baseline aligned to
+  the plinth. Ground decals use explicit stable depth layers.
+- Final 1280x720 browser checks cover front/rear model placement, the portrait
+  support, sign orientation and legibility. Console errors/warnings are empty.
+  Temporary viewport, camera and car poses were reset to normal auto-follow.
+- Validation: 127 tests / 53,067 assertions across 36 files pass. Build and
+  production audit pass: 399 files / 52.13 MiB. Existing large JS chunk
+  warnings remain. This pass uses no generation credits or new dependencies.
+
 ## Blender prop refinement and bowling placement — 10 October 2026
 
 - Replaced the generated chai cart with a custom Blender design: bowed striped

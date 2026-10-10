@@ -56,3 +56,62 @@ Raw generations and draft exports remain local and Git-ignored. Editable
 chat's visualization directory; the two source scripts are kept in the repo.
 Only shipping GLBs enter the build. The original Thrixel cart submission
 `ad72f1a4-5a82-4975-9ebc-544a15f30c3d` is historical provenance, not current art.
+
+## Education chapter dioramas
+
+`scripts/assets/create-education-chapters.py` creates three editable Blender
+scenes in one shipping `education-chapters.glb`. Named meshes share one palette
+material with normalized byte vertex colours; no image maps or decoder.
+
+| Chapter | Geometry | Triangles | Placement X/Y |
+|---|---|---:|---|
+| 2020 / School | Classroom desk, chair, open book, pencil and chalkboard | 616 | -15 / -103 |
+| 2022 / Science | Atom sculpture with three orbits, flask and lab notebook | 2,348 | -15 / -109 |
+| 2023 / VIT | Campus gateway, laptop and notebook, marking college entry | 484 | -15 / -115 |
+| Total | One GLB, 200,912 bytes (196.2 KiB) | 3,448 | |
+
+Each grounded model occupies 2.2x2.8m, height 2.06–2.385m. Metadata contains
+authored collision boxes and design facts. `World/Sections/EducationChapters.js`
+defers the single download until the timeline enters the camera frustum,
+validates all three models before installing geometry, then adds matching
+colliders and contact shadows. Failure creates no invisible walls. Disposal
+removes the listener, bodies, geometry, shared material and shadow texture.
+The editable `education-chapters.blend` is in the chat visualization folder.
+
+## Arrival courtyard and Maker Yard kit
+
+`scripts/assets/create-courtyard-kit.py` authors the garage pergola and workshop
+in Blender, then exports `courtyard-kit.glb` under the shipping model directory.
+The scene uses metre scale, grounded geometry and structural collision boxes.
+Static parts become two named meshes sharing one palette material with normalized
+byte vertex colours. The export is 152,320 bytes (148.75 KiB), 2,544 triangles,
+with no floor slabs, image textures, animation tracks or extra decoder.
+
+| Named mesh | Design | Triangles | Compound proxies | Placement X/Y |
+|---|---|---:|---:|---|
+| `arrival` | Open garage pergola, sheltered bench, tool counter, helmet and wheel | 1,560 | 12 | 0 / 7 |
+| `maker` | Teak workbench, three drawers, tools, blueprint, vice and spare bricks | 984 | 5 | 34.5 / -110 |
+| Total | One shared GLB and material | 2,544 | 17 | |
+
+The arrival and maker reservations are 10x4m and 2.8x2.6m respectively. The
+pergola's front opens toward the car; its posts and rear furniture leave the
+central departure corridor clear. The workbench occupies the eastern side of
+the physics court, away from the wall approach and REBUILD interaction pad.
+The root Blender scene remains editable in `courtyard-kit.blend`, kept with
+the chat's visualization artifacts rather than deployment files.
+
+`World/CourtyardProps.js` defers one download until the arrival or workshop
+region enters the camera frustum after entry. It validates both designs and
+proxy bounds before installing them, converts the Y-up shipping geometry to
+the world's Z-up coordinates, and adds two static compound Cannon bodies.
+Both models share the world matcap and runtime contact-shadow resources.
+Failure installs no invisible collisions or stray shadows; disposal removes
+the listener, bodies, geometry, material and generated shadow texture.
+
+The Maker Yard's ten movable bricks are separate from this decorative kit.
+`World/Sections/BrickWorkshop.js` reads their actual body positions at 10 Hz
+for the current `MOVED` count, updating its two-sided runtime canvas only when
+that count changes. Rebuilding reuses the original bodies and clears residual
+motion and interpolation. The original intro static models and baked shadow
+have been retired from shipping; one atlas is retained solely in the shadow
+test fixture. This Blender pass used no generation credits or new dependencies.

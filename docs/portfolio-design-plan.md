@@ -20,7 +20,7 @@ These are observations from the creators' live sites and the supplied directory,
 | [Adham Dannaway](https://www.adhamdannaway.com/) | A split portrait gives the designer/coder identity an immediately understandable visual metaphor, accompanied by direct work links. The live browser loaded successfully after the text fetch timed out. | Let Saksham's own scenes explain different sides of one person. Use his existing assets and story rather than reproduce the split-face image. |
 | [Alexis De Jesus](https://www.aalexis.fr/) and [professional view](https://www.aalexis.fr/professional) | A student/professional entry choice, concise identity, a quiet grid, timeline, project evidence, and compact navigation. The professional route was opened and inspected. | Support different visitor intents through the optional index, while keeping one complete portfolio and direct links. Visitors should be able to reach work or the résumé immediately. |
 
-The previous research remains in [design-references.md](design-references.md): friends' portfolios, Bruno Simon, Maxime Heckel, Olivier Larose, Rauno Freiberg, and other complementary approaches. This pass builds on those decisions.
+The previous research remains in [design-references.md](design-references.md): friends' portfolios, Maxime Heckel, Olivier Larose, Rauno Freiberg, and other complementary approaches. This pass builds on those decisions.
 
 ## Current state and opportunity
 

@@ -7,6 +7,7 @@ import { hubActivities } from './HubLayout.js'
 // Unlike terrain foundations, these rectangles describe the actual artwork,
 // furniture and labels. Planting can frame a courtyard without filling it.
 export const landmarkTreeClearances = [
+    {x:0,y:2.4,w:19,h:19.8}, {x:30,y:-110,w:14,h:17},
     {x:0,y:8,w:15,h:7.5}, {x:0,y:-1,w:7,h:8},
     {x:16,y:-2,w:7,h:7}, {x:-14,y:1,w:5,h:5}, {x:9,y:5,w:5,h:5}, {x:-12,y:-13,w:2,h:6},
     {x:-38,y:-32,w:43,h:37}, {x:2,y:-54,w:27,h:19},
@@ -39,7 +40,7 @@ export function landmarkTreePlacements(baseRadius=2,existing=[]) {
         ['portrait',[[-17,-69,.82],[-21,-73,.96],[21,-70,.98],[25,-74,.72]]],
         ['skills',[[-37,-80,1.02],[-37,-85,.72]]],
         ['highlights',[[39,-70,.96],[34,-72,.72]]],
-        ['campus',[[-13,-107,.76],[22,-102,.84],[23,-109,.72]]],
+        ['campus',[[-13,-107,.76],[20,-112,.72],[20,-119,.64]]],
         ['journey',[[-34,-109,.95],[-35,-116,.7]]],
     ]
     const items=[]

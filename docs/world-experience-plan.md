@@ -277,6 +277,26 @@ This delivers the first games and a few purposeful scene additions. Timed
 Ramp Run, nature Field Notes, new project pavilions and walking parkour remain
 the next phases; a drivable ramp is not a completed parkour game.
 
+The next completed courtyard pass adds three Blender education chapters:
+school desk/chalkboard, science atom/flask and a campus-entry gateway/laptop.
+They share a single 196.2 KiB texture-free GLB and load when the timeline comes
+into view. The compact year pads now highlight their corresponding source
+entry in Education Trail. About gains a grounded stone/emerald/brass plinth,
+upright skill signs on both faces, and a smaller shaped lawn. Front/rear
+camera checks and a physical Science-pad activation verify those additions.
+The photographic portrait is retained; a stylized replacement is still an
+optional future art decision. See `driving-environment-next-pass.md` and
+`world-activity-assets.md` for current placements and measured asset budgets.
+
+The arrival now has a shaded Blender pergola, two legible instruction bays and
+a clear driving lane. The eastern clearing is a framed Maker Yard with a
+crafted workbench and a live counter for the ten existing physics bricks.
+Driving into the stack and entering REBUILD were checked in the browser;
+the rebuilt bodies return to their exact horizontal origins with no residual
+speed or force. The two optional courtyard meshes share a 148.75 KiB,
+2,544-triangle texture-free export. Both courts were reviewed from front and
+reverse desktop camera positions.
+
 ### Additional reliability priorities
 
 Before a larger environment pass, give the core asset loader explicit timeout,
@@ -302,9 +322,9 @@ young tree 300–500, stone seating 180–300. Target under 5,000 added triangle
 five added draw calls per small activity, with roughly sixteen or fewer extra
 active dynamic bodies. Measure actual whole-frame costs before accepting these
 budgets; existing detail-heavy portrait, desk and campus assets need separate
-LOD/transfer review. Current production output is about 51.93 MiB; its largest
-asset is the 10.63 MiB campus model, and world JS remains about 1.36 MB minified
-(382.93 kB gzip). The large existing world chunk remains an optimization task.
+LOD/transfer review. Current production output is about 52.22 MiB; its largest
+asset is the 10.63 MiB campus model, and world JS remains about 1.38 MB minified
+(about 390 kB gzip). The large existing world chunk remains an optimization task.
 Do not add game assets to the boot resource list: load only near a district or
 when a visitor starts its activity.
 
