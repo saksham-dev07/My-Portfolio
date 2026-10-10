@@ -11,7 +11,6 @@ import certificate_8 from "./certificates/certificate_8.webp";
 import certificate_9 from "./certificates/certificate_9.webp";
 import certificate_10 from "./certificates/certificate_10.webp";
 import futureai_qr from "./certificates/futureai_qr.svg";
-import marketing_analytics_extracted_qr from "./certificates/marketing_analytics_extracted_qr.webp";
 import marketing_analytics_qr from "./certificates/marketing_analytics_qr.svg";
 import ml_intro_qr from "./certificates/ml_intro_extracted_qr.webp";
 import vityarthi_ai_qr from "./certificates/vityarthi_ai_qr.svg";
@@ -28,8 +27,6 @@ import nptel from "./company/nptel.webp";
 // Company / Institutional Badges
 import vit from "./company/vit.webp";
 import vitb from "./company/vitb.webp";
-import github from "./github.webp";
-import logo from "./logo.svg";
 import profile from "./profile.webp";
 import profileStudio from "./profile-studio.webp";
 import blockforge from "./projects/blockforge.webp";
@@ -71,13 +68,10 @@ export {
   fintech,
   futureai,
   futureai_qr,
-  github,
   google,
   ibm,
   lnt,
-  logo,
   malware,
-  marketing_analytics_extracted_qr,
   marketing_analytics_qr,
   ml_intro_qr,
   nexusboard,
