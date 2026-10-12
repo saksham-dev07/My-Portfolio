@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import ProfileDistrict from '../src/javascript/World/Sections/ProfileDistrict.js'
 import Walls from '../src/javascript/World/Walls.js'
 import { profileSections } from '../src/javascript/sakshamProfile.js'
+import { profileForecourts, profileArtworkPositions } from '../src/javascript/World/Sections/ProfileForecourts.js'
 import { roadEdgeDistance } from '../src/javascript/World/LandscapeLayout.js'
 
 test('district furniture leaves main and journey entry pads clear', () => {
@@ -25,7 +26,7 @@ test('district furniture leaves main and journey entry pads clear', () => {
         board.name = 'shadeWhite084'
         board.position.z = 3.5
         signTemplate.add(pole, board)
-        const entries = profileSections.map(section => ({ position: new THREE.Vector2(section.x, section.y - 4), halfExtents: new THREE.Vector2(4, 2) }))
+        const entries = profileSections.map(section => { const { entry } = profileForecourts[section.id]; return { position: new THREE.Vector2(entry.x, entry.y), halfExtents: new THREE.Vector2(entry.w / 2, entry.h / 2) } })
         const roads = []
         let collider
         let experimentOptions
@@ -67,7 +68,7 @@ test('district furniture leaves main and journey entry pads clear', () => {
         const lawnBounds = new THREE.Box3().setFromObject(district.container.getObjectByName('About courtyard / composed lawn'))
         expect(lawnBounds.min.x).toBeGreaterThan(-6)
         expect(lawnBounds.max.x).toBeLessThan(10)
-        expect(lawnBounds.min.y).toBeGreaterThan(-80)
+        expect(lawnBounds.min.y).toBeGreaterThan(profileArtworkPositions.about.y - 7)
         const up = new THREE.Vector3(0, 1, 0), normal = new THREE.Vector3(0, 0, 1)
         for (const [title, x] of [['APPLIED AI', -4.5], ['FULL STACK', 8.5]]) {
             const board = district.container.getObjectByName(`About skills / ${title} / green board`)
@@ -81,7 +82,7 @@ test('district furniture leaves main and journey entry pads clear', () => {
                 const label = district.container.getObjectByName(`About skills / ${title} / ${face}`)
                 expect(up.clone().applyQuaternion(label.quaternion).z).toBeCloseTo(1, 6)
                 expect(normal.clone().applyQuaternion(label.quaternion).y).toBeCloseTo(direction, 6)
-                expect(label.position.y).toBeCloseTo(-73 + direction * .145, 6)
+                expect(label.position.y).toBeCloseTo(profileArtworkPositions.about.y + direction * .145, 6)
                 expect(label.material.alphaMap.generateMipmaps).toBe(true)
             }
         }
@@ -101,7 +102,7 @@ test('district furniture leaves main and journey entry pads clear', () => {
             if (solid.position.z - solid.scale.z / 2 > 1.6) continue
             const intersects = Math.abs(solid.position.x - entry.position.x) < solid.scale.x / 2 + entry.halfExtents.x
                 && Math.abs(solid.position.y - entry.position.y) < solid.scale.y / 2 + entry.halfExtents.y
-            expect(intersects).toBe(false)
+            expect(intersects, JSON.stringify({ entry: entry.position, solid: solid.position, size: solid.scale })).toBe(false)
         }
         // All route markings now belong to the terrain mask. The district
         // must construct without a tile model resource or a tile factory.

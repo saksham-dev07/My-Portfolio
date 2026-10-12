@@ -1,5 +1,5 @@
 import { projects } from '../../sakshamProjects.js'
-import { labelTexture } from '../../StudioLabels.js'
+import { plaqueTexture } from '../../StudioLabels.js'
 import * as THREE from 'three'
 import Project from './Project'
 import gsap from 'gsap'
@@ -62,10 +62,8 @@ export default class ProjectsSection
         this.meshes = {}
 
         // this.meshes.boardStructure = this.objects.getConvertedMesh(this.resources.items.projectsBoardStructure.scene.children, { floorShadowTexture: this.resources.items.projectsBoardStructureFloorShadowTexture })
-        this.resources.items.areaOpenTexture.magFilter = THREE.NearestFilter
-        this.resources.items.areaOpenTexture.minFilter = THREE.LinearFilter
         this.meshes.boardPlane = this.resources.items.projectsBoardPlane.scene.children[0]
-        this.meshes.areaLabel = new THREE.Mesh(new THREE.PlaneGeometry(2, 0.5), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.resources.items.areaOpenTexture }))
+        this.meshes.areaLabel = new THREE.Mesh(new THREE.PlaneGeometry(4.8, 0.8), new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, map: plaqueTexture(['VIEW PROJECT'], 512, 128, { compact: true }) }))
         this.meshes.areaLabel.matrixAutoUpdate = false
     }
 
@@ -74,7 +72,7 @@ export default class ProjectsSection
         this.list = projects.map((project, index) => ({
             name: project.name,
             imageSources: [project.image],
-            floorTexture: labelTexture([String(index + 1).padStart(2, '0') + ' / ' + project.name, project.role, project.tech.slice(0, 4).join(' / ')], 1024, 512),
+            floorTexture: plaqueTexture([String(index + 1).padStart(2, '0') + ' / ' + project.name, project.role, project.tech.slice(0, 4).join(' / ')], 1024, 512),
             link: { href: project.demo || project.source, x: 0, y: -6.5, halfExtents: { x: 3.2, y: 1.5 } },
             distinctions: []
         }))
@@ -119,6 +117,9 @@ export default class ProjectsSection
             debug: this.debugFolder,
             x: x,
             y: y,
+            // Alternate promenade rows approach from opposite ends. Present
+            // each display diagonally toward the lane and the arriving car.
+            boardRotation: (Math.floor(this.items.length / 4) % 2 ? Math.PI / 4 : -Math.PI / 4) - this.meshes.boardPlane.rotation.z,
             ..._options
         })
 

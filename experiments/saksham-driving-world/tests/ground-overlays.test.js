@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import Objects from '../src/javascript/World/Objects.js'
 import { roadEdgeDistance, roads, distanceToRoad } from '../src/javascript/World/LandscapeLayout.js'
 import { profileSections } from '../src/javascript/sakshamProfile.js'
+import { profileForecourts } from '../src/javascript/World/Sections/ProfileForecourts.js'
 import { groundLayer, stabilizeGround, conformShadow } from '../src/javascript/World/GroundLayers.js'
 import { roadMaskPixels } from '../src/javascript/World/RoadMask.js'
 
@@ -73,7 +74,7 @@ test('one continuous curb surrounds a filleted T junction without shoulder spike
 })
 
 test('pavement and shoulders leave breathing room around every profile and secret pad', () => {
-    const pads=[...profileSections.map(section=>({x:section.x,y:section.y-4,w:8,h:4})),{x:-58,y:-60,w:4,h:4}]
+    const pads=[...profileSections.map(section=>profileForecourts[section.id].entry),{x:-58,y:-60,w:4,h:4}]
     for(const pad of pads) for(let i=0;i<=20;i++) {
         const t=i/20
         for(const [x,y] of [[pad.x-pad.w/2+pad.w*t,pad.y-pad.h/2],[pad.x-pad.w/2+pad.w*t,pad.y+pad.h/2],[pad.x-pad.w/2,pad.y-pad.h/2+pad.h*t],[pad.x+pad.w/2,pad.y-pad.h/2+pad.h*t]]) expect(roadEdgeDistance(x,y)).toBeGreaterThanOrEqual(.3)

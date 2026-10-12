@@ -8,7 +8,9 @@ export default function()
     const uniforms = {
         uTexture: { value: null },
         uTextureAlpha: { value: null },
-        uColor: { value: null }
+        uColor: { value: null },
+        uScreenTime: { value: 0 },
+        uScreenMotion: { value: 0 }
     }
 
     const material = new THREE.ShaderMaterial({

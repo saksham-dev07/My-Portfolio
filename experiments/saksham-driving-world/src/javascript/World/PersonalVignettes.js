@@ -80,6 +80,7 @@ export default class PersonalVignettes {
             const group = new THREE.Group()
             group.name = `Personal scene / ${activity.id}`
             group.position.set(activity.x, activity.y, hubPadTop + .005)
+            group.rotation.z = activity.angle
             group.scale.setScalar(vignetteScale)
             group.add(mesh)
             group.updateMatrix()
@@ -127,6 +128,7 @@ export default class PersonalVignettes {
             // ground-layer bias rather than a full ground-height offset.
             contact.position.set(center.x, center.y, hubPadTop - .03)
             contact.scale.set((bounds.max.x - bounds.min.x) * vignetteScale + .4, (bounds.max.y - bounds.min.y) * vignetteScale + .4, 1)
+            contact.rotation.z = group.rotation.z
             groundLayer(contact, 'shadow')
             container.add(contact)
             this.shadows.push(padShadow, contact)

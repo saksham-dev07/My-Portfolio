@@ -3,19 +3,21 @@ import { profilePathClearances } from './Sections/ProfilePaths.js'
 import { gardenReserved, gardenTreeAnchors } from './GardenLayout.js'
 import { directionSigns } from './Sections/DirectionSigns.js'
 import { hubActivities } from './HubLayout.js'
+import { districtReservations } from './Sections/DistrictIdentityLayout.js'
 
 // Unlike terrain foundations, these rectangles describe the actual artwork,
 // furniture and labels. Planting can frame a courtyard without filling it.
 export const landmarkTreeClearances = [
+    ...districtReservations,
     {x:0,y:2.4,w:19,h:19.8}, {x:30,y:-110,w:14,h:17},
     {x:0,y:8,w:15,h:7.5}, {x:0,y:-1,w:7,h:8},
     {x:16,y:-2,w:7,h:7}, {x:-14,y:1,w:5,h:5}, {x:9,y:5,w:5,h:5}, {x:-12,y:-13,w:2,h:6},
     {x:-38,y:-32,w:43,h:37}, {x:2,y:-54,w:27,h:19},
     ...hubActivities.map(({x,y})=>({x,y,w:7.4,h:7.4})),
-    {x:-24,y:-83,w:7,h:5}, {x:30,y:-83,w:10,h:7}, {x:2,y:-105,w:13,h:8},
-    {x:-30,y:-81,w:.8,h:5}, {x:-18,y:-78,w:5.4,h:.8},
-    {x:25,y:-77,w:5.4,h:.8}, {x:35,y:-77,w:5.4,h:.8},
-    {x:-9,y:-105,w:.8,h:6.5}, {x:10,y:-105,w:.8,h:6.5},
+    // Model envelopes come from profilePathClearances; these are their walls.
+    {x:-31,y:-90,w:1.11,h:4.1}, {x:-17,y:-90,w:1.11,h:5.28},
+    {x:23,y:-90,w:1.11,h:5.28}, {x:37,y:-90,w:1.11,h:5.28},
+    {x:-9,y:-105,w:.8,h:6.5}, {x:11,y:-105,w:1.11,h:6.5},
     {x:-12,y:-112,w:4.2,h:.8}, {x:13,y:-112,w:4.2,h:.8},
     {x:30,y:-106,w:7,h:8},
 ]

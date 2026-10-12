@@ -24,6 +24,7 @@ import gsap from 'gsap'
 import EasterEggs from './EasterEggs.js'
 import ActivityProps from './ActivityProps.js'
 import CourtyardProps from './CourtyardProps.js'
+import WorldLife from './WorldLife.js'
 
 export default class World
 {
@@ -76,13 +77,19 @@ export default class World
         this.areas.car = this.car
         this.setWalls()
         this.setSections()
-        this.landscape = new Landscape({ objects: this.objects, scene: this.scene, camera: this.camera, config: this.config, time: this.time, directionSignTemplate: this.sections.crossroads.signTemplate })
+        this.landscape = new Landscape({ objects: this.objects, scene: this.scene, camera: this.camera, config: this.config, time: this.time, renderer: this.renderer, directionSignTemplate: this.sections.crossroads.signTemplate })
         this.container.add(this.landscape.container)
+        // The loading screen keeps its original background; the entered world
+        // uses a directional sky and an actual shoreline instead of a flat haze.
+        this.floor.mesh.visible = false
         suppressRetiredTreeShadows([...(this.landscape.retiredTreeAnchors || []), ...(this.sections.information.retiredShadowAnchors || [])], this.shadows.sun.vector)
         this.setScenery()
         this.setEasterEggs()
         this.activityProps = new ActivityProps({container:this.container,objects:this.objects,camera:this.camera,time:this.time})
         this.courtyardProps = new CourtyardProps({container:this.container,objects:this.objects,camera:this.camera,time:this.time})
+        this.life = new WorldLife({ container: this.container, time: this.time, camera: this.camera,
+            physics: this.physics, controls: this.controls,
+            screens: this.sections.projects.items.flatMap(project => project.boards.items.map(board => board.planeMesh.material)) })
         stabilizeGround(this.container, this.floor.mesh, this.landscape.terrain)
         // Clone reusable trees/signs before baking the existing static props.
         this.objects.merge.update()

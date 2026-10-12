@@ -243,6 +243,7 @@ export default class IntroSection
         this.otherInstructions.label.material = new THREE.MeshBasicMaterial({ transparent: true, alphaMap: this.otherInstructions.label.texture, color: 0xffffff, depthWrite: false, opacity: 0 })
 
         this.otherInstructions.label.mesh = new THREE.Mesh(this.otherInstructions.label.geometry, this.otherInstructions.label.material)
+        this.otherInstructions.label.mesh.rotation.z = Math.PI
         this.otherInstructions.label.mesh.matrixAutoUpdate = false
         this.otherInstructions.container.add(this.otherInstructions.label.mesh)
         groundLayer(this.otherInstructions.label.mesh, 'label')
@@ -269,6 +270,8 @@ export default class IntroSection
         title.position.set(introLayout.title.x, introLayout.title.y, 0)
         this.container.add(title)
         groundLayer(title, 'label')
+        title.rotation.z = Math.PI
+        title.updateMatrix()
         this.title = title
     }
 

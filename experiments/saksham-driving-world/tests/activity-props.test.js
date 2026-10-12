@@ -7,6 +7,7 @@ import EventEmitter from '../src/javascript/Utils/EventEmitter.js'
 import { roadEdgeDistance } from '../src/javascript/World/LandscapeLayout.js'
 import { grovePlacements,landmarkTreePlacements } from '../src/javascript/World/EnvironmentLayout.js'
 import { garden,gardenPathDistance } from '../src/javascript/World/GardenLayout.js'
+import { rallyStart } from '../src/javascript/World/Activities/CampusRally.js'
 
 async function asset(name) {
     const bytes=await Bun.file(new URL(`../static/saksham/models/${name}.glb`,import.meta.url)).arrayBuffer()
@@ -35,7 +36,7 @@ test('the rally arch spans the existing start road with genuinely open vehicle c
     const placement=activityPropPlacements.find(p=>p.id==='campus-checkpoint'),physics={world:new CANNON.World()}
     const collision=activityPropCollision(placement,physics),solids=collision.solids
     expect(physics.world.bodies).toHaveLength(1);expect(collision.body.shapes).toHaveLength(4)
-    expect(collision.body.position.toArray()).toEqual([2,-98.5,0])
+    expect(collision.body.position.toArray()).toEqual([rallyStart.x,rallyStart.y,0])
     const posts=solids.slice(0,2)
     for(const post of posts) {
         expect(Math.abs(post.position.y-placement.y)-post.scale.x/2).toBeGreaterThan(2.5)
@@ -48,7 +49,7 @@ test('the rally arch spans the existing start road with genuinely open vehicle c
     const car=new CANNON.Body({mass:40,shape:new CANNON.Box(new CANNON.Vec3(1.02,.52,.6))})
     physics.world.addBody(car)
     let contacts=0;car.addEventListener('collide',()=>contacts++)
-    for(let i=0;i<21;i++) {car.position.set(-3+i*.5,-98.5,1);car.velocity.set(0,0,0);physics.world.step(1/60)}
+    for(let i=0;i<21;i++) {car.position.set(rallyStart.x-5+i*.5,rallyStart.y,1);car.velocity.set(0,0,0);physics.world.step(1/60)}
     expect(contacts).toBe(0)
 })
 

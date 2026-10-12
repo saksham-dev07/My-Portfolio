@@ -3,14 +3,44 @@ import { FontLoader } from 'three/addons/loaders/FontLoader.js'
 import { TextGeometry } from 'three/addons/geometries/TextGeometry.js'
 import { mergeGroups } from 'three/addons/utils/BufferGeometryUtils.js'
 import fontData from '../../../fonts/helvetiker_bold.typeface.json'
+import { profileForecourts } from './ProfileForecourts.js'
 
 const signFont = new FontLoader().parse(fontData)
 
 export const directionSigns = [
     { text: 'SKILLS', x: -5, y: -91, right: false, angle: 0 },
     { text: 'HIGHLIGHTS', x: 9, y: -91, right: true, angle: 0 },
-    { text: 'EDUCATION', x: 17, y: -104, right: false, angle: Math.PI / 2 },
+    { text: 'EDUCATION', x: 17, y: -95, right: false,
+        angle: Math.atan2(profileForecourts.education.entry.y + 95, profileForecourts.education.entry.x - 17) + Math.PI },
 ]
+
+// Fit upright dimensional lettering to the board's local faces, then carry
+// both faces through its complete transform. A world bounding box loses the
+// face normal when a sign turns toward a junction.
+export function raisedSignFaces(board, text, offset = new THREE.Vector3()) {
+    board.geometry.computeBoundingBox()
+    const bounds = board.geometry.boundingBox
+    const size = bounds.getSize(new THREE.Vector3()), center = bounds.getCenter(new THREE.Vector3())
+    const geometry = new TextGeometry(text, { font: signFont, size: 1, depth: .018, curveSegments: 3, bevelEnabled: false })
+    geometry.computeBoundingBox()
+    const textCenter = geometry.boundingBox.getCenter(new THREE.Vector3()), textSize = geometry.boundingBox.getSize(new THREE.Vector3())
+    geometry.translate(-textCenter.x, -textCenter.y, 0)
+    const worldScale = board.getWorldScale(new THREE.Vector3())
+    geometry.scale(size.x * Math.abs(worldScale.x) * .76 / textSize.x, size.z * Math.abs(worldScale.z) * .66 / textSize.y, 1)
+    mergeGroups(geometry)
+    const material = [new THREE.MeshBasicMaterial({ color: '#725747' }), new THREE.MeshBasicMaterial({ color: '#4b342b' })]
+    return [-1, 1].map(side => {
+        const face = new THREE.Mesh(geometry, material)
+        face.name = `Raised lettering / ${text} / ${side}`
+        const normal = new THREE.Vector3(0, side, 0).transformDirection(board.matrixWorld)
+        // Authored boards may reflect Y to reverse an arrow. Use that normal
+        // for placement, but never reflect the letters along with the board.
+        face.rotation.set(Math.PI / 2, 0, Math.atan2(normal.x, -normal.y), 'ZYX')
+        face.position.set(center.x, side < 0 ? bounds.min.y : bounds.max.y, center.z).applyMatrix4(board.matrixWorld)
+        face.position.addScaledVector(normal, .045).add(offset)
+        return face
+    })
+}
 
 // Clone the original arrow board and pole, preserving authored bevels/materials.
 // Replace only the lettering; mirrored geometry never mirrors the text.

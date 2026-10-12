@@ -40,6 +40,7 @@ export default function()
         extensions,
         defines,
         lights: false,
+        fog: true,
         vertexShader: shaderVertex,
         fragmentShader: shaderFragment
     })

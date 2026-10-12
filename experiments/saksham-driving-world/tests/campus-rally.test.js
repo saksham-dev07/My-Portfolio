@@ -66,8 +66,8 @@ test('teleports, off-road shortcuts and missing route legs cannot record a lap',
     expect(teleport.phase).toBe('result'); expect(teleport.completed).toBe(false)
 
     const shortcut = new RallyProgress(); startRunning(shortcut)
-    for (let i = 1; i <= 15; i++) shortcut.sample({ x: 2, y: -98.5 - i * .5 }, { x: 0, y: -1 }, 1000 / 60)
-    for (let i = 0; i < 50; i++) shortcut.sample({ x: 2, y: -106 }, { x: 0, y: -1 }, 1000 / 60)
+    for (let i = 1; i <= 15; i++) shortcut.sample({ x: rallyGates[0].x, y: rallyGates[0].y - i * .5 }, { x: 0, y: -1 }, 1000 / 60)
+    for (let i = 0; i < 50; i++) shortcut.sample({ x: rallyGates[0].x, y: rallyGates[0].y - 7.5 }, { x: 0, y: -1 }, 1000 / 60)
     expect(shortcut.phase).toBe('result'); expect(shortcut.completed).toBe(false)
 
     const reverse = new RallyProgress(); startRunning(reverse)
@@ -123,7 +123,7 @@ test('Cannon-backed runtime pauses on hidden/dialog/map braking, saves best and 
         page.dialog = true
         body.velocity.set(10, 0, 0)
         for (let i = 0; i < 60; i++) world.step(1 / 60)
-        expect(game.snapshot().timerMs).toBe(elapsed); expect(body.position.x).toBeCloseTo(2)
+        expect(game.snapshot().timerMs).toBe(elapsed); expect(body.position.x).toBeCloseTo(rallyGates[0].x)
         page.dialog = false
         f.driveRoute()
         expect(game.snapshot().phase).toBe('result'); expect(game.snapshot().completed).toBe(true)
@@ -153,7 +153,7 @@ test('retry synchronizes chassis and wheels, clears force/velocity and uses corr
         car.wheels = { bodies: [wheel] }
         car.vehicle.wheelInfos = [{ worldTransform: { position: new CANNON.Vec3(2.6, -98.1, .6), quaternion: new CANNON.Quaternion() } }]
         resetRallyVehicle(car)
-        expect(body.position.x).toBe(2); expect(body.position.y).toBe(-98.5)
+        expect(body.position.x).toBe(rallyGates[0].x); expect(body.position.y).toBe(rallyGates[0].y)
         for (const field of ['previousPosition', 'interpolatedPosition', 'initPosition']) expect(body[field].almostEquals(body.position)).toBe(true)
         for (const field of ['previousQuaternion', 'interpolatedQuaternion', 'initQuaternion']) expect(body[field].w).toBe(1)
         for (const field of ['velocity', 'angularVelocity', 'force', 'torque']) expect(body[field].length()).toBe(0)

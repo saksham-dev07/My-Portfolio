@@ -1,5 +1,6 @@
 import { projects } from './sakshamProjects.js'
 import { profileSections } from './sakshamProfile.js'
+import { profileForecourts } from './World/Sections/ProfileForecourts.js'
 import { landscapeBounds, roads, distanceToRoad } from './World/LandscapeLayout.js'
 import '../style/world-navigator.css'
 
@@ -70,7 +71,8 @@ export default class WorldNavigator {
         this.stops = [
             ...profileSections.map(section => {
                 const area = app.world.sections.profile.entryAreas.find(entry => entry.id === section.id)?.area
-                return { id: section.id, name: section.name, kind: 'profile', area, x: section.x, y: section.y - 4 }
+                const { entry } = profileForecourts[section.id]
+                return { id: section.id, name: section.name, kind: 'profile', area, x: entry.x, y: entry.y }
             }),
             ...projects.map((project, index) => {
                 const site = app.world.sections.projects.items[index]

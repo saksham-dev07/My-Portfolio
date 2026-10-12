@@ -2,6 +2,7 @@ import * as THREE from 'three'
 import { groundLayer } from '../GroundLayers.js'
 import { modelLoader } from '../../Utils/ModelLoader.js'
 import assets from './landmark-assets.json'
+import { profileArtworkPositions } from './ProfileForecourts.js'
 
 export function prepareLandmarkMaterial(material, kind) {
     const copy = material.clone()
@@ -53,18 +54,20 @@ export default class ProfileLandmarks {
         this.pending = new Map()
         const frustum = new THREE.Frustum()
         const viewProjection = new THREE.Matrix4()
-        const campusBounds = new THREE.Sphere(new THREE.Vector3(2, -105, 2), 8)
-        const avatarBounds = new THREE.Sphere(new THREE.Vector3(2, -73, 2.5), 4)
-        const skillsBounds = new THREE.Sphere(new THREE.Vector3(-24, -81, 2), 6)
-        const highlightsBounds = new THREE.Sphere(new THREE.Vector3(30, -83, 2), 6)
+        const sphere = (id, z, radius) => { const p = profileArtworkPositions[id]; return new THREE.Sphere(new THREE.Vector3(p.x, p.y, z), radius) }
+        const campusBounds = sphere('education', 2, 8)
+        const avatarBounds = sphere('about', 2.5, 4)
+        const skillsBounds = sphere('skills', 2, 6)
+        const highlightsBounds = sphere('highlights', 2, 6)
         let nextCheck = 0
         container.add(new THREE.HemisphereLight('#edf3ff', '#a5b5a0', 2.3))
         const sun = new THREE.DirectionalLight('#fff7ee', 1.65)
         sun.position.set(-30, -60, 70)
         container.add(sun)
         const portraitLight = new THREE.DirectionalLight('#e8f1ff', 1.6)
-        portraitLight.position.set(0, -90, 25)
-        portraitLight.target.position.set(2, -73, 2.5)
+        // Front fill follows the portrait's new +Y-facing road approach.
+        portraitLight.position.set(4, profileArtworkPositions.about.y + 19, 18)
+        portraitLight.target.position.set(2, profileArtworkPositions.about.y, 2.5)
         container.add(portraitLight)
         container.add(portraitLight.target)
         // Camera panning is independent of the car: visible landmarks must load
@@ -77,10 +80,11 @@ export default class ProfileLandmarks {
             camera.instance.updateMatrixWorld()
             viewProjection.multiplyMatrices(camera.instance.projectionMatrix, camera.instance.matrixWorldInverse)
             frustum.setFromProjectionMatrix(viewProjection)
-            if (this.campusState === 'idle' && (Math.hypot(car.x - 2, car.y + 112) < 28 || frustum.intersectsSphere(campusBounds))) this.loadCampus(10)
-            if (this.avatarState === 'idle' && (Math.hypot(car.x - 2, car.y + 80) < 26 || frustum.intersectsSphere(avatarBounds))) this.loadAvatar(10)
-            if (this.skillsState === 'idle' && (Math.hypot(car.x + 24, car.y + 88) < 24 || frustum.intersectsSphere(skillsBounds))) this.loadSkills(10)
-            if (this.highlightsState === 'idle' && (Math.hypot(car.x - 30, car.y + 90) < 24 || frustum.intersectsSphere(highlightsBounds))) this.loadHighlights(10)
+            const near = (id, radius) => { const p = profileArtworkPositions[id]; return Math.hypot(car.x - p.x, car.y - p.y) < radius }
+            if (this.campusState === 'idle' && (near('education', 28) || frustum.intersectsSphere(campusBounds))) this.loadCampus(10)
+            if (this.avatarState === 'idle' && (near('about', 26) || frustum.intersectsSphere(avatarBounds))) this.loadAvatar(10)
+            if (this.skillsState === 'idle' && (near('skills', 24) || frustum.intersectsSphere(skillsBounds))) this.loadSkills(10)
+            if (this.highlightsState === 'idle' && (near('highlights', 24) || frustum.intersectsSphere(highlightsBounds))) this.loadHighlights(10)
         })
     }
 
@@ -170,22 +174,22 @@ export default class ProfileLandmarks {
 
     loadCampus(priority = 0) {
         this.load('campus', 'VIT Bhopal', assets.campus.url,
-            { name: 'VIT Bhopal · supplied campus model', x: 2, y: -105, width: 13, depth: 8, height: 6, cells: 8, kind: 'campus' }, priority)
+            { name: 'VIT Bhopal · supplied campus model', ...profileArtworkPositions.education, width: 13, depth: 8, height: 6, rotation: Math.PI, cells: 8, kind: 'campus' }, priority)
     }
 
     loadAvatar(priority = 0) {
         this.load('avatar', 'Saksham’s portrait', assets.avatar.url,
-            { name: 'Saksham · original portrait', x: 2, y: -73, width: 4.5, depth: 4.5, height: 5, groundZ: .35, cells: 5, kind: 'avatar' }, priority)
+            { name: 'Saksham · original portrait', ...profileArtworkPositions.about, width: 4.5, depth: 4.5, height: 5, rotation: Math.PI, groundZ: .35, cells: 5, kind: 'avatar' }, priority)
     }
 
     loadSkills(priority = 0) {
         this.load('skills', 'Skills Garage', assets.skills.url,
-            { name: 'Skills Garage', x: -24, y: -81, width: 7, depth: 5, height: 4.8, kind: 'skills' }, priority)
+            { name: 'Skills Garage', ...profileArtworkPositions.skills, width: 7, depth: 5, height: 4.8, rotation: Math.PI, kind: 'skills' }, priority)
     }
 
     loadHighlights(priority = 0) {
         this.load('highlights', 'Highlights podium', './saksham/models/highlights-podium.glb',
-            { name: 'Highlights', x: 30, y: -83, width: 10, depth: 7, height: 5, authored: true }, priority)
+            { name: 'Highlights', ...profileArtworkPositions.highlights, width: 10, depth: 7, height: 5, rotation: Math.PI, authored: true }, priority)
     }
 
     load(id, title, url, placement, priority) {

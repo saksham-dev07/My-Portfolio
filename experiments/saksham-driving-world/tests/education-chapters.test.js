@@ -79,6 +79,14 @@ test('all chapters share one world material and shadow texture and fully release
         expect(item.group.children).toHaveLength(2)
         expect(item.group.children[1].userData.groundLayer).toBe('shadow')
         expect(item.body.position.toArray()).toEqual([item.placement.x, item.placement.y, 0])
+        item.group.updateMatrixWorld(true)
+        const front = new THREE.Vector3(0, -1, 0).applyQuaternion(item.group.quaternion)
+        expect(front.x).toBeLessThan(-.99)
+        for (const box of item.boxes) {
+            const visualCenter = new THREE.Vector3(...box.center).applyMatrix4(item.group.matrixWorld)
+            const physicalCenter = item.body.pointToWorldFrame(new CANNON.Vec3(...box.center))
+            expect(visualCenter.distanceTo(new THREE.Vector3(physicalCenter.x, physicalCenter.y, physicalCenter.z))).toBeLessThan(.00001)
+        }
     }
     f.chapters.dispose(); f.chapters.dispose()
     expect(counts.every(count => count === 1)).toBe(true)
@@ -120,18 +128,19 @@ test('shipping Blender chapters retain their measured bounds, palette, design an
             expect(bounds.getSize(new THREE.Vector3()).x).toBeCloseTo(2.2, 4)
             expect(bounds.getSize(new THREE.Vector3()).y).toBeCloseTo(2.8, 4)
             expect(geometry.attributes.color.count).toBe(geometry.attributes.position.count)
-            for (let x = bounds.min.x; x <= bounds.max.x + .001; x += .22) for (let y = bounds.min.y; y <= bounds.max.y + .001; y += .28) expect(roadEdgeDistance(p.x + x, p.y + y)).toBeGreaterThan(1)
+            const orientedBounds = bounds.clone().applyMatrix4(new THREE.Matrix4().makeRotationZ(p.angle))
+            for (let x = orientedBounds.min.x; x <= orientedBounds.max.x + .001; x += .22) for (let y = orientedBounds.min.y; y <= orientedBounds.max.y + .001; y += .28) expect(roadEdgeDistance(p.x + x, p.y + y)).toBeGreaterThan(1)
             // Ground activation pads sit to the west, not underneath the model.
-            expect(p.x + bounds.min.x - (-20 + 1.5)).toBeGreaterThan(2)
+            expect(p.x + orientedBounds.min.x - (-20 + 1.5)).toBeGreaterThan(2)
             for (const tree of trees) {
-                const dx = Math.max(p.x + bounds.min.x - tree.x, 0, tree.x - (p.x + bounds.max.x))
-                const dy = Math.max(p.y + bounds.min.y - tree.y, 0, tree.y - (p.y + bounds.max.y))
+                const dx = Math.max(p.x + orientedBounds.min.x - tree.x, 0, tree.x - (p.x + orientedBounds.max.x))
+                const dy = Math.max(p.y + orientedBounds.min.y - tree.y, 0, tree.y - (p.y + orientedBounds.max.y))
                 expect(Math.hypot(dx, dy) - tree.radius).toBeGreaterThan(.5)
             }
             // The two campus wing walls, including their staggered courses.
             for (const wall of [{ x: -9, y: -105, w: 1.11, h: 6.46 }, { x: -12, y: -112, w: 4.1, h: .55 }]) {
-                const separationX = Math.max(p.x + bounds.min.x - (wall.x + wall.w / 2), wall.x - wall.w / 2 - (p.x + bounds.max.x))
-                const separationY = Math.max(p.y + bounds.min.y - (wall.y + wall.h / 2), wall.y - wall.h / 2 - (p.y + bounds.max.y))
+                const separationX = Math.max(p.x + orientedBounds.min.x - (wall.x + wall.w / 2), wall.x - wall.w / 2 - (p.x + orientedBounds.max.x))
+                const separationY = Math.max(p.y + orientedBounds.min.y - (wall.y + wall.h / 2), wall.y - wall.h / 2 - (p.y + orientedBounds.max.y))
                 expect(Math.max(separationX, separationY)).toBeGreaterThan(.4)
             }
             const body = educationChapterBody(item), physics = new CANNON.World()

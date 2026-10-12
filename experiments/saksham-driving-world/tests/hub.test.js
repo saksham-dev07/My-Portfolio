@@ -4,7 +4,7 @@ import * as THREE from 'three'
 import * as CANNON from 'cannon'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { retainedHubNodes, hubActivities, hubPadTop, hubSignRelocations } from '../src/javascript/World/HubLayout.js'
-import { buildHubStatic } from '../src/javascript/World/HubWayfinding.js'
+import { buildHubStatic, hubSignBacks } from '../src/javascript/World/HubWayfinding.js'
 import { roadEdgeDistance } from '../src/javascript/World/LandscapeLayout.js'
 import Physics from '../src/javascript/World/Physics.js'
 import CrossroadsSection from '../src/javascript/World/Sections/CrossroadsSection.js'
@@ -150,17 +150,29 @@ test('hub wayfinding footprints and actual Cannon proxies clear every paved shou
         return minimum
     }
     for(const group of hubSignRelocations) {
+        const expected = name => {
+            const p = originalPositions.get(name).clone()
+            if(group.angle) {
+                const pivot = new THREE.Vector3(...group.pivot, 0)
+                p.sub(pivot).applyAxisAngle(new THREE.Vector3(0, 0, 1), group.angle).add(pivot)
+            }
+            return p.add(new THREE.Vector3(...group.delta, 0))
+        }
         for(const name of group.nodes) {
             const node = relocated.base.getObjectByName(name)
+            if(name === group.lettering) {
+                expect(node).toBeUndefined()
+                continue
+            }
             expect(node).toBeDefined()
-            expect(footprintClearance(node)).toBeGreaterThan(.5)
-            expect(node.position.clone().sub(originalPositions.get(name)).toArray()).toEqual([...group.delta, 0])
+            expect(footprintClearance(node), name).toBeGreaterThan(.5)
+            expect(node.position.distanceTo(expected(name))).toBeLessThan(.00001)
             expect(second.base.getObjectByName(name).position.toArray()).toEqual(node.position.toArray())
         }
         for(const name of group.colliders) {
             const node = relocated.collision.getObjectByName(name)
             expect(footprintClearance(node)).toBeGreaterThan(.5)
-            expect(node.position.clone().sub(originalPositions.get(name)).toArray()).toEqual([...group.delta, 0])
+            expect(node.position.distanceTo(expected(name))).toBeLessThan(.00001)
             expect(second.collision.getObjectByName(name).position.toArray()).toEqual(node.position.toArray())
         }
     }
@@ -185,7 +197,10 @@ test('hub wayfinding footprints and actual Cannon proxies clear every paved shou
         const shape = body.shapes[index], center = body.shapeOffsets[index].vadd(body.position)
         let clearance = Infinity
         for(const x of [-1, 1]) for(const y of [-1, 1])
-            clearance = Math.min(clearance, roadEdgeDistance(center.x + shape.halfExtents.x * x, center.y + shape.halfExtents.y * y))
+        {
+            const point = body.shapeOrientations[index].vmult(new CANNON.Vec3(shape.halfExtents.x * x, shape.halfExtents.y * y, 0)).vadd(center)
+            clearance = Math.min(clearance, roadEdgeDistance(point.x, point.y))
+        }
         expect(clearance).toBeGreaterThan(.5)
     }
     for(const name of ['Cube', 'Cube016', 'Cube017', 'Cube018', 'Cube019']) {
@@ -196,4 +211,47 @@ test('hub wayfinding footprints and actual Cannon proxies clear every paved shou
         if(node.isMesh) { node.geometry.dispose(); node.material.dispose() }
     })
     debugMaterial.dispose()
+})
+
+test('both hub sign faces fit the turned board, stay upright and clear the pole', async () => {
+    const source = await loadHub(), collision = new THREE.Group()
+    const { base } = buildHubStatic(source.scene, collision)
+    const offset = new THREE.Vector3(0, -30, 0)
+    const faces = hubSignBacks(base, offset)
+    expect(faces).toHaveLength(6)
+    for (const [index, face] of faces.entries()) {
+        const sign = hubSignRelocations[Math.floor(index / 2)], side = index % 2 ? 1 : -1
+        const board = base.getObjectByName(sign.board)
+        const bounds = board.geometry.boundingBox
+        const normal = new THREE.Vector3(0, 0, 1).applyQuaternion(face.quaternion)
+        const up = new THREE.Vector3(0, 1, 0).applyQuaternion(face.quaternion)
+        expect(normal.dot(new THREE.Vector3(0, side, 0).transformDirection(board.matrixWorld))).toBeGreaterThan(.99)
+        expect(face.scale.x).toBeGreaterThan(0)
+        expect(up.z).toBeGreaterThan(.99)
+        expect(face.position.z).toBeCloseTo(bounds.getCenter(new THREE.Vector3()).z, 4)
+        const localPosition = face.position.clone().sub(offset).applyMatrix4(board.matrixWorld.clone().invert())
+        expect(side > 0 ? localPosition.y - bounds.max.y : bounds.min.y - localPosition.y).toBeGreaterThan(.03)
+        expect(face.geometry.boundingBox.getSize(new THREE.Vector3()).x).toBeLessThan(bounds.max.x - bounds.min.x)
+        expect(new THREE.Box3().setFromObject(base.getObjectByName(sign.pole)).max.z).toBeLessThan(bounds.min.z + .03)
+        face.geometry.dispose(); face.material.forEach(material => material.dispose())
+    }
+})
+
+test('sign lettering retains measurements when the static renderer takes ownership of source nodes', () => {
+    const source = new THREE.Group()
+    for (const sign of hubSignRelocations) {
+        const mesh = new THREE.Mesh(new THREE.BoxGeometry(sign.id === 'south' ? .2 : 3, sign.id === 'south' ? 3 : .2, .6))
+        mesh.name = sign.board
+        source.add(mesh)
+    }
+    const subject = {
+        x: 0, y: -30,
+        resources: { items: { crossroadsStaticBase: { scene: source }, crossroadsStaticCollision: { scene: new THREE.Group() } } },
+        objects: { add: ({ base }) => { const rendered = new THREE.Group(); rendered.add(...base.children) } }
+    }
+    CrossroadsSection.prototype.setStatic.call(subject)
+    const faces = hubSignBacks(subject.hubBase, new THREE.Vector3(0, -30, 0))
+    expect(faces).toHaveLength(6)
+    expect(source.children).toHaveLength(3)
+    faces.forEach(face => { face.geometry.dispose(); face.material.forEach(material => material.dispose()) })
 })

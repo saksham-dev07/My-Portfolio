@@ -9,10 +9,10 @@ export const pondRimInset = .04
 // One small Blender kit supplies every tree, including the landmark gardens.
 // Four instanced batches hold the trees/flowers; the pond is one garden landmark.
 export default class BotanicalDressing {
-    constructor({container,objects,camera,time,trees,props,onReady=()=>{}}) {
+    constructor({container,objects,camera,time,trees,decorativeTrees=[],props,onReady=()=>{}}) {
         this.state='idle'
         this.flowers=flowerPlacements(trees,props)
-        this.trees=trees.map((p,index)=>({...p,kind:p.kind ?? (index%3===1 ? 'tree-copper' : 'tree-broadleaf'),scale:p.treeScale ?? p.scale}))
+        this.trees=[...trees,...decorativeTrees].map((p,index)=>({...p,kind:p.kind ?? (index%3===1 ? 'tree-copper' : 'tree-broadleaf'),scale:p.treeScale ?? p.scale}))
         this.motion={value:1};this.clock={value:0}
         const preference=window.matchMedia('(prefers-reduced-motion: reduce)')
         const sync=()=>{this.motion.value=preference.matches ? 0 : 1}
@@ -73,7 +73,7 @@ export default class BotanicalDressing {
                 })
                 this.setTreeCollisions(objects.physics)
                 gltf.scene.traverse(node=>{if(node.isMesh){node.geometry.dispose();node.material.dispose()}})
-                this.state='ready';time.off('tick.botanicalLoad');onReady(this.trees)
+                this.state='ready';time.off('tick.botanicalLoad');onReady(this.trees.filter(p=>!p.renderOnly))
             },undefined,()=>{this.state='error';time.off('tick.botanicalLoad');time.off('tick.botanicalBreeze')})
         })
     }
@@ -81,7 +81,7 @@ export default class BotanicalDressing {
     setTreeCollisions(physics) {
         // Proxies appear with their rendered trees, never before a delayed or
         // failed asset load. Broad crowns stay soft; only the visible stem is solid.
-        this.treeTrunks=this.trees.map(p=>{
+        this.treeTrunks=this.trees.filter(p=>!p.renderOnly).map(p=>{
             const trunk=new THREE.Object3D();trunk.name='box'
             trunk.position.set(p.x,p.y,p.z+1.1*p.scale)
             trunk.rotation.z=p.angle;trunk.scale.set(.5*p.scale,.5*p.scale,2.2*p.scale)

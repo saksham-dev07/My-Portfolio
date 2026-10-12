@@ -1,0 +1,14 @@
+# Generated deployments and local asset workspaces
+public/driving-world/
+.local-history/
+thrixel_assets/
+.agents/
+.agent/
+# Large binaries and lockfiles are not source context
+*.glb
+*.gltf
+*.blend
+*.mp4
+*.mp3
+bun.lock
+bun.lockb

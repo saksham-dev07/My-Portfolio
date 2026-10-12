@@ -1,5 +1,6 @@
 import { projects } from './sakshamProjects.js';
 import { profileSections } from './sakshamProfile.js';
+import { profileForecourts } from './World/Sections/ProfileForecourts.js';
 import { projectStoryHref, readProjectRequest } from '../../../../src/utils/worldNavigation.js';
 import WorldNavigator from './WorldNavigator.js';
 import { discoveryNotice } from './DiscoveryNotice.js';
@@ -38,6 +39,7 @@ export function drivingInterface(app) {
   cameraToggle.click();
   const syncCameraTools = () => {
     const view = app.camera.view;
+    cameraView.value = view;
     topTools.hidden = view !== 'top';
     followCar.hidden = view !== 'orbit';
     followCar.disabled = app.camera.following;
@@ -46,7 +48,7 @@ export function drivingInterface(app) {
     cameraStatus.textContent = view === 'top' ? 'Map overview' : view === 'first' ? 'Behind the wheel' : following ? 'Auto follow' : 'Exploring';
     const touch = app.config.touch;
     cameraHelp.textContent = view === 'first'
-      ? touch ? 'Car-mounted camera · use the driving controls' : 'Car-mounted camera · steer with arrows / WASD'
+      ? touch ? 'Stop and drag to explore · scroll to leave car view' : 'Stop and left drag to explore · scroll for chase zoom'
       : view === 'top'
         ? touch ? 'Drag to pan · pinch to zoom' : 'Drag to pan · scroll to zoom'
         : touch ? 'Drag to explore · pinch to zoom\nDrive to automatically follow your car.' : 'Left drag: pan · Scroll: zoom\nRight drag: rotate · Drive: auto follow';
@@ -189,26 +191,28 @@ export function drivingInterface(app) {
   start.addEventListener('click', () => {
     if (!started && !start.disabled) app.world.startingScreen.area.trigger('interact');
   });
-  function travel(x, y) {
+  function travel(x, y, { offsetY = -7, heading = 0 } = {}) {
     app.activities.stop();
     const car = app.world.physics.car;
     const body = car.chassis.body;
-    body.position.set(x, y - 7, 1.5);
+    const arrivalY = y + offsetY;
+    body.position.set(x, arrivalY, 1.5);
     body.previousPosition.copy(body.position);
     body.interpolatedPosition.copy(body.position);
     body.velocity.set(0, 0, 0);
     body.angularVelocity.set(0, 0, 0);
     body.force.set(0, 0, 0);
     body.torque.set(0, 0, 0);
-    body.quaternion.set(0, 0, 0, 1);
+    body.quaternion.set(0, 0, Math.sin(heading / 2), Math.cos(heading / 2));
     body.previousQuaternion.copy(body.quaternion);
+    body.interpolatedQuaternion.copy(body.quaternion);
     body.wakeUp();
     car.oldPosition.copy(body.position);
     app.camera.pan.reset();
-    app.camera.target.set(x, y - 7, 0);
+    app.camera.target.set(x, arrivalY, 0);
     app.camera.focusCar();
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      app.camera.targetEased.set(x, y - 7, 0);
+      app.camera.targetEased.set(x, arrivalY, 0);
     }
     app.world.controls.releaseActions();
     showProjectStory(null);
@@ -284,7 +288,8 @@ export function drivingInterface(app) {
     drive.dataset.drive = section.id;
     drive.disabled = !started;
     drive.addEventListener('click', () => {
-      travel(section.x, section.y);
+      const { entry } = profileForecourts[section.id];
+      travel(entry.x, entry.y, { offsetY: 0, heading: -Math.PI / 2 });
       location.textContent = section.name.toUpperCase();
     });
     profile.append(eyebrow, title, intro);

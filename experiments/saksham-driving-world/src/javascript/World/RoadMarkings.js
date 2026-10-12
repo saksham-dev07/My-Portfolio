@@ -1,6 +1,7 @@
 import { roads, distanceToRoad, landscapeBounds } from './LandscapeLayout.js'
+import { rallyStart } from './Activities/CampusRally.js'
 
-// Paint is data in the terrain's existing mask. It never adds a road mesh,
+// Paint is data for the terrain shader. It never adds a road mesh,
 // raised marker, physics body, or a competing coplanar decal.
 export const roadPaintStyle = Object.freeze({
     edgeWidth: .12, centreWidth: .15, dashLength: 1.65, dashGap: 2.15,
@@ -86,14 +87,15 @@ export function roadPaintPlan(network = roads) {
             }
         }
         // Compact painted starting boxes sit inside the lane behind the line.
-        for (const [x, y, number] of [[-1.3, -99.1, '01'], [-4.2, -97.9, '02']]) {
+        for (const [dx, dy, number] of [[-3.3, -.6, '01'], [-6.2, .6, '02']]) {
+            const x = rallyStart.x + dx, y = rallyStart.y + dy
             white.push({ road: road.name, kind: 'grid', width: .12, points: [{ x: x + .75, y: y - .45 }, { x: x - .75, y: y - .45 }, { x: x - .75, y: y + .45 }, { x: x + .75, y: y + .45 }] })
             labels.push({ road: road.name, kind: 'grid-number', x, y, angle: 0, text: number, size: .52 })
         }
         // Two rows of small checker squares, perpendicular to clockwise travel.
         for (let row = 0; row < 2; row++) for (let column = 0; column < 8; column++) {
             if ((row + column) % 2) continue
-            const x = 1.65 + row * .35, y = -99.9 + column * .35
+            const x = rallyStart.x - .35 + row * .35, y = rallyStart.y - 1.4 + column * .35
             white.push({ road: road.name, kind: 'checker', width: .35, points: [{ x, y: y + .175 }, { x: x + .35, y: y + .175 }] })
         }
     }
@@ -102,8 +104,8 @@ export function roadPaintPlan(network = roads) {
 
 // Two mask channels reuse the already allocated RGBA terrain texture. All
 // strokes are clipped against the final asphalt union when channels are packed.
-export function paintRoadMarkings(context, width, height, plan = roadPaintPlan()) {
-    const { minX, maxX, maxY } = landscapeBounds
+export function paintRoadMarkings(context, width, height, plan = roadPaintPlan(), bounds = landscapeBounds) {
+    const { minX, maxX, maxY } = bounds
     const scale = width / (maxX - minX), px = x => (x - minX) * scale, py = y => (maxY - y) * scale
     const draw = (strokes, includeNumbers) => {
         context.clearRect(0, 0, width, height)

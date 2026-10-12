@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { buildInformationStatic, informationLandmark, retiredInformationShadows } from '../InformationLayout.js'
 import { vignetteGeometry } from '../PersonalVignettes.js'
 import { groundLayer } from '../GroundLayers.js'
+import { curiosityLabel } from './ProfileForecourts.js'
 
 export default class InformationSection
 {
@@ -99,6 +100,7 @@ export default class InformationSection
         landmark.name = 'Indian identity / sandstone arch'
         landmark.position.set(this.x + informationLandmark.x, this.y + informationLandmark.y, .01)
         landmark.scale.setScalar(informationLandmark.scale)
+        landmark.rotation.z = Math.PI
         const material = new THREE.MeshMatcapMaterial({ matcap: this.objects.materials.shades.items.white.uniforms.matcap.value, vertexColors: true })
         landmark.updateMatrix()
         gltf.scene.traverse(node => {
@@ -110,7 +112,7 @@ export default class InformationSection
                 const solid = new THREE.Object3D(); solid.name = 'box'
                 solid.position.fromArray(box.center).applyMatrix4(landmark.matrix)
                 solid.scale.fromArray(box.size).multiplyScalar(informationLandmark.scale)
-                solid.rotation.z = box.angle || 0
+                solid.rotation.z = landmark.rotation.z + (box.angle || 0)
                 solids.push(solid)
             }
         })
@@ -198,12 +200,13 @@ export default class InformationSection
             // Texture
             item.texture = _option.labelTexture
             item.texture.magFilter = THREE.LinearFilter
-            item.texture.minFilter = THREE.LinearFilter
+            item.texture.minFilter = THREE.LinearMipmapLinearFilter
 
             // Create label
             item.labelMesh = new THREE.Mesh(this.links.labelGeometry, new THREE.MeshBasicMaterial({ wireframe: false, color: 0xffffff, alphaMap: _option.labelTexture, depthTest: true, depthWrite: false, transparent: true }))
             item.labelMesh.position.x = item.x
             item.labelMesh.position.y = item.y + this.links.labelOffset
+            item.labelMesh.rotation.z = Math.PI
             item.labelMesh.matrixAutoUpdate = false
             item.labelMesh.updateMatrix()
             this.links.container.add(item.labelMesh)
@@ -219,17 +222,17 @@ export default class InformationSection
     {
         // Set up
         this.activities = {}
-        this.activities.x = this.x + 0
-        this.activities.y = this.y - 10
+        this.activities.x = curiosityLabel.x
+        this.activities.y = curiosityLabel.y
         this.activities.multiplier = 5.5
 
         // Geometry
-        this.activities.geometry = new THREE.PlaneGeometry(2 * this.activities.multiplier, 1 * this.activities.multiplier, 1, 1)
+        this.activities.geometry = new THREE.PlaneGeometry(curiosityLabel.w, curiosityLabel.h)
 
         // Texture
-        this.activities.texture = labelTexture(['CURIOUS BY NATURE', 'ENGINEER BY PRACTICE', 'AI / FULL-STACK / OPEN SOURCE'], 1024, 512)
-        this.activities.texture.magFilter = THREE.NearestFilter
-        this.activities.texture.minFilter = THREE.LinearFilter
+        this.activities.texture = labelTexture(['CURIOUS BY NATURE', 'ENGINEER BY PRACTICE', 'AI / FULL-STACK / OPEN SOURCE'], 1024, 512, { titleSize: 88, detailSize: 44 })
+        this.activities.texture.magFilter = THREE.LinearFilter
+        this.activities.texture.minFilter = THREE.LinearMipmapLinearFilter
 
         // Material
         this.activities.material = new THREE.MeshBasicMaterial({ wireframe: false, color: 0xffffff, alphaMap: this.activities.texture, transparent: true })
@@ -238,6 +241,7 @@ export default class InformationSection
         this.activities.mesh = new THREE.Mesh(this.activities.geometry, this.activities.material)
         this.activities.mesh.position.x = this.activities.x
         this.activities.mesh.position.y = this.activities.y
+        this.activities.mesh.rotation.z = Math.PI
         this.activities.mesh.matrixAutoUpdate = false
         this.activities.mesh.updateMatrix()
         this.container.add(this.activities.mesh)

@@ -4,12 +4,15 @@ import { roadPaintPlan, packRoadMask } from '../src/javascript/World/RoadMarking
 import { roads, distanceToRoad, landscapeBounds } from '../src/javascript/World/LandscapeLayout.js'
 import { educationStops } from '../src/javascript/World/Sections/ProfilePaths.js'
 import { profileSections } from '../src/javascript/sakshamProfile.js'
+import { profileForecourts } from '../src/javascript/World/Sections/ProfileForecourts.js'
 import { introLayout } from '../src/javascript/World/Sections/IntroLayout.js'
+import { rallyStart, rallyGates } from '../src/javascript/World/Activities/CampusRally.js'
+import { activityPropPlacements } from '../src/javascript/World/ActivityProps.js'
 
 const plan = roadPaintPlan()
 const strokes = [...plan.white, ...plan.terracotta]
 const interactionPads = [
-    ...profileSections.map(section => ({ x: section.x, y: section.y - 4, w: 8, h: 4 })),
+    ...profileSections.map(section => profileForecourts[section.id].entry),
     ...educationStops.map(stop => ({ x: stop.x + stop.padOffsetX, y: stop.y, w: 3, h: 3 })),
     { x: 30, y: -115, w: 6, h: 3 }, { x: -58, y: -60, w: 4, h: 4 },
     { x: -24.5, y: -30, w: 4.4, h: 4.4 },
@@ -60,6 +63,20 @@ test('the Campus Rally has four corner kerb sequences, a checker and staggered s
     expect(plan.white.filter(stroke => stroke.kind === 'grid')).toHaveLength(2)
     expect(plan.labels.map(label => label.text)).toEqual(['01', '02'])
     expect(plan.white.some(stroke => stroke.road === rally.name && stroke.kind === 'centre')).toBe(false)
+})
+
+test('the shifted rally arch, game gate, checker and starting grid share one start location', () => {
+    const arch = activityPropPlacements.find(prop => prop.id === 'campus-checkpoint')
+    expect({ x: arch.x, y: arch.y }).toEqual(rallyStart)
+    expect({ x: rallyGates[0].x, y: rallyGates[0].y }).toEqual(rallyStart)
+    const checker = plan.white.filter(stroke => stroke.kind === 'checker').flatMap(stroke => stroke.points)
+    expect(Math.min(...checker.map(point => point.x))).toBeCloseTo(rallyStart.x - .35)
+    expect(Math.max(...checker.map(point => point.x))).toBeCloseTo(rallyStart.x + .35)
+    for (const label of plan.labels) {
+        expect(label.x).toBeLessThan(rallyStart.x)
+        expect(rallyStart.x - label.x).toBeLessThan(7)
+        expect(Math.abs(label.y - rallyStart.y)).toBeLessThan(1)
+    }
 })
 
 test('mask packing clips both paint colours and flips rows without alpha premultiplication', () => {

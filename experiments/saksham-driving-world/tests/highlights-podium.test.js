@@ -3,6 +3,7 @@ import * as THREE from 'three'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import ProfileLandmarks, { authoredLandmarkSolids } from '../src/javascript/World/Sections/ProfileLandmarks.js'
 import { profileSections } from '../src/javascript/sakshamProfile.js'
+import { profileForecourts, profileArtworkPositions } from '../src/javascript/World/Sections/ProfileForecourts.js'
 import { roadEdgeDistance } from '../src/javascript/World/LandscapeLayout.js'
 
 const asset = new URL('../static/saksham/models/highlights-podium.glb', import.meta.url)
@@ -47,9 +48,9 @@ test('authored podium normalization preserves the Highlights location and entry 
     }
     const section = profileSections.find(section => section.id === 'highlights')
     const model = ProfileLandmarks.prototype.add.call(subject, gltf, {
-        name: section.name, x: section.x, y: section.y + 7, width: 10, depth: 7, height: 5, authored: true,
+        name: section.name, ...profileArtworkPositions.highlights, rotation: Math.PI, width: 10, depth: 7, height: 5, authored: true,
     })
-    expect(model.position.toArray()).toEqual([30, -83, 0])
+    expect(model.position.toArray()).toEqual([30, -90, 0])
     expect(subject.models[0].solids).toBe(4)
     expect(collisionOptions.meshes).toHaveLength(4)
     expect(collisionOptions.mass).toBe(0)
@@ -65,8 +66,8 @@ test('authored podium normalization preserves the Highlights location and entry 
     })
     for (const solid of collisionOptions.meshes) {
         const worldX = solid.position.x + section.x
-        const worldY = solid.position.y + section.y + 7
-        expect(Math.abs(worldY - (section.y - 4))).toBeGreaterThan(solid.scale.y / 2 + 2)
+        const worldY = solid.position.y + profileArtworkPositions.highlights.y
+        expect(Math.abs(worldY - profileForecourts[section.id].entry.y)).toBeGreaterThan(solid.scale.y / 2 + 2)
         expect(solid.position.z - solid.scale.z / 2).toBeGreaterThanOrEqual(.079)
         for (const dx of [-.5, .5]) for (const dy of [-.5, .5]) {
             expect(roadEdgeDistance(worldX + dx * solid.scale.x, worldY + dy * solid.scale.y)).toBeGreaterThan(.1)

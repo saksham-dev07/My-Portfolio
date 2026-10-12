@@ -25,6 +25,7 @@ export default class Project
         this.floorTexture = _options.floorTexture
         this.link = _options.link
         this.distinctions = _options.distinctions
+        this.boardRotation = _options.boardRotation || 0
 
         // Set up
         this.container = new THREE.Object3D()
@@ -70,7 +71,7 @@ export default class Project
                 collision: this.resources.items.projectsBoardCollision.scene,
                 floorShadowTexture: this.resources.items.projectsBoardStructureFloorShadowTexture,
                 offset: new THREE.Vector3(board.x, board.y, 0),
-                rotation: new THREE.Euler(0, 0, 0),
+                rotation: new THREE.Euler(0, 0, this.boardRotation),
                 duplicated: true,
                 mass: 0
             })
@@ -119,6 +120,7 @@ export default class Project
             board.planeMesh = this.meshes.boardPlane.clone()
             board.planeMesh.position.x = board.x
             board.planeMesh.position.y = board.y
+            board.planeMesh.rotateOnWorldAxis(new THREE.Vector3(0, 0, 1), this.boardRotation)
             board.planeMesh.matrixAutoUpdate = false
             board.planeMesh.updateMatrix()
             board.planeMesh.material = new ProjectBoardMaterial()
@@ -150,14 +152,14 @@ export default class Project
 
         // Texture
         this.floor.texture = this.floorTexture
-        this.floor.texture.magFilter = THREE.NearestFilter
-        this.floor.texture.minFilter = THREE.LinearFilter
+        this.floor.texture.magFilter = THREE.LinearFilter
+        this.floor.texture.minFilter = THREE.LinearMipmapLinearFilter
 
         // Geometry
         this.floor.geometry = this.geometries.floor
 
         // Material
-        this.floor.material =  new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, alphaMap: this.floor.texture })
+        this.floor.material =  new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, map: this.floor.texture })
 
         // Mesh
         this.floor.mesh = new THREE.Mesh(this.floor.geometry, this.floor.material)

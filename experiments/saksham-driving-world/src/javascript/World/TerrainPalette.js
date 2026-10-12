@@ -6,7 +6,6 @@ export const terrainPalette = {
     stone: '#927859',
     crest: '#b6a082',
     terraces: ['#516f52', '#617752', '#567858'],
-    fog: '#a6b49a',
 }
 
 const smooth = (low, high, value) => {

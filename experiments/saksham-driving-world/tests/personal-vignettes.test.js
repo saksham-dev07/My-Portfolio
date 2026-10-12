@@ -50,6 +50,16 @@ test('personal models and their collision proxies stay above the retained pads a
     expect(solids.length).toBeGreaterThan(20)
     container.updateMatrixWorld(true)
     for (const { group, mesh } of subject.items) {
+        if (['coding', 'gym'].includes(mesh.name)) {
+            const front = new THREE.Vector3(0, -1, 0).applyQuaternion(group.quaternion)
+            expect(front.dot(new THREE.Vector3(0, 1, 0))).toBeGreaterThan(.99)
+        }
+        if (mesh.name === 'gaming') {
+            // The screen faces the road beside the east pad, rather than showing
+            // a solid cabinet back across the player's entire silhouette.
+            const screenFront = new THREE.Vector3(0, -1, 0).applyQuaternion(group.quaternion)
+            expect(screenFront.x).toBeLessThan(-.99)
+        }
         const bounds = new THREE.Box3().setFromObject(mesh)
         expect(bounds.min.z).toBeCloseTo(hubPadTop + .005, 4)
         for (const x of [bounds.min.x, bounds.max.x]) for (const y of [bounds.min.y, bounds.max.y]) expect(roadEdgeDistance(x, y)).toBeGreaterThan(.1)

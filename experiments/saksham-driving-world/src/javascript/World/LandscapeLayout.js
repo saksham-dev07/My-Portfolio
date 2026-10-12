@@ -3,7 +3,6 @@ import { profilePaths, profilePathClearances, educationStops } from './Sections/
 import { garden } from './GardenLayout.js'
 
 export const landscapeSigns = [
-    { text: 'PROJECTS', x: 30, y: -32, right: true, angle: 0 },
     { text: 'RIDGE ROAD', x: -34, y: -96, right: false, angle: 0 },
     ...educationStops.map(stop => ({ text: stop.title, x: -24, y: stop.y, right: true, angle: 0, target: stop })),
 ]

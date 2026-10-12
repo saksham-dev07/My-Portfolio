@@ -1,18 +1,19 @@
 // Game rules are independent of Three's scene graph and Cannon's bodies.
+export const rallyStart = Object.freeze({ x: 24, y: -98.5 })
 export const rallyGates = [
-    { x: 2, y: -98.5, angle: 0, label: 'START / FINISH' },
+    { ...rallyStart, angle: 0, label: 'START / FINISH' },
     { x: 40, y: -112, angle: -Math.PI / 2, label: '01' },
     { x: 2, y: -124, angle: Math.PI, label: '02' },
     { x: -26.5, y: -112, angle: Math.PI / 2, label: '03' },
 ]
 export const rallyBestKey = 'saksham-campus-rally-best-v1'
 const distance = (a, b) => Math.hypot(b.x - a.x, b.y - a.y)
-const routeVertices = [[2, -98.5], [40, -98.5], [40, -124], [-26.5, -124], [-26.5, -98.5], [2, -98.5]]
+const routeVertices = [[rallyStart.x, rallyStart.y], [40, -98.5], [40, -124], [-26.5, -124], [-26.5, -98.5], [rallyStart.x, rallyStart.y]]
 
 // Match the existing courtyard's 3.5 m quadratic corners. A small immutable
 // polyline is sufficient for corridor and continuous route-progress checks.
 export const rallyRoute = (() => {
-    const points = [{ x: 2, y: -98.5, s: 0 }]
+    const points = [{ ...rallyStart, s: 0 }]
     const add = point => {
         const previous = points.at(-1)
         const length = distance(previous, point)
@@ -33,7 +34,7 @@ export const rallyRoute = (() => {
             add({ x: u * u * before.x + 2 * u * t * x + t * t * after.x, y: u * u * before.y + 2 * u * t * y + t * t * after.y })
         }
     }
-    line({ x: 2, y: -98.5 })
+    line(rallyStart)
     return points
 })()
 
@@ -124,7 +125,7 @@ function readBest(storage) {
 
 // Reposition the existing vehicle instead of recreating it. Camera and physics
 // users keep their stable car owner; all presentation poses are synchronized.
-export function resetRallyVehicle(car, x = 2, y = -98.5, z = .85) {
+export function resetRallyVehicle(car, x = rallyStart.x, y = rallyStart.y, z = .85) {
     const body = car.chassis.body
     body.position.set(x, y, z); body.quaternion.set(0, 0, 0, 1)
     for (const field of ['previousPosition', 'interpolatedPosition', 'initPosition']) body[field]?.copy(body.position)
@@ -181,11 +182,11 @@ export default class CampusRally {
         }
         resetRallyVehicle(car)
         this.body = car.chassis.body
-        this.heldPose.x = 2; this.heldPose.y = -98.5; this.heldPose.z = this.body.position.z
+        this.heldPose.x = rallyStart.x; this.heldPose.y = rallyStart.y; this.heldPose.z = this.body.position.z
         this.heldPose.quaternion.copy(this.body.quaternion)
         this.state.start(this.body.position); this.emitMs = 0; this.newBest = false
         this.publish(true)
-        this.window?.dispatchEvent(new CustomEvent('drive-activity-focus', { detail: { id: this.id, x: 2, y: -98.5 } }))
+        this.window?.dispatchEvent(new CustomEvent('drive-activity-focus', { detail: { id: this.id, ...rallyStart } }))
         return true
     }
     stop() { this.state.stop(); this.onUpdate(this.snapshot()) }

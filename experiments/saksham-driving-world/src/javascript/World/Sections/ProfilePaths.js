@@ -1,10 +1,11 @@
 import { profileSections } from '../../sakshamProfile.js'
 import { circuitStops } from './ProfileCircuit.js'
+import { profileForecourts, profileArtworkPositions, curiosityLabel, campusForecourt } from './ProfileForecourts.js'
 
 export const educationStops = [
-    { x: -19, y: -103, title: '2020 / SCHOOL', chapter: 'school', padOffsetX: -1 },
-    { x: -19, y: -109, title: '2022 / SCIENCE', chapter: 'science', padOffsetX: -1 },
-    { x: -19, y: -115, title: '2023 / VIT', chapter: 'campus', padOffsetX: -1 },
+    { x: -19, y: -103, title: '2019-2020 / CLASS 10', chapter: 'school', padOffsetX: -1 },
+    { x: -19, y: -109, title: '2021-2022 / CLASS 12', chapter: 'science', padOffsetX: -1 },
+    { x: -19, y: -115, title: '2023-2027 / VIT', chapter: 'campus', padOffsetX: -1 },
 ]
 // One hierarchical route network:
 // - two lanes leave the Information garden and flank the About portrait,
@@ -22,16 +23,17 @@ export const profilePaths = [
 // Labels, pads, the portrait plinth and district signs stay beside the roads.
 export const profilePathClearances = [
     ...circuitStops.map(stop => ({ x: stop.x + Math.cos(stop.angle) * 1.1, y: stop.y + Math.sin(stop.angle) * 1.1, w: Math.abs(Math.cos(stop.angle)) > .5 ? 5 : 4, h: Math.abs(Math.cos(stop.angle)) > .5 ? 4 : 5 })),
-    ...profileSections.flatMap(section => [
-        { x: section.x, y: section.y + 1, w: 16, h: 7 },
-        { x: section.x, y: section.y - 4, w: 8, h: 4 },
-    ]),
-    { x: 1.2, y: -65, w: 11, h: 5.5 },
-    { x: 2, y: -73, w: 5.5, h: 5.5 },
-    { x: -4.5, y: -73, w: 3.6, h: .65 },
-    { x: 8.5, y: -73, w: 3.6, h: .65 },
-    { x: -4.5, y: -70.5, w: 2.5, h: .9 },
-    { x: 8.5, y: -70.5, w: 2.5, h: .9 },
+    ...profileSections.flatMap(section => Object.values(profileForecourts[section.id])),
+    curiosityLabel,
+    campusForecourt,
+    { ...profileArtworkPositions.about, w: 5.8, h: 5.8 },
+    { ...profileArtworkPositions.skills, w: 7, h: 5 },
+    { ...profileArtworkPositions.highlights, w: 10, h: 7 },
+    { ...profileArtworkPositions.education, w: 13, h: 8 },
+    { x: -4.5, y: profileArtworkPositions.about.y, w: 3.6, h: .65 },
+    { x: 8.5, y: profileArtworkPositions.about.y, w: 3.6, h: .65 },
+    { x: -4.5, y: profileArtworkPositions.about.y + 2.5, w: 2.5, h: .9 },
+    { x: 8.5, y: profileArtworkPositions.about.y + 2.5, w: 2.5, h: .9 },
     ...educationStops.flatMap(({x,y,padOffsetX}) => [
         { x: x + padOffsetX, y, w: 3, h: 3 },
         { x: x + 4, y, w: 2.6, h: 3.2 },

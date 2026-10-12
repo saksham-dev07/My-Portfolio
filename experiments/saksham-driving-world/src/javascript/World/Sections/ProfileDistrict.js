@@ -7,6 +7,7 @@ import DirectionSigns from './DirectionSigns.js'
 import EducationChapters from './EducationChapters.js'
 import BrickWorkshop, { workshopLayout } from './BrickWorkshop.js'
 import { groundLayer } from '../GroundLayers.js'
+import { profileArtworkPositions, campusForecourt } from './ProfileForecourts.js'
 // Authored scenery frames the landmarks; the eastern wall is a physics experiment.
 export default class ProfileDistrict {
     constructor({ objects, areas, resources, walls, zones, time, camera, directionSignTemplate }, container, collisions) {
@@ -14,8 +15,9 @@ export default class ProfileDistrict {
         district.name = 'Lower district · courtyards and discovery loop'
         container.add(district)
         const solids = []
+        const aboutY = profileArtworkPositions.about.y
         const dummy = new THREE.Object3D()
-        const sign = (lines, x, y, w = 8, h = 2, color = '#fff0d5', z = .055, backdrop = false, titleSize = 60) => {
+        const sign = (lines, x, y, w = 8, h = 2, color = '#fff0d5', z = .055, backdrop = false, titleSize = 128) => {
             if (backdrop) {
                 const plate = new THREE.Mesh(new THREE.PlaneGeometry(w + .4, h + .2), new THREE.MeshBasicMaterial({ color: '#181b2c', transparent: true, opacity: .7, depthWrite: false }))
                 plate.position.set(x, y, z - .005)
@@ -24,6 +26,7 @@ export default class ProfileDistrict {
             }
             const mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), new THREE.MeshBasicMaterial({ color, alphaMap: labelTexture(lines, 1024, 256, { titleSize }), transparent: true, depthWrite: false }))
             mesh.position.set(x, y, z)
+            mesh.rotation.z = Math.PI
             groundLayer(mesh, 'label')
             district.add(mesh)
         }
@@ -99,7 +102,7 @@ export default class ProfileDistrict {
         lawnShape.bezierCurveTo(-4.9, -4.4, -7.7, -3.2, -7.7, -.4)
         const lawn = new THREE.Mesh(new THREE.ShapeGeometry(lawnShape, 16), new THREE.MeshBasicMaterial({ color: '#284f39', transparent: true, opacity: .20, depthWrite: false }))
         lawn.name = 'About courtyard / composed lawn'
-        lawn.position.set(2, -75.1, 0)
+        lawn.position.set(2, aboutY - 2.1, 0)
         groundLayer(lawn, 'accent')
         district.add(lawn)
         const mosaic = new THREE.Group()
@@ -107,14 +110,14 @@ export default class ProfileDistrict {
         district.add(mosaic)
         for (const start of [.10, Math.PI + .10]) {
             const arc = new THREE.Mesh(new THREE.RingGeometry(3.24, 3.43, 24, 1, start, Math.PI * .71), new THREE.MeshBasicMaterial({ color: '#e3d4ac', transparent: true, opacity: .48, depthWrite: false }))
-            arc.position.set(2, -73, .016)
+            arc.position.set(2, aboutY, .016)
             mosaic.add(arc)
             groundLayer(arc, 'accent')
         }
         for (let i = 0; i < 6; i++) {
             const angle = .35 + i * Math.PI / 5
             const inset = new THREE.Mesh(new THREE.PlaneGeometry(.24, .24), new THREE.MeshBasicMaterial({ color: '#c3a66a', transparent: true, opacity: .58, depthWrite: false }))
-            inset.position.set(2 + Math.cos(angle) * 3.72, -73 + Math.sin(angle) * 3.72, .016)
+            inset.position.set(2 + Math.cos(angle) * 3.72, aboutY + Math.sin(angle) * 3.72, .016)
             inset.rotation.z = angle + Math.PI / 4
             mosaic.add(inset)
             groundLayer(inset, 'accent')
@@ -153,24 +156,24 @@ export default class ProfileDistrict {
             const mesh = new THREE.Mesh(new THREE.CylinderGeometry(layer.radius, layer.radius, layer.top - layer.bottom, 48), material(layer.color))
             mesh.name = `About portrait / ${layer.name}`
             mesh.rotation.x = Math.PI / 2
-            mesh.position.set(2, -73, (layer.bottom + layer.top) / 2)
+            mesh.position.set(2, aboutY, (layer.bottom + layer.top) / 2)
             district.add(mesh)
         }
         const base = new THREE.Object3D()
         base.name = 'box'
         base.userData.feature = 'About portrait / plinth'
-        base.position.set(2, -73, .175)
+        base.position.set(2, aboutY, .175)
         base.scale.set(5.8, 5.8, .35)
         solids.push(base)
         for (const [title, x] of [['APPLIED AI', -4.5], ['FULL STACK', 8.5]]) {
             const prefix = `About skills / ${title}`
-            block(`${prefix} / green board`, x, -73, 1.45, 3.6, .28, 1.22, '#25483b', true)
-            block(`${prefix} / brass lower trim`, x, -73, .89, 3.56, .30, .08, '#c9aa70')
-            block(`${prefix} / brass upper trim`, x, -73, 2.01, 3.56, .30, .08, '#c9aa70')
-            for (const offset of [-1.75, 1.75]) block(`${prefix} / brass side trim`, x + offset, -73, 1.45, .08, .30, 1.10, '#c9aa70')
+            block(`${prefix} / green board`, x, aboutY, 1.45, 3.6, .28, 1.22, '#25483b', true)
+            block(`${prefix} / brass lower trim`, x, aboutY, .89, 3.56, .30, .08, '#c9aa70')
+            block(`${prefix} / brass upper trim`, x, aboutY, 2.01, 3.56, .30, .08, '#c9aa70')
+            for (const offset of [-1.75, 1.75]) block(`${prefix} / brass side trim`, x + offset, aboutY, 1.45, .08, .30, 1.10, '#c9aa70')
             for (const offset of [-1.18, 1.18]) {
-                block(`${prefix} / brass post`, x + offset, -73, .64, .10, .10, 1.18, '#b49760', true)
-                block(`${prefix} / stone foot`, x + offset, -73, .11, .65, .65, .22, '#d9c8a7', true)
+                block(`${prefix} / brass post`, x + offset, aboutY, .64, .10, .10, 1.18, '#b49760', true)
+                block(`${prefix} / stone foot`, x + offset, aboutY, .11, .65, .65, .22, '#d9c8a7', true)
             }
             const texture = labelTexture([title], 1024, 256, { titleSize: 176 })
             texture.generateMipmaps = true
@@ -180,7 +183,7 @@ export default class ProfileDistrict {
             for (const [face, direction] of [['front', -1], ['back', 1]]) {
                 const label = new THREE.Mesh(new THREE.PlaneGeometry(3.1, .67), faceMaterial)
                 label.name = `${prefix} / ${face}`
-                label.position.set(x, -73 + direction * .145, 1.46)
+                label.position.set(x, aboutY + direction * .145, 1.46)
                 label.rotation.set(Math.PI / 2, 0, direction > 0 ? Math.PI : 0, 'ZXY')
                 district.add(label)
             }
@@ -189,36 +192,43 @@ export default class ProfileDistrict {
         // ═══════════════════════════════════════════════════════════════
         // 3. SKILLS WORK YARD — Denser, more intentional arrangement
         // ═══════════════════════════════════════════════════════════════
-        edge(-30, -81, 3, Math.PI / 2, 3)
-        edge(-18, -78, 4, 0, 2)
+        edge(-31, -90, 3, Math.PI / 2, 3)
+        edge(-17, -90, 4, Math.PI / 2, 2)
         // Additional low-course wall segment for enclosure feel.
         // Ground accent under the Skills section.
-        groundCircle(-24, -85, 5, '#c3cdf7', .025)
-        accentRing(-24, -85, 4.7, 5.0, '#c3cdf7', .08)
+        groundCircle(-24, -90, 5, '#c3cdf7', .025)
+        accentRing(-24, -90, 4.7, 5.0, '#c3cdf7', .08)
 
         // ═══════════════════════════════════════════════════════════════
         // 4. TROPHY / HIGHLIGHTS GARDEN — Better framing
         // ═══════════════════════════════════════════════════════════════
-        edge(25, -77, 4)
-        edge(35, -77, 4)
-        sign(['CODEVITA / FINTECH / GRIDLOCK'], 30, -78.8, 12, 1.2)
+        edge(23, -90, 4, Math.PI / 2)
+        edge(37, -90, 4, Math.PI / 2)
+        sign(['CODEVITA / FINTECH / GRIDLOCK'], 30, -77.2, 12, 1.2)
         // Ground accent under Highlights.
-        groundCircle(30, -85, 5, '#edc4da', .025)
-        accentRing(30, -85, 4.7, 5.0, '#edc4da', .08)
+        groundCircle(30, -90, 5, '#edc4da', .025)
+        accentRing(30, -90, 4.7, 5.0, '#edc4da', .08)
 
         // ═══════════════════════════════════════════════════════════════
         // 5. CAMPUS / EDUCATION — Better garden framing
         // ═══════════════════════════════════════════════════════════════
+        // A level court makes the building, title and entry read as one stop.
+        // It is a ground decal, with no new obstruction or overlapping road.
+        const campusCourt = new THREE.Mesh(new THREE.PlaneGeometry(campusForecourt.w, campusForecourt.h), new THREE.MeshBasicMaterial({ color: '#c9cfac', transparent: true, opacity: .22, depthWrite: false }))
+        campusCourt.name = 'Campus / entrance forecourt'
+        campusCourt.position.set(campusForecourt.x, campusForecourt.y, 0)
+        groundLayer(campusCourt, 'backdrop')
+        district.add(campusCourt)
         edge(-9, -105, 5, Math.PI / 2)
-        edge(10, -105, 5, Math.PI / 2)
+        edge(11, -105, 5, Math.PI / 2)
         // Additional wing walls for a more enclosed feeling.
         edge(-12, -112, 3, 0, 2)
         edge(13, -112, 3, 0, 2)
         // Frame the campus wings while keeping its facade, education title and
         // timeline pads visible from the lower road.
         // Ground accent under Education.
-        groundCircle(2, -108, 6, '#ffe5b8', .02)
-        accentRing(2, -108, 5.7, 6.0, '#ffe5b8', .07)
+        groundCircle(2, -112, 6, '#ffe5b8', .02)
+        accentRing(2, -112, 5.7, 6.0, '#ffe5b8', .07)
 
         // ═══════════════════════════════════════════════════════════════
         // 6. EDUCATION TIMELINE — Western ring road stops
@@ -226,7 +236,7 @@ export default class ProfileDistrict {
         this.educationAreas = []
         for (const { x, y, title, chapter, padOffsetX } of educationStops) {
             const padX = x + padOffsetX
-            sign([title], padX, y + 1.10, 3.4, .72, '#fff0d5', .055, false, 112)
+            sign(title.split(' / '), padX, y + 1.10, 3.4, .72, '#fff0d5', .055, false, 112)
             const area = areas.add({ position: new THREE.Vector2(padX, y), halfExtents: new THREE.Vector2(1.5, 1.5) })
             area.on('interact', () => window.dispatchEvent(new CustomEvent('drive-section', { detail: { id: 'education', chapter } })))
             this.educationAreas.push({ chapter, position: new THREE.Vector2(padX, y), halfExtents: new THREE.Vector2(1.5, 1.5), area })

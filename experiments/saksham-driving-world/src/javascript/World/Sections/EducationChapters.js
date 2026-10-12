@@ -6,9 +6,9 @@ import { surfaceHeight } from '../LandscapeLayout.js'
 import { groundLayer } from '../GroundLayers.js'
 
 export const educationChapterPlacements = Object.freeze([
-    { id: 'school', x: -15, y: -103 },
-    { id: 'science', x: -15, y: -109 },
-    { id: 'campus', x: -15, y: -115 },
+    { id: 'school', x: -14.7, y: -103, angle: -Math.PI / 2 },
+    { id: 'science', x: -14.7, y: -109, angle: -Math.PI / 2 },
+    { id: 'campus', x: -14.7, y: -115, angle: -Math.PI / 2 },
 ])
 
 // Extras are authored in Blender's Z-up metres. Only the GLB geometry changes
@@ -47,6 +47,7 @@ export function educationChapterAssets(scene) {
 export function educationChapterBody(item, material) {
     const p = item.placement
     const body = new CANNON.Body({ mass: 0, material, position: new CANNON.Vec3(p.x, p.y, surfaceHeight(p.x, p.y)) })
+    body.quaternion.setFromAxisAngle(new CANNON.Vec3(0, 0, 1), p.angle)
     for (const box of item.boxes) body.addShape(new CANNON.Box(new CANNON.Vec3(...box.size.map(value => value / 2))), new CANNON.Vec3(...box.center))
     return body
 }
@@ -114,6 +115,7 @@ export default class EducationChapters {
             const p = item.placement, group = new THREE.Group()
             group.name = `Education chapter / ${p.id}`
             group.position.set(p.x, p.y, surfaceHeight(p.x, p.y))
+            group.rotation.z = p.angle
             const mesh = new THREE.Mesh(item.geometry, this.material)
             mesh.name = `Education chapter / ${p.id} authored artwork`
             group.add(mesh)

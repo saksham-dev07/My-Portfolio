@@ -55,9 +55,9 @@ export default class Application
             this.config.touch = true
             this.world.controls.setTouch()
 
-            this.passes.horizontalBlurPass.strength = 1
+            this.passes.horizontalBlurPass.strength = 0
             this.passes.horizontalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(this.passes.horizontalBlurPass.strength, 0)
-            this.passes.verticalBlurPass.strength = 1
+            this.passes.verticalBlurPass.strength = 0
             this.passes.verticalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(0, this.passes.verticalBlurPass.strength)
         }, { once: true })
     }
@@ -144,12 +144,14 @@ export default class Application
         this.passes.renderPass = new RenderPass(this.scene, this.camera.instance)
 
         this.passes.horizontalBlurPass = new ShaderPass(BlurPass)
-        this.passes.horizontalBlurPass.strength = this.config.touch ? 0 : 1
+        // Driving needs clear foreground and distant lane markings. Keep the
+        // optional debug passes disabled instead of a screen-space tilt shift.
+        this.passes.horizontalBlurPass.strength = 0
         this.passes.horizontalBlurPass.material.uniforms.uResolution.value = new THREE.Vector2(this.sizes.viewport.width, this.sizes.viewport.height)
         this.passes.horizontalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(this.passes.horizontalBlurPass.strength, 0)
 
         this.passes.verticalBlurPass = new ShaderPass(BlurPass)
-        this.passes.verticalBlurPass.strength = this.config.touch ? 0 : 1
+        this.passes.verticalBlurPass.strength = 0
         this.passes.verticalBlurPass.material.uniforms.uResolution.value = new THREE.Vector2(this.sizes.viewport.width, this.sizes.viewport.height)
         this.passes.verticalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(0, this.passes.verticalBlurPass.strength)
 
@@ -255,8 +257,12 @@ export default class Application
         this.world.sections?.profile?.district?.circuit?.destroy?.()
         this.world.sections?.profile?.district?.educationChapters?.dispose?.()
         this.world.sections?.profile?.district?.workshop?.dispose?.()
+        this.world.sections?.profile?.scenery?.dispose?.()
         this.world.courtyardProps?.dispose?.()
         this.world.activityProps?.dispose?.()
+        this.world.landscape?.backdrop?.dispose?.()
+        this.world.landscape?.disposeRoads?.()
+        this.world.life?.dispose?.()
         this.time.off('tick')
         this.time.off('afterTick')
         this.time.off('render')

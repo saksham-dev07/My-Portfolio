@@ -1,7 +1,7 @@
 import * as THREE from 'three'
 import { landscapeGrid, surfaceHeight, roads, landscapeBounds, roadShoulder, landscapeSigns, researchTerraces, smooth } from './LandscapeLayout.js'
-import { roadMaskPixels } from './RoadMask.js'
-import { paintRoadMarkings, packRoadMask, roadPaintStyle } from './RoadMarkings.js'
+import { paintRoadMarkings, roadPaintStyle, roadPaintPlan } from './RoadMarkings.js'
+import { buildAnalyticRoads, analyticRoadTextures, analyticRoadShader } from './AnalyticRoads.js'
 import DirectionSigns from './Sections/DirectionSigns.js'
 import ResearchGateway from './ResearchGateway.js'
 import { grovePlacements, landmarkTreePlacements, flowerBeds } from './EnvironmentLayout.js'
@@ -10,18 +10,20 @@ import { garden, gardenPaths, meadowPatches, meadowOutline } from './GardenLayou
 import GardenShelter from './GardenShelter.js'
 import BotanicalDressing from './BotanicalDressing.js'
 import { terrainPalette, terrainBlendWeights } from './TerrainPalette.js'
+import WorldBackdrop, { coastalTreePlacements } from './WorldBackdrop.js'
 
 export default class Landscape {
-    constructor({ objects, scene, camera, config, time, directionSignTemplate }) {
+    constructor({ objects, scene, camera, config, time, renderer, directionSignTemplate }) {
         this.container = new THREE.Group()
         this.container.name = 'Field Notes · sculpted valley'
         this.physics = objects.physics
+        this.roadAnisotropy = Math.min(config.touch ? 4 : 16, renderer?.capabilities?.getMaxAnisotropy?.() ?? 4)
         this.setTerrain()
         this.setRoads()
         this.clearOriginalTrees(objects)
         this.setGroves()
         this.dressing = new EnvironmentDressing({ container: this.container, objects, camera, time, trees: this.groves || [] })
-        this.botanicals = new BotanicalDressing({container:this.container,objects,camera,time,trees:this.groves,props:this.dressing.placements,onReady:trees=>this.dressing.setTreeReady(trees)})
+        this.botanicals = new BotanicalDressing({container:this.container,objects,camera,time,trees:this.groves,decorativeTrees:coastalTreePlacements(),props:this.dressing.placements,onReady:trees=>this.dressing.setTreeReady(trees)})
         this.garden = new GardenShelter({container:this.container,objects,camera,time})
         this.setSignalArch()
         this.gateway = new ResearchGateway({ container: this.container, physics: this.physics, camera, time })
@@ -29,11 +31,7 @@ export default class Landscape {
         const signs=landscapeSigns.map(sign=>({...sign,z:surfaceHeight(sign.x,sign.y)}))
         this.directionSigns=new DirectionSigns(directionSignTemplate,this.container,signSolids,signs)
         if(signSolids.length) this.physics.addObjectFromThree({meshes:signSolids,offset:new THREE.Vector3(),rotation:new THREE.Euler(),mass:0,sleep:true})
-        scene.fog = new THREE.FogExp2(terrainPalette.fog, .0032)
-        scene.fog.color.convertLinearToSRGB()
-        time.on('tick', () => { scene.fog.density = camera.view === 'top' ? 0 : .0032 })
-        camera.instance.far = 300
-        camera.instance.updateProjectionMatrix()
+        this.backdrop = new WorldBackdrop({ container: this.container, scene, camera, time })
         if (config.debugWorld) {
             this.terrain.material.wireframe = true
             this.physics.models.container.visible = true
@@ -85,47 +83,31 @@ export default class Landscape {
     }
 
     setRoads() {
-        // Paint one union onto the actual heightfield. There are no separate road
-        // triangles to cross, z-fight, float above slopes or leave wedge-shaped gaps.
+        // Analytic distances shade the existing heightfield. Narrow edges and
+        // paint no longer inherit the atlas's 12.5 cm texels or blurry mipmaps.
         const {minX,maxX,minY,maxY}=landscapeBounds
         const canvas=document.createElement('canvas')
-        canvas.width=2048;canvas.height=1440
+        canvas.width=256;canvas.height=128
         const context=canvas.getContext('2d')
-        const scale=canvas.width/(maxX-minX)
-        context.lineCap='round';context.lineJoin='round'
-        const trace=road=>{
-            context.beginPath()
-            road.samples.forEach((p,i)=>context[i ? 'lineTo' : 'moveTo']((p.x-minX)*scale,(maxY-p.y)*scale))
-            if(road.closed) context.closePath()
+        const plan=roadPaintPlan()
+        this.analyticRoadIndex=buildAnalyticRoads(plan)
+        this.analyticRoadUniforms=analyticRoadTextures(this.analyticRoadIndex)
+        // Only the two rally grid numbers remain raster glyphs. Road surfaces,
+        // white strokes, checker squares and coloured kerbs are all analytic.
+        const labelBounds={minX:Math.floor(Math.min(...plan.labels.map(label=>label.x))-1),minY:Math.floor(Math.min(...plan.labels.map(label=>label.y))-1)}
+        labelBounds.maxX=labelBounds.minX+8;labelBounds.maxY=labelBounds.minY+4
+        const labelProjection=new THREE.Vector4(labelBounds.minX,labelBounds.minY,8,4)
+        const paint=paintRoadMarkings(context,canvas.width,canvas.height,{white:[],terracotta:[],labels:plan.labels},labelBounds)
+        const pixels=new Uint8Array(canvas.width*canvas.height*4)
+        for(let y=0;y<canvas.height;y++) for(let x=0;x<canvas.width;x++) {
+            pixels[((canvas.height-y-1)*canvas.width+x)*4+2]=paint.white[(y*canvas.width+x)*4+3]
         }
-        for(const road of roads) {
-            trace(road)
-            context.lineWidth=road.width*scale
-            context.strokeStyle='#fff';context.stroke()
-        }
-        const image=context.getImageData(0,0,canvas.width,canvas.height)
-        const coverage=new Uint8Array(canvas.width*canvas.height)
-        for(let i=0;i<coverage.length;i++) coverage[i]=image.data[i*4+3]
-        image.data.set(roadMaskPixels(coverage,canvas.width,canvas.height,roadShoulder*scale,.65*scale))
-        // Street edges/dashes and rally graphics share this existing terrain
-        // texture. Junction gaps are authored from the full road network.
-        const paint=paintRoadMarkings(context,canvas.width,canvas.height)
-        for(let i=0;i<coverage.length;i++) image.data[i*4+2]=Math.min(paint.white[i*4+3],image.data[i*4+1])
-        context.putImageData(image,0,0)
-        // Subpixel antialiasing removes the distance field's pixel stair steps
-        // at close zoom without softening the authored road geometry.
-        context.globalCompositeOperation='copy'
-        context.filter='blur(0.6px)'
-        context.drawImage(canvas,0,0)
-        // Alpha stores terracotta kerbs, not transparency. Typed bytes preserve
-        // RGB where alpha is zero; row flipping is explicit and portable.
-        const filtered=context.getImageData(0,0,canvas.width,canvas.height).data
-        this.roadMask=new THREE.DataTexture(packRoadMask(filtered,paint.terracotta,canvas.width,canvas.height),canvas.width,canvas.height)
+        this.roadMask=new THREE.DataTexture(pixels,canvas.width,canvas.height)
         this.roadMask.needsUpdate=true
         this.roadMask.generateMipmaps=true
         this.roadMask.minFilter=THREE.LinearMipmapLinearFilter
         this.roadMask.magFilter=THREE.LinearFilter
-        this.roadMask.anisotropy=4
+        this.roadMask.anisotropy=this.roadAnisotropy ?? 4
         const asphalt=new THREE.Color('#454d4b').convertLinearToSRGB()
         const shoulder=new THREE.Color('#a7ac90').convertLinearToSRGB()
         const white=new THREE.Color(roadPaintStyle.white).convertLinearToSRGB()
@@ -134,8 +116,11 @@ export default class Landscape {
         const grass=new THREE.Color('#50884d').convertLinearToSRGB()
         const path=new THREE.Color('#c4ae86').convertLinearToSRGB()
         const soil=new THREE.Color('#997955').convertLinearToSRGB()
+        const hub=roads.find(road=>road.center)
         this.terrain.material.onBeforeCompile=shader=>{
+            Object.assign(shader.uniforms,this.analyticRoadUniforms)
             shader.uniforms.roadMask={value:this.roadMask}
+            shader.uniforms.roadLabelBounds={value:labelProjection}
             shader.uniforms.roadAsphalt={value:asphalt}
             shader.uniforms.roadShoulder={value:shoulder}
             shader.uniforms.roadWhite={value:white}
@@ -148,9 +133,37 @@ export default class Landscape {
             shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
                 vMeadowWeight=terrainVegetation;
                 vRoadUv=(position.xy-vec2(${minX}.0,${minY}.0))/vec2(${maxX-minX}.0,${maxY-minY}.0);`)
-            shader.fragmentShader='uniform sampler2D roadMask; uniform sampler2D gardenMask; uniform vec3 gardenGrass; uniform vec3 gardenPath; uniform vec3 gardenSoil; uniform vec3 roadAsphalt; uniform vec3 roadShoulder; uniform vec3 roadWhite; uniform vec3 roadKerb; varying float vMeadowWeight; varying vec2 vRoadUv;\n'+shader.fragmentShader
+            shader.fragmentShader=analyticRoadShader+'\nuniform sampler2D roadMask; uniform vec4 roadLabelBounds; uniform sampler2D gardenMask; uniform vec3 gardenGrass; uniform vec3 gardenPath; uniform vec3 gardenSoil; uniform vec3 roadAsphalt; uniform vec3 roadShoulder; uniform vec3 roadWhite; uniform vec3 roadKerb; varying float vMeadowWeight; varying vec2 vRoadUv;\n'+shader.fragmentShader
             shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
-                vec4 coverage=texture2D(roadMask,vRoadUv);
+                vec2 roadPoint=vRoadUv*vec2(${maxX-minX}.0,${maxY-minY}.0)+vec2(${minX}.0,${minY}.0);
+                float roadAA=clamp(.5*length(fwidth(roadPoint)),.006,1.0);
+                vec4 coverage=analyticRoadCoverage(roadPoint,roadAA);
+                coverage.b=max(coverage.b,texture2D(roadMask,(roadPoint-roadLabelBounds.xy)/roadLabelBounds.zw).b*coverage.g);
+                vec2 hubPoint=vRoadUv*vec2(${maxX-minX}.0,${maxY-minY}.0)+vec2(${minX}.0,${minY}.0)-vec2(${hub.center[0].toFixed(1)},${hub.center[1].toFixed(1)});
+                float hubRadius=length(hubPoint);
+                float hubAA=max(fwidth(hubRadius),.012);
+                if(hubRadius < ${hub.radius + hub.width / 2 + 1.0}) {
+                    float radialDistance=abs(hubRadius-${hub.radius.toFixed(1)});
+                    float aa=hubAA;
+                    float halfWidth=${(hub.width / 2).toFixed(2)};
+                    // Avenue end caps must not bite into the circular island.
+                    coverage.g*=smoothstep(${hub.radius.toFixed(1)}-halfWidth-aa,${hub.radius.toFixed(1)}-halfWidth+aa,hubRadius);
+                    coverage.r*=smoothstep(${hub.radius.toFixed(1)}-halfWidth-${roadShoulder}-aa,${hub.radius.toFixed(1)}-halfWidth-${roadShoulder}+aa,hubRadius);
+                    float hubAsphalt=1.0-smoothstep(halfWidth-aa,halfWidth+aa,radialDistance);
+                    float hubShoulder=1.0-smoothstep(halfWidth+${roadShoulder}-aa,halfWidth+${roadShoulder}+aa,radialDistance);
+                    // Joining avenues own their mouth: circular paint must not
+                    // form a white barrier across an entrance or exit.
+                    float mouth=1.0-smoothstep(.02,.3,coverage.g);
+                    float edgePaint=1.0-smoothstep(${roadPaintStyle.edgeWidth / 2}-aa,${roadPaintStyle.edgeWidth / 2}+aa,abs(radialDistance-(halfWidth-${roadPaintStyle.edgeInset})));
+                    float period=${(2 * Math.PI * hub.radius / 10).toFixed(5)};
+                    float phase=fract((atan(hubPoint.y,hubPoint.x)+3.14159265)/6.2831853*10.0)*period;
+                    float dash=1.0-smoothstep(${roadPaintStyle.dashLength / 2}-aa,${roadPaintStyle.dashLength / 2}+aa,min(phase,period-phase));
+                    float centrePaint=(1.0-smoothstep(${roadPaintStyle.centreWidth / 2}-aa,${roadPaintStyle.centreWidth / 2}+aa,radialDistance))*dash;
+                    float edgeMouth=hubRadius < ${hub.radius.toFixed(1)} ? 1.0 : mouth;
+                    coverage.b=max(coverage.b,max(edgePaint*edgeMouth,centrePaint*mouth)*hubAsphalt);
+                    coverage.g=max(coverage.g,hubAsphalt);
+                    coverage.r=max(coverage.r,hubShoulder);
+                }
                 vec3 gardenPaint=texture2D(gardenMask,vRoadUv).rgb;
                 float grassVariation=.97+.03*sin(vRoadUv.x*370.0+sin(vRoadUv.y*230.0));
                 diffuseColor.rgb=mix(diffuseColor.rgb,gardenGrass*grassVariation,gardenPaint.r*.64*vMeadowWeight);
@@ -161,8 +174,13 @@ export default class Landscape {
                 diffuseColor.rgb=mix(diffuseColor.rgb,roadWhite,coverage.b);
                 diffuseColor.rgb=mix(diffuseColor.rgb,roadKerb,coverage.a);`)
         }
-        this.terrain.material.customProgramCacheKey=()=> 'heightfield-road-paint-v7'
+        this.terrain.material.customProgramCacheKey=()=> 'heightfield-road-paint-v9-analytic-network'
         this.terrain.material.needsUpdate=true
+    }
+
+    disposeRoads() {
+        this.roadMask?.dispose()
+        for(const uniform of Object.values(this.analyticRoadUniforms || {})) if(uniform.value?.isTexture) uniform.value.dispose()
     }
 
     setGardenSurface() {

@@ -4,11 +4,12 @@ import { modelLoader } from '../Utils/ModelLoader.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { surfaceHeight } from './LandscapeLayout.js'
 import { groundLayer } from './GroundLayers.js'
+import { rallyStart } from './Activities/CampusRally.js'
 
 export const activityPropPlacements=Object.freeze([
     {id:'maidan-scoreboard',x:-43,y:-24,scale:1.25,angle:0},
-    {id:'campus-checkpoint',x:2,y:-98.5,scale:1.25,angle:Math.PI/2},
-    {id:'chai-cart',x:-52,y:-119,scale:.85,angle:0},
+    {id:'campus-checkpoint',...rallyStart,scale:1.25,angle:Math.PI/2},
+    {id:'chai-cart',x:-52,y:-119,scale:.85,angle:Math.PI},
     {id:'ramp-deck',x:-54,y:-44,scale:1,angle:-Math.PI/2},
 ])
 

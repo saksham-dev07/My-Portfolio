@@ -1,6 +1,9 @@
 import * as THREE from 'three'
 
 const layers = {
+    // Original matcap props also use the transparent list. Courts must draw
+    // before them so a non-depth-writing sign face isn't painted over.
+    surface: { height: .015, order: -10, units: -1 },
     shadow: { height: .04, order: 10, units: -2 },
     accent: { height: .055, order: 20, units: -3 },
     backdrop: { height: .08, order: 30, units: -4 },
@@ -29,7 +32,7 @@ export function groundLayer(mesh, kind = 'label') {
         texture.generateMipmaps = true
         texture.minFilter = THREE.LinearMipmapLinearFilter
         texture.magFilter = THREE.LinearFilter
-        texture.anisotropy = 4
+        texture.anisotropy = kind === 'label' ? 16 : 4
         texture.needsUpdate = true
     }
     // Static children can retain a cached world matrix after their parent is

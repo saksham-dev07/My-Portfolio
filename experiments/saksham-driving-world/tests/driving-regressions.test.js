@@ -8,7 +8,9 @@ import { captureVehiclePose } from '../src/javascript/World/VehiclePose.js'
 import { landscapeSigns, roadEdgeDistance } from '../src/javascript/World/LandscapeLayout.js'
 import { educationStops } from '../src/javascript/World/Sections/ProfilePaths.js'
 import Time from '../src/javascript/Utils/Time.js'
-import DirectionSigns from '../src/javascript/World/Sections/DirectionSigns.js'
+import DirectionSigns, { directionSigns } from '../src/javascript/World/Sections/DirectionSigns.js'
+import { hubSignRelocations } from '../src/javascript/World/HubLayout.js'
+import { profileForecourts } from '../src/javascript/World/Sections/ProfileForecourts.js'
 
 test('the car editor attaches a hidden scene helper and keeps gizmo visibility in sync', () => {
     const previousDocument = globalThis.document
@@ -87,6 +89,19 @@ test('journey arrow boards point to nearby matching stops with poles outside the
         expect(board.target.x-board.x).toBeLessThan(6)
         for(const dx of [-.225,.225]) for(const dy of [-.225,.225]) expect(roadEdgeDistance(board.x+dx,board.y+dy)).toBeGreaterThan(.3)
     }
+})
+
+test('district arrows lead toward their destinations and Projects has one entrance sign', () => {
+    const education = directionSigns.find(sign => sign.text === 'EDUCATION')
+    const target = profileForecourts.education.entry
+    const towardCampus = new THREE.Vector2(target.x - education.x, target.y - education.y).normalize()
+    expect(new THREE.Vector2(-Math.cos(education.angle), -Math.sin(education.angle)).dot(towardCampus)).toBeGreaterThan(.99)
+    expect(roadEdgeDistance(education.x, education.y)).toBeGreaterThan(.5)
+    const information = hubSignRelocations.find(sign => sign.title === 'INFORMATION')
+    const center = new THREE.Vector2(information.pivot[0] + information.delta[0], information.pivot[1] + information.delta[1] - 30)
+    const towardGarden = new THREE.Vector2(0, -56).sub(center).normalize()
+    expect(new THREE.Vector2(-Math.sin(information.angle), Math.cos(information.angle)).dot(towardGarden)).toBeGreaterThan(.99)
+    expect([...landscapeSigns.map(sign => sign.text), ...hubSignRelocations.map(sign => sign.title)].filter(text => text === 'PROJECTS')).toHaveLength(1)
 })
 
 test('both faces of turned direction boards keep raised lettering upright and front-facing',()=>{
