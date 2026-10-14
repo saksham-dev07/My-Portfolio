@@ -47,7 +47,7 @@ The original workstation is `src/assets/models/workstation.glb`; its CC BY model
 
 The animation loops stop when their experiment is offscreen, hidden, or paused. Reduced-motion visitors see paused simulations by default. Drawing coordinates are normalized so a sketch survives resizing, and switching experiment tabs preserves the sketch.
 
-The contact endpoint validates field types and lengths, sends plain-text email, rejects honeypot submissions, and applies a best-effort in-memory rate limit. For distributed or high-traffic hosting, add a durable host-level limiter. Provider errors are kept private, and the form retains drafts on delivery failure.
+The contact endpoint validates field types, lengths and payload size, sends plain-text email, rejects honeypot submissions, and retains drafts on delivery failure. The shared production Vercel Firewall rule limits `POST /api/send` to five requests per client IP per minute; the in-memory limit is additional defense only. Provider errors and message contents stay out of application logs. `/privacy` explains contact processing and retention.
 
 ## Optional driving world
 
@@ -84,6 +84,10 @@ Run `bun run audit:production` after building to check required entries, oversiz
 The earlier production structure, removal list, output measurements, and hosting notes are preserved in the dated [8 October production audit](docs/production-repository-audit.md). Those measurements describe that revision; use [the maintenance guide](docs/repo-maintenance.md) and `bun run audit:production` for the current baseline. This configuration is prepared locally; deployment and live function delivery still require verification on Vercel.
 
 Local instruction and skill files must remain ignored and must never be committed or pushed.
+
+## Security checks
+
+Run `bun run security:secrets`, `bun run security:audit`, and, after building, `bun run security:csp`. CI runs these checks with pinned actions; a weekly security workflow also checks history and public routing. The enforced CSP permits the existing same-origin 3D models, workers and embedded world. See [docs/security-hardening.md](docs/security-hardening.md) for the firewall rule, the temporary dependency patch, credential rotation, verification and deployment requirements.
 
 ## Low-bandwidth delivery
 

@@ -12,15 +12,18 @@ import "./styles/exe-entry.css";
 const DrivingWorld = lazy(() => import("./experience/DrivingWorld"));
 const Laboratory = lazy(() => import("./lab/Laboratory"));
 const NotFound = lazy(() => import("./components/NotFound"));
+const Privacy = lazy(() => import("./components/Privacy"));
 
 const readRoute = () =>
   /^\/(world|drive|exe)\/?$/.test(location.pathname)
     ? "world"
     : /^\/lab\/?$/.test(location.pathname)
       ? "lab"
-      : location.pathname === "/"
-        ? "portfolio"
-        : "404";
+      : /^\/privacy\/?$/.test(location.pathname)
+        ? "privacy"
+        : location.pathname === "/"
+          ? "portfolio"
+          : "404";
 
 class RouteBoundary extends Component {
   state = { failed: false };
@@ -127,7 +130,7 @@ export default function PortfolioRouter() {
     setRoute("portfolio");
   };
 
-  return route === "lab" || route === "404" ? (
+  return route === "lab" || route === "404" || route === "privacy" ? (
     <RouteBoundary key={route} onExit={() => exit("home")}>
       <Suspense
         fallback={
@@ -136,7 +139,13 @@ export default function PortfolioRouter() {
           </div>
         }
       >
-        {route === "lab" ? <Laboratory /> : <NotFound />}
+        {route === "lab" ? (
+          <Laboratory />
+        ) : route === "privacy" ? (
+          <Privacy />
+        ) : (
+          <NotFound />
+        )}
       </Suspense>
     </RouteBoundary>
   ) : isWorld ? (

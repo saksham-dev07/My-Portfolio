@@ -1,5 +1,23 @@
-import restart from 'vite-plugin-restart'
+import { isAbsolute, relative } from 'node:path'
 import glsl from 'vite-plugin-glsl'
+
+// Use Vite's existing watcher rather than a second glob/watcher dependency.
+const reloadStaticAssets = {
+    name: 'world-static-assets',
+    configureServer(server) {
+        const directory = server.config.publicDir
+        const reload = file => {
+            const path = relative(directory, file)
+            if (!path.startsWith('..') && !isAbsolute(path))
+                server.ws.send({ type: 'full-reload', path: '*' })
+        }
+        server.watcher.add(directory)
+        for (const event of ['add', 'change', 'unlink']) server.watcher.on(event, reload)
+        server.httpServer?.once('close', () => {
+            for (const event of ['add', 'change', 'unlink']) server.watcher.off(event, reload)
+        })
+    },
+}
 
 export default {
     base: './',
@@ -20,6 +38,6 @@ export default {
     plugins:
     [
         glsl(), // Support GLSL files
-        restart({ restart: [ '../static/**', ] }) // Restart server on static file change
+        reloadStaticAssets
     ],
 }

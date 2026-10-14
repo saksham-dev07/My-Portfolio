@@ -1,6 +1,14 @@
 {
   "rewrites": [
     {
+      "source": "/privacy",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/privacy/",
+      "destination": "/index.html"
+    },
+    {
       "source": "/world",
       "destination": "/index.html"
     },
@@ -60,6 +68,10 @@
         {
           "key": "X-DNS-Prefetch-Control",
           "value": "on"
+        },
+        {
+          "key": "Content-Security-Policy",
+          "value": "default-src 'self'; base-uri 'none'; object-src 'none'; frame-ancestors 'self'; frame-src 'self'; script-src 'self' 'wasm-unsafe-eval' 'sha256-FtSNja49Xb08Ze+n7hMAdAooZi95bppbqIMK5/uEahM=' 'sha256-Q3QS0FnbIjFfHexUJcuUYvZmFRt6vVJPdS5wwoIzvX0='; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self'; connect-src 'self' blob:; media-src 'self' blob:; worker-src 'self' blob:; form-action 'self'; upgrade-insecure-requests"
         }
       ]
     },

@@ -1,6 +1,23 @@
+import { readFileSync } from "node:fs";
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
-import contactHandler from "./api/send.js";
+import contactHandler, { CONTACT_BODY_LIMIT } from "./api/send.js";
+
+const securityHeaders = JSON.parse(
+  readFileSync(new URL("./vercel.json", import.meta.url), "utf8"),
+).headers.find((rule) => rule.source === "/(.*)").headers;
+
+function previewSecurity() {
+  return {
+    name: "production-preview-security",
+    configurePreviewServer(server) {
+      server.middlewares.use((_req, res, next) => {
+        for (const { key, value } of securityHeaders) res.setHeader(key, value);
+        next();
+      });
+    },
+  };
+}
 
 // Run the same validated contact handler in development and on Vercel.
 function contactApi() {
@@ -23,16 +40,21 @@ function contactApi() {
           },
         };
         if (req.method !== "POST") return contactHandler(req, adapter);
-        let body = "";
+        const chunks = [];
+        let bytes = 0;
         try {
           for await (const chunk of req) {
-            body += chunk;
-            if (Buffer.byteLength(body, "utf8") > 16384)
+            const buffer = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk);
+            bytes += buffer.length;
+            if (bytes > CONTACT_BODY_LIMIT)
               return adapter
                 .status(413)
                 .json({ error: "Message is too large." });
+            chunks.push(buffer);
           }
-          req.body = JSON.parse(body || "{}");
+          req.body = JSON.parse(
+            Buffer.concat(chunks, bytes).toString("utf8") || "{}",
+          );
         } catch {
           return adapter
             .status(400)
@@ -45,7 +67,7 @@ function contactApi() {
 }
 
 export default defineConfig({
-  plugins: [react(), contactApi()],
+  plugins: [react(), contactApi(), previewSecurity()],
   build: {
     target: "es2020",
     minify: "esbuild",
