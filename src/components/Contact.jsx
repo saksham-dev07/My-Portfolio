@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
+import { readContactResponse } from "../utils/contactDelivery";
 import ContactReceipt from "./ContactReceipt";
 
 const email = "sakmmm07@gmail.com";
@@ -37,6 +38,7 @@ export default function Contact() {
     },
   });
   const [status, setStatus] = useState("idle");
+  const [retrySeconds, setRetrySeconds] = useState(0);
   const [senderName, setSenderName] = useState("");
   const [copied, setCopied] = useState(false);
   const copyTimer = useRef(null);
@@ -45,6 +47,7 @@ export default function Contact() {
   const draftLink = `mailto:${email}?subject=${encodeURIComponent(data.title || "Portfolio inquiry")}&body=${encodeURIComponent(`Hi Saksham,\n\n${data.message || ""}\n\n${data.name || ""}`)}`;
   const submit = async (values) => {
     setStatus("idle");
+    setRetrySeconds(0);
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 15000);
     try {
@@ -54,8 +57,12 @@ export default function Contact() {
         body: JSON.stringify(values),
         signal: controller.signal,
       });
-      const result = await response.json();
-      if (!response.ok || !result.success) throw new Error("Delivery failed");
+      const result = await readContactResponse(response);
+      if (result.limited) {
+        setRetrySeconds(result.retrySeconds);
+        setStatus("limited");
+        return;
+      }
       setSenderName(values.name.trim().split(/\s+/)[0]);
       setStatus("success");
       reset();
@@ -161,6 +168,11 @@ export default function Contact() {
           onSubmit={handleSubmit(submit)}
         >
           <h3>Tell me what you have in mind.</h3>
+          <p className="form-note">
+            Your name, email and message are used to respond to your inquiry,
+            delivered through Resend to my inbox, and kept until I delete them.{" "}
+            <a href="/privacy">Privacy details</a>
+          </p>
           {status !== "success" && (
             <>
               <p className="form-intro">All fields are required.</p>
@@ -326,9 +338,13 @@ export default function Contact() {
                 }}
               />
             )}
-            {status === "error" && (
+            {(status === "error" || status === "limited") && (
               <div className="error-message">
-                <p>The message couldn’t be sent. Your draft is still here.</p>
+                <p>
+                  {status === "limited"
+                    ? `Please wait ${retrySeconds} seconds before trying again. Your draft is still here.`
+                    : "The message couldn’t be sent. Your draft is still here."}
+                </p>
                 <a href={draftLink} className="text-link">
                   <Mail size={16} />
                   Open this draft in your email app <ArrowUpRight size={15} />

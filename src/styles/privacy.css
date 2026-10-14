@@ -1,0 +1,7 @@
+.privacy-page { max-width: 780px; margin: 0 auto; padding: 72px 28px 96px; line-height: 1.75; }
+.privacy-page .eyebrow { display: flex; align-items: center; gap: 10px; margin-top: 44px; }
+.privacy-page h1 { font-size: clamp(32px, 5vw, 54px); line-height: 1.12; margin: 18px 0 24px; }
+.privacy-page h2 { font-size: 21px; margin: 32px 0 10px; }
+.privacy-page p { color: var(--muted); margin-bottom: 14px; }
+.privacy-page a { color: var(--accent); }
+.privacy-page a:focus-visible { outline: 2px solid var(--accent); outline-offset: 5px; }
