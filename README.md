@@ -62,8 +62,10 @@ Repository layout:
 - `src/`, `public/`, `api/`: professional portfolio, shared assets, contact endpoint.
 - `experiments/saksham-driving-world/`: world source, models, audio, independent tests.
 - `scripts/build-world.mjs`: reproducible integration build.
-- `tests/`: portfolio tests; `docs/`: design research and maintenance notes.
+- `tests/`: portfolio tests; `docs/`: selected, versioned design research and maintenance notes. Other local drafts stay ignored.
 - `dist/` and `public/driving-world/`: disposable generated output.
+
+See [docs/repo-maintenance.md](docs/repo-maintenance.md) for the current directory ownership, checks, and optional asset-authoring prerequisites. The standalone world's guide is [experiments/saksham-driving-world/README.md](experiments/saksham-driving-world/README.md); terrain and scenery tuning is documented in [docs/environment-refresh.md](docs/environment-refresh.md).
 
 ## Optional discoveries
 
@@ -79,7 +81,7 @@ Import the GitHub repository into Vercel with the repository root as the project
 
 Run `bun run audit:production` after building to check required entries, oversized files, and unintended debug/environment files. GitHub CI runs locked installs, checks, all tests, the combined build, and this audit. Hashed bundles receive immutable caching; unversioned models revalidate so updates do not remain stale. Vercel supplies CDN compression, so the build does not emit redundant `.gz`/`.br` copies.
 
-The production structure, complete removal list, measured output, and Hobby constraints are documented in [docs/production-repository-audit.md](docs/production-repository-audit.md). This configuration is prepared locally; deployment and live function delivery still require verification on Vercel.
+The earlier production structure, removal list, output measurements, and hosting notes are preserved in the dated [8 October production audit](docs/production-repository-audit.md). Those measurements describe that revision; use [the maintenance guide](docs/repo-maintenance.md) and `bun run audit:production` for the current baseline. This configuration is prepared locally; deployment and live function delivery still require verification on Vercel.
 
 Local instruction and skill files must remain ignored and must never be committed or pushed.
 
