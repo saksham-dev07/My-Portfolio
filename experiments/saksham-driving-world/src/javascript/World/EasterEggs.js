@@ -72,7 +72,7 @@ export default class EasterEggs
         }
 
         // First lemon
-        this.objects.add({
+        this.konamiCode.lemon = this.objects.add({
             ...this.konamiCode.lemonOption,
             offset: new THREE.Vector3(this.konamiCode.x, this.konamiCode.y, 0.4)
         })

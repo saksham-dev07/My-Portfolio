@@ -1,13 +1,16 @@
 import * as THREE from 'three'
 import { landscapeBounds, surfaceHeight } from './LandscapeLayout.js'
+import { environmentConfig } from './EnvironmentConfig.js'
+
+const eveningColor=(day,night)=>new THREE.Color(day).lerp(new THREE.Color(night),environmentConfig.dusk.strength).getStyle()
 
 export const worldAtmosphere = Object.freeze({
     waterLevel: -2.4,
     shoreWidth: 32,
-    fogColor: '#bed4d5',
-    fogDensity: .0018,
-    skyHorizon: '#bed4d5',
-    skyZenith: '#79afca',
+    fogColor: eveningColor('#bed4d5',environmentConfig.dusk.horizon),
+    fogDensity: 1/environmentConfig.fogDistance,
+    skyHorizon: eveningColor('#bed4d5',environmentConfig.dusk.horizon),
+    skyZenith: eveningColor('#79afca',environmentConfig.dusk.zenith),
     viewDistance: 650,
 })
 
@@ -139,7 +142,7 @@ export default class WorldBackdrop {
             return mesh
         })
         this.waterTime = { value: 0 }
-        const waterMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color('#4f8799').convertLinearToSRGB() })
+        const waterMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(eveningColor('#4f8799',environmentConfig.dusk.water)).convertLinearToSRGB() })
         waterMaterial.onBeforeCompile = shader => {
             shader.uniforms.waterTime = this.waterTime
             shader.vertexShader = 'varying vec2 vWaterPosition;\n' + shader.vertexShader
@@ -148,7 +151,9 @@ export default class WorldBackdrop {
             shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', `#include <color_fragment>
                 float wave = sin(vWaterPosition.x * .12 + vWaterPosition.y * .06 + waterTime * .15)
                     * sin(vWaterPosition.y * .17 - waterTime * .09);
-                diffuseColor.rgb *= .97 + .03 * wave;`)
+                diffuseColor.rgb *= .97 + .03 * wave;
+                float glint=pow(max(0.0,wave),18.0)*.12;
+                diffuseColor.rgb+=vec3(.22,.35,.65)*glint;`)
         }
         waterMaterial.customProgramCacheKey = () => 'valley-lake-water-v1'
         this.water = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), waterMaterial)
@@ -173,6 +178,11 @@ export default class WorldBackdrop {
                 void main() {
                     float elevation = max(0.0, normalize(vSkyDirection).z);
                     vec3 color = mix(horizon, zenith, smoothstep(0.0, .65, elevation));
+                    vec3 direction=normalize(vSkyDirection);
+                    float moon=smoothstep(.99935,.99960,dot(direction,normalize(vec3(-.25,-.55,.8))));
+                    float halo=pow(max(0.0,dot(direction,normalize(vec3(-.25,-.55,.8)))),160.0)*.055;
+                    color+=vec3(.45,.52,.80)*halo;
+                    color=mix(color,vec3(.85,.88,.98),moon);
                     gl_FragColor = vec4(color, 1.0);
                 }`,
         }))

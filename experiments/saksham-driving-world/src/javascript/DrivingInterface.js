@@ -145,7 +145,7 @@ export function drivingInterface(app) {
     if (nearby && nearby.area.containsCar()) nearby.area.interact(false);
   });
   app.resources.on('progress', value => {
-    progress.value = value;
+    progress.value = value * .7;
     if (!app.resources.loader.failures.size) status.textContent = `Preparing your drive · ${Math.round(value * 100)}%`;
   });
   const retryLoading = document.querySelector('#retry-loading');
@@ -155,18 +155,33 @@ export function drivingInterface(app) {
     retryLoading.disabled = false;
   });
   retryLoading.addEventListener('click', () => {
+    if(app.world.prepareFailed){window.location.reload();return;}
     retryLoading.disabled = true;
     status.textContent = 'Reconnecting. Your loaded scenery is kept.';
     app.resources.loader.retryFailed();
   });
   app.resources.on('ready', () => {
+    start.disabled=true;
+    status.textContent='Preparing the scene…';
+  });
+  app.resources.on('worldProgress', state=>{
+    progress.value=.7+.3*state.progress;
+    status.textContent=state.message;
+  });
+  app.resources.on('worldError',()=>{
+    status.textContent='The scene could not be prepared. Reload to retry.';
+    retryLoading.textContent='Reload scene';
+    retryLoading.hidden=false;retryLoading.disabled=false;
+  });
+  app.resources.on('worldReady', () => {
+    progress.value=1;
     start.disabled = false;
     retryLoading.hidden = true;
     start.textContent = 'Enter the world';
     status.textContent = 'World ready. Your curiosity supplies the direction.';
   });
   app.world.startingScreen.area.on('interact', () => {
-    if (started) return;
+    if (started || !app.world.prepared) return;
     started = true;
     app.world.sounds.enable();
     boot.hidden = true;

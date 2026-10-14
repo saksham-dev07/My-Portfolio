@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import { profilePaths, profilePathClearances, educationStops } from './Sections/ProfilePaths.js'
 import { garden } from './GardenLayout.js'
+import { environmentConfig } from './EnvironmentConfig.js'
+import { rollingMeadow, smoothRange } from './FieldNoise.js'
 
 export const landscapeSigns = [
     { text: 'RIDGE ROAD', x: -34, y: -96, right: false, angle: 0 },
@@ -146,7 +148,7 @@ export function foundationDistance(x,y) {
     for (const site of foundations) distance = Math.min(distance,Math.hypot(Math.max(0,Math.abs(x-site.x)-site.w/2),Math.max(0,Math.abs(y-site.y)-site.h/2)))
     return distance
 }
-export function terrainHeight(x,y) {
+export function terrainHeight(x,y,baseline=false) {
     const {minX,maxX,minY,maxY} = landscapeBounds
     const edge = Math.min(x-minX,maxX-x,y-minY,maxY-y)
     // Deliberate west ridge, north headland, east escarpment, quiet south basin.
@@ -175,7 +177,17 @@ export function terrainHeight(x,y) {
     // A level garden lawn and walking loop transition into the west ridge's
     // planted berm. The shelter never sits on an isolated raised terrain island.
     const gardenEdge=Math.hypot((x-garden.x)/garden.rx,(y-garden.y)/garden.ry)
-    return elevation*smooth(.78,1.3,gardenEdge)
+    const original=elevation*smooth(.78,1.3,gardenEdge)
+    if(baseline)return original
+    const corridor=smoothRange(6,10,road),buildings=smoothRange(2.9,7,site)
+    const lowland=1-smoothRange(1.5,5,native)
+    let result=original+rollingMeadow(x,y,environmentConfig)*corridor*buildings*lowland*smooth(.95,1.35,gardenEdge)
+    for(const park of environmentConfig.parks){
+        const distance=Math.hypot(Math.max(0,Math.abs(x-park.x)-park.w/2),Math.max(0,Math.abs(y-park.y)-park.h/2))
+        // Parks are new flat foundations, outside existing road corridors.
+        if(corridor>0)result*=smoothRange(0,3,distance)
+    }
+    return result
 }
 
 let cached

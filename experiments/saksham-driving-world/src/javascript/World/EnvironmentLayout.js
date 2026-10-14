@@ -4,10 +4,16 @@ import { gardenReserved, gardenTreeAnchors } from './GardenLayout.js'
 import { directionSigns } from './Sections/DirectionSigns.js'
 import { hubActivities } from './HubLayout.js'
 import { districtReservations } from './Sections/DistrictIdentityLayout.js'
+import { scenicReservations } from './ScenicRouteLayout.js'
+import { environmentConfig } from './EnvironmentConfig.js'
+import { poissonDisc } from './ScatterSampling.js'
 
 // Unlike terrain foundations, these rectangles describe the actual artwork,
 // furniture and labels. Planting can frame a courtyard without filling it.
 export const landmarkTreeClearances = [
+    ...environmentConfig.parks,
+    ...environmentConfig.parkPaths,
+    ...scenicReservations,
     ...districtReservations,
     {x:0,y:2.4,w:19,h:19.8}, {x:30,y:-110,w:14,h:17},
     {x:0,y:8,w:15,h:7.5}, {x:0,y:-1,w:7,h:8},
@@ -60,9 +66,10 @@ export function clearPlanting(x,y,radius,maxSlope=.65) {
     const b=landscapeBounds
     if(x-radius<b.minX+3 || x+radius>b.maxX-3 || y-radius<b.minY+3 || y+radius>b.maxY-3) return false
     if(roadEdgeDistance(x,y)<radius+.8 || foundationDistance(x,y)<radius+.65) return false
-    if(profilePathClearances.some(p=>Math.abs(x-p.x)<p.w/2+radius+1 && Math.abs(y-p.y)<p.h/2+radius+1)) return false
+    if([...profilePathClearances,...scenicReservations].some(p=>Math.abs(x-p.x)<p.w/2+radius+1 && Math.abs(y-p.y)<p.h/2+radius+1)) return false
     if(landscapeSigns.some(p=>Math.hypot(x-p.x,y-p.y)<radius+2.5)) return false
     if(gardenReserved(x,y,radius)) return false
+    if(environmentConfig.parks.some(p=>Math.abs(x-p.x)<p.w/2+radius+.6&&Math.abs(y-p.y)<p.h/2+radius+.6))return false
     if(researchTerraces.some(p=>Math.abs(x-105)<17+radius && Math.abs(y-(p.y-19))<1.8+radius)) return false
     // Frame the gateway and ridge arch without blocking their openings or signs.
     if(Math.abs(x-37)<5+radius && Math.abs(y+38)<8+radius) return false
@@ -76,29 +83,18 @@ function random(seed) {
 }
 
 export function grovePlacements(baseRadius,existing=[]) {
-    const rand=random(7183),items=[]
+    const rand=random(environmentConfig.seed+7183),items=[]
     // Elliptical clusters with open intervals, not a continuous roadside fence.
     const clusters=[[-23,-9,8,5,3],[29,-10,7,5,3],[76,-6,13,5,9],[116,-7,10,4,7],[145,-5,10,5,7],
         [-61,-78,8,10,6],[-39,-135,7,3,4],[174,-91,3,9,3],
         [71,-131,10,3,4],[134,-130,10,3,4]]
-    for(const [cx,cy,rx,ry,count] of clusters) {
-        let accepted=0
-        for(let attempt=0;attempt<count*30 && accepted<count;attempt++) {
-            const a=rand()*Math.PI*2,r=Math.sqrt(rand()),size=rand()
-            const scale=(size<.25 ? .76 : size>.85 ? 1.22 : 1)*( .9+rand()*.2)
-            const radius=baseRadius*scale+.12 // Includes the animated crown envelope.
-            const x=cx+Math.cos(a)*r*rx,y=cy+Math.sin(a)*r*ry
-            if(!clearPlanting(x,y,radius)) continue
-            if(existing.some(p=>Math.hypot(p.x-x,p.y-y)<(p.radius+radius)*.85+.5)) continue
-            if(items.some(p=>Math.hypot(p.x-x,p.y-y)<(p.radius+radius)*.85+.5)) continue
-            items.push({x,y,z:surfaceHeight(x,y),scale,radius,angle:rand()*Math.PI*2})
-            accepted++
-        }
-    }
-    for(const [x,y,scale] of gardenTreeAnchors) {
-        const radius=baseRadius*scale+.12
-        if(!clearPlanting(x,y,radius) || [...items,...existing].some(p=>Math.hypot(p.x-x,p.y-y)<(p.radius+radius)*.85+.5)) continue
-        items.push({x,y,z:surfaceHeight(x,y),scale,radius,angle:rand()*Math.PI*2})
+    const reserve=baseRadius*1.03+.12
+    const samples=poissonDisc({bounds:landscapeBounds,spacing:Math.max(environmentConfig.treeSpacing*baseRadius/2,2*reserve*.85+.5),seed:environmentConfig.seed,maxCount:environmentConfig.treeCount,
+        seeds:[...clusters.map(p=>[p[0],p[1]]),...gardenTreeAnchors.map(p=>[p[0],p[1]])],accept:(x,y)=>(clusters.some(([cx,cy,rx,ry])=>Math.hypot((x-cx)/rx,(y-cy)/ry)<1)||gardenTreeAnchors.some(p=>Math.hypot(p[0]-x,p[1]-y)<.02))&&clearPlanting(x,y,reserve)&&!existing.some(p=>Math.hypot(p.x-x,p.y-y)<(p.radius+reserve)*.85+.5),
+    })
+    for(const {x,y}of samples){
+        const scale=.84+rand()*.18,radius=baseRadius*scale+.12
+        items.push({x,y,z:surfaceHeight(x,y),scale,radius,angle:rand()*Math.PI*2,kind:['tree-round','tree-pine','tree-bushy','tree-small'][items.length%4]})
     }
     return items
 }

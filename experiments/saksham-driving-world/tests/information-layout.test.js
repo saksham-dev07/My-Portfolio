@@ -25,10 +25,10 @@ test('information exports contain no retired French landmark geometry or proxies
     }
 })
 
-test('retained flag pole and social proxies keep their authoring position and clear the road', async() => {
+test('retained flag pole and scenery proxies keep their authoring position and clear the road', async() => {
     const bytes = await Bun.file(new URL('../static/models/information/static/collision.glb', import.meta.url)).arrayBuffer()
     const gltf = await new GLTFLoader().parseAsync(bytes, '')
-    const expected = ['Cube057', 'Cube063', 'Cube064', 'Cube065', 'Cube066', 'Cube067', 'Cube068', 'Cube094', 'Cube095', 'Cube096', 'Cube098', 'Cube099']
+    const expected = ['Cube057', 'Cube094', 'Cube095', 'Cube096', 'Cube098', 'Cube099']
     expect(gltf.scene.children.map(node => node.name).sort()).toEqual(expected.sort())
     gltf.scene.position.set(1.2, -55, 0)
     gltf.scene.updateMatrixWorld(true)
@@ -52,19 +52,19 @@ test('retained flag pole and social proxies keep their authoring position and cl
 
 test('runtime landmark retirement isolates resource roots and preserves the Indian pole', () => {
     const base = new THREE.Group(), collision = new THREE.Group()
-    for(const name of [...retiredInformationMeshes, 'shadeGreen002', 'shadeOrange005', 'floor008']) {
+    for(const name of [...retiredInformationMeshes, 'shadeGreen002', 'shadeWhite_002004', 'floor008']) {
         const node = new THREE.Object3D(); node.name = name
         node.position.set(-6.17, 6.37, 1); node.rotation.z = .3; node.scale.set(1, 2, 3)
         base.add(node)
     }
-    for(const name of [...retiredInformationCollisions, 'Cube057', 'Cube063', 'Cube094']) {
+    for(const name of [...retiredInformationCollisions, 'Cube057', 'Cube098', 'Cube094']) {
         const node = new THREE.Object3D(); node.name = name
         node.position.set(-4.234, 5.063, 1.8); node.scale.set(.117, .117, 3.595)
         collision.add(node)
     }
     const subject = buildInformationStatic(base, collision)
-    expect(subject.base.children.map(node => node.name)).toEqual(['shadeGreen002', 'shadeOrange005', 'floor008'])
-    expect(subject.collision.children.map(node => node.name)).toEqual(['Cube057', 'Cube063', 'Cube094'])
+    expect(subject.base.children.map(node => node.name)).toEqual(['shadeGreen002', 'shadeWhite_002004', 'floor008'])
+    expect(subject.collision.children.map(node => node.name)).toEqual(['Cube057', 'Cube098', 'Cube094'])
     for(const [original, clone] of [[base, subject.base], [collision, subject.collision]]) {
         for(const node of original.children) expect(node.parent).toBe(original)
         for(const node of clone.children) {

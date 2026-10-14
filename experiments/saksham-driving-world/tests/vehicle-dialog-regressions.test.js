@@ -4,6 +4,7 @@ import CANNON from 'cannon'
 import Camera from '../src/javascript/Camera.js'
 import Physics from '../src/javascript/World/Physics.js'
 import EventEmitter from '../src/javascript/Utils/EventEmitter.js'
+import {surfaceHeight} from '../src/javascript/World/LandscapeLayout.js'
 
 function vehicle() {
     const time = new EventEmitter(), controls = new EventEmitter()
@@ -18,6 +19,19 @@ function vehicle() {
     Physics.prototype.setCar.call(physics)
     return { physics, time, controls }
 }
+
+test('initial entry and reset place the chassis at wheel height, with no sky drop or interpolation jump',()=>{
+    const {physics,controls}=vehicle()
+    for(let i=0;i<2;i++){
+        const body=physics.car.chassis.body
+        const ground=surfaceHeight(body.position.x,body.position.y)
+        expect(body.position.z-ground).toBeGreaterThanOrEqual(physics.car.options.wheelRadius)
+        expect(body.position.z-ground).toBeLessThanOrEqual(.5)
+        expect(body.previousPosition.distanceTo(body.position)).toBe(0)
+        expect(body.velocity.length()).toBe(0)
+        controls.trigger('action',['reset'])
+    }
+})
 
 test('R reset recreates the vehicle while auto-follow reads its live chassis', () => {
     const { physics, time, controls } = vehicle()

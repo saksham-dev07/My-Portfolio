@@ -11,9 +11,12 @@ import GardenShelter from './GardenShelter.js'
 import BotanicalDressing from './BotanicalDressing.js'
 import { terrainPalette, terrainBlendWeights } from './TerrainPalette.js'
 import WorldBackdrop, { coastalTreePlacements } from './WorldBackdrop.js'
+import { installTerrainSurface, fieldSurfaceShader } from './TerrainSurface.js'
+import MeadowEnvironment from './MeadowEnvironment.js'
+import MeadowParks from './MeadowParks.js'
 
 export default class Landscape {
-    constructor({ objects, scene, camera, config, time, renderer, directionSignTemplate }) {
+    constructor({ objects, scene, camera, config, time, renderer, directionSignTemplate, deferScatter=false }) {
         this.container = new THREE.Group()
         this.container.name = 'Field Notes · sculpted valley'
         this.physics = objects.physics
@@ -23,9 +26,12 @@ export default class Landscape {
         this.clearOriginalTrees(objects)
         this.setGroves()
         this.dressing = new EnvironmentDressing({ container: this.container, objects, camera, time, trees: this.groves || [] })
-        this.botanicals = new BotanicalDressing({container:this.container,objects,camera,time,trees:this.groves,decorativeTrees:coastalTreePlacements(),props:this.dressing.placements,onReady:trees=>this.dressing.setTreeReady(trees)})
+        this.readyTrees=[];this.readyGroveTrees=[]
+        const updateShadows=()=>this.dressing.setTreeReady([...this.readyTrees,...this.readyGroveTrees])
+        this.botanicals = new BotanicalDressing({container:this.container,objects,camera,time,trees:this.landmarkTrees,decorativeTrees:coastalTreePlacements(),props:this.dressing.placements,onReady:trees=>{this.readyTrees=trees;updateShadows()}})
+        this.meadow = new MeadowEnvironment({container:this.container,objects,camera,time,trees:this.groves.filter(p=>!p.group),existingProps:this.dressing.placements,deferScatter,onReady:trees=>{this.readyGroveTrees=trees;updateShadows()}})
+        this.parks = new MeadowParks({container:this.container,objects,camera,time})
         this.garden = new GardenShelter({container:this.container,objects,camera,time})
-        this.setSignalArch()
         this.gateway = new ResearchGateway({ container: this.container, physics: this.physics, camera, time })
         const signSolids=[]
         const signs=landscapeSigns.map(sign=>({...sign,z:surfaceHeight(sign.x,sign.y)}))
@@ -116,9 +122,11 @@ export default class Landscape {
         const grass=new THREE.Color('#50884d').convertLinearToSRGB()
         const path=new THREE.Color('#c4ae86').convertLinearToSRGB()
         const soil=new THREE.Color('#997955').convertLinearToSRGB()
+        this.fieldSurface=installTerrainSurface(this.terrain.geometry,this.roadAnisotropy)
         const hub=roads.find(road=>road.center)
         this.terrain.material.onBeforeCompile=shader=>{
             Object.assign(shader.uniforms,this.analyticRoadUniforms)
+            Object.assign(shader.uniforms,this.fieldSurface.uniforms)
             shader.uniforms.roadMask={value:this.roadMask}
             shader.uniforms.roadLabelBounds={value:labelProjection}
             shader.uniforms.roadAsphalt={value:asphalt}
@@ -129,11 +137,13 @@ export default class Landscape {
             shader.uniforms.gardenGrass={value:grass}
             shader.uniforms.gardenPath={value:path}
             shader.uniforms.gardenSoil={value:soil}
-            shader.vertexShader='attribute float terrainVegetation; varying float vMeadowWeight; varying vec2 vRoadUv;\n'+shader.vertexShader
+            shader.vertexShader='attribute float fieldDirt; varying float vFieldDirt; attribute float terrainVegetation; varying float vMeadowWeight; varying vec2 vRoadUv;\n'+shader.vertexShader
             shader.vertexShader=shader.vertexShader.replace('#include <begin_vertex>',`#include <begin_vertex>
                 vMeadowWeight=terrainVegetation;
+                vFieldDirt=fieldDirt;
                 vRoadUv=(position.xy-vec2(${minX}.0,${minY}.0))/vec2(${maxX-minX}.0,${maxY-minY}.0);`)
             shader.fragmentShader=analyticRoadShader+'\nuniform sampler2D roadMask; uniform vec4 roadLabelBounds; uniform sampler2D gardenMask; uniform vec3 gardenGrass; uniform vec3 gardenPath; uniform vec3 gardenSoil; uniform vec3 roadAsphalt; uniform vec3 roadShoulder; uniform vec3 roadWhite; uniform vec3 roadKerb; varying float vMeadowWeight; varying vec2 vRoadUv;\n'+shader.fragmentShader
+            shader.fragmentShader=fieldSurfaceShader+shader.fragmentShader
             shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
                 vec2 roadPoint=vRoadUv*vec2(${maxX-minX}.0,${maxY-minY}.0)+vec2(${minX}.0,${minY}.0);
                 float roadAA=clamp(.5*length(fwidth(roadPoint)),.006,1.0);
@@ -167,6 +177,7 @@ export default class Landscape {
                 vec3 gardenPaint=texture2D(gardenMask,vRoadUv).rgb;
                 float grassVariation=.97+.03*sin(vRoadUv.x*370.0+sin(vRoadUv.y*230.0));
                 diffuseColor.rgb=mix(diffuseColor.rgb,gardenGrass*grassVariation,gardenPaint.r*.64*vMeadowWeight);
+                diffuseColor.rgb=meadowSurface(diffuseColor.rgb,roadPoint,vMeadowWeight);
                 diffuseColor.rgb=mix(diffuseColor.rgb,gardenSoil,gardenPaint.b*.7);
                 diffuseColor.rgb=mix(diffuseColor.rgb,gardenPath,gardenPaint.g);
                 diffuseColor.rgb=mix(diffuseColor.rgb,roadShoulder,coverage.r);
@@ -174,11 +185,12 @@ export default class Landscape {
                 diffuseColor.rgb=mix(diffuseColor.rgb,roadWhite,coverage.b);
                 diffuseColor.rgb=mix(diffuseColor.rgb,roadKerb,coverage.a);`)
         }
-        this.terrain.material.customProgramCacheKey=()=> 'heightfield-road-paint-v9-analytic-network'
+        this.terrain.material.customProgramCacheKey=()=> 'heightfield-road-paint-v10-meadow-detail'
         this.terrain.material.needsUpdate=true
     }
 
     disposeRoads() {
+        this.fieldSurface?.texture.dispose()
         this.roadMask?.dispose()
         for(const uniform of Object.values(this.analyticRoadUniforms || {})) if(uniform.value?.isTexture) uniform.value.dispose()
     }

@@ -23,8 +23,11 @@ import Sounds from './Sounds.js'
 import gsap from 'gsap'
 import EasterEggs from './EasterEggs.js'
 import ActivityProps from './ActivityProps.js'
+import ScenicRoutes from './ScenicRoutes.js'
 import CourtyardProps from './CourtyardProps.js'
 import WorldLife from './WorldLife.js'
+import EveningEnvironment from './EveningEnvironment.js'
+import WorldPreparation,{yieldStartupTask} from '../Utils/WorldPreparation.js'
 
 export default class World
 {
@@ -62,11 +65,37 @@ export default class World
 
     start()
     {
+        if(this.disposed||!this.prepared||this.started)return false
+        this.started=true
         window.setTimeout(() =>
         {
             this.camera.pan.enable()
         }, 2000)
 
+        return true
+    }
+
+    prepare()
+    {
+        if(this.preparePromise)return this.preparePromise
+        this.container.visible=false
+        this.preparation=new WorldPreparation({cancelled:()=>this.disposed,onProgress:state=>this.resources.trigger('worldProgress',[state]),steps:[
+            {message:'Preparing your car and the road…',run:()=>this.prepareCore()},
+            {message:'Preparing destinations…',run:()=>this.setSections()},
+            {message:'Preparing terrain and gardens…',run:()=>this.prepareLandscape()},
+            {message:'Planting the meadow…',run:async()=>{await this.landscape.meadow.prepareScatter();this.landscape.meadow.load()}},
+            {message:'Preparing scenery…',run:()=>this.prepareScenery()},
+            {message:'Finishing the lighting…',run:()=>this.warmLighting()},
+        ]})
+        this.preparePromise=this.preparation.prepare().then(ready=>{
+            if(ready){this.prepared=true;this.resources.trigger('worldReady')}
+            return ready
+        }).catch(error=>{this.prepareFailed=true;this.resources.trigger('worldError',[error]);return false})
+        return this.preparePromise
+    }
+
+    prepareCore()
+    {
         this.setReveal()
         this.setMaterials()
         this.setShadows()
@@ -76,15 +105,23 @@ export default class World
         this.setCar()
         this.areas.car = this.car
         this.setWalls()
-        this.setSections()
-        this.landscape = new Landscape({ objects: this.objects, scene: this.scene, camera: this.camera, config: this.config, time: this.time, renderer: this.renderer, directionSignTemplate: this.sections.crossroads.signTemplate })
+    }
+
+    prepareLandscape()
+    {
+        this.landscape = new Landscape({ objects: this.objects, scene: this.scene, camera: this.camera, config: this.config, time: this.time, renderer: this.renderer, directionSignTemplate: this.sections.crossroads.signTemplate,deferScatter:true })
         this.container.add(this.landscape.container)
         // The loading screen keeps its original background; the entered world
         // uses a directional sky and an actual shoreline instead of a flat haze.
         this.floor.mesh.visible = false
-        suppressRetiredTreeShadows([...(this.landscape.retiredTreeAnchors || []), ...(this.sections.information.retiredShadowAnchors || [])], this.shadows.sun.vector)
+        suppressRetiredTreeShadows([...(this.landscape.retiredTreeAnchors || []), ...(this.sections.information.retiredShadowAnchors || []), ...(this.sections.playground.retiredShadowAnchors || [])], this.shadows.sun.vector)
+    }
+
+    prepareScenery()
+    {
         this.setScenery()
         this.setEasterEggs()
+        this.scenicRoutes = new ScenicRoutes({container:this.container,objects:this.objects,camera:this.camera,time:this.time,easterEggs:this.easterEggs,config:this.config})
         this.activityProps = new ActivityProps({container:this.container,objects:this.objects,camera:this.camera,time:this.time})
         this.courtyardProps = new CourtyardProps({container:this.container,objects:this.objects,camera:this.camera,time:this.time})
         this.life = new WorldLife({ container: this.container, time: this.time, camera: this.camera,
@@ -93,22 +130,33 @@ export default class World
         stabilizeGround(this.container, this.floor.mesh, this.landscape.terrain)
         // Clone reusable trees/signs before baking the existing static props.
         this.objects.merge.update()
+        this.evening = new EveningEnvironment({container:this.container,time:this.time,passes:this.passes})
+    }
+
+    async warmLighting()
+    {
+        this.camera.car=this.physics.car
+        this.camera.controls=this.controls
+        this.container.visible=true
+        await this.renderer.compileAsync(this.scene,this.camera.instance)
+        await yieldStartupTask()
+        if(!this.disposed)this.time.trigger('render')
     }
 
     setReveal()
     {
         this.reveal = {}
-        this.reveal.matcapsProgress = 0
-        this.reveal.floorShadowsProgress = 0
+        this.reveal.matcapsProgress = 1
+        this.reveal.floorShadowsProgress = 1
         this.reveal.previousMatcapsProgress = null
         this.reveal.previousFloorShadowsProgress = null
 
         // Go method
         this.reveal.go = () =>
         {
-            gsap.fromTo(this.reveal, { matcapsProgress: 0 }, { matcapsProgress: 1, duration: 3 })
-            gsap.fromTo(this.reveal, { floorShadowsProgress: 0 }, { floorShadowsProgress: 1, duration: 3, delay: 0.5 })
-            gsap.fromTo(this.shadows, { alpha: 0 }, { alpha: 0.5, duration: 3, delay: 0.5 })
+            this.reveal.matcapsProgress=1
+            this.reveal.floorShadowsProgress=1
+            gsap.to(this.shadows, { alpha: 0.5, duration: .4 })
 
             if(this.sections.intro)
             {
@@ -120,13 +168,7 @@ export default class World
             }
 
             // Car
-            this.physics.car.chassis.body.sleep()
-            this.physics.car.chassis.body.position.set(0, 0, 12)
-
-            window.setTimeout(() =>
-            {
-                this.physics.car.chassis.body.wakeUp()
-            }, 300)
+            this.physics.car.chassis.body.wakeUp()
 
             // Sound
             gsap.fromTo(this.sounds.engine.volume, { master: 0 }, { master: 0.7, duration: 0.5, delay: 0.3, ease: 'power2.in' })
@@ -236,7 +278,8 @@ export default class World
         })
 
         // Ready
-        this.resources.on('ready', () =>
+        this.resources.on('ready',()=>this.prepare())
+        this.resources.on('worldReady', () =>
         {
             window.requestAnimationFrame(() =>
             {
@@ -251,12 +294,11 @@ export default class World
         // On interact, reveal
         this.startingScreen.area.on('interact', () =>
         {
+            if(!this.start())return
             this.startingScreen.area.deactivate()
             gsap.to(this.startingScreen.area.floorBorder.material.uniforms.uProgress, { value: 0, duration: 0.3, delay: 0.4 })
 
             gsap.to(this.startingScreen.startLabel.material, { opacity: 0, duration: 0.3, delay: 0.4 })
-
-            this.start()
 
             this.reveal.go()
         })
@@ -403,7 +445,7 @@ export default class World
         this.camera.carVisual = this.car.chassis.object
     }
 
-    setSections()
+    async setSections()
     {
         this.sections = {}
 
@@ -428,6 +470,7 @@ export default class World
             y: 0
         })
         this.container.add(this.sections.intro.container)
+        await yieldStartupTask();if(this.disposed)return
 
         // Crossroads
         this.sections.crossroads = new CrossroadsSection({
@@ -437,6 +480,7 @@ export default class World
         })
         this.container.add(this.sections.crossroads.container)
         options.directionSignTemplate = this.sections.crossroads.signTemplate
+        await yieldStartupTask();if(this.disposed)return
 
         // Projects
         this.sections.projects = new ProjectsSection({
@@ -447,6 +491,7 @@ export default class World
             // y: 0
         })
         this.container.add(this.sections.projects.container)
+        await yieldStartupTask();if(this.disposed)return
 
         // Information
         this.sections.information = new InformationSection({
@@ -457,6 +502,7 @@ export default class World
             // y: - 10
         })
         this.container.add(this.sections.information.container)
+        await yieldStartupTask();if(this.disposed)return
 
         // Playground
         this.sections.playground = new PlaygroundSection({
@@ -467,6 +513,7 @@ export default class World
             // y: - 4
         })
         this.container.add(this.sections.playground.container)
+        await yieldStartupTask();if(this.disposed)return
         this.sections.profile = new ProfileSections(options)
         this.container.add(this.sections.profile.container)
     }

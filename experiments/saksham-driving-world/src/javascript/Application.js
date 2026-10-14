@@ -251,6 +251,7 @@ export default class Application
      */
     destructor()
     {
+        this.world.disposed=true
         this.activities?.dispose()
         this.world.sections?.playground?.bowlingGame?.dispose?.()
         this.world.sections?.intro?.dispose?.()
@@ -258,11 +259,16 @@ export default class Application
         this.world.sections?.profile?.district?.educationChapters?.dispose?.()
         this.world.sections?.profile?.district?.workshop?.dispose?.()
         this.world.sections?.profile?.scenery?.dispose?.()
+        this.world.sections?.information?.refinedLinks?.dispose?.()
         this.world.courtyardProps?.dispose?.()
+        this.world.scenicRoutes?.dispose?.()
         this.world.activityProps?.dispose?.()
         this.world.landscape?.backdrop?.dispose?.()
         this.world.landscape?.disposeRoads?.()
+        this.world.landscape?.meadow?.dispose?.()
+        this.world.landscape?.parks?.dispose?.()
         this.world.life?.dispose?.()
+        this.world.evening?.dispose?.()
         this.time.off('tick')
         this.time.off('afterTick')
         this.time.off('render')

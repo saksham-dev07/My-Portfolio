@@ -1,6 +1,7 @@
 import * as THREE from 'three'
 import BowlingGame, { resetBowlingBody } from '../Activities/BowlingGame.js'
 import { labelTexture } from '../../StudioLabels.js'
+import { retainPlaygroundScene, retiredPlaygroundMeshes, retiredPlaygroundCollisions, playgroundUpgrades } from '../ScenicRouteLayout.js'
 
 export default class PlaygroundSection
 {
@@ -37,13 +38,15 @@ export default class PlaygroundSection
 
     setStatic()
     {
-        this.objects.add({
-            base: this.resources.items.playgroundStaticBase.scene,
-            collision: this.resources.items.playgroundStaticCollision.scene,
+        const object=this.objects.add({
+            base: retainPlaygroundScene(this.resources.items.playgroundStaticBase.scene,retiredPlaygroundMeshes),
+            collision: retainPlaygroundScene(this.resources.items.playgroundStaticCollision.scene,retiredPlaygroundCollisions),
             floorShadowTexture: this.resources.items.playgroundStaticFloorShadowTexture,
             offset: new THREE.Vector3(this.x, this.y, 0),
             mass: 0
         })
+        const floorMeshes=object.container?.children.filter(node=>node.material?.uniforms?.tShadow) || []
+        this.retiredShadowAnchors=playgroundUpgrades.map(p=>({x:p.x,y:p.y,height:p.kind==='goal-post'?3.4:1.5,radius:p.kind==='ramp-large'?1.6:.8,floorMeshes}))
     }
 
     setBricksWalls()

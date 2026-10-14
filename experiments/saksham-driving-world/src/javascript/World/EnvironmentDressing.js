@@ -4,6 +4,7 @@ import { dressingPlacements } from './EnvironmentLayout.js'
 import { surfaceHeight } from './LandscapeLayout.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { groundLayer } from './GroundLayers.js'
+import {environmentConfig} from './EnvironmentConfig.js'
 
 export default class EnvironmentDressing {
     constructor({ container, objects, camera, time, trees }) {
@@ -91,7 +92,7 @@ export default class EnvironmentDressing {
             return geometry
         })
         if(!geometries.length) {texture.dispose();return}
-        const shadow=new THREE.Mesh(mergeGeometries(geometries),new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:.3,depthWrite:false}))
+        const shadow=new THREE.Mesh(mergeGeometries(geometries),new THREE.MeshBasicMaterial({map:texture,transparent:true,opacity:.3+.2*environmentConfig.dusk.strength,depthWrite:false}))
         geometries.forEach(g=>g.dispose())
         shadow.name='Merged terrain-conforming grove and outcrop contact shadows'
         groundLayer(shadow,'shadow');container.add(shadow);this.shadow=shadow

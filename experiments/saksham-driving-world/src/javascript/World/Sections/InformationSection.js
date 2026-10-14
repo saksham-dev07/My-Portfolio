@@ -4,6 +4,7 @@ import { buildInformationStatic, informationLandmark, retiredInformationShadows 
 import { vignetteGeometry } from '../PersonalVignettes.js'
 import { groundLayer } from '../GroundLayers.js'
 import { curiosityLabel } from './ProfileForecourts.js'
+import RefinedPropBatch from '../RefinedProps.js'
 
 export default class InformationSection
 {
@@ -26,6 +27,12 @@ export default class InformationSection
         this.setFlag()
         this.setLandmark()
         this.setLinks()
+        this.refinedLinks = new RefinedPropBatch({ name: 'refinedInformationProps',
+            placements: ['portfolio', 'github', 'linkedin', 'mail'].map((id, index) => ({
+                id: `information-${id}`, kind: `link-${id}`, x: this.x + 1.95 + index * 2.4, y: this.y + .667, z: .01,
+                angle: id === 'portfolio' ? Math.PI : 0,
+            })), objects: this.objects, time: this.time, camera: _options.camera, container: this.container, loader: _options.loader,
+        })
         this.setActivities()
     }
 

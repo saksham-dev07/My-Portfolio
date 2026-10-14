@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import { mergeGeometries } from 'three/addons/utils/BufferGeometryUtils.js'
+import RefinedPropBatch from '../RefinedProps.js'
 import { groundLayer } from '../GroundLayers.js'
 import { districtCourts, districtFurniture, districtPalette as palette } from './DistrictIdentityLayout.js'
 
@@ -86,12 +86,12 @@ function surfaceMaterial(id) {
 // Four terrain-level surfaces, one merged prop batch and two small pennants.
 // All surfaces are drivable decoration; only furniture receives solid proxies.
 export default class DistrictScenery {
-    constructor({ objects, time, camera }, container, collisions) {
+    constructor({ objects, time, camera, loader }, container, collisions) {
         this.time = time
         this.container = new THREE.Group()
         this.container.name = 'Profile districts / garden, workshop, campus, celebration'
         container.add(this.container)
-        this.geometries = new Set(); this.materials = new Set(); this.solids = []; this.parts = []
+        this.geometries = new Set(); this.materials = new Set(); this.solids = []
         this.surfaces = []
         for (const court of districtCourts) {
             const geometry = courtGeometry(court), material = surfaceMaterial(court.id)
@@ -101,18 +101,14 @@ export default class DistrictScenery {
             mesh.position.set(court.x, court.y, 0)
             this.container.add(mesh); groundLayer(mesh, 'surface'); this.surfaces.push(mesh)
         }
-        for (const item of districtFurniture) this.addFurniture(item)
-        const geometry = mergeGeometries(this.parts)
-        this.parts.forEach(part => part.dispose()); this.parts.length = 0
-        this.geometries.add(geometry)
-        const matcap = objects.materials?.shades?.items?.white?.uniforms?.matcap?.value
-        const material = matcap ? new THREE.MeshMatcapMaterial({ matcap, vertexColors: true }) : new THREE.MeshBasicMaterial({ vertexColors: true })
-        this.materials.add(material)
-        const props = new THREE.Mesh(geometry, material)
-        props.name = 'District furniture / shared palette batch'
-        this.container.add(props)
-        this.collision = objects.physics.addObjectFromThree({ meshes: this.solids, offset: new THREE.Vector3(), rotation: new THREE.Euler(), mass: 0, sleep: true })
-        collisions.push(this.collision)
+        this.props = new RefinedPropBatch({ name: 'refinedDistrictProps',
+            placements: districtFurniture.map(item => ({ ...item,
+                kind: item.kind === 'banner' ? 'banner-stand' : item.kind === 'lamp' && item.district === 'skills' ? 'workshop-lamp' : item.kind,
+                angle: ['rack', 'chest'].includes(item.kind) ? (item.angle || 0) + Math.PI : item.angle,
+                mirrorX: item.kind === 'banner' ? item.side : 1 })),
+            objects, time, camera, loader, container: this.container, collisions,
+            onReady: batch => { this.solids = batch.solids; this.collision = batch.collision },
+        })
         this.clock = { value: 0 }; this.motion = { value: 1 }
         const preference = globalThis.window?.matchMedia?.('(prefers-reduced-motion: reduce)')
         this.syncMotion = () => { this.motion.value = preference?.matches ? 0 : 1 }
@@ -121,68 +117,6 @@ export default class DistrictScenery {
         time?.on('tick.districtScenery', () => {
             if (!globalThis.document?.hidden && camera?.view !== 'top') this.clock.value = time.elapsed * .001
         })
-    }
-
-    part(geometry, color, x, y, z, angle = 0) {
-        if (geometry.index) { const indexed = geometry; geometry = indexed.toNonIndexed(); indexed.dispose() }
-        geometry.rotateZ(angle); geometry.translate(x, y, z)
-        const shade = new THREE.Color(color).convertLinearToSRGB(), colors = []
-        for (let i = 0; i < geometry.attributes.position.count; i++) colors.push(shade.r, shade.g, shade.b)
-        geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3)); this.parts.push(geometry)
-    }
-
-    addFurniture(item) {
-        const angle = item.angle || 0, cos = Math.cos(angle), sin = Math.sin(angle)
-        const position = (x, y) => [item.x + x * cos - y * sin, item.y + x * sin + y * cos]
-        const box = (x, y, z, w, d, h, color) => this.part(new THREE.BoxGeometry(w, d, h), color, ...position(x, y), z, angle)
-        const cylinder = (x, y, z, radius, height, color) => {
-            const geometry = new THREE.CylinderGeometry(radius, radius, height, 8); geometry.rotateX(Math.PI / 2)
-            this.part(geometry, color, ...position(x, y), z)
-        }
-        const solid = (w, d, h, z = h / 2) => {
-            const proxy = new THREE.Object3D(); proxy.name = 'box'; proxy.userData.feature = item.id
-            proxy.position.set(item.x, item.y, z); proxy.rotation.z = angle; proxy.scale.set(w, d, h); this.solids.push(proxy)
-        }
-        if (item.kind === 'bench') {
-            for (const x of [-.7, .7]) box(x, 0, .23, .22, .58, .46, palette.green)
-            for (const y of [-.22, 0, .22]) box(0, y, .51, 2.1, .17, .12, palette.terracotta)
-            box(0, -.30, .77, 2.1, .12, .40, palette.cream)
-            solid(2.1, .72, .97)
-        } else if (item.kind === 'bed') {
-            box(0, 0, .22, 2.35, .85, .44, palette.terracotta)
-            box(0, 0, .45, 2.46, .95, .10, palette.cream)
-            box(0, 0, .505, 2.15, .65, .035, palette.soil)
-            for (let i = 0; i < 6; i++) {
-                const x = -.88 + i * .35, y = i % 2 ? .12 : -.12
-                const geometry = new THREE.IcosahedronGeometry(.25, 0); geometry.scale(1, 1, .85)
-                this.part(geometry, i % 2 ? palette.green : palette.lawn, ...position(x, y), .69)
-                this.part(new THREE.IcosahedronGeometry(.085, 0), i % 2 ? palette.light : palette.brass, ...position(x, y), .89)
-            }
-            solid(2.46, .95, .55)
-        } else if (item.kind === 'rack') {
-            box(0, 0, .85, 1.65, .24, 1.7, palette.green)
-            for (const z of [.15, .85, 1.55]) box(0, .23, z, 1.9, .65, .12, palette.cream)
-            for (const x of [-.52, 0, .52]) { cylinder(x, .28, 1.08, .12, .30, palette.terracotta); box(x, .30, .43, .27, .22, .35, palette.brass) }
-            solid(1.9, .88, 1.7)
-        } else if (item.kind === 'chest') {
-            box(0, 0, .52, 1.35, .8, 1, palette.terracotta)
-            box(0, 0, 1.06, 1.47, .9, .12, palette.charcoal)
-            for (const z of [.27, .53, .79]) box(0, .41, z, .8, .07, .065, palette.cream)
-            solid(1.47, .9, 1.12)
-        } else if (item.kind === 'lamp') {
-            box(0, 0, .08, .45, .45, .16, palette.cream)
-            cylinder(0, 0, 1.1, .06, 2.1, palette.green)
-            box(0, 0, 2.03, .5, .5, .06, palette.brass)
-            for (const x of [-.21, .21]) for (const y of [-.21, .21]) box(x, y, 2.2, .05, .05, .36, palette.brass)
-            box(0, 0, 2.2, .38, .38, .24, palette.light)
-            box(0, 0, 2.45, .62, .62, .10, palette.green)
-            solid(.2, .2, 2.5)
-        } else if (item.kind === 'banner') {
-            box(0, 0, .10, .48, .48, .20, palette.cream)
-            cylinder(0, 0, 1.95, .055, 3.8, palette.green)
-            box(item.side * .64, 0, 3.73, 1.42, .10, .10, palette.brass)
-            solid(.18, .18, 3.85)
-        }
     }
 
     setBanners() {
@@ -219,9 +153,9 @@ export default class DistrictScenery {
     dispose() {
         if (this.disposed) return
         this.disposed = true
+        this.props.dispose()
         this.time?.off('tick.districtScenery'); this.preference?.removeEventListener?.('change', this.syncMotion)
         this.container.removeFromParent()
         this.geometries.forEach(geometry => geometry.dispose()); this.materials.forEach(material => material.dispose())
-        this.collision?.body?.world?.removeBody?.(this.collision.body)
     }
 }
