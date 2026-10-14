@@ -81,7 +81,7 @@ Import the GitHub repository into Vercel with the repository root as the project
 
 Run `bun run audit:production` after building to check required entries, oversized files, and unintended debug/environment files. GitHub CI runs locked installs, checks, all tests, the combined build, and this audit. Hashed bundles receive immutable caching; unversioned models revalidate so updates do not remain stale. Vercel supplies CDN compression, so the build does not emit redundant `.gz`/`.br` copies.
 
-The earlier production structure, removal list, output measurements, and hosting notes are preserved in the dated [8 October production audit](docs/production-repository-audit.md). Those measurements describe that revision; use [the maintenance guide](docs/repo-maintenance.md) and `bun run audit:production` for the current baseline. This configuration is prepared locally; deployment and live function delivery still require verification on Vercel.
+The earlier production structure, removal list, output measurements, and hosting notes are preserved in the dated [8 October production audit](docs/production-repository-audit.md). Those measurements describe that revision; use [the maintenance guide](docs/repo-maintenance.md) and `bun run audit:production` for the current baseline. Security hardening, production headers and live contact delivery were verified on 14 October 2026; see [the security operations record](docs/security-hardening.md) for details and ongoing checks.
 
 Local instruction and skill files must remain ignored and must never be committed or pushed.
 

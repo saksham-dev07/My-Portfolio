@@ -1,4 +1,5 @@
 import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig, loadEnv } from "vite";
 import contactHandler, { CONTACT_BODY_LIMIT } from "./api/send.js";
@@ -68,17 +69,45 @@ function contactApi() {
 
 export default defineConfig({
   plugins: [react(), contactApi(), previewSecurity()],
+  resolve: {
+    // The prebuilt Three.js core is one large module; source keeps it splittable.
+    alias: [
+      {
+        find: /^three$/,
+        replacement: fileURLToPath(
+          new URL("./node_modules/three/src/Three.js", import.meta.url),
+        ),
+      },
+    ],
+  },
   build: {
     target: "es2020",
     minify: "esbuild",
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks(id) {
-          const path = id.replace(/\\/g, "/");
-          if (/\/node_modules\/(react|react-dom|scheduler)\//.test(path))
-            return "react-vendor";
-          if (path.includes("/node_modules/lucide-react/"))
-            return "icons-vendor";
+        strictExecutionOrder: true,
+        codeSplitting: {
+          includeDependenciesRecursively: false,
+          groups: [
+            {
+              name: "react-vendor",
+              test: /node_modules[\\/](react|react-dom|scheduler)[\\/]/,
+              priority: 30,
+            },
+            {
+              name: "icons-vendor",
+              test: /node_modules[\\/]lucide-react[\\/]/,
+              priority: 20,
+            },
+            {
+              name: "three-vendor",
+              test: /node_modules[\\/]three[\\/]/,
+              entriesAware: true,
+              minSize: 100000,
+              maxSize: 900000,
+              priority: 10,
+            },
+          ],
         },
       },
     },
