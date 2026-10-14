@@ -4,7 +4,7 @@ import {vergeRoadClearance} from '../src/javascript/World/RoadClearance.js'
 import {roadEdgeDistance,landscapeBounds} from '../src/javascript/World/LandscapeLayout.js'
 import World from '../src/javascript/World/index.js'
 import EventEmitter from '../src/javascript/Utils/EventEmitter.js'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import gsap from 'gsap'
 
 test('the real world Enter method never builds the scene and cannot run before shader warm-up',async()=>{

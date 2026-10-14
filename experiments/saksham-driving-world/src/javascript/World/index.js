@@ -130,7 +130,34 @@ export default class World
         stabilizeGround(this.container, this.floor.mesh, this.landscape.terrain)
         // Clone reusable trees/signs before baking the existing static props.
         this.objects.merge.update()
-        this.evening = new EveningEnvironment({container:this.container,time:this.time,passes:this.passes})
+        this.evening = new EveningEnvironment({
+            container:this.container,
+            time:this.time,
+            passes:this.passes,
+            backdrop:this.landscape?.backdrop,
+            meadow:this.landscape?.meadow,
+            car:this.car,
+        })
+    }
+
+    setAtmosphere(mode)
+    {
+        return this.evening?.setAtmosphere?.(mode)
+    }
+
+    cycleAtmosphere()
+    {
+        return this.evening?.cycleAtmosphere?.()
+    }
+
+    setVehicle(kind)
+    {
+        return this.car?.setVehicle?.(kind)
+    }
+
+    toggleVehicle()
+    {
+        return this.car?.toggleVehicle?.()
     }
 
     async warmLighting()
@@ -258,7 +285,7 @@ export default class World
         this.startingScreen.startLabel = {}
         this.startingScreen.startLabel.geometry = new THREE.PlaneGeometry(2.5, 2.5 / 4)
         this.startingScreen.startLabel.image = new Image()
-        this.startingScreen.startLabel.image.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAABABAMAAAAHc7SNAAAAMFBMVEUAAAD///+cnJxra2vR0dHd3d0mJib09PRYWFjp6em4uLhCQkKqqqqNjY19fX3FxcV3XeRgAAADsklEQVRo3u3YsU9TQRwH8KNgLSDQg9ZCAak1IdE4PKPu1NTEsSzOMDl3I3GpcXAxBhLjXFxNjJgQJ2ON0Rnj4uAAEyv8B/L7tV++5/VN+CM69Ldwfa+534d7d793VzeIQQzi/49c4v5lPF/1vvhFm++rjIpcyErrmrSCuz+cxng1iL/If8drPJD2Lc/Iy4VhaZWlFd4tLPfuMc6e/5LvRilJA2SkVSQA8c0OsI0uNtIAU9rsB8y1rAAZjyimAUa1mQDAeGwF+MA+9lIA69qs9AMKVoDP8vhf35A+NiMAc7YJKFSrX7tcI8BW9+k/O/kz6zSunjSnncMHiQYBcmdXrh3xCVbc2WO8N/YZZI0AxxwMArKivmwAwFKSPmV0UwBbCpj5E+C+yzUbQAaJVwUSA9SFjwFgHQ0jAMrBWgzAPCtHgFFbQAlpEwKC2zWUQgJGbAH+naSdu/fTxQAthPL5/ADD6OCpQwCAsb6LsbEGcBluOAYBmG2fkMIawHVWXEsDIGUGpZCAIRsAS93DPgDbhUmUQgKe2NUB90hfhK0YwEJYHkYpJGDbqBKiB86CGLAlzd6/S8CEvh8sACiBvrSXCshKblWEgNy2vkAMAHwGfjECcJHOu5qUQgDm6vXulshZAXJNL9GJAeg+LxeKPQBj1gzgdlnuCWAhbOi7LwaU9u0A2VWPpUgAC+GR5k0iwBtnB3Bj3qMaRYB17X0IOQhYcjYA7guxxyIAGfd1HNqchPfly7aACQUshAA2W1r5G1yG415YpgB3qIIkAHBH2D075QnQ10fHDsCl+CoGSKpiN8kMAVqIN00BsitnVgKyPIBMB4ADKU92AA5BKQIgszjKBGBLagpwB5xZBGS6pbcuizQAXMA6NAK86OCQ3okAI55BQPe7VoDxXzU/iwPASgS4GAASAiYxWgYAzvAa1loA2AkAFQIU2zEELCJtDDgIAG0CFLvp7LblC2kAtF6eTEJJ2CBAr88bAXKY4WkASbzXmwt5AvTvohHA4WSUBmj2Jt+IThQChrAOLQC13vPFMAOAQwuyTAeAKVQto3OBDOdESh2YxNZPbpYBQNbEAoBfod7e1i1BiwB0voSZWgwAOWgtAGPhD18E8ASIiRIAXNPwXJBtcqMbAFAIr5weIJMAcIx1aAAIqk0lAuycompyFwBMHAsAZlj/lgw0rsy2AkhbsgK4Q+70CUBjxeFXsUb0G1HJDJC9rketZRcCWCJwHM8DgJm7b7ch+XizXm25QQxiEOcXvwGCWOhbCZC0qAAAAABJRU5ErkJggg=='
+        this.startingScreen.startLabel.image.src = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAQAAAABABAMAAAAHc7SNAAAAMFBMVEUAAAD///+cnJxra2vR0dHd3d0mJib09PRYWFjp6em4uLhCQkKqqqqNjY19fX3FxcV3XeRgAAADsklEQVRo3u3YsU9TQRwH8KNgLSDQg9ZCAak1IdE4PKPu1NTEsSzOMDl3I3GpcXAxBhLjXFxNjJgQJ2ON0Rnj4uAAEyv8B/L7tV++5/VN+CM69Ldwfa+534d7d793VzeIQQzi/49c4v5lPF/1vvhFm++rjIpcyErrmrSCuz+cxng1iL/If8drPJD2Lc/Iy4VhaZWlFd4tLPfuMc6e/5LvRilJA2SkVSQA8c0OsI0uNtIAU9rsB8y1rAAZjyimAUa1mQDAeGwF+MA+9lIA69qs9AMKVoDP8vhf35A+NiMAc7YJKFSrX7tcI8BW9+k/O/kz6zSunjSnncMHiQYBcmdXrh3xCVbc2WO8N/YZZI0AxxwMArKivmwAwFKSPmV0UwBbCpj5E+C+yzUbQAaJVwUSA9SFjwFgHQ0jAMrBWgzAPCtHgFFbQAlpEwKC2zWUQgJGbAH+naSdu/fTxQAthPL5/ADD6OCpQwCAsb6LsbEGcBluOAYBmG2fkMIawHVWXEsDIGUGpZCAIRsAS93DPgDbhUmUQgKe2NUB90hfhK0YwEJYHkYpJGDbqBKiB86CGLAlzd6/S8CEvh8sACiBvrSXCshKblWEgNy2vkAMAHwGfjECcJHOu5qUQgDm6vXulshZAXJNL9GJAeg+LxeKPQBj1gzgdlnuCWAhbOi7LwaU9u0A2VWPpUgAC+GR5k0iwBtnB3Bj3qMaRYB17X0IOQhYcjYA7guxxyIAGfd1HNqchPfly7aACQUshAA2W1r5G1yG415YpgB3qIIkAHBH2D075QnQ/fHxw7ApfgqBkiqYjfJDAFaSjdNAbIrZ1YCsjyATBeAAylPdgAOQSkCILN4ygRgS2oKcAecWQRkuqW3Los0AFzAOjQCvOjgkN6JACOeQUD3u1aA8V81P4sDwEoEuBgAEgImMVoGAM7wGtZaANgJAAUCFNsxBCwibQw4CAAtAhS76ey25QtpALRenkxCSdggQK/PGwFymOFpAEm815sLeQL076IRwOFklAZo9ibfiE4UAoawDi0Atd7zxTADgEMLskwHgClULaNzgQznREodmMTWT26WAUCsxAKAX6He3tYtQYsAdL6EmVoMADloLQBj4Q9fBPAEiIkSAFzT8FyQbXKjGwBQCK+cHiCTAOB4a9AAEFRLJQHsnKJqchcATBwLAGZY/5YMNK7MtgJIW7ICuEPu9AlAY8XhV7FG9BtRyQyQva5HrWUXAlgicBzPA4CZu2+3Ifl4s15tuUEMYhDnF78BgljoWwklQ9UAAAAASUVORK5CYII='
         this.startingScreen.startLabel.texture = new THREE.Texture(this.startingScreen.startLabel.image)
         this.startingScreen.startLabel.texture.magFilter = THREE.NearestFilter
         this.startingScreen.startLabel.texture.minFilter = THREE.LinearFilter
@@ -418,11 +445,6 @@ export default class World
             debug: this.debugFolder
         })
         this.container.add(this.objects.container)
-
-        // window.requestAnimationFrame(() =>
-        // {
-        //     this.objects.merge.update()
-        // })
     }
 
     setCar()
@@ -487,8 +509,6 @@ export default class World
             ...options,
             x: 30,
             y: - 30
-            // x: 0,
-            // y: 0
         })
         this.container.add(this.sections.projects.container)
         await yieldStartupTask();if(this.disposed)return
@@ -498,8 +518,6 @@ export default class World
             ...options,
             x: 1.2,
             y: - 55
-            // x: 0,
-            // y: - 10
         })
         this.container.add(this.sections.information.container)
         await yieldStartupTask();if(this.disposed)return
@@ -509,8 +527,6 @@ export default class World
             ...options,
             x: - 38,
             y: - 34
-            // x: - 15,
-            // y: - 4
         })
         this.container.add(this.sections.playground.container)
         await yieldStartupTask();if(this.disposed)return

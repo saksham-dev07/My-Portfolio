@@ -1,6 +1,8 @@
 import * as THREE from 'three'
 import { roadEdgeDistance, surfaceHeight } from './LandscapeLayout.js'
 import { isDistrictPaving } from './Sections/DistrictIdentityLayout.js'
+import { updateMeadowCarInteraction } from './MeadowEnvironment.js'
+import { updateTerrainCarReaction } from './TerrainSurface.js'
 
 export const lifeLimits = Object.freeze({ skidSegments: 160, dustParticles: 48, skidSeconds: 18, dustSeconds: 1.25 })
 
@@ -15,7 +17,7 @@ export function vehicleEffectState(body, actions, grounded, onRoad) {
 }
 
 function fadingMaterial(color, clock, seconds) {
-    const material = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: .28, depthWrite: false })
+    const material = new THREE.MeshBasicMaterial({ color, transparent: true, opacity: .22, depthWrite: false })
     material.onBeforeCompile = shader => {
         shader.uniforms.lifeClock = clock
         shader.vertexShader = 'attribute float instanceBirth; varying float vLifeAge; uniform float lifeClock;\n' + shader.vertexShader
@@ -69,7 +71,7 @@ export default class WorldLife {
         this.skids.material.polygonOffsetFactor = -1
         this.skids.material.polygonOffsetUnits = -2
         this.skids.userData.groundLayer = 'skid'
-        this.dust = this.makePool(new THREE.IcosahedronGeometry(1, 0), fadingMaterial('#c4b292', this.clock, lifeLimits.dustSeconds), lifeLimits.dustParticles)
+        this.dust = this.makePool(new THREE.IcosahedronGeometry(1, 0), fadingMaterial('#d2c2a3', this.clock, lifeLimits.dustSeconds), lifeLimits.dustParticles)
         this.dust.name = 'Grass dust / finite particle pool'
         for(const mesh of [this.clouds, this.birds, this.skids, this.dust]) {
             mesh.userData.cameraCollision = false
@@ -102,13 +104,19 @@ export default class WorldLife {
         }
         this.clouds.instanceMatrix.needsUpdate = true
         const flocks = [[-15, -10], [5, -90], [112, -24]]
+        const body = this.physics?.car?.chassis?.body
+        const carSpeed = body?.velocity ? Math.hypot(body.velocity.x, body.velocity.y) : 0
         for(let bird = 0; bird < 9; bird++) {
             const flock = Math.floor(bird / 3), member = bird % 3, [cx, cy] = flocks[flock]
+            const nearCar = (body?.position && carSpeed > 1.5)
+                ? Math.max(0, 1 - Math.hypot(body.position.x - cx, body.position.y - cy) / 24)
+                : 0
             const phase = seconds * .1 + flock * 2.1, heading = phase + Math.PI / 2
-            const x = cx + Math.cos(phase) * 18 - member * 1.1 * Math.cos(heading)
-            const y = cy + Math.sin(phase) * 12 - member * 1.1 * Math.sin(heading)
-            const z = 20 + flock * 2 + Math.sin(phase) * 1.4
-            const flap = Math.sin(seconds * 4 + bird) * .2
+            const radiusBoost = 1 + nearCar * .22
+            const x = cx + Math.cos(phase) * 18 * radiusBoost - member * 1.1 * Math.cos(heading)
+            const y = cy + Math.sin(phase) * 12 * radiusBoost - member * 1.1 * Math.sin(heading)
+            const z = 20 + flock * 2 + Math.sin(phase) * 1.4 + nearCar * 2.4
+            const flap = Math.sin(seconds * (4 + nearCar * 5) + bird) * (.2 + nearCar * .12)
             const rightX = -Math.sin(heading) * .55, rightY = Math.cos(heading) * .55
             const offset = bird * 4
             this.birdPositions.setXYZ(offset, x - rightX, y - rightY, z + flap)
@@ -140,8 +148,8 @@ export default class WorldLife {
         const i = this.dustIndex, particle = this.dustState[i]
         particle.age = 0
         particle.position.copy(point)
-        particle.position.z = surfaceHeight(point.x, point.y) + .16
-        particle.velocity.set(Math.sin(i * 2.4) * .25, Math.cos(i * 1.7) * .25, .35)
+        particle.position.z = surfaceHeight(point.x, point.y) + .14
+        particle.velocity.set(Math.sin(i * 2.4) * .22, Math.cos(i * 1.7) * .22, .28)
         const births = this.dust.geometry.attributes.instanceBirth
         births.setX(i, this.clock.value); births.needsUpdate = true
         this.dustIndex = (i + 1) % lifeLimits.dustParticles
@@ -162,7 +170,7 @@ export default class WorldLife {
             if(particle.age >= lifeLimits.dustSeconds) continue
             dustAlive = true
             particle.position.addScaledVector(particle.velocity, dt)
-            const scale = .11 + particle.age * .16
+            const scale = .07 + particle.age * .11
             this.dummy.position.copy(particle.position); this.dummy.rotation.set(0, 0, i); this.dummy.scale.setScalar(scale)
             this.dummy.updateMatrix(); this.dust.setMatrixAt(i, this.dummy.matrix)
         }
@@ -175,6 +183,9 @@ export default class WorldLife {
         const body = this.physics.car?.chassis?.body
         if(!body) return
         const position = new THREE.Vector3(body.position.x, body.position.y, body.position.z)
+        const carOnRoad = roadEdgeDistance(position.x, position.y) < -.12 || isDistrictPaving(position.x, position.y)
+        updateMeadowCarInteraction(position, body.velocity, 0, .06)
+        updateTerrainCarReaction(position, body.velocity, carOnRoad)
         const teleported = this.previousBodyPosition && position.distanceTo(this.previousBodyPosition) > 5
         this.previousBodyPosition = position
         if(teleported) { this.lastContacts = [null, null]; return }

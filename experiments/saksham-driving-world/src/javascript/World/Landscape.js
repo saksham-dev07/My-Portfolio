@@ -178,14 +178,18 @@ export default class Landscape {
                 float grassVariation=.97+.03*sin(vRoadUv.x*370.0+sin(vRoadUv.y*230.0));
                 diffuseColor.rgb=mix(diffuseColor.rgb,gardenGrass*grassVariation,gardenPaint.r*.64*vMeadowWeight);
                 diffuseColor.rgb=meadowSurface(diffuseColor.rgb,roadPoint,vMeadowWeight);
-                diffuseColor.rgb=mix(diffuseColor.rgb,gardenSoil,gardenPaint.b*.7);
-                diffuseColor.rgb=mix(diffuseColor.rgb,gardenPath,gardenPaint.g);
-                diffuseColor.rgb=mix(diffuseColor.rgb,roadShoulder,coverage.r);
-                diffuseColor.rgb=mix(diffuseColor.rgb,roadAsphalt,coverage.g);
+                vec3 surfaceGrain=texture2D(meadowDetail,roadPoint*1.35).rgb;
+                diffuseColor.rgb=mix(diffuseColor.rgb,gardenSoil*(.94+.12*surfaceGrain.b),gardenPaint.b*.7);
+                diffuseColor.rgb=mix(diffuseColor.rgb,gardenPath*(.95+.10*surfaceGrain.b),gardenPaint.g);
+                float shoulderFeather=clamp(coverage.r*(.82+.32*surfaceGrain.g),0.0,1.0);
+                vec3 texturedShoulder=roadShoulder*(.93+.14*surfaceGrain.b);
+                vec3 texturedAsphalt=roadAsphalt*(.96+.08*surfaceGrain.r);
+                diffuseColor.rgb=mix(diffuseColor.rgb,texturedShoulder,shoulderFeather);
+                diffuseColor.rgb=mix(diffuseColor.rgb,texturedAsphalt,coverage.g);
                 diffuseColor.rgb=mix(diffuseColor.rgb,roadWhite,coverage.b);
                 diffuseColor.rgb=mix(diffuseColor.rgb,roadKerb,coverage.a);`)
         }
-        this.terrain.material.customProgramCacheKey=()=> 'heightfield-road-paint-v10-meadow-detail'
+        this.terrain.material.customProgramCacheKey=()=> 'heightfield-road-paint-v11-meadow-detail'
         this.terrain.material.needsUpdate=true
     }
 
@@ -260,8 +264,6 @@ export default class Landscape {
                 })
                 const collision=item.collision,body=collision?.body
                 if(body) {
-                    // A compound body also owns rails, boulders and benches.
-                    // Remove only the narrow proxy directly beneath this crown.
                     const remove=[]
                     body.shapeOffsets.forEach((offset,index)=>{
                         const point=body.pointToWorldFrame(offset),shape=body.shapes[index]
@@ -284,9 +286,6 @@ export default class Landscape {
     }
 
     setGroves() {
-        // The Blender kit is normalized to 4.8m trees with a <2m crown radius.
-        // Keep the existing valley groves and add deliberately framed courtyard
-        // groups; no source blocks or mismatched legacy trunk proxies remain.
         const groves=grovePlacements(2)
         groves.forEach(p=>{p.treeScale=p.scale})
         this.landmarkTrees=landmarkTreePlacements(2,groves)
@@ -295,8 +294,6 @@ export default class Landscape {
     }
 
     setSignalArch() {
-        // One authored silhouette: a thick stone aperture straddles the scenic
-        // route. The open centre is wide enough to drive through.
         const centerX=-49, centerY=-80, radius=6.5
         const base=Math.min(surfaceHeight(centerX-radius+.5,centerY),surfaceHeight(centerX+radius-.5,centerY))-.15
         const shape=new THREE.Shape()
@@ -318,8 +315,6 @@ export default class Landscape {
         const seam=new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(points),48,.045,4,false),new THREE.MeshBasicMaterial({color:'#d7f3ee'}))
         seam.name='Signal thread'
         this.container.add(seam)
-        // Coarse pillars are the only reachable solid portions; the crown is
-        // safely above the car and never creates an invisible drive-through wall.
         const solids=[-1,1].map(side=>{
             const box=new THREE.Object3D();box.name='box'
             box.position.set(centerX+side*(radius-.5),centerY-.75,base+1.5)

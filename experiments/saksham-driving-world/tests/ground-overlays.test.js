@@ -22,10 +22,11 @@ test('baked shadow parser separates overlays from the physical ground depth', ()
     expect(shadow.material.name).toBe('') // Separate shadow textures must not merge.
 })
 
-test('ground text keeps reveal uniforms and cannot change the material of solid props', () => {
+test('ground text keeps reveal uniforms and cannot change the material of solid props even when root is hidden during preparation', () => {
     const material=new THREE.ShaderMaterial({uniforms:{uRevealProgress:{value:0}}})
     material.name='shadeWhite'
     const root=new THREE.Group(), group=new THREE.Group()
+    root.visible=false
     group.position.set(4,8,0);group.rotation.z=.4;root.add(group)
     const label=new THREE.Mesh(new THREE.PlaneGeometry(4,1),material)
     const prop=new THREE.Mesh(new THREE.BoxGeometry(1,1,3),material)

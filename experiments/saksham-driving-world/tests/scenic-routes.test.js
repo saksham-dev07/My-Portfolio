@@ -1,6 +1,6 @@
 import {expect,test} from 'bun:test'
 import * as THREE from 'three'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js'
 import {refinedGeometry,refinedPlacement} from '../src/javascript/World/RefinedProps.js'
 import {activityPropCollision} from '../src/javascript/World/ActivityProps.js'

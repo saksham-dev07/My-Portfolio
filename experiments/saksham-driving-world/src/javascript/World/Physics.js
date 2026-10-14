@@ -1,7 +1,41 @@
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import { landscapeGrid, surfaceHeight } from './LandscapeLayout.js'
 import { captureVehiclePose } from './VehiclePose.js'
+
+const isCylinderYUp = (() =>
+{
+    try
+    {
+        const probe = new CANNON.Cylinder(1, 1, 10, 8)
+        return Boolean(probe.vertices?.some(v => Math.abs(v.y) > 2))
+    }
+    catch
+    {
+        return false
+    }
+})()
+
+// Empirically detect whether Body.prototype.applyImpulse expects a relative
+// offset from center of mass (cannon-es) vs a world-space point (legacy cannon 0.6).
+// Immune to minification/bundling.
+const applyImpulseUsesRelativePoint = (() =>
+{
+    try
+    {
+        const testBody = new CANNON.Body({
+            mass: 1,
+            shape: new CANNON.Sphere(1),
+            position: new CANNON.Vec3(10, 0, 0),
+        })
+        testBody.applyImpulse(new CANNON.Vec3(0, 0, 1), new CANNON.Vec3(0, 0, 0))
+        return Math.abs(testBody.angularVelocity.y) < 1e-5
+    }
+    catch
+    {
+        return true
+    }
+})()
 
 export default class Physics
 {
@@ -183,12 +217,27 @@ export default class Physics
 
         /**
          * Jump
+         * Note: cannon-es applyImpulse(impulse, relativePoint) takes a point
+         * relative to the center of mass (unlike legacy cannon 0.6 which took
+         * a world point and subtracted body.position).
          */
         this.car.jump = (_toReturn = true, _strength = 150) =>
         {
-            let worldPosition = this.car.chassis.body.position
-            worldPosition = worldPosition.vadd(new CANNON.Vec3(_toReturn ? 0.1 : 0, 0, 0))
-            this.car.chassis.body.applyImpulse(new CANNON.Vec3(0, 0, _strength), worldPosition)
+            const body = this.car.chassis.body
+            const centerPoint = applyImpulseUsesRelativePoint ? new CANNON.Vec3(0, 0, 0) : body.position
+            if(_toReturn)
+            {
+                // Dampen any violent crash spin and apply a controlled righting roll
+                // around the car's longitudinal axis so it lands cleanly on its wheels.
+                body.velocity.x *= 0.35
+                body.velocity.y *= 0.35
+                body.angularVelocity.set(0, 0, 0)
+                body.applyImpulse(new CANNON.Vec3(0, 0, _strength), centerPoint)
+                const localRoll = new CANNON.Vec3(4.2, 0.6, 0)
+                body.vectorToWorldFrame(localRoll, body.angularVelocity)
+                return
+            }
+            body.applyImpulse(new CANNON.Vec3(0, 0, _strength), centerPoint)
         }
 
         /**
@@ -205,6 +254,7 @@ export default class Physics
 
             this.car.chassis.body = new CANNON.Body({ mass: this.car.options.chassisMass })
             this.car.chassis.body.allowSleep = false
+            this.car.chassis.body.angularDamping = 0.38
             this.car.chassis.body.position.set(0,0,surfaceHeight(0,0)+this.car.options.wheelRadius+this.car.options.wheelSuspensionRestLength)
             this.car.chassis.body.sleep()
             this.car.chassis.body.addShape(this.car.chassis.shape, this.car.options.chassisOffset)
@@ -224,10 +274,13 @@ export default class Physics
             })
 
             /**
-             * Vehicle
+             * Vehicle (explicit Z-up axis indices for both cannon and cannon-es)
              */
             this.car.vehicle = new CANNON.RaycastVehicle({
-                chassisBody: this.car.chassis.body
+                chassisBody: this.car.chassis.body,
+                indexForwardAxis: 0,
+                indexRightAxis: 1,
+                indexUpAxis: 2
             })
 
             /**
@@ -283,7 +336,10 @@ export default class Physics
                 const shape = new CANNON.Cylinder(_wheelInfos.radius, _wheelInfos.radius, this.car.wheels.options.height, 20)
                 const body = new CANNON.Body({ mass: this.car.options.wheelMass, material: this.materials.items.wheel })
                 const quaternion = new CANNON.Quaternion()
-                quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2)
+                if(!isCylinderYUp)
+                {
+                    quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI / 2)
+                }
 
                 body.type = CANNON.Body.KINEMATIC
                 captureVehiclePose(body)
@@ -452,7 +508,7 @@ export default class Physics
                 }
             }
 
-            // Slow down back
+            // Slow down back (apply at center of mass so cannon-es does not add lever-arm torque)
             if(!this.controls.actions.up && !this.controls.actions.down)
             {
                 let slowDownForce = this.car.worldForward.clone()
@@ -464,7 +520,8 @@ export default class Physics
 
                 slowDownForce = slowDownForce.scale(this.car.chassis.body.velocity.length() * 0.1)
 
-                this.car.chassis.body.applyImpulse(slowDownForce, this.car.chassis.body.position)
+                const centerPoint = applyImpulseUsesRelativePoint ? new CANNON.Vec3(0, 0, 0) : this.car.chassis.body.position
+                this.car.chassis.body.applyImpulse(slowDownForce, centerPoint)
             }
         })
 
@@ -491,8 +548,12 @@ export default class Physics
             }
 
             /**
-             * Steering
+             * Steering (with speed-sensitive max angle so high-speed turns stay stable)
              */
+            const planarSpeed = Math.hypot(this.car.chassis.body.velocity.x, this.car.chassis.body.velocity.y)
+            const highSpeedSteerFactor = 1 / (1 + Math.max(0, planarSpeed - 7) * 0.04)
+            const effectiveSteeringMax = this.car.options.controlsSteeringMax * highSpeedSteerFactor
+
             if(this.controls.touch)
             {
                 let deltaAngle = 0
@@ -509,9 +570,9 @@ export default class Physics
                 this.car.steering = deltaAngle * (goingForward ? - 1 : 1)
 
                 // Clamp steer
-                if(Math.abs(this.car.steering) > this.car.options.controlsSteeringMax)
+                if(Math.abs(this.car.steering) > effectiveSteeringMax)
                 {
-                    this.car.steering = Math.sign(this.car.steering) * this.car.options.controlsSteeringMax
+                    this.car.steering = Math.sign(this.car.steering) * effectiveSteeringMax
                 }
             }
 
@@ -543,9 +604,9 @@ export default class Physics
                 }
 
                 // Clamp steer
-                if(Math.abs(this.car.steering) > this.car.options.controlsSteeringMax)
+                if(Math.abs(this.car.steering) > effectiveSteeringMax)
                 {
-                    this.car.steering = Math.sign(this.car.steering) * this.car.options.controlsSteeringMax
+                    this.car.steering = Math.sign(this.car.steering) * effectiveSteeringMax
                 }
             }
 
@@ -765,10 +826,11 @@ export default class Physics
 
                 // Quaternion
                 const shapeQuaternion = new CANNON.Quaternion(mesh.quaternion.x, mesh.quaternion.y, mesh.quaternion.z, mesh.quaternion.w)
-                if(shape === 'cylinder')
+                if(shape === 'cylinder' && isCylinderYUp)
                 {
-                    // Rotate cylinder
-                    // shapeQuaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), - Math.PI * 0.5)
+                    const zUpRot = new CANNON.Quaternion()
+                    zUpRot.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), Math.PI * 0.5)
+                    shapeQuaternion.mult(zUpRot, shapeQuaternion)
                 }
 
                 // Save

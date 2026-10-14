@@ -13,11 +13,18 @@ export default class BotanicalDressing {
         this.state='idle'
         this.flowers=flowerPlacements(trees,props)
         this.trees=[...trees,...decorativeTrees].map((p,index)=>({...p,kind:p.kind ?? (index%3===1 ? 'tree-copper' : 'tree-broadleaf'),scale:p.treeScale ?? p.scale}))
-        this.motion={value:1};this.clock={value:0}
+        this.motion={value:1};this.clock={value:0};this.pondWake={value:0}
         const preference=window.matchMedia('(prefers-reduced-motion: reduce)')
         const sync=()=>{this.motion.value=preference.matches ? 0 : 1}
         sync();preference.addEventListener('change',sync)
-        time.on('tick.botanicalBreeze',()=>{this.clock.value=time.elapsed*.001*this.motion.value})
+        time.on('tick.botanicalBreeze',()=>{
+            this.clock.value=time.elapsed*.001*this.motion.value
+            const carPos=objects?.physics?.car?.chassis?.body?.position
+            if(carPos) {
+                const dist=Math.hypot(carPos.x-garden.pond.x,carPos.y-garden.pond.y)
+                this.pondWake.value=Math.max(0,1-dist/11.5)*this.motion.value
+            }
+        })
         const frustum=new THREE.Frustum(),matrix=new THREE.Matrix4()
         const regions=[new THREE.Sphere(new THREE.Vector3(0,-26,3),53),new THREE.Sphere(new THREE.Vector3(2,-99,3),48),new THREE.Sphere(new THREE.Vector3(105,-8,3),62),new THREE.Sphere(new THREE.Vector3(-55,-100,3),32),new THREE.Sphere(new THREE.Vector3(105,-130,3),42)]
         let nextCheck=0
@@ -95,26 +102,27 @@ export default class BotanicalDressing {
         const water=new THREE.Mesh(new THREE.CircleGeometry(1,64).scale(2.78,1.68,1),new THREE.ShaderMaterial({
             fog:true,
             uniforms:THREE.UniformsUtils.merge([THREE.UniformsLib.fog,{
-                uTime:this.clock,uDeep:{value:new THREE.Color('#276b69').convertLinearToSRGB()},uShore:{value:new THREE.Color('#84c9af').convertLinearToSRGB()},
+                uTime:this.clock,uWake:this.pondWake,uDeep:{value:new THREE.Color('#276b69').convertLinearToSRGB()},uShore:{value:new THREE.Color('#84c9af').convertLinearToSRGB()},
             }]),
             vertexShader:`varying vec2 vPondUv;
                 #include <fog_pars_vertex>
                 void main(){vPondUv=uv;vec4 mvPosition=modelViewMatrix*vec4(position,1.0);gl_Position=projectionMatrix*mvPosition;
                     #include <fog_vertex>
                 }`,
-            fragmentShader:`uniform float uTime;uniform vec3 uDeep;uniform vec3 uShore;varying vec2 vPondUv;
+            fragmentShader:`uniform float uTime;uniform float uWake;uniform vec3 uDeep;uniform vec3 uShore;varying vec2 vPondUv;
                 #include <fog_pars_fragment>
                 void main(){
                     float r=length(vPondUv-.5)*2.0;
                     float shore=smoothstep(.42,1.0,r);
-                    float ripple=sin(r*28.0-uTime*.7)*.018;
-                    float light=pow(max(0.0,1.0-abs(vPondUv.x+vPondUv.y-.85)*6.0),5.0)*.08;
+                    float ripple=sin(r*(28.0+uWake*14.0)-uTime*(.7+uWake*1.4))*(.018+.024*uWake);
+                    float light=pow(max(0.0,1.0-abs(vPondUv.x+vPondUv.y-.85)*6.0),5.0)*(.08+.06*uWake);
                     gl_FragColor=vec4(mix(uDeep,uShore,shore*.7)+vec3(ripple+light),1.0);
                     #include <fog_fragment>
                 }`,
         }))
-        // Keep the same live uniform after UniformsUtils clones the fog block.
+        // Keep the same live uniforms after UniformsUtils clones the fog block.
         water.material.uniforms.uTime=this.clock
+        water.material.uniforms.uWake=this.pondWake
         water.position.set(p.x,p.y,ground+.14);water.name='Garden pond / quiet teal ripples'
         container.add(water);this.water=water
         const solids=[]

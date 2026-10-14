@@ -3,6 +3,7 @@ import '../style/world-activities.css'
 
 const activities = [
     { id: 'bowling', title: 'Maidan Bowling', category: 'A little friendly chaos', description: 'Three rolls. Ten pins each. Push the ball with your car or use the assisted roll.', controls: 'Arrows / WASD to drive. Roll ball for a straight shot.', icon: '<circle cx="7" cy="17" r="4"/><path d="M15 3h3l-1 4 2 9a2 2 0 0 1-2 3h-1a2 2 0 0 1-2-3l2-9-1-4Z"/>' },
+    { id: 'stunt', title: 'Playground Stunt Arena', category: 'Air time & field goals', description: 'Hit the opposing jump ramps for air-time combos or knock the gold stunt ball through the field-goal posts.', controls: 'Hold Shift to boost up ramps. Spot ball or line up a jump anytime.', icon: '<path d="M4 18h16M6 18V7h12v11M9 7V4m6 3V4"/><circle cx="12" cy="13" r="2.5"/>' },
     { id: 'rally', title: 'Campus Rally', category: 'Find your racing line', description: 'One clockwise lap around campus. Cross the three checkpoints in order, then return to START.', controls: 'Arrows / WASD to drive. Space to brake. Your best time stays on this browser.', icon: '<path d="M5 21V3m0 1c5-3 9 3 14 0v10c-5 3-9-3-14 0"/>' },
 ]
 
@@ -63,7 +64,13 @@ export function activityInterface(app, { isStarted, onStart }) {
     let ownsBrake = false
     let actionKey = ''
     const director = new ActivityDirector({
-        resolve: id => id === 'bowling' ? app.world.sections?.playground?.bowlingGame : id === 'rally' ? app.world.sections?.profile?.district?.circuit : null,
+        resolve: id => id === 'bowling'
+            ? app.world.sections?.playground?.bowlingGame
+            : id === 'stunt'
+                ? app.world.sections?.playground?.stuntArenaGame
+                : id === 'rally'
+                    ? app.world.sections?.profile?.district?.circuit
+                    : null,
         onChange: game => {
             if (!game) { hud.hidden = true; delete document.body.dataset.activity; actionKey = '' }
             else {
@@ -115,7 +122,7 @@ export function activityInterface(app, { isStarted, onStart }) {
             const button = document.createElement('button'); button.type = 'button'; button.textContent = action.label
             button.addEventListener('click', () => {
                 director.action(action.id)
-                if (['next', 'replay', 'retry'].includes(action.id) && director.current) onStart(director.current.id)
+                if (['next', 'replay', 'retry', 'line-up', 'reset-arena'].includes(action.id) && director.current) onStart(director.current.id)
                 release(); focusWorld()
             })
             actions.append(button)

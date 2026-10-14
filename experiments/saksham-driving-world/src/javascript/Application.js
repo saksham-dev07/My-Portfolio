@@ -53,7 +53,12 @@ export default class Application
         window.addEventListener('touchstart', () =>
         {
             this.config.touch = true
+            if(document.body?.dataset)
+            {
+                document.body.dataset.touch = 'true'
+            }
             this.world.controls.setTouch()
+            window.dispatchEvent(new CustomEvent('drive-touch-mode'))
 
             this.passes.horizontalBlurPass.strength = 0
             this.passes.horizontalBlurPass.material.uniforms.uStrength.value = new THREE.Vector2(this.passes.horizontalBlurPass.strength, 0)
@@ -254,6 +259,7 @@ export default class Application
         this.world.disposed=true
         this.activities?.dispose()
         this.world.sections?.playground?.bowlingGame?.dispose?.()
+        this.world.sections?.playground?.stuntArenaGame?.dispose?.()
         this.world.sections?.intro?.dispose?.()
         this.world.sections?.profile?.district?.circuit?.destroy?.()
         this.world.sections?.profile?.district?.educationChapters?.dispose?.()
@@ -279,4 +285,3 @@ export default class Application
         this.debug.destroy()
     }
 }
-

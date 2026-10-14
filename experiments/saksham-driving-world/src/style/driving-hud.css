@@ -16,77 +16,257 @@
     --hud-radius: 12px;
 }
 [hidden] { display: none !important; }
-.drive-header { padding: 22px 28px; background: linear-gradient(#162d2370, transparent); }
+
+/* ==========================================================================
+   1. Top Header & Brand
+   ========================================================================== */
+.drive-header {
+    padding: calc(18px + env(safe-area-inset-top, 0px)) calc(28px + env(safe-area-inset-right, 0px)) 16px calc(28px + env(safe-area-inset-left, 0px));
+    background: linear-gradient(180deg, #12261dd9 0%, #162d2366 65%, transparent 100%);
+}
 .drive-brand { font-size: 34px; color: var(--hud-paper); gap: 12px; }
 .drive-brand span { font-size: 8px; letter-spacing: .11em; }
 .drive-brand small { font-size: 7px; }
-.drive-actions { gap: 8px; }
+.drive-actions { gap: 8px; flex-wrap: nowrap; }
 .drive-actions > :is(a, button), .camera-utilities :is(a, button) {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     padding: 10px 13px; border: 1px solid var(--hud-line); border-radius: 9px;
     background: var(--hud-panel); color: var(--hud-paper); min-height: 40px;
     font-size: 11px; font-weight: 550; backdrop-filter: none;
-    transition: background .18s, border-color .18s;
+    white-space: nowrap;
+    transition: background .18s, border-color .18s, transform .12s;
 }
 .drive-actions button span { margin-left: 2px; color: var(--hud-brass); opacity: 1; font-size: 9px; }
 .drive-actions svg, .camera-utilities svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 .drive-actions > :is(a, button):hover, .camera-utilities :is(a, button):hover { background: #244636; border-color: #e5c38c80; }
-.drive-actions .world-play { background: var(--hud-paper); color: var(--hud-ink); border-color: var(--hud-paper); }
+.drive-actions .world-play, .drive-actions #world-play { background: var(--hud-paper); color: var(--hud-ink); border-color: var(--hud-paper); font-weight: 650; }
+.drive-actions #world-play:hover { background: #fbf5e8; border-color: var(--hud-brass); }
 .drive-header a:focus-visible, .drive-header button:focus-visible, .camera-tools :is(select, button, a):focus-visible { outline: 2px solid var(--hud-brass); outline-offset: 4px; }
 
-.camera-tools { left: 28px; top: auto; bottom: 28px; width: 310px; padding: 15px; border: 1px solid var(--hud-line); border-radius: var(--hud-radius); background: var(--hud-panel); color: var(--hud-paper); box-shadow: 0 8px 30px #10221826; backdrop-filter: none; }
-.camera-tools[data-collapsed=true] { width: 310px; padding: 4px 10px 4px 15px; }
-.camera-heading > label { color: var(--hud-paper); font-size: 11px; gap: 7px; white-space: nowrap; }
+/* ==========================================================================
+   2. Drive & Camera Controls Panel (.camera-tools)
+   ========================================================================== */
+.camera-tools {
+    left: calc(28px + env(safe-area-inset-left, 0px));
+    top: auto;
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+    width: 364px;
+    max-width: calc(100vw - 32px);
+    padding: 14px 15px;
+    border: 1px solid var(--hud-line);
+    border-radius: var(--hud-radius);
+    background: var(--hud-panel);
+    color: var(--hud-paper);
+    box-shadow: 0 10px 32px #0d1d1645;
+    backdrop-filter: none;
+}
+.camera-tools[data-collapsed=true] {
+    width: auto;
+    min-width: 340px;
+    max-width: calc(100vw - 24px);
+    padding: 4px 8px 4px 12px;
+}
+#camera-body {
+    max-height: calc(100dvh - 170px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #e5c38c4d transparent;
+}
+.camera-heading { gap: 6px; flex-wrap: nowrap; }
+.camera-heading > label { color: var(--hud-paper); font-size: 11px; gap: 6px; white-space: nowrap; cursor: pointer; }
 .camera-heading > label svg { stroke: var(--hud-brass); }
-.camera-status { font-size: 9px; padding: 5px 7px; background: #ffffff06; color: var(--hud-muted); border-color: transparent; white-space: nowrap; }
+.camera-status { font-size: 9px; padding: 4px 6px; background: #ffffff06; color: var(--hud-muted); border-color: transparent; white-space: nowrap; }
 .camera-status[data-state=follow]::before { background: #a8d6ac; }
 .camera-status[data-state=explore]::before { background: var(--hud-brass); }
-.camera-tools #camera-toggle { color: var(--hud-muted); min-height: 38px; height: 38px; width: 32px; min-width: 32px; }
-.camera-tools #drive-sound { width: 32px; min-width: 32px; height: 38px; min-height: 38px; padding: 7px; justify-content: center; background: transparent; border-color: transparent; color: var(--hud-muted); }
+.camera-tools #camera-toggle { color: var(--hud-muted); min-height: 34px; height: 34px; width: 28px; min-width: 28px; }
+.camera-tools #drive-sound { width: 28px; min-width: 28px; height: 34px; min-height: 34px; padding: 5px; justify-content: center; background: transparent; border-color: transparent; color: var(--hud-muted); }
 .camera-tools #drive-sound[aria-pressed=true] { color: var(--hud-brass); }
+.camera-tools #drive-vehicle, .camera-tools #drive-atmosphere {
+    display: inline-flex; align-items: center; gap: 4px;
+    height: 30px; min-height: 30px; padding: 4px 7px;
+    border-radius: 7px; background: #ffffff08;
+    border: 1px solid var(--hud-line); color: var(--hud-brass);
+    font-size: 9px; font-weight: 600; letter-spacing: .03em;
+}
+.camera-tools #drive-vehicle svg, .camera-tools #drive-atmosphere svg { width: 12px; height: 12px; fill: none; stroke: currentColor; stroke-width: 1.7; }
+.camera-tools #drive-vehicle[data-vehicle=cybertruck] { color: #8fe6d4; border-color: #8fe6d445; }
+.camera-tools #drive-atmosphere[data-atmosphere=night] { color: #b7cff9; border-color: #b7cff940; }
+.camera-tools #drive-atmosphere[data-atmosphere=day] { color: #f6df9d; border-color: #f6df9d40; }
+.camera-vehicle { display: grid; grid-template-columns: 1fr 1.25fr; gap: 6px; margin-top: 8px; }
+.camera-atmosphere { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 6px; }
+.camera-vehicle button, .camera-atmosphere button { padding: 6px 8px; min-height: 32px; border-radius: 7px; border: 1px solid var(--hud-line); background: #ffffff06; color: var(--hud-muted); font-size: 10px; font-weight: 550; }
+.camera-vehicle button[aria-pressed=true], .camera-atmosphere button[aria-pressed=true] { background: var(--hud-paper); color: var(--hud-ink); border-color: var(--hud-paper); font-weight: 650; }
 #drive-sound[aria-pressed=true] .sound-off, #drive-sound[aria-pressed=false] .sound-waves { display: none; }
 .sound-label { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
-.camera-primary { align-items: stretch; }
-.camera-select select { background: #ffffff07; border-color: var(--hud-line); color: var(--hud-paper); }
+.camera-primary { align-items: stretch; margin-top: 4px; }
+.camera-select select { background: #ffffff07; border-color: var(--hud-line); color: var(--hud-paper); min-height: 38px; font-size: 11px; }
+.camera-select > svg { top: 11px; }
 .camera-select select option { background: var(--hud-ink); }
+.camera-primary #follow-car { min-height: 38px; font-size: 10.5px; }
 .camera-tools button { color: var(--hud-paper); border-color: var(--hud-line); }
-.camera-tools #camera-help { color: var(--hud-muted); font-size: 10px; line-height: 1.75; }
-.camera-circuit { border-color: var(--hud-line); }
+.camera-tools #camera-help { color: var(--hud-muted); font-size: 10px; line-height: 1.65; margin-top: 8px; }
+.camera-circuit { border-color: var(--hud-line); margin-top: 10px; padding-top: 9px; }
 .camera-circuit #circuit-status { color: var(--hud-muted); }
 .camera-circuit .circuit-heading > span { color: var(--hud-brass); }
-.driving-keys { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; padding: 13px 0; color: var(--hud-muted); font-size: 10px; }
-kbd { font: inherit; font-size: 9px; padding: 3px 5px; border: 1px solid var(--hud-line); border-bottom-width: 2px; border-radius: 4px; letter-spacing: .025em; }
-.driving-keys kbd { margin-right: 4px; }
-.camera-utilities { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 12px; border-top: 1px solid var(--hud-line); }
-.camera-utilities :is(a, button) { font-size: 9px; padding: 8px; min-height: 35px; flex: 1; }
+.camera-circuit .circuit-heading button { min-height: 30px; padding: 4px 10px; }
+.driving-keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px 10px; padding: 10px 0; color: var(--hud-muted); font-size: 9.5px; }
+kbd { font: inherit; font-size: 8.5px; padding: 2px 5px; border: 1px solid var(--hud-line); border-bottom-width: 2px; border-radius: 4px; letter-spacing: .025em; }
+.driving-keys kbd { margin-right: 3px; }
+.camera-utilities { display: flex; flex-wrap: wrap; gap: 6px; padding-top: 10px; border-top: 1px solid var(--hud-line); }
+.camera-utilities :is(a, button) { font-size: 9.5px; padding: 7px 8px; min-height: 34px; flex: 1 1 0; }
 
-.drive-bottom { left: 30px; right: 220px; bottom: 96px; align-items: end; }
-.drive-bottom p { color: var(--hud-paper); font-size: 11px; line-height: 1.4; font-weight: 650; letter-spacing: .04em; text-shadow: 0 1px 10px #10261dbf; }
-.drive-bottom .location-kicker { display: block; margin-bottom: 6px; font-size: 8px; letter-spacing: .15em; color: var(--hud-brass); }
-.drive-bottom small { margin-top: 8px; color: var(--hud-paper); letter-spacing: .025em; font-size: 9px; opacity: .85; }
+/* ==========================================================================
+   3. Bottom Telemetry, Stunt Callout & Location Bar (.drive-bottom)
+   ========================================================================== */
+.drive-bottom {
+    left: calc(30px + env(safe-area-inset-left, 0px));
+    right: calc(206px + env(safe-area-inset-right, 0px));
+    bottom: calc(82px + env(safe-area-inset-bottom, 0px));
+    align-items: flex-end;
+}
+.drive-bottom > div:first-child {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 6px;
+    min-width: 0;
+}
+.drive-bottom p {
+    margin: 0;
+    color: var(--hud-paper);
+    font-size: 11px;
+    line-height: 1.35;
+    font-weight: 650;
+    letter-spacing: .04em;
+    text-shadow: 0 1px 10px #10261dbf;
+}
+.drive-bottom .location-kicker { display: block; margin-bottom: 4px; font-size: 8px; letter-spacing: .15em; color: var(--hud-brass); }
+.drive-bottom small { margin-top: 6px; color: var(--hud-paper); letter-spacing: .025em; font-size: 9px; opacity: .85; }
 .drive-bottom kbd { background: #142b2380; border-color: #f4ecd94d; }
-.drive-bottom .world-story-link { left: auto; bottom: 0; right: 0; background: var(--hud-panel); border-color: var(--hud-line); color: var(--hud-paper); backdrop-filter: none; }
-#nearby-section { bottom: 0; right: 0; background: var(--hud-paper); color: var(--hud-ink); backdrop-filter: none; }
-.camera-tools[data-collapsed=false] ~ .drive-bottom > p { visibility: hidden; }
+.drive-bottom .world-story-link {
+    left: auto; bottom: 0; right: 0;
+    background: var(--hud-panel); border-color: var(--hud-brass);
+    color: var(--hud-paper); font-weight: 600;
+    box-shadow: 0 8px 24px #0d1d1659;
+    backdrop-filter: none;
+}
+#nearby-section {
+    bottom: 0; right: 0;
+    background: var(--hud-paper); color: var(--hud-ink);
+    font-weight: 650; border-color: var(--hud-paper);
+    box-shadow: 0 8px 24px #0d1d1659;
+    backdrop-filter: none;
+}
+
+.drive-telemetry {
+    display: inline-flex; align-items: center; gap: 10px;
+    margin-bottom: 2px; padding: 5px 10px;
+    border-radius: 9px; border: 1px solid var(--hud-line);
+    background: #142b23e0; color: var(--hud-paper);
+    box-shadow: 0 4px 16px #0c1a1438;
+}
+.telemetry-speed { display: inline-flex; align-items: baseline; gap: 4px; min-width: 50px; }
+.telemetry-speed strong { font-size: 14px; font-weight: 750; font-variant-numeric: tabular-nums; color: var(--hud-paper); }
+.telemetry-speed small { font-size: 7.5px; letter-spacing: .1em; color: var(--hud-muted); margin-top: 0; }
+.telemetry-bar { width: 64px; height: 5px; border-radius: 99px; background: #ffffff14; overflow: hidden; }
+.telemetry-bar-fill { display: block; height: 100%; width: 0%; border-radius: 99px; background: linear-gradient(90deg, #98d8aa, var(--hud-brass), #ff8952); transition: width .08s linear; }
+.telemetry-chip { font-size: 8px; font-weight: 700; letter-spacing: .08em; padding: 2px 6px; border-radius: 5px; background: #ffffff10; color: var(--hud-brass); white-space: nowrap; }
+.telemetry-chip[data-mode=boost] { background: #ff7b2933; color: #ffb37b; border: 1px solid #ff7b2966; }
+.telemetry-chip[data-mode=air] { background: #7cb8ff33; color: #b7cff9; border: 1px solid #7cb8ff66; }
+.telemetry-chip[data-mode=cyber] { background: #6ae2b826; color: #8fe6d4; }
+
+.stunt-callout {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 2px; padding: 6px 11px;
+    border-radius: 9px; border: 1px solid #f4c55280;
+    background: #18332af5; color: var(--hud-paper);
+    font-size: 10px; font-weight: 600; letter-spacing: .04em;
+    box-shadow: 0 6px 20px #0d1d1666;
+}
+.stunt-callout strong { color: #f7d16a; font-size: 9px; letter-spacing: .1em; }
+
+.camera-tools[data-collapsed=false] ~ .drive-bottom > div > :is(p, .drive-telemetry, .stunt-callout) { visibility: hidden; }
 .model-status { left: auto; right: 28px; top: auto; bottom: 205px; transform: none; width: 240px; max-width: calc(100vw - 56px); padding: 10px 12px; border: 1px solid var(--hud-line); border-radius: 9px; background: var(--hud-panel); color: var(--hud-muted); font-size: 10px; line-height: 1.6; box-shadow: none; backdrop-filter: none; pointer-events: none; }
 
-.drive-boot { background: radial-gradient(ellipse at 80% 35%, #54715b66, transparent 60%), linear-gradient(110deg, #12271ff5 45%, #18332ad9); }
+/* ==========================================================================
+   4. Touch Controls Styling (.touch-joystick & .touch-control)
+   ========================================================================== */
+.touch-joystick {
+    z-index: 6;
+    left: calc(12px + env(safe-area-inset-left, 0px)) !important;
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px)) !important;
+    background: radial-gradient(circle, #142b235c 0%, #142b231f 66%, transparent 72%);
+    touch-action: none;
+}
+.touch-joystick__cursor {
+    background: #f4ecd926;
+    border-color: var(--hud-paper) !important;
+    box-shadow: 0 4px 14px #0c1a1466;
+}
+.touch-joystick__limit {
+    border-color: var(--hud-brass) !important;
+}
+.touch-control {
+    z-index: 6;
+    right: calc(6px + env(safe-area-inset-right, 0px)) !important;
+    touch-action: none;
+}
+.touch-control__border {
+    background: #142b238c;
+    border-color: var(--hud-paper) !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 14px #0c1a1455;
+}
+.touch-control--boost .touch-control__border {
+    border-color: var(--hud-brass) !important;
+    background: #2b261899;
+}
+body:has(dialog[open]) :is(.touch-joystick, .touch-control),
+body:has(.drive-boot:not([hidden])) :is(.touch-joystick, .touch-control) {
+    opacity: 0 !important;
+    pointer-events: none !important;
+}
+body[data-touch="true"] .driving-keys { display: none; }
+
+/* ==========================================================================
+   5. Boot Screen & World Map Dialog (.drive-boot, .drive-index)
+   ========================================================================== */
+.drive-boot {
+    box-sizing: border-box;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    background: radial-gradient(ellipse at 80% 35%, #54715b66, transparent 60%), linear-gradient(110deg, #12271ff5 45%, #18332ad9);
+}
 .drive-boot .drive-eyebrow { color: var(--hud-brass); font-size: 9px; }
 .boot-copy h1 { color: var(--hud-paper); font-weight: 550; }
 .boot-copy em { color: var(--hud-brass); }
 .boot-copy > p:not(.drive-eyebrow), .boot-copy > small, .boot-facts { color: var(--hud-muted); }
+.boot-facts { flex-wrap: wrap; }
 .boot-facts span + span { padding-left: 16px; border-left: 1px solid var(--hud-line); }
+.boot-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
 progress::-webkit-progress-value { background: var(--hud-brass); }
 progress::-moz-progress-bar { background: var(--hud-brass); }
 #start-drive, #retry-loading { padding: 15px 23px; border-radius: 8px; background: var(--hud-paper); color: var(--hud-ink); border: 1px solid var(--hud-paper); font-size: 12px; font-weight: 650; min-height: 48px; }
-#retry-loading { margin-left: 8px; background: transparent; color: var(--hud-paper); border-color: var(--hud-line); }
-.drive-index { background: #18332a; color: var(--hud-paper); border-color: var(--hud-line); border-radius: 18px; }
+#retry-loading { margin-left: 0; background: transparent; color: var(--hud-paper); border-color: var(--hud-line); }
+
+.drive-index {
+    box-sizing: border-box;
+    width: min(1020px, calc(100vw - 32px));
+    max-height: calc(100dvh - 32px);
+    overscroll-behavior: contain;
+    background: #18332a; color: var(--hud-paper);
+    border-color: var(--hud-line); border-radius: 18px;
+}
 .drive-index::backdrop { background: #101f18b8; backdrop-filter: none; }
 .drive-index .drive-eyebrow, .drive-index .index-links a, .drive-index .map-links a { color: var(--hud-brass); }
 .drive-index > p, .map-copy p, .drive-index #profile-content > p:not(.drive-eyebrow) { color: var(--hud-muted); }
-.drive-index #world-navigation button { border-color: var(--hud-line); color: var(--hud-paper); }
-.drive-index #world-navigation button[aria-pressed=true], .drive-index .map-links button, .drive-index .profile-drive { color: var(--hud-ink); background: var(--hud-paper); border-color: var(--hud-paper); }
-.map-project { background: #1d3a2d; border-color: var(--hud-line); }
+.drive-index #world-navigation button { border-color: var(--hud-line); color: var(--hud-paper); transition: background .15s, border-color .15s; }
+.drive-index #world-navigation button:hover { border-color: #e5c38c80; }
+.drive-index #world-navigation button[aria-pressed=true], .drive-index .map-links button, .drive-index .profile-drive { color: var(--hud-ink); background: var(--hud-paper); border-color: var(--hud-paper); font-weight: 650; }
+.map-project { display: flex; flex-direction: column; background: #1d3a2d; border-color: var(--hud-line); }
+.map-copy { display: flex; flex-direction: column; flex: 1; }
+.map-links { margin-top: auto; padding-top: 6px; }
 .profile-fact-chip { background: #ffffff08; color: var(--hud-muted); border-color: var(--hud-line); }
 .profile-entries article { background: #ffffff03; border-color: var(--hud-line); }
 .profile-entries h4, .profile-actions-row a { color: var(--hud-paper); }
@@ -94,18 +274,408 @@ progress::-moz-progress-bar { background: var(--hud-brass); }
 .profile-entries p { color: var(--hud-muted); }
 .activity-menu { background: #18332a; color: var(--hud-paper); border-color: var(--hud-line); }
 .activity-menu::backdrop { background: #101f18b8; backdrop-filter: none; }
-.activity-hud { top: 105px; left: 28px; background: var(--hud-panel); border-color: var(--hud-line); }
+.activity-hud { top: 96px; left: calc(28px + env(safe-area-inset-left, 0px)); background: var(--hud-panel); border-color: var(--hud-line); }
 
-@media (max-width: 760px) {
-    .drive-header { padding: 16px; }
-    .drive-brand { font-size: 30px; }
-    .drive-brand span { display: none; }
-    .drive-actions > :is(a, button) { padding: 8px 10px; }
-    .camera-tools { left: 16px; bottom: 20px; max-width: calc(100vw - 32px); }
-    .camera-tools[data-collapsed=true] { width: 270px; }
-    .drive-bottom { left: 18px; bottom: 86px; right: 18px; }
-    .model-status { right: 16px; bottom: 220px; width: 220px; }
+/* ==========================================================================
+   6. Laptop / Short-Height Desktop Optimization (max-height: 820px)
+   ========================================================================== */
+@media (min-width: 761px) and (max-height: 820px) {
+    .drive-header { padding-top: 14px; padding-bottom: 12px; }
+    .drive-boot { padding: 72px 7vw 36px; }
+    .boot-copy h1 { font-size: clamp(46px, 6vw, 74px); margin-bottom: 16px; }
+    .drive-eyebrow { margin-bottom: 14px; }
+    .boot-facts { margin: 16px 0; }
+    progress { margin: 18px 0 10px; }
+    #loading-status { margin-bottom: 14px; }
+    .camera-tools { bottom: 18px; padding: 11px 13px; }
+    #camera-body { max-height: calc(100dvh - 145px); }
+    .driving-keys { padding: 8px 0; }
+    .drive-bottom { bottom: 72px; }
+    .world-navigator { bottom: 18px; }
+    .activity-hud { top: 76px; }
 }
+
+/* ==========================================================================
+   7. Touch Mode & Tablet (761px–1024px or pointer: coarse)
+   Relocates .camera-tools to Top-Left so it NEVER overlaps the Touch Joystick!
+   ========================================================================== */
+@media (max-width: 1024px), (pointer: coarse) {
+    .camera-tools {
+        top: calc(70px + env(safe-area-inset-top, 0px));
+        bottom: auto;
+        left: calc(16px + env(safe-area-inset-left, 0px));
+        z-index: 9;
+    }
+    .camera-tools[data-collapsed=true] #camera-toggle svg {
+        transform: rotate(0deg);
+    }
+    .camera-tools[data-collapsed=false] #camera-toggle svg {
+        transform: rotate(180deg);
+    }
+    .camera-tools[data-collapsed=false] ~ .drive-bottom > div > :is(p, .drive-telemetry, .stunt-callout) {
+        visibility: visible;
+    }
+    .activity-hud {
+        top: calc(122px + env(safe-area-inset-top, 0px));
+        left: calc(16px + env(safe-area-inset-left, 0px));
+    }
+    /* On Tablet (761px–1024px), center .drive-bottom between left joystick and right pedals */
+    .drive-bottom {
+        left: calc(194px + env(safe-area-inset-left, 0px));
+        right: calc(108px + env(safe-area-inset-right, 0px));
+        bottom: calc(18px + env(safe-area-inset-bottom, 0px));
+    }
+    .drive-bottom .world-story-link,
+    #nearby-section {
+        position: static;
+        margin-bottom: 4px;
+        width: fit-content;
+        max-width: 100%;
+    }
+}
+
+/* Also apply top-left docking whenever runtime touch is triggered on any screen size */
+body[data-touch="true"] .camera-tools {
+    top: calc(70px + env(safe-area-inset-top, 0px));
+    bottom: auto;
+    left: calc(16px + env(safe-area-inset-left, 0px));
+    z-index: 9;
+}
+body[data-touch="true"] .activity-hud {
+    top: calc(122px + env(safe-area-inset-top, 0px));
+}
+
+/* ==========================================================================
+   8. Mobile Portrait & Narrow Screens (max-width: 760px)
+   ========================================================================== */
+@media (max-width: 760px) {
+    .drive-header {
+        padding: calc(10px + env(safe-area-inset-top, 0px)) calc(12px + env(safe-area-inset-right, 0px)) 10px calc(12px + env(safe-area-inset-left, 0px));
+        gap: 8px;
+    }
+    .drive-brand { font-size: 28px; }
+    .drive-brand span { display: none; }
+    .drive-actions { gap: 6px; }
+    .drive-actions > :is(a, button) {
+        display: inline-flex;
+        padding: 7px 10px;
+        min-height: 36px;
+        font-size: 10.5px;
+        border-radius: 8px;
+    }
+    .drive-actions > a#exit-world-link { display: inline-flex; }
+
+    .camera-tools,
+    body[data-touch="true"] .camera-tools {
+        top: calc(56px + env(safe-area-inset-top, 0px));
+        left: calc(12px + env(safe-area-inset-left, 0px));
+        bottom: auto;
+        width: min(344px, calc(100vw - 24px));
+        padding: 11px 12px;
+    }
+    .camera-tools[data-collapsed=true] {
+        width: auto;
+        min-width: 0;
+        max-width: calc(100vw - 98px);
+        padding: 3px 6px 3px 10px;
+    }
+    .camera-tools[data-collapsed=true] .camera-status { display: none; }
+    .camera-heading > label { font-size: 10.5px; }
+    #camera-body { max-height: calc(100dvh - 130px); }
+
+    .activity-hud,
+    body[data-touch="true"] .activity-hud {
+        top: calc(102px + env(safe-area-inset-top, 0px));
+        left: calc(12px + env(safe-area-inset-left, 0px));
+        width: min(286px, calc(100vw - 24px));
+        padding: 12px 14px;
+    }
+    .activity-score { font-size: 17px; margin-top: 8px; }
+    .activity-timer { font-size: 24px; margin-top: 4px; }
+
+    /* Position telemetry & location above the bottom-left joystick and left of the right pedals */
+    .drive-bottom {
+        left: calc(12px + env(safe-area-inset-left, 0px));
+        right: calc(92px + env(safe-area-inset-right, 0px));
+        bottom: calc(174px + env(safe-area-inset-bottom, 0px));
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+    }
+    .drive-bottom p {
+        max-width: 100%;
+        font-size: 10px;
+        line-height: 1.3;
+    }
+    .drive-bottom .location-kicker { margin-bottom: 2px; font-size: 7.5px; }
+    .drive-bottom small { display: none; }
+    .drive-telemetry {
+        gap: 7px;
+        padding: 4px 8px;
+        margin-bottom: 0;
+    }
+    .telemetry-speed { min-width: 42px; }
+    .telemetry-speed strong { font-size: 12.5px; }
+    .telemetry-bar { width: 46px; }
+    .telemetry-chip { font-size: 7.5px; padding: 2px 5px; }
+    .stunt-callout { font-size: 9px; padding: 5px 9px; margin-bottom: 0; }
+    .drive-bottom .world-story-link,
+    #nearby-section {
+        position: static;
+        padding: 8px 12px;
+        min-height: 36px;
+        font-size: 10.5px;
+        border-radius: 8px;
+    }
+
+    /* Scale touch joystick & right-hand pedals for mobile portrait */
+    .touch-joystick {
+        width: 152px !important;
+        height: 152px !important;
+        left: calc(8px + env(safe-area-inset-left, 0px)) !important;
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+    .touch-joystick__limit {
+        width: 134px !important;
+        height: 134px !important;
+        top: calc(50% - 67px) !important;
+        left: calc(50% - 67px) !important;
+    }
+    .touch-joystick__cursor {
+        width: 52px !important;
+        height: 52px !important;
+        top: calc(50% - 26px) !important;
+        left: calc(50% - 26px) !important;
+    }
+    .touch-control {
+        width: 80px !important;
+        height: 62px !important;
+        right: calc(4px + env(safe-area-inset-right, 0px)) !important;
+    }
+    .touch-control__border {
+        width: 54px !important;
+        height: 54px !important;
+        top: calc(50% - 27px) !important;
+        left: calc(50% - 27px) !important;
+    }
+    .touch-control--backward { bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important; }
+    .touch-control--brake    { bottom: calc(74px + env(safe-area-inset-bottom, 0px)) !important; }
+    .touch-control--forward  { bottom: calc(138px + env(safe-area-inset-bottom, 0px)) !important; }
+    .touch-control--boost    { bottom: calc(202px + env(safe-area-inset-bottom, 0px)) !important; }
+
+    /* Boot screen in mobile portrait */
+    .drive-boot {
+        padding: calc(74px + env(safe-area-inset-top, 0px)) 20px calc(24px + env(safe-area-inset-bottom, 0px));
+        align-items: flex-start;
+    }
+    .boot-copy { width: 100%; max-width: 100%; margin: auto 0; }
+    .boot-copy h1 { font-size: clamp(44px, 12vw, 64px); margin-bottom: 18px; }
+    .boot-copy > p:not(.drive-eyebrow) { font-size: 13px; line-height: 1.6; }
+    .boot-facts { gap: 12px; font-size: 8.5px; margin: 18px 0; }
+    .boot-facts span + span { padding-left: 12px; }
+    progress { margin: 18px 0 10px; }
+    #start-drive, #retry-loading { width: 100%; justify-content: center; }
+
+    /* World Map Dialog in mobile portrait */
+    .drive-index {
+        width: calc(100vw - 16px);
+        max-height: calc(100dvh - 20px);
+        padding: 18px 16px;
+        border-radius: 16px;
+    }
+    .index-header { margin-bottom: 14px; }
+    .index-header h2 { font-size: 24px; }
+    .index-header button { padding: 8px 12px; min-height: 36px; font-size: 11px; }
+    #world-navigation {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        gap: 6px;
+        margin-bottom: 18px;
+        padding-bottom: 4px;
+        scrollbar-width: none;
+        -webkit-overflow-scrolling: touch;
+    }
+    #world-navigation::-webkit-scrollbar { display: none; }
+    #world-navigation button {
+        flex: 0 0 auto;
+        padding: 9px 12px;
+        min-height: 38px;
+        font-size: 11px;
+        white-space: nowrap;
+    }
+    #project-list, .profile-entries { grid-template-columns: 1fr; gap: 12px; }
+    .discovery-status { bottom: calc(180px + env(safe-area-inset-bottom, 0px)); width: calc(100vw - 32px); }
+    .model-status { right: 14px; bottom: 270px; width: 200px; }
+}
+
+/* Ultra-narrow portrait screens (<= 380px) */
+@media (max-width: 380px) {
+    .drive-header .drive-actions > a#exit-world-link { padding: 7px 8px; }
+    .camera-tools[data-collapsed=true] .camera-heading-text { display: none; }
+}
+
+/* ==========================================================================
+   9. Mobile Landscape (max-width: 932px and max-height: 540px, landscape)
+   2x2 Ergonomic Pedal Cluster + Center Telemetry Dashboard + Compact Modals
+   ========================================================================== */
+@media (max-width: 932px) and (max-height: 540px) and (orientation: landscape) {
+    .drive-header {
+        padding: calc(6px + env(safe-area-inset-top, 0px)) calc(14px + env(safe-area-inset-right, 0px)) 6px calc(14px + env(safe-area-inset-left, 0px));
+    }
+    .drive-brand { font-size: 24px; gap: 8px; }
+    .drive-brand span { display: none; }
+    .drive-actions > :is(a, button) {
+        padding: 5px 10px;
+        min-height: 32px;
+        font-size: 10px;
+    }
+
+    /* Top-left compact camera controls bar */
+    .camera-tools,
+    body[data-touch="true"] .camera-tools {
+        top: calc(44px + env(safe-area-inset-top, 0px));
+        left: calc(14px + env(safe-area-inset-left, 0px));
+        bottom: auto;
+        width: min(340px, calc(100vw - 28px));
+        padding: 9px 11px;
+    }
+    .camera-tools[data-collapsed=true] {
+        width: auto;
+        min-width: 0;
+        padding: 2px 6px 2px 10px;
+    }
+    .camera-tools[data-collapsed=true] .camera-status { display: none; }
+    #camera-body { max-height: calc(100dvh - 98px); }
+
+    /* Top-right activity HUD in landscape so left joystick & center road stay clear */
+    .activity-hud,
+    body[data-touch="true"] .activity-hud {
+        top: calc(44px + env(safe-area-inset-top, 0px));
+        right: calc(14px + env(safe-area-inset-right, 0px));
+        left: auto;
+        width: min(256px, 42vw);
+        padding: 10px 12px;
+    }
+    .activity-hud h2 { font-size: 12.5px; }
+    .activity-score { font-size: 15px; margin: 6px 0 2px; }
+    .activity-timer { font-size: 20px; margin-top: 2px; }
+    .activity-message { font-size: 10.5px; line-height: 1.4; margin-top: 4px; }
+    .activity-hud-actions { margin-top: 8px; gap: 5px; }
+    .activity-hud-actions button { padding: 5px 8px; min-height: 30px; font-size: 10.5px; }
+
+    /* Scaled 136px Joystick in bottom-left */
+    .touch-joystick {
+        width: 136px !important;
+        height: 136px !important;
+        left: calc(10px + env(safe-area-inset-left, 0px)) !important;
+        bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+    }
+    .touch-joystick__limit {
+        width: 120px !important;
+        height: 120px !important;
+        top: calc(50% - 60px) !important;
+        left: calc(50% - 60px) !important;
+    }
+    .touch-joystick__cursor {
+        width: 48px !important;
+        height: 48px !important;
+        top: calc(50% - 24px) !important;
+        left: calc(50% - 24px) !important;
+    }
+
+    /* 2x2 Ergonomic Pedal Cluster in bottom-right (only 126px total height!) */
+    .touch-control {
+        width: 66px !important;
+        height: 56px !important;
+    }
+    .touch-control__border {
+        width: 50px !important;
+        height: 48px !important;
+        top: calc(50% - 24px) !important;
+        left: calc(50% - 25px) !important;
+    }
+    .touch-control--brake {
+        bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+        right: calc(74px + env(safe-area-inset-right, 0px)) !important;
+    }
+    .touch-control--backward {
+        bottom: calc(8px + env(safe-area-inset-bottom, 0px)) !important;
+        right: calc(8px + env(safe-area-inset-right, 0px)) !important;
+    }
+    .touch-control--boost {
+        bottom: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
+        right: calc(74px + env(safe-area-inset-right, 0px)) !important;
+    }
+    .touch-control--forward {
+        bottom: calc(66px + env(safe-area-inset-bottom, 0px)) !important;
+        right: calc(8px + env(safe-area-inset-right, 0px)) !important;
+    }
+
+    /* Center dashboard corridor between Joystick (154px) and 2x2 Pedals (150px) */
+    .drive-bottom {
+        left: calc(156px + env(safe-area-inset-left, 0px));
+        right: calc(150px + env(safe-area-inset-right, 0px));
+        bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 8px;
+    }
+    .drive-bottom > div:first-child {
+        flex-direction: row;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px 10px;
+    }
+    .drive-bottom p { font-size: 9.5px; line-height: 1.2; }
+    .drive-bottom .location-kicker { display: inline; margin-right: 6px; margin-bottom: 0; }
+    .drive-bottom small { display: none; }
+    .drive-telemetry { padding: 3px 8px; gap: 6px; margin-bottom: 0; }
+    .telemetry-speed strong { font-size: 12px; }
+    .telemetry-bar { width: 40px; }
+    .drive-bottom .world-story-link,
+    #nearby-section {
+        position: static;
+        padding: 6px 10px;
+        min-height: 32px;
+        font-size: 10px;
+    }
+
+    /* Compact Landscape Boot Screen so "Enter the world" is immediately visible */
+    .drive-boot {
+        padding: calc(44px + env(safe-area-inset-top, 0px)) calc(24px + env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) calc(24px + env(safe-area-inset-left, 0px));
+        align-items: center;
+    }
+    .boot-copy {
+        max-width: 680px;
+        width: 100%;
+    }
+    .drive-boot .drive-eyebrow { margin-bottom: 6px; font-size: 8px; }
+    .boot-copy h1 { font-size: clamp(28px, 5vw, 40px); margin-bottom: 8px; line-height: 1.02; }
+    .boot-copy h1 br { display: none; }
+    .boot-copy h1 em { margin-left: 6px; }
+    .boot-copy > p:not(.drive-eyebrow) { font-size: 12px; line-height: 1.45; max-width: 560px; margin: 0 0 8px; }
+    .boot-facts { margin: 8px 0; font-size: 8px; gap: 12px; }
+    progress { margin: 8px 0 6px; }
+    #loading-status { margin-bottom: 8px; font-size: 9.5px; }
+    #start-drive, #retry-loading { width: auto; padding: 10px 18px; min-height: 38px; font-size: 11px; }
+    .boot-copy > small { margin-top: 8px; font-size: 8.5px; }
+
+    /* Compact Landscape World Map Modal */
+    .drive-index {
+        width: calc(100vw - 24px);
+        max-height: calc(100dvh - 16px);
+        padding: 14px 18px;
+        border-radius: 14px;
+    }
+    .index-header { margin-bottom: 8px; }
+    .index-header h2 { font-size: 22px; }
+    .drive-index > p { margin-bottom: 12px; font-size: 11px; }
+    #world-navigation { margin-bottom: 12px; gap: 6px; }
+    #world-navigation button { padding: 7px 11px; min-height: 34px; font-size: 10.5px; }
+    #project-list, .profile-entries { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+}
+
 @media (prefers-reduced-motion: reduce) {
     .drive-actions > :is(a, button), .camera-utilities :is(a, button) { transition: none; }
 }

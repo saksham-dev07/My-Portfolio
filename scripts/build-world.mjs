@@ -12,10 +12,13 @@ const output = fileURLToPath(
 );
 // Source assets live only in the world project. Publish a fresh, reproducible
 // build for the iframe before starting or building the React portfolio.
-if (!existsSync(join(world, "node_modules", "vite"))) {
+if (
+  !existsSync(join(world, "node_modules", "vite")) ||
+  !existsSync(join(world, "node_modules", "cannon-es"))
+) {
   const install = spawnSync(
     process.execPath,
-    ["install", "--frozen-lockfile"],
+    ["install"],
     { cwd: world, stdio: "inherit" },
   );
   if (install.status !== 0) process.exit(install.status || 1);

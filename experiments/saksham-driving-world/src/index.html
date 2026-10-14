@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Saksham Agarwal | The Driving World</title>
   <meta name="description" content="Drive through Saksham Agarwal's projects in applied AI and full-stack engineering. Explore a personal campus valley of projects, games and discoveries.">
   <meta name="theme-color" content="#18332a">
@@ -14,18 +14,20 @@
   </style>
 </head>
 <body>
-  <canvas class="canvas js-canvas" aria-label="Driving world. Arrow keys or WASD to drive, Space to brake, R to reset. Use World map for accessible navigation." tabindex="0"></canvas>
+  <canvas class="canvas js-canvas" aria-label="Driving world. Arrow keys or WASD to drive, Space to brake, V to switch vehicles, L to cycle lighting, R to reset. Use World map for accessible navigation." tabindex="0"></canvas>
   <header class="drive-header">
     <a class="drive-brand" href="/">sa.<span>SAKSHAM AGARWAL<small>SOFTWARE / APPLIED AI</small></span></a>
     <div class="drive-actions"><button id="project-index"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 6 6-3 6 3 6-3v15l-6 3-6-3-6 3V6ZM9 3v15M15 6v15"/></svg>World map <span>16</span></button><a id="exit-world-link" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 5H4v14h5m4-12 5 5-5 5m5-5H8"/></svg>Portfolio</a></div>
   </header>
   <section class="drive-boot" aria-labelledby="boot-title">
-    <div class="boot-copy"><p class="drive-eyebrow">SAKSHAM'S CURIOSITY CIRCUIT</p><h1 id="boot-title">Curiosity.<br><em>In motion.</em></h1><p>A campus valley of things I've built. Take the wheel, find a game, or pick a stop on the map.</p><div class="boot-facts"><span>12 projects</span><span>4 profile stops</span><span>Your route</span></div><progress id="world-progress" max="1" value="0" aria-label="Loading driving world"></progress><p id="loading-status" role="status">Preparing your drive…</p><button id="start-drive" disabled>Loading…</button><button id="retry-loading" hidden>Retry loading</button><small>Sound is on when you enter. Press M to mute.</small></div>
+    <div class="boot-copy"><p class="drive-eyebrow">SAKSHAM'S CURIOSITY CIRCUIT</p><h1 id="boot-title">Curiosity.<br><em>In motion.</em></h1><p>A campus valley of things I've built. Take the wheel, find a game, or pick a stop on the map.</p><div class="boot-facts"><span>12 projects</span><span>4 profile stops</span><span>Your route</span></div><progress id="world-progress" max="1" value="0" aria-label="Loading driving world"></progress><p id="loading-status" role="status">Preparing your drive…</p><div class="boot-actions"><button id="start-drive" disabled>Loading…</button><button id="retry-loading" hidden>Retry loading</button></div><small>Sound is on when you enter. Press M to mute, V to switch vehicles, L to change atmosphere.</small></div>
   </section>
   <section class="camera-tools" aria-label="Camera controls" hidden>
     <div class="camera-heading">
-      <label for="camera-view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h-4L8 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-4Z"/><circle cx="12" cy="13" r="4"/></svg>Drive controls</label>
+      <label for="camera-view"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 4h-4L8 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-4Z"/><circle cx="12" cy="13" r="4"/></svg><span class="camera-heading-text">Drive controls</span></label>
       <span id="camera-status" class="camera-status" data-state="follow">Auto follow</span>
+      <button id="drive-vehicle" data-vehicle="default" aria-label="Vehicle: Trail Jeep (V)" title="Switch vehicle: Trail Jeep (V)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17h14v-5l-2-4H7l-2 4v5Zm2 0a2 2 0 1 1-4 0m18 0a2 2 0 1 1-4 0"/></svg><span id="vehicle-badge" class="vehicle-badge">Jeep</span></button>
+      <button id="drive-atmosphere" data-atmosphere="dusk" aria-label="Atmosphere: Golden dusk (L)" title="Cycle atmosphere: Golden dusk (L)"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2m0 16v2M4.93 4.93l1.41 1.41m11.32 11.32 1.41 1.41M2 12h2m16 0h2M4.93 19.07l1.41-1.41m11.32-11.32 1.41-1.41"/></svg><span id="atmosphere-badge" class="atmosphere-badge">Dusk</span></button>
       <button id="drive-sound" aria-pressed="true" title="Toggle sound (M)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 5-6 4H2v6h3l6 4V5Z"/><path class="sound-waves" d="M15 8c4 2 4 6 0 8m3-11c7 4 7 10 0 14"/><path class="sound-off" d="m16 9 6 6m0-6-6 6"/></svg><span class="sound-label">Sound on</span></button>
       <button id="camera-toggle" aria-label="Collapse camera controls" aria-expanded="true" aria-controls="camera-body" title="Collapse camera controls"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6"/></svg></button>
     </div>
@@ -37,17 +39,37 @@
       </div>
       <button id="follow-car" disabled title="Return the camera to your car"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/><path d="M12 2v4m0 12v4M2 12h4m12 0h4"/></svg>Follow car</button>
     </div>
+    <div class="camera-vehicle" role="group" aria-label="Select vehicle">
+      <button type="button" data-vehicle-select="default" aria-pressed="true">Trail Jeep</button>
+      <button type="button" data-vehicle-select="cybertruck" aria-pressed="false">CyberTruck · B Cannon</button>
+    </div>
+    <div class="camera-atmosphere" role="group" aria-label="Valley lighting mood">
+      <button type="button" data-atmosphere-select="day" aria-pressed="false">Day</button>
+      <button type="button" data-atmosphere-select="dusk" aria-pressed="true">Dusk</button>
+      <button type="button" data-atmosphere-select="night" aria-pressed="false">Night</button>
+    </div>
     <div id="top-tools" hidden><button id="fit-map">Fit map</button><button id="focus-car">Focus car</button></div>
     <p id="camera-help" role="status">Left-drag to pan · right-drag to rotate · scroll to zoom</p>
     <div class="camera-circuit">
       <div class="circuit-heading"><span><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 22V3m0 0c5-4 11 4 16 0v11c-5 4-11-4-16 0"/></svg>Optional circuit</span><button id="circuit-start">Start circuit</button></div>
       <p id="circuit-status" role="status" aria-live="polite">A clockwise lap around the lower world.</p>
     </div>
-    <div class="driving-keys"><span><kbd>WASD</kbd> Move</span><span><kbd>Space</kbd> Brake</span><span><kbd>Shift</kbd> Boost</span><span><kbd>H</kbd> Horn</span></div>
-    <div class="camera-utilities"><button id="drive-home" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3Zm6 10v-7h6v7"/></svg>Start line</button><a href="./saksham/resume.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H4v20h16V8Zm0 0v6h6M8 13h8M8 17h6"/></svg>Résumé</a></div>
+    <div class="driving-keys"><span><kbd>WASD</kbd> Move</span><span><kbd>Space</kbd> Brake</span><span><kbd>Shift</kbd> Boost</span><span><kbd>V</kbd> Vehicle</span><span><kbd>H</kbd> Horn</span><span><kbd>L</kbd> Light</span></div>
+    <div class="camera-utilities"><button id="drive-home" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3Zm6 10v-7h6v7"/></svg>Start line</button><button id="drive-reset" type="button" disabled title="Reset car to road (R)"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/></svg>Reset car</button><a href="./saksham/resume.pdf" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 2H4v20h16V8Zm0 0v6h6M8 13h8M8 17h6"/></svg>Résumé</a></div>
     </div>
   </section>
-  <div class="drive-bottom"><p><span class="location-kicker">ON THE ROAD</span><span id="world-location">THE STARTING LINE</span><small><kbd>WASD</kbd> drive · drag to explore</small></p><div class="context-actions"></div></div>
+  <div class="drive-bottom">
+    <div>
+      <div id="stunt-callout" class="stunt-callout" role="status" aria-live="polite" hidden><strong id="stunt-callout-badge">STUNT JUMP!</strong><span id="stunt-callout-text"></span></div>
+      <div id="drive-telemetry" class="drive-telemetry" hidden aria-label="Vehicle telemetry">
+        <span class="telemetry-speed"><strong id="speed-value">00</strong><small>KM/H</small></span>
+        <span class="telemetry-bar" aria-hidden="true"><span id="speed-bar-fill" class="telemetry-bar-fill"></span></span>
+        <span id="boost-chip" class="telemetry-chip">CRUISE</span>
+      </div>
+      <p><span class="location-kicker">ON THE ROAD</span><span id="world-location">THE STARTING LINE</span><small id="drive-hint"><kbd>WASD</kbd> drive · <kbd>Shift</kbd> boost · <kbd>V</kbd> vehicle · <kbd>L</kbd> lighting</small></p>
+    </div>
+    <div class="context-actions"></div>
+  </div>
   <dialog class="drive-index" aria-labelledby="index-title"><div class="index-header"><div><p class="drive-eyebrow">YOUR ROUTE THROUGH MY WORK</p><h2 id="index-title">More than projects.</h2></div><button id="close-index" aria-label="Close world map">Close</button></div><p>Pick a stop. Explore my background, see the tools behind my work, or visit a project. Driving is always optional.</p><nav id="world-navigation" aria-label="World sections"></nav><section id="profile-content" aria-label="Profile details" hidden></section><div id="project-list"></div><div class="index-links"><a href="https://github.com/saksham-dev07" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/saksham-agarwal-b44910289/" target="_blank" rel="noopener">LinkedIn</a><a href="mailto:sakmmm07@gmail.com">Contact</a></div><details class="model-credits"><summary>3D artwork &amp; licenses</summary><p>Models keep their own licenses, separate from the driving engine.</p><p><a href="https://sketchfab.com/3d-models/stylized-hacked-pc-sketchfabweeklychallenge-192ab9d4706f4ffaaf22f9a299289d75" target="_blank" rel="noopener">Stylized Hacked PC</a> by ottobite — CC BY 4.0.</p><p>Highlights podium and environmental kits — custom Blender designs.</p><p><a href="https://sketchfab.com/3d-models/flag-of-india-d0a955283a5248d1bbff5fc4ed9a1877" target="_blank" rel="noopener">Flag of India</a> by alakeshkakati125 — CC BY 4.0.</p><p>VIT Bhopal campus — supplied by Saksham; Meshy AI asset. Original face portrait — supplied by Saksham, reused from the main portfolio.</p><p>Adaptation: normalized scale and orientation, adjusted material response, and added collision proxies.</p></details></dialog>
   <noscript><p class="no-script">This driving world needs JavaScript. <a href="/">Visit the normal portfolio.</a></p></noscript>
   <script type="module" src="./index.js"></script>

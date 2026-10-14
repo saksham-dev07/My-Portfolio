@@ -1,5 +1,6 @@
 import * as THREE from 'three'
 import BowlingGame, { resetBowlingBody } from '../Activities/BowlingGame.js'
+import StuntArenaGame from '../Activities/StuntArenaGame.js'
 import { labelTexture } from '../../StudioLabels.js'
 import { retainPlaygroundScene, retiredPlaygroundMeshes, retiredPlaygroundCollisions, playgroundUpgrades } from '../ScenicRouteLayout.js'
 
@@ -34,6 +35,7 @@ export default class PlaygroundSection
         this.setStatic()
         this.setBricksWalls()
         this.setBowling()
+        if(this.objects.physics?.car && this.time) this.setStuntArena()
     }
 
     setStatic()
@@ -245,5 +247,82 @@ export default class PlaygroundSection
         {
             this.debugFolder.add(this.bowling, 'reset').name('bowling reset')
         }
+    }
+
+    setStuntArena()
+    {
+        this.stuntArena = {}
+        this.stuntArena.ball = this.objects.add({
+            base: this.resources.items.bowlingBallBase.scene,
+            collision: this.resources.items.bowlingBallCollision.scene,
+            offset: new THREE.Vector3(-33.95, -43.75, 1.66),
+            rotation: new THREE.Euler(Math.PI * 0.5, 0, 0),
+            duplicated: true,
+            shadow: { sizeX: 1.5, sizeY: 1.5, offsetZ: - 0.15, alpha: 0.35 },
+            mass: 0.65,
+            soundName: 'bowlingBall'
+        })
+
+        // Replace the purple bowling-ball visual mesh with a sculpted Gold & Obsidian
+        // Stunt Sphere using the world's genuine yellow/orange/black Matcap shaders.
+        const ballContainer = this.stuntArena.ball.container
+        if(ballContainer && this.objects.materials?.shades?.items)
+        {
+            for(const oldChild of [...ballContainer.children])
+            {
+                ballContainer.remove(oldChild)
+            }
+            const yellowMat = this.objects.materials.shades.items.yellow
+            const orangeMat = this.objects.materials.shades.items.orange
+            const blackMat = this.objects.materials.shades.items.black
+
+            const coreMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(0.45, 3), yellowMat)
+            ballContainer.add(coreMesh)
+
+            for(let axis = 0; axis < 3; axis++)
+            {
+                const band = new THREE.Mesh(new THREE.TorusGeometry(0.452, 0.032, 8, 28), blackMat)
+                if(axis === 1) band.rotation.x = Math.PI * 0.5
+                if(axis === 2) band.rotation.y = Math.PI * 0.5
+                ballContainer.add(band)
+
+                const cap = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.915, 6), orangeMat)
+                if(axis === 0) cap.rotation.z = Math.PI * 0.5
+                if(axis === 2) cap.rotation.x = Math.PI * 0.5
+                ballContainer.add(cap)
+            }
+        }
+
+        this.stuntArenaGame = new StuntArenaGame({
+            time: this.time,
+            physics: this.objects.physics,
+            ball: this.stuntArena.ball,
+            container: this.container,
+            materials: this.objects.materials,
+            sounds: this.objects.sounds,
+        })
+
+        // Place the PLAY STUNTS pad on the south-east lawn clear of the asphalt road turn
+        this.stuntArena.resetPosition = new THREE.Vector2(-29.0, -48.8)
+        this.stuntArena.resetArea = this.areas.add({
+            position: this.stuntArena.resetPosition,
+            halfExtents: new THREE.Vector2(1.6, 2)
+        })
+        this.stuntArena.resetArea.on('interact', () =>
+        {
+            if(this.stuntArenaGame?.active) return
+            window.dispatchEvent(new CustomEvent('drive-activity-start', { detail: { id: 'stunt' } }))
+        })
+
+        this.stuntArena.labelTexture = labelTexture(['PLAY STUNTS'], 512, 128)
+        this.stuntArena.areaLabelMesh = new THREE.Mesh(
+            new THREE.PlaneGeometry(3, 0.5),
+            new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, color: 0xffffff, alphaMap: this.stuntArena.labelTexture })
+        )
+        this.stuntArena.areaLabelMesh.position.x = this.stuntArena.resetPosition.x
+        this.stuntArena.areaLabelMesh.position.y = this.stuntArena.resetPosition.y
+        this.stuntArena.areaLabelMesh.matrixAutoUpdate = false
+        this.stuntArena.areaLabelMesh.updateMatrix()
+        this.container.add(this.stuntArena.areaLabelMesh)
     }
 }

@@ -1,6 +1,7 @@
 import { projects } from './sakshamProjects.js';
 import { profileSections } from './sakshamProfile.js';
 import { profileForecourts } from './World/Sections/ProfileForecourts.js';
+import { atmospherePresets } from './World/EnvironmentConfig.js';
 import { projectStoryHref, readProjectRequest } from '../../../../src/utils/worldNavigation.js';
 import WorldNavigator from './WorldNavigator.js';
 import { discoveryNotice } from './DiscoveryNotice.js';
@@ -16,7 +17,22 @@ export function drivingInterface(app) {
   const index = document.querySelector('.drive-index');
   const opener = document.querySelector('#project-index');
   const sound = document.querySelector('#drive-sound');
+  const vehicleButton = document.querySelector('#drive-vehicle');
+  const vehicleBadge = document.querySelector('#vehicle-badge');
+  const vehicleButtons = document.querySelectorAll('[data-vehicle-select]');
+  const atmosphereButton = document.querySelector('#drive-atmosphere');
+  const atmosphereBadge = document.querySelector('#atmosphere-badge');
+  const atmosphereButtons = document.querySelectorAll('[data-atmosphere-select]');
+  const telemetry = document.querySelector('#drive-telemetry');
+  const speedValue = document.querySelector('#speed-value');
+  const speedBarFill = document.querySelector('#speed-bar-fill');
+  const boostChip = document.querySelector('#boost-chip');
+  const stuntCallout = document.querySelector('#stunt-callout');
+  const stuntCalloutBadge = document.querySelector('#stunt-callout-badge');
+  const stuntCalloutText = document.querySelector('#stunt-callout-text');
+  const driveHint = document.querySelector('#drive-hint');
   const home = document.querySelector('#drive-home');
+  const resetCar = document.querySelector('#drive-reset');
   const location = document.querySelector('#world-location');
   const requestedProject = readProjectRequest(window.location.search, projects);
   const cameraTools = document.querySelector('.camera-tools');
@@ -27,16 +43,104 @@ export function drivingInterface(app) {
   const cameraToggle = document.querySelector('#camera-toggle');
   const cameraBody = document.querySelector('#camera-body');
   const followCar = document.querySelector('#follow-car');
-  cameraToggle.addEventListener('click', () => {
-    const expanded = cameraToggle.getAttribute('aria-expanded') !== 'true';
+
+  const syncVehicleTools = (info = app.world?.car?.getVehicleInfo?.()) => {
+    if (!info) return;
+    if (vehicleButton) {
+      vehicleButton.dataset.vehicle = info.id;
+      vehicleButton.setAttribute('aria-label', `Vehicle: ${info.label} (V)`);
+      vehicleButton.title = `Switch vehicle: ${info.label} (V)`;
+    }
+    if (vehicleBadge) {
+      vehicleBadge.textContent = info.shortLabel;
+    }
+    vehicleButtons.forEach(btn => {
+      btn.setAttribute('aria-pressed', String(btn.dataset.vehicleSelect === info.id));
+    });
+  };
+
+  vehicleButton?.addEventListener('click', () => {
+    const info = app.world.toggleVehicle();
+    syncVehicleTools(info);
+    app.$canvas.focus({ preventScroll: true });
+  });
+
+  vehicleButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const info = app.world.setVehicle(btn.dataset.vehicleSelect);
+      syncVehicleTools(info);
+      app.$canvas.focus({ preventScroll: true });
+    });
+  });
+
+  window.addEventListener('drive-vehicle-change', event => {
+    if (event.detail) syncVehicleTools(event.detail);
+  });
+
+  let calloutTimer = null;
+  window.addEventListener('drive-stunt-callout', event => {
+    if (!stuntCallout || !event.detail) return;
+    stuntCalloutBadge.textContent = event.detail.badge || 'STUNT!';
+    stuntCalloutText.textContent = event.detail.text || '';
+    stuntCallout.hidden = false;
+    if (calloutTimer) window.clearTimeout(calloutTimer);
+    calloutTimer = window.setTimeout(() => {
+      stuntCallout.hidden = true;
+    }, 3800);
+  });
+
+  const syncAtmosphereTools = (preset = atmospherePresets[app.world?.evening?.mode || 'dusk']) => {
+    if (!preset) return;
+    if (atmosphereButton) {
+      atmosphereButton.dataset.atmosphere = preset.id;
+      atmosphereButton.setAttribute('aria-label', `Atmosphere: ${preset.label} (L)`);
+      atmosphereButton.title = `Cycle atmosphere: ${preset.label} (L)`;
+    }
+    if (atmosphereBadge) {
+      atmosphereBadge.textContent = preset.shortLabel;
+    }
+    atmosphereButtons.forEach(btn => {
+      btn.setAttribute('aria-pressed', String(btn.dataset.atmosphereSelect === preset.id));
+    });
+  };
+
+  atmosphereButton?.addEventListener('click', () => {
+    const preset = app.world.cycleAtmosphere();
+    syncAtmosphereTools(preset);
+    app.$canvas.focus({ preventScroll: true });
+  });
+
+  atmosphereButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const preset = app.world.setAtmosphere(btn.dataset.atmosphereSelect);
+      syncAtmosphereTools(preset);
+      app.$canvas.focus({ preventScroll: true });
+    });
+  });
+
+  const setCameraCollapsed = collapsed => {
+    const expanded = !collapsed;
     cameraToggle.setAttribute('aria-expanded', String(expanded));
     cameraToggle.setAttribute('aria-label', `${expanded ? 'Collapse' : 'Expand'} camera controls`);
     cameraToggle.title = `${expanded ? 'Collapse' : 'Expand'} camera controls`;
     cameraBody.hidden = !expanded;
-    cameraTools.dataset.collapsed = String(!expanded);
+    cameraTools.dataset.collapsed = String(collapsed);
+  };
+
+  cameraToggle.addEventListener('click', () => {
+    const expanded = cameraToggle.getAttribute('aria-expanded') !== 'true';
+    setCameraCollapsed(!expanded);
   });
   // Keep the playfield open; detailed camera and driving controls are opt-in.
-  cameraToggle.click();
+  setCameraCollapsed(true);
+
+  const syncTouchHints = () => {
+    if (!driveHint) return;
+    if (app.config.touch) {
+      driveHint.textContent = 'Joystick steer · Pedals drive & boost · Tap Jeep/Dusk to switch';
+    }
+  };
+
   const syncCameraTools = () => {
     const view = app.camera.view;
     cameraView.value = view;
@@ -48,12 +152,16 @@ export function drivingInterface(app) {
     cameraStatus.textContent = view === 'top' ? 'Map overview' : view === 'first' ? 'Behind the wheel' : following ? 'Auto follow' : 'Exploring';
     const touch = app.config.touch;
     cameraHelp.textContent = view === 'first'
-      ? touch ? 'Stop and drag to explore · scroll to leave car view' : 'Stop and left drag to explore · scroll for chase zoom'
+      ? touch ? 'Hood-mounted camera · use Camera menu to switch view' : 'Hood-mounted camera · press C for map overview'
       : view === 'top'
         ? touch ? 'Drag to pan · pinch to zoom' : 'Drag to pan · scroll to zoom'
         : touch ? 'Drag to explore · pinch to zoom\nDrive to automatically follow your car.' : 'Left drag: pan · Scroll: zoom\nRight drag: rotate · Drive: auto follow';
   };
   app.time.on('cameraControl', syncCameraTools);
+  window.addEventListener('drive-touch-mode', () => {
+    syncTouchHints();
+    syncCameraTools();
+  });
   window.addEventListener('drive-boundary', () => { location.textContent = 'BACK ON THE ROAD · PERIMETER RIDGE'; });
   cameraView.addEventListener('change', () => {
     app.camera.setView(cameraView.value);
@@ -72,19 +180,27 @@ export function drivingInterface(app) {
     app.camera.focusCar();
     app.$canvas.focus({ preventScroll: true });
   });
+  resetCar?.addEventListener('click', () => {
+    app.world.controls.releaseActions();
+    app.world.controls.trigger('action', ['reset']);
+    app.camera.focusCar();
+    if (app.config.touch || window.innerWidth <= 900) setCameraCollapsed(true);
+    app.$canvas.focus({ preventScroll: true });
+  });
   let started = false;
   let returnToWorld = false;
   app.activities = activityInterface(app, {
     isStarted: () => started,
     onStart: id => {
-      if (cameraToggle.getAttribute('aria-expanded') === 'true') cameraToggle.click();
+      app.world.scenicRoutes?.models?.load?.();
+      setCameraCollapsed(true);
       cameraView.value = 'orbit';
       app.camera.setView('orbit');
       const body = app.world.physics.car.chassis.body;
       app.camera.target.copy(body.position);
       app.camera.target.z = 0;
       app.camera.targetEased.copy(app.camera.target);
-      if (id === 'bowling') app.camera.frameActivity(app.activities.director.current.snapshot().focus);
+      if (id === 'bowling' || id === 'stunt') app.camera.frameActivity(app.activities.director.current.snapshot().focus);
       else app.camera.focusCar();
       syncCameraTools();
     },
@@ -131,7 +247,35 @@ export function drivingInterface(app) {
   });
   app.time.on('tick', () => {
     if (started && !index.open) {
-      const position = app.world.physics.car.chassis.body.position;
+      const car = app.world.physics.car;
+      const position = car.chassis.body.position;
+      const velocity = car.chassis.body.velocity;
+      const planarSpeed = Math.hypot(velocity.x, velocity.y);
+      const kmh = Math.min(140, Math.round(planarSpeed * 4.2));
+      if (speedValue) speedValue.textContent = String(kmh).padStart(2, '0');
+      if (speedBarFill) {
+        const pct = Math.min(100, Math.round((kmh / 110) * 100));
+        speedBarFill.style.width = `${pct}%`;
+      }
+      if (boostChip) {
+        const isBoosting = Boolean(app.world.controls.actions.boost && (app.world.controls.actions.up || app.world.controls.actions.down || kmh > 4));
+        const inAir = Boolean(car.inAir && position.z > 0.7);
+        const isCyber = Boolean(app.config.cyberTruck);
+        boostChip.dataset.mode = inAir ? 'air' : isBoosting ? 'boost' : isCyber ? 'cyber' : 'cruise';
+        boostChip.textContent = inAir
+          ? 'AIRBORNE'
+          : isBoosting
+            ? 'BOOST'
+            : isCyber
+              ? 'CYBER · B CANNON'
+              : 'TRAIL JEEP';
+      }
+
+      // Auto-collapse camera controls on mobile/touch when the user starts actively driving
+      if ((app.config.touch || window.innerWidth <= 760) && cameraTools.dataset.collapsed === 'false' && (app.world.controls.actions.up || app.world.controls.actions.down)) {
+        setCameraCollapsed(true);
+      }
+
       const projectIndex = app.world.sections.projects.items.findIndex(site => Math.abs(position.x - site.x) < 10 && Math.abs(position.y - (site.y - 3)) < 10);
       showProjectStory(projects[projectIndex] || null);
     }
@@ -179,6 +323,9 @@ export function drivingInterface(app) {
     retryLoading.hidden = true;
     start.textContent = 'Enter the world';
     status.textContent = 'World ready. Your curiosity supplies the direction.';
+    app.world.scenicRoutes?.models?.load?.();
+    syncAtmosphereTools();
+    syncVehicleTools();
   });
   app.world.startingScreen.area.on('interact', () => {
     if (started || !app.world.prepared) return;
@@ -186,11 +333,16 @@ export function drivingInterface(app) {
     app.world.sounds.enable();
     boot.hidden = true;
     home.disabled = false;
+    if (resetCar) resetCar.disabled = false;
+    if (telemetry) telemetry.hidden = false;
     app.camera.car = app.world.physics.car;
     app.camera.controls = app.world.controls;
     app.activities.enable();
     cameraTools.hidden = false;
+    syncTouchHints();
     syncCameraTools();
+    syncAtmosphereTools();
+    syncVehicleTools();
     app.worldNavigator = new WorldNavigator({ app, onOpenMap: () => openMap(), onLocation: name => { location.textContent = name.toUpperCase(); } });
     document.querySelectorAll('[data-drive]').forEach(button => { button.disabled = false; });
     if (requestedProject) {
@@ -233,6 +385,7 @@ export function drivingInterface(app) {
     showProjectStory(null);
     returnToWorld = index.open;
     index.close();
+    if (app.config.touch || window.innerWidth <= 900) setCameraCollapsed(true);
     app.$canvas.focus({ preventScroll: true });
   }
   home.addEventListener('click', () => {
@@ -251,7 +404,19 @@ export function drivingInterface(app) {
       window.parent.postMessage({ type: 'exit-world' }, window.location.origin);
       return;
     }
-    if (event.key.toLowerCase() !== 'm') return;
+    const key = event.key.toLowerCase();
+    const inEditable = event.target?.closest?.('input, textarea, select, button, a, [contenteditable]:not([contenteditable="false"])');
+    if (key === 'l' && started && !document.querySelector('dialog[open]') && !inEditable) {
+      const preset = app.world.cycleAtmosphere();
+      syncAtmosphereTools(preset);
+      return;
+    }
+    if (key === 'v' && started && !document.querySelector('dialog[open]') && !inEditable) {
+      const info = app.world.toggleVehicle();
+      syncVehicleTools(info);
+      return;
+    }
+    if (key !== 'm') return;
     sound.querySelector('span').textContent = app.world.sounds.muted ? 'Sound off' : 'Sound on';
     sound.setAttribute('aria-pressed', String(!app.world.sounds.muted));
   });

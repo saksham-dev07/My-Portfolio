@@ -59,27 +59,65 @@ export function meadowProps(trees,existing=[]){
 }
 export function* meadowGrassSteps(trees,props=[]){
     const random=seededRandom(environmentConfig.seed+713),items=[]
-    const b=landscapeBounds,target=Math.min(environmentConfig.grassLimit,Math.round((b.maxX-b.minX)*(b.maxY-b.minY)*environmentConfig.grassDensity*.4))
+    const b=landscapeBounds,target=Math.min(environmentConfig.grassLimit,Math.round((b.maxX-b.minX)*(b.maxY-b.minY)*environmentConfig.grassDensity*.36))
     const occupied=new Set()
-    for(let attempt=0;attempt<target*18&&items.length<target;attempt++){
-        if(attempt%400===0)yield
-        let x=b.minX+random()*(b.maxX-b.minX),y=b.minY+random()*(b.maxY-b.minY)
-        // Dense ribbons frame actual road corridors, with irregular meadow gaps.
-        // Length-weighting keeps tightly sampled curves from getting extra grass.
+    const tryAddTuft=(x,y,scale,shade)=>{
+        if(items.length>=target||!meadowClear(x,y,.12))return false
+        const slot=key(Math.floor(x/.24),Math.floor(y/.24));if(occupied.has(slot))return false
+        if(props.some(p=>Math.hypot(x-p.x,y-p.y)<(p.radius||.5)+.2)||trees.some(p=>Math.hypot(x-p.x,y-p.y)<.3))return false
+        const z=surfaceHeight(x,y)
+        if(Math.abs(surfaceHeight(x+.4,y)-z)>.20||Math.abs(surfaceHeight(x,y+.4)-z)>.20)return false
+        occupied.add(slot)
+        items.push({kind:'grass',x,y,z,angle:random()*Math.PI*2,scale,shade})
+        return true
+    }
+
+    let stepsCount=0
+    // 1. Nestle soft botanical grass cushions around the bases of trees and props
+    // so boulders, logs, stumps, and trunks sit rooted in foliage rather than bare floor.
+    for(const anchor of [...trees,...props]){
+        const baseR=(anchor.radius||.45)+.24
+        const petals=4+Math.floor(random()*4)
+        const startAngle=random()*Math.PI*2
+        for(let i=0;i<petals;i++){
+            if(++stepsCount%350===0)yield
+            const a=startAngle+(i/petals)*Math.PI*2+(random()-.5)*.45
+            const r=baseR+.06+random()*.42
+            const cx=anchor.x+Math.cos(a)*r,cy=anchor.y+Math.sin(a)*r
+            const shade=.90+random()*.16
+            if(tryAddTuft(cx,cy,.95+random()*.35,shade)){
+                for(let sub=0;sub<2;sub++){
+                    const sa=a+(sub===0?-.55:.55)+(random()-.5)*.25
+                    const sr=r+.16+random()*.18
+                    tryAddTuft(anchor.x+Math.cos(sa)*sr,anchor.y+Math.sin(sa)*sr,.68+random()*.28,shade*.97)
+                }
+            }
+        }
+    }
+
+    // 2. Spawn coherent multi-tuft meadow cushions (3-5 overlapping tufts per cluster)
+    // instead of isolated single spikes across open lawns.
+    for(let attempt=0;attempt<target*10&&items.length<target;attempt++){
+        if(++stepsCount%350===0)yield
+        let cx=b.minX+random()*(b.maxX-b.minX),cy=b.minY+random()*(b.maxY-b.minY)
         if(random()<environmentConfig.grassBorderBias){
             const distance=random()*borderLength
             let low=0,high=borderSegments.length-1
             while(low<high){const mid=(low+high)>>1;if(borderSegments[mid].end<distance)low=mid+1;else high=mid}
-            const s=borderSegments[low],t=random(),offset=(s.width+.9+random()*5.2)*(random()<.5?-1:1)
-            x=s.a.x+s.dx*t-s.dy/s.length*offset;y=s.a.y+s.dy*t+s.dx/s.length*offset
+            const s=borderSegments[low],t=random(),offset=(s.width+.85+random()*5.5)*(random()<.5?-1:1)
+            cx=s.a.x+s.dx*t-s.dy/s.length*offset;cy=s.a.y+s.dy*t+s.dx/s.length*offset
         }
-        const density=fieldNoise(x/11,y/11,environmentConfig.seed)
-        if(random()>.15+.85*density*density||!meadowClear(x,y,.12))continue
-        const slot=key(Math.floor(x/.3),Math.floor(y/.3));if(occupied.has(slot))continue
-        if(props.some(p=>Math.hypot(x-p.x,y-p.y)<(p.radius||.5)+.2)||trees.some(p=>Math.hypot(x-p.x,y-p.y)<.3))continue
-        const z=surfaceHeight(x,y)
-        if(Math.abs(surfaceHeight(x+.4,y)-z)>.20||Math.abs(surfaceHeight(x,y+.4)-z)>.20)continue
-        occupied.add(slot);items.push({kind:'grass',x,y,z,angle:random()*Math.PI*2,scale:1.15+random()*.8,shade:.88+random()*.22})
+        const density=fieldNoise(cx/13,cy/13,environmentConfig.seed)
+        if(random()>.08+.92*Math.pow(density,2.2))continue
+        const baseShade=.88+random()*.18
+        if(!tryAddTuft(cx,cy,1.02+random()*.38,baseShade))continue
+        const companions=2+Math.floor(random()*4)
+        const baseAngle=random()*Math.PI*2
+        for(let c=0;c<companions&&items.length<target;c++){
+            const ca=baseAngle+(c/companions)*Math.PI*2+(random()-.5)*.5
+            const cr=.24+random()*.34
+            tryAddTuft(cx+Math.cos(ca)*cr,cy+Math.sin(ca)*cr,.65+random()*.34,baseShade*(.95+random()*.08))
+        }
     }
     return items
 }

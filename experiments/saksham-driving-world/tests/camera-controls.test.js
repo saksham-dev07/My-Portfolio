@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import Camera, { CAMERA_DISTANCE, CAMERA_HEIGHT, CAMERA_MAX_DRIVING_DISTANCE, CAMERA_MAX_AUTOMATIC_DISTANCE, CAMERA_MAX_AUTOMATIC_HEIGHT } from '../src/javascript/Camera.js'
 import EventEmitter from '../src/javascript/Utils/EventEmitter.js'
@@ -9,7 +9,7 @@ class Surface extends EventTarget {
     clientWidth = 1280
     clientHeight = 720
     ownerDocument = new EventTarget()
-    classList = { add() {}, remove() {} }
+    classList = { add() {}, remove() {}, toggle() {} }
     captures = new Set()
     getRootNode() { return this.ownerDocument }
     setPointerCapture(id) { this.captures.add(id) }
@@ -407,6 +407,7 @@ test('return from a map view in front of the car travels around its cabin', () =
         for(let frame = 0; frame < 60; frame++) {
             h.frame()
             const position = h.camera.instance.position
+            expect(Math.hypot(position.x - h.body.position.x, position.y - h.body.position.y)).toBeLessThanOrEqual(CAMERA_MAX_AUTOMATIC_DISTANCE + .001)
             expect(Math.hypot(position.x - h.body.position.x, position.y - h.body.position.y)).toBeGreaterThanOrEqual(3.5)
         }
     } finally { h.cleanup() }
@@ -468,20 +469,21 @@ test('wheel zoom persists during chase and across stopped orbit without duplicat
     } finally { h.cleanup() }
 })
 
-test('stopped left drag opens map exploration from the car-mounted view', () => {
+test('clicking or dragging in first-person view keeps the car-mounted view active', () => {
     const h = harness()
     try {
         h.camera.setView('first')
         h.settle()
         h.body.velocity.set(.6, 0, 0)
+        h.click()
+        expect(h.camera.view).toBe('first')
         h.drag()
-        expect(h.camera.view).toBe('orbit')
-        expect(h.camera.following).toBe(false)
-        expect(h.camera.orbitControls.target.distanceTo(h.body.position)).toBeGreaterThan(2)
+        expect(h.camera.view).toBe('first')
+        expect(h.camera.orbitControls.enabled).toBe(false)
     } finally { h.cleanup() }
 })
 
-test('wheel exits the car-mounted view and changes chase distance', () => {
+test('wheel in first-person view stays in the car-mounted view without changing chase distance', () => {
     const h = harness()
     try {
         h.camera.setView('first')
@@ -490,8 +492,8 @@ test('wheel exits the car-mounted view and changes chase distance', () => {
         Object.assign(event, { deltaY: 200, deltaMode: 0 })
         h.camera.renderer.domElement.ownerDocument.dispatchEvent(event)
         h.settle()
-        expect(h.camera.view).toBe('orbit')
-        expect(h.camera.chaseDistance).toBeGreaterThan(CAMERA_DISTANCE)
+        expect(h.camera.view).toBe('first')
+        expect(h.camera.chaseDistance).toBeCloseTo(CAMERA_DISTANCE, 3)
         expect(event.defaultPrevented).toBe(true)
     } finally { h.cleanup() }
 })

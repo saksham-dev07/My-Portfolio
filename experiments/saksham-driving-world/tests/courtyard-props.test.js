@@ -1,6 +1,6 @@
 import { test, expect } from 'bun:test'
 import * as THREE from 'three'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import EventEmitter from '../src/javascript/Utils/EventEmitter.js'
 import CourtyardProps, { courtyardAssets, courtyardBody, courtyardPlacements } from '../src/javascript/World/CourtyardProps.js'

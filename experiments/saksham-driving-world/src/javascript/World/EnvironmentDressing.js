@@ -4,7 +4,8 @@ import { dressingPlacements } from './EnvironmentLayout.js'
 import { surfaceHeight } from './LandscapeLayout.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { groundLayer } from './GroundLayers.js'
-import {environmentConfig} from './EnvironmentConfig.js'
+import { environmentConfig } from './EnvironmentConfig.js'
+import { enhanceMeadowGeometry } from './MeadowAssets.js'
 
 export default class EnvironmentDressing {
     constructor({ container, objects, camera, time, trees }) {
@@ -29,14 +30,18 @@ export default class EnvironmentDressing {
                 this.instances=[]
                 gltf.scene.traverse(node=>{
                     if(!node.isMesh) return
-                    const geometry=node.geometry.clone().applyMatrix4(conversion.clone().multiply(node.matrixWorld))
-                    const colors=geometry.getAttribute('color'),color=new THREE.Color()
+                    const placements=this.placements.filter(p=>p.kind===node.name)
+                    if(!placements.length) return
+                    const rawGeometry=node.geometry.clone().applyMatrix4(conversion.clone().multiply(node.matrixWorld))
+                    const colors=rawGeometry.getAttribute('color'),color=new THREE.Color()
                     if(colors) for(let i=0;i<colors.count;i++) {
                         color.fromBufferAttribute(colors,i).convertLinearToSRGB()
                         colors.setXYZ(i,color.r,color.g,color.b)
                     }
-                    const placements=this.placements.filter(p=>p.kind===node.name)
-                    if(!placements.length) {geometry.dispose();return}
+                    // Harmonize legacy spiky grass and faceted shrubs around tree bases
+                    // with our soft botanical rosettes and rounded shrubs.
+                    const geometry=enhanceMeadowGeometry(node.name,rawGeometry)
+                    if(geometry!==rawGeometry) rawGeometry.dispose()
                     const mesh=new THREE.InstancedMesh(geometry,material,placements.length)
                     mesh.name=`Blender field kit / ${node.name}`
                     geometry.computeBoundingBox()
@@ -44,7 +49,7 @@ export default class EnvironmentDressing {
                     placements.forEach((p,index)=>{
                         const rock=p.kind.startsWith('rock')
                         const r=p.radius*(rock ? .65 : .4)
-                        const base=Math.min(p.z,...[[r,0],[-r,0],[0,r],[0,-r]].map(([dx,dy])=>surfaceHeight(p.x+dx,p.y+dy)))-(rock ? .1 : .025)*p.scale
+                        const base=Math.min(p.z,...[[r,0],[-r,0],[0,r],[0,-r]].map(([dx,dy])=>surfaceHeight(p.x+dx,p.y+dy)))-(rock ? .06 : .015)*p.scale
                         dummy.position.set(p.x,p.y,base)
                         dummy.rotation.set(0,0,p.angle);dummy.scale.setScalar(p.scale);dummy.updateMatrix()
                         mesh.setMatrixAt(index,dummy.matrix)

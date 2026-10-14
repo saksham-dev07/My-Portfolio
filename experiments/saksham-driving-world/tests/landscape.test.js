@@ -1,5 +1,5 @@
 import { test, expect } from 'bun:test'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import * as THREE from 'three'
 import Landscape from '../src/javascript/World/Landscape.js'
 import { landscapeGrid, surfaceHeight, roads, foundations, projectSites, distanceToRoad, roadEdgeDistance } from '../src/javascript/World/LandscapeLayout.js'

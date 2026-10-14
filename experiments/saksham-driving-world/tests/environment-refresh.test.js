@@ -1,6 +1,6 @@
 import {test,expect} from 'bun:test'
 import * as THREE from 'three'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js'
 import {environmentConfig} from '../src/javascript/World/EnvironmentConfig.js'
 import {fieldNoise} from '../src/javascript/World/FieldNoise.js'
@@ -8,9 +8,9 @@ import {terrainHeight,landscapeGrid,roadDistance,foundations,surfaceHeight,roads
 import {grovePlacements,landmarkTreePlacements,dressingPlacements} from '../src/javascript/World/EnvironmentLayout.js'
 import {meadowClear,meadowGrass,meadowProps,nearDrivingLane} from '../src/javascript/World/MeadowScatter.js'
 import {refinedGeometry,refinedPlacement} from '../src/javascript/World/RefinedProps.js'
-import MeadowEnvironment,{meadowAssetKinds,meadowWindShader} from '../src/javascript/World/MeadowEnvironment.js'
+import MeadowEnvironment,{meadowAssetKinds,meadowWindShader,meadowCarUniforms,updateMeadowCarInteraction} from '../src/javascript/World/MeadowEnvironment.js'
 import MeadowParks,{parkPlacements} from '../src/javascript/World/MeadowParks.js'
-import {detailPixels,fieldSurfaceShader} from '../src/javascript/World/TerrainSurface.js'
+import {detailPixels,fieldSurfaceShader,terrainCarUniforms,updateTerrainCarReaction} from '../src/javascript/World/TerrainSurface.js'
 
 const trees=grovePlacements(2),existing=dressingPlacements([...trees,...landmarkTreePlacements(2,trees)]),props=meadowProps(trees,existing),grass=meadowGrass(trees,[...existing,...props])
 const bytes=await Bun.file(new URL('../static/saksham/models/environment-refresh.glb',import.meta.url)).arrayBuffer(),scene=(await new GLTFLoader().parseAsync(bytes,'')).scene
@@ -44,6 +44,7 @@ test('grass is deterministic, noise-clumped and excluded from roads, plazas, sig
     // Check the fast spatial road guard against the real paved corridors.
     for(const road of roads)for(let i=0;i<road.samples.length;i+=15){const p=road.samples[i];expect(nearDrivingLane(p.x,p.y,.12)).toBe(true)}
     expect(detailPixels()).toEqual(detailPixels());expect(fieldNoise(10,11)).not.toBe(fieldNoise(37,19));expect(fieldSurfaceShader).toContain('p*.56');expect(fieldSurfaceShader).toContain('p*.091')
+    expect(fieldSurfaceShader).toContain('uTerrainCarTrail')
 })
 
 test('groves have Poisson spacing and decorative clusters contain three to five props',()=>{
@@ -67,7 +68,7 @@ test('grass roots never intersect actual park paving or its approach paths',()=>
     parks.dispose()
 })
 
-test('instanced environment owns its resources, bounded batches and optional-load teardown',()=>{
+test('instanced environment owns its resources, bounded batches, car trampling uniforms and optional-load teardown',()=>{
     const container=new THREE.Group(),callbacks=new Map(),world=new CANNON.World(),requests=[]
     const time={elapsed:0,on:(n,cb)=>callbacks.set(n,cb),off:n=>callbacks.delete(n)}
     const objects={physics:{world,addObjectFromThree:()=>{const body=new CANNON.Body({mass:0});world.addBody(body);return{body}}}}
@@ -77,6 +78,12 @@ test('instanced environment owns its resources, bounded batches and optional-loa
     expect(meadow.instances.every(p=>p.isInstancedMesh)).toBe(true);expect(meadow.instances.length).toBeLessThan(125)
     const shader={uniforms:{},vertexShader:'#include <begin_vertex>',fragmentShader:'#include <alphatest_fragment>'}
     meadowWindShader(shader,meadow.clock,meadow.motion,true);expect(shader.vertexShader).toContain('instanceMatrix');expect(shader.fragmentShader).toContain('meadowFade')
+    expect(shader.vertexShader).toContain('vGrassTrample');expect(shader.fragmentShader).toContain('bladeGradient')
+    updateMeadowCarInteraction({x:12,y:-40,z:.35},{x:4,y:0},0,.016)
+    expect(meadowCarUniforms.uMeadowCarPos.value.x).toBe(12)
+    expect(meadowCarUniforms.uMeadowCarPos.value.w).toBeCloseTo(4,5)
+    updateTerrainCarReaction({x:12,y:-40,z:.35},{x:4,y:0},false,.016)
+    expect(terrainCarUniforms.uTerrainCarPos.value.w).toBe(1)
     const parks=new MeadowParks({container,objects,camera,time,loader:{load:()=>{}}});parks.props.load();parks.dispose();meadow.dispose();meadow.dispose()
     expect(world.bodies).toHaveLength(0);expect(callbacks.size).toBe(0);expect(container.children).toHaveLength(0)
 })

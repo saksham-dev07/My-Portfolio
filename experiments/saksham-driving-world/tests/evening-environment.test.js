@@ -1,8 +1,8 @@
 import {test,expect} from 'bun:test'
 import * as THREE from 'three'
 import {GLTFLoader} from 'three/addons/loaders/GLTFLoader.js'
-import EveningEnvironment from '../src/javascript/World/EveningEnvironment.js'
-import {duskLanterns,installDuskMaterial} from '../src/javascript/World/DuskLighting.js'
+import EveningEnvironment,{fireflyAnchors} from '../src/javascript/World/EveningEnvironment.js'
+import {duskLanterns,duskUniforms,installDuskMaterial,updateHeadlightUniforms} from '../src/javascript/World/DuskLighting.js'
 import {meadowClear,meadowGrass,nearDrivingLane} from '../src/javascript/World/MeadowScatter.js'
 import {roadEdgeDistance} from '../src/javascript/World/LandscapeLayout.js'
 
@@ -25,6 +25,8 @@ test('evening artwork reuses existing Blender lanterns and never enters roads or
     }
     const grass=meadowGrass([],duskLanterns.map(p=>({...p,radius:.45})))
     for(const p of grass)for(const lamp of duskLanterns)expect(Math.hypot(p.x-lamp.x,p.y-lamp.y)).toBeGreaterThanOrEqual(.65)
+    expect(fireflyAnchors).toHaveLength(64)
+    for(const p of fireflyAnchors)expect(nearDrivingLane(p.x,p.y,.5)).toBe(false)
 })
 
 test('material discovery composes deferred asset shaders once without touching their original geometry',()=>{
@@ -41,6 +43,33 @@ test('material discovery composes deferred asset shaders once without touching t
     expect(installDuskMaterial(material)).toBe(false)
     environment.dispose();environment.dispose();expect(callbacks.size).toBe(0);expect(container.children).toEqual([mesh])
     geometry.dispose();material.dispose()
+})
+
+test('atmosphere presets cycle cleanly between dusk, night, and day while syncing headlights and particles',()=>{
+    const {environment}=fixture()
+    try{
+        expect(environment.mode).toBe('dusk')
+        const night=environment.cycleAtmosphere()
+        expect(night.id).toBe('night')
+        expect(duskUniforms.duskStrength.value).toBeCloseTo(.92,4)
+        expect(duskUniforms.duskHeadlightStrength.value).toBeGreaterThan(1)
+        expect(environment.fireflies.material.uniforms.uFireflyStrength.value).toBeCloseTo(1,4)
+        const day=environment.cycleAtmosphere()
+        expect(day.id).toBe('day')
+        expect(duskUniforms.duskStrength.value).toBe(0)
+        expect(environment.cores.visible).toBe(false)
+        expect(environment.halos.visible).toBe(false)
+        expect(environment.fireflies.material.uniforms.uPollenStrength.value).toBeGreaterThan(.5)
+        const dusk=environment.cycleAtmosphere()
+        expect(dusk.id).toBe('dusk')
+        expect(environment.cores.visible).toBe(true)
+        updateHeadlightUniforms({x:10,y:-20,z:.35},Math.PI/2)
+        expect(duskUniforms.duskHeadlightDir.value.x).toBeCloseTo(0,5)
+        expect(duskUniforms.duskHeadlightDir.value.y).toBeCloseTo(1,5)
+    }finally{
+        environment.setAtmosphere('dusk')
+        environment.dispose()
+    }
 })
 
 test('destroying the scene before a deferred lantern response installs no artwork or timers',()=>{

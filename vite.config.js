@@ -69,6 +69,11 @@ function contactApi() {
 
 export default defineConfig({
   plugins: [react(), contactApi(), previewSecurity()],
+  optimizeDeps: {
+    // Keep the root optimizer scoped to the React portfolio so it never crawls
+    // experiments/saksham-driving-world (which uses Three 0.186 vs root 0.176).
+    entries: ["index.html", "src/**/*.{js,jsx}"],
+  },
   resolve: {
     // The prebuilt Three.js core is one large module; source keeps it splittable.
     alias: [

@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import { readFileSync } from 'node:fs'
 import BowlingGame, { BowlingRound, bowlingRules, pinIsDown, resetBowlingBody } from '../src/javascript/World/Activities/BowlingGame.js'
 import EventEmitter from '../src/javascript/Utils/EventEmitter.js'

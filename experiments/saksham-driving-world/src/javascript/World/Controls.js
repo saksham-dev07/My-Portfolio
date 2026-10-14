@@ -176,15 +176,21 @@ export default class Controls extends EventEmitter
     setTouch()
     {
         this.touch = {}
+        if(document.body?.dataset)
+        {
+            document.body.dataset.touch = 'true'
+        }
 
         /**
          * Joystick
          */
         this.touch.joystick = {}
         this.touch.joystick.active = false
+        this.touch.joystick.boundWidth = 170
 
         // Element
         this.touch.joystick.$element = document.createElement('div')
+        this.touch.joystick.$element.className = 'touch-joystick'
         this.touch.joystick.$element.style.userSelect = 'none'
         this.touch.joystick.$element.style.position = 'fixed'
         this.touch.joystick.$element.style.bottom = '10px'
@@ -195,10 +201,10 @@ export default class Controls extends EventEmitter
         this.touch.joystick.$element.style.transition = 'opacity 0.3s 0.0s'
         this.touch.joystick.$element.style.willChange = 'opacity'
         this.touch.joystick.$element.style.opacity = '0'
-        // this.touch.joystick.$element.style.backgroundColor = '#ff0000'
         document.body.appendChild(this.touch.joystick.$element)
 
         this.touch.joystick.$cursor = document.createElement('div')
+        this.touch.joystick.$cursor.className = 'touch-joystick__cursor'
         this.touch.joystick.$cursor.style.position = 'absolute'
         this.touch.joystick.$cursor.style.top = 'calc(50% - 30px)'
         this.touch.joystick.$cursor.style.left = 'calc(50% - 30px)'
@@ -212,6 +218,7 @@ export default class Controls extends EventEmitter
         this.touch.joystick.$element.appendChild(this.touch.joystick.$cursor)
 
         this.touch.joystick.$limit = document.createElement('div')
+        this.touch.joystick.$limit.className = 'touch-joystick__limit'
         this.touch.joystick.$limit.style.position = 'absolute'
         this.touch.joystick.$limit.style.top = 'calc(50% - 75px)'
         this.touch.joystick.$limit.style.left = 'calc(50% - 75px)'
@@ -245,6 +252,7 @@ export default class Controls extends EventEmitter
         {
             const boundings = this.touch.joystick.$element.getBoundingClientRect()
 
+            this.touch.joystick.boundWidth = boundings.width || 170
             this.touch.joystick.angle.center.x = boundings.left + boundings.width * 0.5
             this.touch.joystick.angle.center.y = boundings.top + boundings.height * 0.5
         }
@@ -272,9 +280,10 @@ export default class Controls extends EventEmitter
                 {
                     radius = 20 + Math.log(distance - 20) * 5
                 }
-                if(radius > 43)
+                const maxRadius = Math.max(28, (this.touch.joystick.boundWidth || 170) * (43 / 170))
+                if(radius > maxRadius)
                 {
-                    radius = 43
+                    radius = maxRadius
                 }
                 const cursorX = Math.sin(this.touch.joystick.angle.originalValue + Math.PI * 0.5) * radius
                 const cursorY = Math.cos(this.touch.joystick.angle.originalValue + Math.PI * 0.5) * radius
@@ -293,6 +302,7 @@ export default class Controls extends EventEmitter
 
             if(touch && this.touch.joystick.touchIdentifier === null)
             {
+                this.touch.joystick.resize()
                 this.touch.joystick.active = true
 
                 this.touch.joystick.touchIdentifier = touch.identifier
@@ -346,6 +356,7 @@ export default class Controls extends EventEmitter
 
         // Element
         this.touch.boost.$element = document.createElement('div')
+        this.touch.boost.$element.className = 'touch-control touch-control--boost'
         this.touch.boost.$element.style.userSelect = 'none'
         this.touch.boost.$element.style.position = 'fixed'
         this.touch.boost.$element.style.bottom = 'calc(70px * 3 + 15px)'
@@ -355,10 +366,10 @@ export default class Controls extends EventEmitter
         this.touch.boost.$element.style.transition = 'opacity 0.3s 0.4s'
         this.touch.boost.$element.style.willChange = 'opacity'
         this.touch.boost.$element.style.opacity = '0'
-        // this.touch.boost.$element.style.backgroundColor = '#00ff00'
         document.body.appendChild(this.touch.boost.$element)
 
         this.touch.boost.$border = document.createElement('div')
+        this.touch.boost.$border.className = 'touch-control__border'
         this.touch.boost.$border.style.position = 'absolute'
         this.touch.boost.$border.style.top = 'calc(50% - 30px)'
         this.touch.boost.$border.style.left = 'calc(50% - 30px)'
@@ -372,6 +383,7 @@ export default class Controls extends EventEmitter
         this.touch.boost.$element.appendChild(this.touch.boost.$border)
 
         this.touch.boost.$icon = document.createElement('div')
+        this.touch.boost.$icon.className = 'touch-control__icon'
         this.touch.boost.$icon.style.position = 'absolute'
         this.touch.boost.$icon.style.top = 'calc(50% - 13px)'
         this.touch.boost.$icon.style.left = 'calc(50% - 11px)'
@@ -427,6 +439,7 @@ export default class Controls extends EventEmitter
 
         // Element
         this.touch.forward.$element = document.createElement('div')
+        this.touch.forward.$element.className = 'touch-control touch-control--forward'
         this.touch.forward.$element.style.userSelect = 'none'
         this.touch.forward.$element.style.position = 'fixed'
         this.touch.forward.$element.style.bottom = 'calc(70px * 2 + 15px)'
@@ -436,10 +449,10 @@ export default class Controls extends EventEmitter
         this.touch.forward.$element.style.transition = 'opacity 0.3s 0.3s'
         this.touch.forward.$element.style.willChange = 'opacity'
         this.touch.forward.$element.style.opacity = '0'
-        // this.touch.forward.$element.style.backgroundColor = '#00ff00'
         document.body.appendChild(this.touch.forward.$element)
 
         this.touch.forward.$border = document.createElement('div')
+        this.touch.forward.$border.className = 'touch-control__border'
         this.touch.forward.$border.style.position = 'absolute'
         this.touch.forward.$border.style.top = 'calc(50% - 30px)'
         this.touch.forward.$border.style.left = 'calc(50% - 30px)'
@@ -453,6 +466,7 @@ export default class Controls extends EventEmitter
         this.touch.forward.$element.appendChild(this.touch.forward.$border)
 
         this.touch.forward.$icon = document.createElement('div')
+        this.touch.forward.$icon.className = 'touch-control__icon'
         this.touch.forward.$icon.style.position = 'absolute'
         this.touch.forward.$icon.style.top = 'calc(50% - 9px)'
         this.touch.forward.$icon.style.left = 'calc(50% - 11px)'
@@ -506,6 +520,7 @@ export default class Controls extends EventEmitter
 
         // Element
         this.touch.brake.$element = document.createElement('div')
+        this.touch.brake.$element.className = 'touch-control touch-control--brake'
         this.touch.brake.$element.style.userSelect = 'none'
         this.touch.brake.$element.style.position = 'fixed'
         this.touch.brake.$element.style.bottom = 'calc(70px + 15px)'
@@ -515,10 +530,10 @@ export default class Controls extends EventEmitter
         this.touch.brake.$element.style.transition = 'opacity 0.3s 0.2s'
         this.touch.brake.$element.style.willChange = 'opacity'
         this.touch.brake.$element.style.opacity = '0'
-        // this.touch.brake.$element.style.backgroundColor = '#ff0000'
         document.body.appendChild(this.touch.brake.$element)
 
         this.touch.brake.$border = document.createElement('div')
+        this.touch.brake.$border.className = 'touch-control__border'
         this.touch.brake.$border.style.position = 'absolute'
         this.touch.brake.$border.style.top = 'calc(50% - 30px)'
         this.touch.brake.$border.style.left = 'calc(50% - 30px)'
@@ -532,6 +547,7 @@ export default class Controls extends EventEmitter
         this.touch.brake.$element.appendChild(this.touch.brake.$border)
 
         this.touch.brake.$icon = document.createElement('div')
+        this.touch.brake.$icon.className = 'touch-control__icon'
         this.touch.brake.$icon.style.position = 'absolute'
         this.touch.brake.$icon.style.top = 'calc(50% - 7px)'
         this.touch.brake.$icon.style.left = 'calc(50% - 7px)'
@@ -586,6 +602,7 @@ export default class Controls extends EventEmitter
 
         // Element
         this.touch.backward.$element = document.createElement('div')
+        this.touch.backward.$element.className = 'touch-control touch-control--backward'
         this.touch.backward.$element.style.userSelect = 'none'
         this.touch.backward.$element.style.position = 'fixed'
         this.touch.backward.$element.style.bottom = '15px'
@@ -595,10 +612,10 @@ export default class Controls extends EventEmitter
         this.touch.backward.$element.style.transition = 'opacity 0.3s 0.1s'
         this.touch.backward.$element.style.willChange = 'opacity'
         this.touch.backward.$element.style.opacity = '0'
-        // this.touch.backward.$element.style.backgroundColor = '#0000ff'
         document.body.appendChild(this.touch.backward.$element)
 
         this.touch.backward.$border = document.createElement('div')
+        this.touch.backward.$border.className = 'touch-control__border'
         this.touch.backward.$border.style.position = 'absolute'
         this.touch.backward.$border.style.top = 'calc(50% - 30px)'
         this.touch.backward.$border.style.left = 'calc(50% - 30px)'
@@ -612,6 +629,7 @@ export default class Controls extends EventEmitter
         this.touch.backward.$element.appendChild(this.touch.backward.$border)
 
         this.touch.backward.$icon = document.createElement('div')
+        this.touch.backward.$icon.className = 'touch-control__icon'
         this.touch.backward.$icon.style.position = 'absolute'
         this.touch.backward.$icon.style.top = 'calc(50% - 9px)'
         this.touch.backward.$icon.style.left = 'calc(50% - 11px)'
