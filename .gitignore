@@ -25,6 +25,7 @@ thrixel_assets/
 !/docs/low-bandwidth-optimization.md
 !/docs/environment-refresh.md
 !/docs/repo-maintenance.md
+!/docs/security-hardening.md
 
 # Environment & local credentials
 .env

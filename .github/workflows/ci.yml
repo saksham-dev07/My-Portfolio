@@ -17,11 +17,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: 22
-      - uses: oven-sh/setup-bun@v2
+      - uses: oven-sh/setup-bun@0c5077e51419868618aeaa5fe8019c62421857d6 # v2
         with:
           bun-version: 1.4.0
       - name: Install locked dependencies
@@ -29,6 +31,9 @@ jobs:
           bun install --frozen-lockfile
           bun run install:world
       - run: bun run check
+      - run: bun run security:secrets
+      - run: bun run security:audit
       - run: bun test
       - run: bun run build
       - run: bun run audit:production
+      - run: bun run security:csp
