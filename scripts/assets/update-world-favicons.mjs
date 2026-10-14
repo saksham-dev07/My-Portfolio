@@ -1,4 +1,4 @@
-import { copyFile, readFile, writeFile } from "node:fs/promises";
+import { readFile, writeFile } from "node:fs/promises";
 import sharp from "sharp";
 
 const directory = new URL(
@@ -55,22 +55,3 @@ await writeFile(
     2,
   )}\n`,
 );
-// Keep the legacy source icon set consistent with the publicly served set.
-const source = new URL(
-  "../../experiments/saksham-driving-world/src/favicon/",
-  import.meta.url,
-);
-for (const name of [
-  "favicon.ico",
-  "safari-pinned-tab.svg",
-  "site.webmanifest",
-  "browserconfig.xml",
-  "android-chrome-192x192.png",
-  "android-chrome-256x256.png",
-  "apple-touch-icon.png",
-  "mstile-150x150.png",
-  "favicon-32x32.png",
-  "favicon-16x16.png",
-]) {
-  await copyFile(new URL(name, directory), new URL(name, source));
-}

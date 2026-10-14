@@ -15,6 +15,8 @@ Thank you for your interest in contributing to this portfolio and creative labor
    bun run install:world
    ```
 
+   Run both installs from the repository root. World tests use asset-validation tools from the root dependencies as well as the world's own runtime packages. CI installs both frozen lockfiles.
+
 2. **Environment Configuration**:
    ```bash
    cp .env.example .env
@@ -31,6 +33,8 @@ Thank you for your interest in contributing to this portfolio and creative labor
    bun test
    ```
 
+   This discovers portfolio and world tests. `bun run test:world` runs only the world suite; install both dependency sets first.
+
 5. **Linting and Formatting**:
    ```bash
    bun run check
@@ -42,6 +46,12 @@ Thank you for your interest in contributing to this portfolio and creative labor
    bun run build
    bun run audit:production
    ```
+
+## Optional Asset Authoring
+
+Normal development, tests, and production builds use the committed shipping assets; they do not require Blender or Python. The Blender scripts in `scripts/assets/` run inside Blender, while the `.mjs` optimizers run with Bun. Some authoring steps require original models or editable scenes kept locally in the ignored `.local-history/` directory. Preserve those originals and artwork licenses; do not treat them as disposable cache files.
+
+See [the maintenance guide](docs/repo-maintenance.md) for input/output ownership and the [environment notes](docs/environment-refresh.md) for terrain settings and named Blender assets.
 
 ## Design and Code Standards
 
