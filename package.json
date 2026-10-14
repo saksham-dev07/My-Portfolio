@@ -20,6 +20,9 @@
     "preview": "vite preview",
     "install:world": "bun install --cwd experiments/saksham-driving-world --frozen-lockfile",
     "audit:production": "bun scripts/audit-production.mjs",
+    "security:audit": "bun scripts/security/audit-dependencies.mjs",
+    "security:secrets": "bun scripts/security/scan-secrets.mjs",
+    "security:csp": "bun scripts/security/csp.mjs",
     "assets:optimize": "bun scripts/assets/optimize-images.mjs && biome check src/assets/responsive/index.js --write",
     "assets:world": "bun scripts/assets/optimize-world-landmarks.mjs"
   },
@@ -51,5 +54,11 @@
     "svgo": "^4.1.0",
     "tailwindcss": "^3.4.17",
     "vite": "^8.3.1"
+  },
+  "overrides": {
+    "postcss-selector-parser": "7.1.6"
+  },
+  "patchedDependencies": {
+    "braces@3.0.3": "patches/braces@3.0.3.patch"
   }
 }
