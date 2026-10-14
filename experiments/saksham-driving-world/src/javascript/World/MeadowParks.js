@@ -15,10 +15,33 @@ export const parkPlacements=environmentConfig.parks.flatMap(p=>[
 
 export default class MeadowParks{
     constructor({container,objects,camera,time,loader}){
-        Object.assign(this,{container,time});this.meshes=[];this.materials=[];this.disposed=false;this.clock={value:0}
+        Object.assign(this,{container,objects,time});this.meshes=[];this.materials=[];this.disposed=false;this.clock={value:0};this.surge={value:0}
+        this.jetDummy=new THREE.Object3D()
         this.props=new RefinedPropBatch({name:'meadowParkProps',url:meadowAssetUrl,placements:parkPlacements,objects,camera,time,container,loader,onReady:(_,scene)=>this.finish(scene)})
         this.pave()
-        time.on('tick.meadowParkWater',()=>{if(!globalThis.document?.hidden)this.clock.value=(time.elapsed||0)*.001})
+        time.on('tick.meadowParkWater',()=>{
+            if(globalThis.document?.hidden)return
+            this.clock.value=(time.elapsed||0)*.001
+            const carPos=this.objects?.physics?.car?.chassis?.body?.position
+            if(carPos&&this.jets){
+                let maxBoost=0
+                environmentConfig.parks.forEach((p,i)=>{
+                    const dist=Math.hypot(carPos.x-p.x,carPos.y-p.y)
+                    const proximity=Math.max(0,1-dist/10.5)
+                    maxBoost=Math.max(maxBoost,proximity)
+                    const pulse=1+.12*Math.sin(this.clock.value*4.2+i*1.7)
+                    const jetScaleZ=(1+proximity*.85)*pulse
+                    const baseZ=surfaceHeight(p.x,p.y)
+                    this.jetDummy.rotation.set(0,0,0)
+                    this.jetDummy.scale.set(1+proximity*.25,1+proximity*.25,jetScaleZ)
+                    this.jetDummy.position.set(p.x,p.y,baseZ+.33+.39*jetScaleZ)
+                    this.jetDummy.updateMatrix()
+                    this.jets.setMatrixAt(i,this.jetDummy.matrix)
+                })
+                this.jets.instanceMatrix.needsUpdate=true
+                this.surge.value=maxBoost
+            }
+        })
     }
     pave(){
         const parts=[]
@@ -36,14 +59,20 @@ export default class MeadowParks{
         const waterGeometry=new THREE.CircleGeometry(.745,24),waterMaterial=new THREE.MeshBasicMaterial({color:'#6db6ac'}),dummy=new THREE.Object3D()
         waterMaterial.onBeforeCompile=shader=>{
             shader.uniforms.parkWaterTime=this.clock
-            shader.fragmentShader='uniform float parkWaterTime;\n'+shader.fragmentShader
+            shader.uniforms.parkWaterSurge=this.surge
+            shader.fragmentShader='uniform float parkWaterTime;uniform float parkWaterSurge;\n'+shader.fragmentShader
             shader.fragmentShader=shader.fragmentShader.replace('#include <color_fragment>',`#include <color_fragment>
-                diffuseColor.rgb*=.96+.04*sin(length(vUv-.5)*45.0-parkWaterTime*1.7);`)
+                float r=length(vUv-.5)*2.0;
+                float speed=1.7+parkWaterSurge*2.2;
+                float ring=sin(r*45.0-parkWaterTime*speed);
+                diffuseColor.rgb*=.95+(.04+.04*parkWaterSurge)*ring;
+                diffuseColor.rgb+=vec3(.12,.18,.16)*smoothstep(.65,.98,ring)*parkWaterSurge;`)
         }
         // Explicit UV use keeps the standard material's UV varying available.
-        waterMaterial.defines={USE_UV:''};waterMaterial.customProgramCacheKey=()=> 'park-ripples-v1'
+        waterMaterial.defines={USE_UV:''};waterMaterial.customProgramCacheKey=()=> 'park-ripples-v2'
         const waters=new THREE.InstancedMesh(waterGeometry,waterMaterial,environmentConfig.parks.length)
         const jetGeometry=new THREE.CylinderGeometry(.025,.055,.78,6).rotateX(Math.PI/2),jets=new THREE.InstancedMesh(jetGeometry,waterMaterial,environmentConfig.parks.length)
+        this.waters=waters;this.jets=jets
         environmentConfig.parks.forEach((p,i)=>{
             dummy.rotation.set(0,0,0);dummy.scale.set(1,1,1);dummy.position.set(p.x,p.y,surfaceHeight(p.x,p.y)+.19);dummy.updateMatrix();waters.setMatrixAt(i,dummy.matrix)
             dummy.position.z=surfaceHeight(p.x,p.y)+.72;dummy.updateMatrix();jets.setMatrixAt(i,dummy.matrix)

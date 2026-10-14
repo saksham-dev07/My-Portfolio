@@ -1,7 +1,7 @@
 import { expect, test } from 'bun:test'
 import draco3d from 'draco3d'
 import * as THREE from 'three'
-import * as CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { retainedHubNodes, hubActivities, hubPadTop, hubSignRelocations } from '../src/javascript/World/HubLayout.js'
 import { buildHubStatic, hubSignBacks } from '../src/javascript/World/HubWayfinding.js'

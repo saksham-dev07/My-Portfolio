@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import {environmentConfig} from './EnvironmentConfig.js'
+import {atmospherePresets, environmentConfig} from './EnvironmentConfig.js'
 import {surfaceHeight} from './LandscapeLayout.js'
 import {meadowClear,nearDrivingLane} from './MeadowScatter.js'
 import {districtFurniture} from './Sections/DistrictIdentityLayout.js'
@@ -22,8 +22,30 @@ export const duskUniforms = {
     duskShadowFill:{value:new THREE.Vector3(...environmentConfig.dusk.shadowFill)},
     duskSunKey:{value:new THREE.Vector3(...environmentConfig.dusk.sunKey)},
     duskLampStrength:{value:environmentConfig.dusk.lampStrength},
+    duskHeadlightOrigin:{value:new THREE.Vector3(0,0,.55)},
+    duskHeadlightDir:{value:new THREE.Vector2(1,0)},
+    duskHeadlightStrength:{value:environmentConfig.dusk.headlightStrength ?? .65},
     // Cache inverse squared radius so the pixel loop needs no divisions.
     duskLamps:{value:duskLanterns.map(p=>new THREE.Vector4(p.x,p.y,p.z+2.1,1/(p.radius*p.radius)))},
+}
+
+export function applyDuskPreset(modeOrPreset='dusk'){
+    const preset=typeof modeOrPreset==='string'
+        ? (atmospherePresets[modeOrPreset]||atmospherePresets.dusk)
+        : modeOrPreset
+    duskUniforms.duskStrength.value=preset.strength
+    duskUniforms.duskExposure.value=preset.exposure
+    duskUniforms.duskShadowFill.value.set(...preset.shadowFill)
+    duskUniforms.duskSunKey.value.set(...preset.sunKey)
+    duskUniforms.duskLampStrength.value=preset.lampStrength
+    duskUniforms.duskHeadlightStrength.value=preset.headlightStrength ?? 0
+    return preset
+}
+
+export function updateHeadlightUniforms(position,angle=0){
+    const cos=Math.cos(angle),sin=Math.sin(angle)
+    duskUniforms.duskHeadlightOrigin.value.set(position.x+cos*1.05,position.y+sin*1.05,position.z+.42)
+    duskUniforms.duskHeadlightDir.value.set(cos,sin)
 }
 
 export const duskSurfaceShader = `
@@ -32,6 +54,9 @@ uniform float duskExposure;
 uniform vec3 duskShadowFill;
 uniform vec3 duskSunKey;
 uniform float duskLampStrength;
+uniform vec3 duskHeadlightOrigin;
+uniform vec2 duskHeadlightDir;
+uniform float duskHeadlightStrength;
 uniform vec4 duskLamps[${duskLanterns.length}];
 vec3 duskSurface(vec3 color,vec3 point,vec3 normal,float relief){
     vec3 unitNormal=normalize(normal);
@@ -46,6 +71,20 @@ vec3 duskSurface(vec3 color,vec3 point,vec3 normal,float relief){
         if(falloff>0.0){
             float facing=max(.18,dot(unitNormal,normalize(delta)));
             evening+=color*vec3(.65,.32,.08)*falloff*falloff*facing*duskLampStrength;
+        }
+    }
+    if(duskHeadlightStrength>0.001){
+        vec2 toPoint=point.xy-duskHeadlightOrigin.xy;
+        float forwardDist=dot(toPoint,duskHeadlightDir);
+        if(forwardDist>0.15 && forwardDist<22.0){
+            vec2 rightDir=vec2(-duskHeadlightDir.y,duskHeadlightDir.x);
+            float lateral=dot(toPoint,rightDir);
+            float spread=.45+forwardDist*.28;
+            float twinLobe=exp(-pow((abs(lateral)-.38)/spread,2.0)*2.2);
+            float reach=1.0-smoothstep(1.5,22.0,forwardDist);
+            float vertical=1.0-smoothstep(0.0,3.2,abs(point.z-duskHeadlightOrigin.z+.35));
+            float beam=twinLobe*reach*reach*vertical*duskHeadlightStrength;
+            evening+=color*vec3(.88,.78,.58)*beam;
         }
     }
     vec3 lit=mix(color,evening,duskStrength)*mix(1.0,duskExposure,duskStrength);
@@ -88,7 +127,7 @@ export function installDuskMaterial(material){
         const relief=material.map?'0.15':'1.0'
         shader.fragmentShader=shader.fragmentShader.replace('#include <fog_fragment>',`gl_FragColor.rgb=duskSurface(gl_FragColor.rgb,${point},${normal},${relief});\n#include <fog_fragment>`)
     }
-    material.customProgramCacheKey=()=>originalKey+'|cinematic-light-v2'
+    material.customProgramCacheKey=()=>originalKey+'|cinematic-light-v3'
     material.needsUpdate=true
     return true
 }

@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import CampusRally, { RallyProgress, rallyRoute, rallyGates, gateCrossing, formatRallyTime, resetRallyVehicle, rallyBestKey } from '../src/javascript/World/Activities/CampusRally.js'
 import ProfileCircuit from '../src/javascript/World/Sections/ProfileCircuit.js'
 import * as THREE from 'three'

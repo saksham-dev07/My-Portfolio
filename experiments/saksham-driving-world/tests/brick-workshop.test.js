@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 import * as THREE from 'three'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import EventEmitter from '../src/javascript/Utils/EventEmitter.js'
 import BrickWorkshop, { brickHasMoved, rebuildBrick, workshopLayout } from '../src/javascript/World/Sections/BrickWorkshop.js'
 import { roadEdgeDistance } from '../src/javascript/World/LandscapeLayout.js'

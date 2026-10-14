@@ -1,6 +1,6 @@
 import { expect, test } from 'bun:test'
 import * as THREE from 'three'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import Camera from '../src/javascript/Camera.js'
 import Physics from '../src/javascript/World/Physics.js'
 import EventEmitter from '../src/javascript/Utils/EventEmitter.js'

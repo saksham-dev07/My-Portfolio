@@ -1,6 +1,6 @@
 import { test, expect } from 'bun:test'
 import * as THREE from 'three'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import IntroSection from '../src/javascript/World/Sections/IntroSection.js'
 import Car from '../src/javascript/World/Car.js'
 import { stabilizeGround } from '../src/javascript/World/GroundLayers.js'

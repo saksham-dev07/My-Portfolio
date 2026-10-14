@@ -57,7 +57,9 @@ export function stabilizeGround(root, background, terrain) {
     root.traverse(mesh => {
         if (!mesh.isMesh || mesh === background || mesh === terrain || mesh.isInstancedMesh || mesh.userData.terrainShadow || mesh.userData.groundLayer) return
         if (!mesh.visible || !mesh.material || Array.isArray(mesh.material)) return
-        for (let parent = mesh.parent; parent; parent = parent.parent) if (!parent.visible) return
+        // Stop at root so background scene preparation (where root.visible is false)
+        // still lifts and stabilizes all ground text and area borders before merging.
+        for (let parent = mesh.parent; parent && parent !== root; parent = parent.parent) if (!parent.visible) return
         // Intro lettering starts at zero opacity and fades in after this pass.
         // Invisible raycast planes have no texture and must retain their position.
         if (mesh.material.opacity === 0 && !mesh.material.map && !mesh.material.alphaMap) return

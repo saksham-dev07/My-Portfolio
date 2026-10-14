@@ -1,8 +1,8 @@
 import * as THREE from 'three'
 import { landscapeBounds, surfaceHeight } from './LandscapeLayout.js'
-import { environmentConfig } from './EnvironmentConfig.js'
+import { atmospherePresets, environmentConfig } from './EnvironmentConfig.js'
 
-const eveningColor=(day,night)=>new THREE.Color(day).lerp(new THREE.Color(night),environmentConfig.dusk.strength).getStyle()
+const eveningColor=(day,night,strength=environmentConfig.dusk.strength)=>new THREE.Color(day).lerp(new THREE.Color(night),strength).getStyle()
 
 export const worldAtmosphere = Object.freeze({
     waterLevel: -2.4,
@@ -105,6 +105,7 @@ function shadedLand(geometry, low, high) {
 export default class WorldBackdrop {
     constructor({ container, scene, camera, time }) {
         this.time = time
+        this.scene = scene
         this.container = new THREE.Group()
         this.container.name = 'Valley boundary / lake and distant hills'
         container.add(this.container)
@@ -142,20 +143,31 @@ export default class WorldBackdrop {
             return mesh
         })
         this.waterTime = { value: 0 }
+        this.waterDusk = { value: environmentConfig.dusk.strength }
         const waterMaterial = new THREE.MeshBasicMaterial({ color: new THREE.Color(eveningColor('#4f8799',environmentConfig.dusk.water)).convertLinearToSRGB() })
         waterMaterial.onBeforeCompile = shader => {
             shader.uniforms.waterTime = this.waterTime
+            shader.uniforms.waterDusk = this.waterDusk
             shader.vertexShader = 'varying vec2 vWaterPosition;\n' + shader.vertexShader
             shader.vertexShader = shader.vertexShader.replace('#include <begin_vertex>', '#include <begin_vertex>\nvWaterPosition = position.xy;')
-            shader.fragmentShader = 'varying vec2 vWaterPosition; uniform float waterTime;\n' + shader.fragmentShader
+            shader.fragmentShader = 'varying vec2 vWaterPosition; uniform float waterTime; uniform float waterDusk;\n' + shader.fragmentShader
             shader.fragmentShader = shader.fragmentShader.replace('#include <color_fragment>', `#include <color_fragment>
-                float wave = sin(vWaterPosition.x * .12 + vWaterPosition.y * .06 + waterTime * .15)
-                    * sin(vWaterPosition.y * .17 - waterTime * .09);
-                diffuseColor.rgb *= .97 + .03 * wave;
-                float glint=pow(max(0.0,wave),18.0)*.12;
-                diffuseColor.rgb+=vec3(.22,.35,.65)*glint;`)
+                float primaryWave = sin(vWaterPosition.x * .12 + vWaterPosition.y * .06 + waterTime * .42)
+                    * sin(vWaterPosition.y * .17 - waterTime * .28);
+                float crossRipple = cos(vWaterPosition.x * .27 - vWaterPosition.y * .21 + waterTime * .65)
+                    * sin(vWaterPosition.x * .09 + vWaterPosition.y * .31 - waterTime * .36);
+                float wave = primaryWave * .68 + crossRipple * .32;
+                vec2 worldXY = vWaterPosition + vec2(52.0, -58.0);
+                vec2 boxDelta = max(abs(worldXY - vec2(52.0, -58.0)) - vec2(128.0, 92.0), vec2(0.0));
+                float shoreDist = length(boxDelta);
+                float shoreBand = exp(-shoreDist * .085) * (.55 + .45 * sin(shoreDist * .85 - waterTime * 1.35 + primaryWave * 1.6));
+                diffuseColor.rgb *= .95 + .05 * wave;
+                diffuseColor.rgb = mix(diffuseColor.rgb, vec3(.82, .91, .94), clamp(shoreBand * .22, 0.0, .28));
+                float glint = pow(max(0.0, wave), 14.0) * (.14 + .12 * waterDusk);
+                vec3 glintTint = mix(vec3(.32, .48, .58), vec3(.58, .66, .92), waterDusk);
+                diffuseColor.rgb += glintTint * glint;`)
         }
-        waterMaterial.customProgramCacheKey = () => 'valley-lake-water-v1'
+        waterMaterial.customProgramCacheKey = () => 'valley-lake-water-v2'
         this.water = new THREE.Mesh(new THREE.PlaneGeometry(2400, 2400), waterMaterial)
         this.water.name = 'Boundary lake / subtle moving water'
         this.water.position.set(52, -58, worldAtmosphere.waterLevel)
@@ -167,6 +179,9 @@ export default class WorldBackdrop {
             uniforms: {
                 horizon: { value: new THREE.Color(worldAtmosphere.skyHorizon).convertLinearToSRGB() },
                 zenith: { value: new THREE.Color(worldAtmosphere.skyZenith).convertLinearToSRGB() },
+                starStrength: { value: environmentConfig.dusk.starStrength ?? .35 },
+                duskStrength: { value: environmentConfig.dusk.strength },
+                skyTime: this.waterTime,
             },
             vertexShader: `varying vec3 vSkyDirection;
                 void main() {
@@ -174,15 +189,37 @@ export default class WorldBackdrop {
                     gl_Position = projectionMatrix * mat4(mat3(viewMatrix)) * vec4(position, 1.0);
                     gl_Position.z = gl_Position.w;
                 }`,
-            fragmentShader: `varying vec3 vSkyDirection; uniform vec3 horizon; uniform vec3 zenith;
+            fragmentShader: `varying vec3 vSkyDirection;
+                uniform vec3 horizon;
+                uniform vec3 zenith;
+                uniform float starStrength;
+                uniform float duskStrength;
+                uniform float skyTime;
                 void main() {
-                    float elevation = max(0.0, normalize(vSkyDirection).z);
+                    vec3 direction = normalize(vSkyDirection);
+                    float elevation = max(0.0, direction.z);
                     vec3 color = mix(horizon, zenith, smoothstep(0.0, .65, elevation));
-                    vec3 direction=normalize(vSkyDirection);
-                    float moon=smoothstep(.99935,.99960,dot(direction,normalize(vec3(-.25,-.55,.8))));
-                    float halo=pow(max(0.0,dot(direction,normalize(vec3(-.25,-.55,.8)))),160.0)*.055;
-                    color+=vec3(.45,.52,.80)*halo;
-                    color=mix(color,vec3(.85,.88,.98),moon);
+                    float sunsetBand = exp(-elevation * 6.5) * smoothstep(.1, .75, duskStrength) * (1.0 - smoothstep(.75, .95, duskStrength));
+                    color += vec3(.14, .06, .02) * sunsetBand;
+                    vec3 moonDir = normalize(vec3(-.25, -.55, .8));
+                    float moonDot = dot(direction, moonDir);
+                    float moon = smoothstep(.99935, .99960, moonDot) * smoothstep(.05, .45, duskStrength);
+                    float halo = pow(max(0.0, moonDot), 160.0) * (.055 + .045 * starStrength) * smoothstep(.05, .45, duskStrength);
+                    color += vec3(.45, .52, .80) * halo;
+                    color = mix(color, vec3(.88, .91, .99), moon);
+                    if(starStrength > 0.01 && elevation > 0.16) {
+                        vec2 starUv = direction.xy / (direction.z + .38) * 145.0;
+                        vec2 starGrid = floor(starUv);
+                        float seed = fract(sin(dot(starGrid, vec2(127.1, 311.7))) * 43758.5453);
+                        if(seed > .975) {
+                            vec2 starCenter = vec2(.25 + .5 * fract(seed * 19.3), .25 + .5 * fract(seed * 41.7));
+                            float starDist = length(fract(starUv) - starCenter);
+                            float starDisk = smoothstep(.16, .02, starDist);
+                            float twinkle = .55 + .45 * sin(skyTime * (1.2 + fract(seed * 37.0) * 2.4) + seed * 62.8);
+                            float skyFade = smoothstep(.16, .52, elevation);
+                            color += vec3(.88, .93, 1.0) * starDisk * twinkle * skyFade * starStrength * .85;
+                        }
+                    }
                     gl_FragColor = vec4(color, 1.0);
                 }`,
         }))
@@ -199,6 +236,25 @@ export default class WorldBackdrop {
             scene.fog.density = camera.view === 'top' ? 0 : worldAtmosphere.fogDensity
             this.waterTime.value = (time.elapsed || 0) / 1000
         })
+    }
+
+    setAtmosphere(modeOrPreset = 'dusk') {
+        const preset = typeof modeOrPreset === 'string'
+            ? (atmospherePresets[modeOrPreset] || atmospherePresets.dusk)
+            : modeOrPreset
+        const horizonCss = eveningColor('#bed4d5', preset.horizon, preset.strength)
+        const zenithCss = eveningColor('#79afca', preset.zenith, preset.strength)
+        const waterCss = eveningColor('#4f8799', preset.water, preset.strength)
+        this.waterDusk.value = preset.strength
+        this.water.material.color.set(waterCss).convertLinearToSRGB()
+        this.sky.material.uniforms.horizon.value.set(horizonCss).convertLinearToSRGB()
+        this.sky.material.uniforms.zenith.value.set(zenithCss).convertLinearToSRGB()
+        this.sky.material.uniforms.starStrength.value = preset.starStrength ?? 0
+        this.sky.material.uniforms.duskStrength.value = preset.strength
+        if(this.scene?.fog) {
+            this.scene.fog.color.set(horizonCss).convertLinearToSRGB()
+        }
+        return preset
     }
 
     dispose() {

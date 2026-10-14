@@ -1,12 +1,12 @@
 .world-navigator {
     position: fixed;
     top: auto;
-    bottom: 28px;
-    right: 28px;
+    bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+    right: calc(28px + env(safe-area-inset-right, 0px));
     z-index: 8;
     display: flex;
     flex-direction: column;
-    width: 154px;
+    width: 158px;
     padding: 12px;
     overflow: hidden;
     border: 1px solid var(--hud-line, #d9d6b82e);
@@ -22,39 +22,56 @@
 .world-navigator:hover { border-color: #c3cdf780; }
 .world-navigator:focus-visible { outline: 2px solid #e3e8ff; outline-offset: 4px; }
 .world-navigator__heading { display: flex; align-items: center; gap: 7px; width: 100%; font-size: 11px; font-weight: 600; }
-.world-navigator__heading svg { width: 14px; height: 14px; fill: none; stroke: #c3cdf7; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
+.world-navigator__heading svg { width: 14px; height: 14px; fill: none; stroke: var(--hud-brass, #e5c38c); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; flex-shrink: 0; }
 .world-navigator__heading .world-navigator__expand { width: 12px; height: 12px; margin-left: auto; }
-.world-navigator__map { display: block; width: 100%; height: auto; margin: 12px 0 9px; overflow: visible; }
-.world-navigator__road { fill: none; stroke: #aab3d76e; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
+.world-navigator__map { display: block; width: 100%; height: auto; margin: 10px 0 8px; overflow: visible; }
+.world-navigator__road { fill: none; stroke: #c2cbb980; stroke-width: 2.4; stroke-linejoin: round; stroke-linecap: round; }
 .world-navigator__stop { stroke: #1d2136; stroke-width: 1.5; }
-.world-navigator__stop--project { fill: #c3cdf7; }
-.world-navigator__stop--profile { fill: #ffe0b4; }
+.world-navigator__stop--project { fill: #c2cbb9; }
+.world-navigator__stop--profile { fill: #e5c38c; }
 .world-navigator__stop.is-visited { fill: #a7e6cb; stroke: #e0fff0; stroke-width: 1; }
 .world-navigator__car-halo { fill: #171b30cf; stroke: #ffffff60; stroke-width: 1; }
 .world-navigator__car-arrow { fill: #fffdf3; stroke: #171b30; stroke-width: .6; stroke-linejoin: round; }
-.world-navigator__legend { display: flex; flex-wrap: wrap; gap: 8px; color: #c1c8dd; font-size: 8px; line-height: 1.5; }
-.world-navigator__key { display: inline-flex; align-items: center; gap: 4px; }
-.world-navigator__key::before { content: ''; width: 4px; height: 4px; border-radius: 50%; background: #c3cdf7; }
-.world-navigator__key--profile::before { background: #ffe0b4; }
-.world-navigator__key--visited::before { background: #a7e6cb; }
-.world-navigator__key--car::before { background: #fffdf3; }
-.world-navigator__location { display: none; }
-.world-navigator__progress { margin-top: 4px; color: #b8c2df; font-size: 9px; font-variant-numeric: tabular-nums; line-height: 1.4; }
-.world-navigator.is-complete .world-navigator__progress { color: #a7e6cb; }
 .world-navigator__legend { display: none; }
-.world-navigator__heading svg { stroke: var(--hud-brass, #e5c38c); }
-.world-navigator__road { stroke: #c2cbb980; }
-.world-navigator__stop--project { fill: #c2cbb9; }
-.world-navigator__stop--profile { fill: #e5c38c; }
-.world-navigator__progress { color: var(--hud-muted, #c2cbb9); }
+.world-navigator__location { display: none; }
+.world-navigator__progress { margin-top: 4px; color: var(--hud-muted, #c2cbb9); font-size: 9px; font-variant-numeric: tabular-nums; line-height: 1.4; }
+.world-navigator.is-complete .world-navigator__progress { color: #a7e6cb; }
 
-/* The touch joystick ends 180px above the bottom; throttle buttons occupy
-   the rightmost 95px. Keep the compact map action outside both regions. */
-@media (max-width: 760px), (pointer: coarse) {
-    .world-navigator { top: auto; right: auto; bottom: 190px; left: 16px; width: min(220px, calc(100vw - 128px)); min-height: 58px; padding: 10px 12px; border-radius: 10px; }
-    .world-navigator__map, .world-navigator__legend, .world-navigator__location { display: none; }
-    .world-navigator__heading { font-size: 10px; }
-    .world-navigator__progress { margin-top: 5px; margin-left: 21px; font-size: 9px; }
+/* On tablets with touch/coarse pointer (761px–1024px), keep the SVG minimap
+   at the top-right below the header so it never collides with bottom-right touch pedals. */
+@media (min-width: 761px) and (max-width: 1024px), (min-width: 761px) and (pointer: coarse) {
+    .world-navigator {
+        top: calc(74px + env(safe-area-inset-top, 0px));
+        right: calc(18px + env(safe-area-inset-right, 0px));
+        bottom: auto;
+        left: auto;
+        width: 146px;
+        padding: 10px;
+    }
+    .world-navigator__map { margin: 8px 0 6px; }
+}
+
+/* On mobile portrait & mobile landscape, dock as a compact progress pill at top-right
+   below header so bottom-left joystick and bottom-right pedals stay 100% clear. */
+@media (max-width: 760px), (max-width: 932px) and (max-height: 540px) and (orientation: landscape) {
+    .world-navigator {
+        top: calc(56px + env(safe-area-inset-top, 0px));
+        right: calc(12px + env(safe-area-inset-right, 0px));
+        bottom: auto;
+        left: auto;
+        width: auto;
+        min-height: 32px;
+        padding: 6px 10px;
+        border-radius: 999px;
+        flex-direction: row;
+        align-items: center;
+        gap: 6px;
+    }
+    .world-navigator__map, .world-navigator__legend, .world-navigator__location, .world-navigator__expand { display: none; }
+    .world-navigator__heading { width: auto; font-size: 9.5px; gap: 5px; }
+    .world-navigator__heading span { display: none; }
+    .world-navigator__progress { margin: 0; font-size: 9.5px; font-weight: 600; white-space: nowrap; }
+    body[data-activity] .world-navigator { display: none; }
 }
 @media (prefers-reduced-motion: reduce) {
     .world-navigator { transition: none; }

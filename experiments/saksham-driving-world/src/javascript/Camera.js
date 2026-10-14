@@ -56,7 +56,8 @@ export default class Camera
         this.topCenter = new THREE.Vector3(52, -58, 0)
         this.viewOffset = new THREE.Vector3()
         this.viewLook = new THREE.Vector3()
-        this.forward = new THREE.Vector3()
+        this.forward = new THREE.Vector3(1, 0, 0)
+        this.smoothedForward = new THREE.Vector3(1, 0, 0)
         this.collisionRay = new THREE.Raycaster()
         this.collisionOrigin = new THREE.Vector3()
         this.collisionDirection = new THREE.Vector3()
@@ -159,6 +160,7 @@ export default class Camera
                 const carPose = this.carVisual || carBody
                 this.forward.set(1, 0, 0).applyQuaternion(carPose.quaternion)
                 this.forward.z = 0
+                if(this.forward.lengthSq() < .0001) this.forward.set(1, 0, 0)
                 this.forward.normalize()
                 // A forward-mounted eye stays outside the solid car model; no roll or shake.
                 this.instance.position.copy(carPose.position).addScaledVector(this.forward, 1.6)
@@ -189,17 +191,38 @@ export default class Camera
         this.chaseZoomTarget = THREE.MathUtils.clamp(this.chaseZoomTarget, CAMERA_MIN_DISTANCE, CAMERA_MAX_DRIVING_DISTANCE)
         this.chaseDistance += (this.chaseZoomTarget - this.chaseDistance) * damping
         // Local +X is the vehicle's nose; reversing never flips the camera.
-        this.forward.set(1, 0, 0).applyQuaternion(pose.quaternion)
-        this.forward.z = 0
-        if(this.forward.lengthSq() < .0001) this.forward.set(1, 0, 0)
-        this.forward.normalize()
+        // If the car is mid-roll or upside-down, keep the last valid horizontal heading.
+        const upZ = 1 - 2 * (pose.quaternion.x * pose.quaternion.x + pose.quaternion.y * pose.quaternion.y)
+        if(upZ > 0.15)
+        {
+            this.forward.set(1, 0, 0).applyQuaternion(pose.quaternion)
+            this.forward.z = 0
+            if(this.forward.lengthSq() < .0001) this.forward.set(1, 0, 0)
+            this.forward.normalize()
+        }
+        const planarSpeed = Math.hypot(body.velocity?.x || 0, body.velocity?.y || 0)
+        if(!this.cameraReady || planarSpeed < 4.5)
+        {
+            this.smoothedForward.copy(this.forward)
+        }
+        else
+        {
+            // Smooth heading during high-speed sudden turns so the camera swings
+            // gracefully around the corner instead of whipping across the roof.
+            const fromAngle = Math.atan2(this.smoothedForward.y, this.smoothedForward.x)
+            const toAngle = Math.atan2(this.forward.y, this.forward.x)
+            const deltaAngle = Math.atan2(Math.sin(toAngle - fromAngle), Math.cos(toAngle - fromAngle))
+            const turnDamping = 1 - Math.pow(1 - 0.14, dt * 60)
+            const nextAngle = fromAngle + deltaAngle * turnDamping
+            this.smoothedForward.set(Math.cos(nextAngle), Math.sin(nextAngle), 0)
+        }
         if(this.following)
         {
             // Collision correction must never become the next frame's chase baseline.
             this.instance.position.sub(this.collisionOffset)
-            this.viewOffset.copy(pose.position).addScaledVector(this.forward, -this.chaseDistance)
+            this.viewOffset.copy(pose.position).addScaledVector(this.smoothedForward, -this.chaseDistance)
             this.viewOffset.z += CAMERA_HEIGHT * this.chaseDistance / CAMERA_DISTANCE
-            this.viewLook.copy(pose.position).addScaledVector(this.forward, CAMERA_LOOK_AHEAD)
+            this.viewLook.copy(pose.position).addScaledVector(this.smoothedForward, CAMERA_LOOK_AHEAD)
             if(!this.cameraReady)
             {
                 this.instance.position.copy(this.viewOffset)
@@ -215,7 +238,7 @@ export default class Camera
                 const fromX = this.returnPosition.x - pose.position.x
                 const fromY = this.returnPosition.y - pose.position.y
                 const fromYaw = Math.atan2(fromY, fromX)
-                const toYaw = Math.atan2(-this.forward.y, -this.forward.x)
+                const toYaw = Math.atan2(-this.smoothedForward.y, -this.smoothedForward.x)
                 const turn = Math.atan2(Math.sin(toYaw - fromYaw), Math.cos(toYaw - fromYaw))
                 const radius = THREE.MathUtils.lerp(Math.max(CAMERA_CAR_CLEARANCE, Math.hypot(fromX, fromY)), this.chaseDistance, blend)
                 this.instance.position.set(pose.position.x + Math.cos(fromYaw + turn * blend) * radius,
@@ -244,11 +267,24 @@ export default class Camera
         this.resolveCameraCollision(this.following ? pose.position : this.orbitControls.target)
         if(this.following)
         {
-            const separation = Math.hypot(this.instance.position.x - pose.position.x, this.instance.position.y - pose.position.y)
+            const dx = this.instance.position.x - pose.position.x
+            const dy = this.instance.position.y - pose.position.y
+            const separation = Math.hypot(dx, dy)
             if(separation < CAMERA_CAR_CLEARANCE)
             {
-                this.instance.position.x = pose.position.x - this.forward.x * CAMERA_CAR_CLEARANCE
-                this.instance.position.y = pose.position.y - this.forward.y * CAMERA_CAR_CLEARANCE
+                if(separation > 0.001 && planarSpeed > 4.5)
+                {
+                    // Push outward radially along current camera direction during high-speed
+                    // turns instead of snapping 90-180 degrees to -forward!
+                    const scale = CAMERA_CAR_CLEARANCE / separation
+                    this.instance.position.x = pose.position.x + dx * scale
+                    this.instance.position.y = pose.position.y + dy * scale
+                }
+                else
+                {
+                    this.instance.position.x = pose.position.x - this.smoothedForward.x * CAMERA_CAR_CLEARANCE
+                    this.instance.position.y = pose.position.y - this.smoothedForward.y * CAMERA_CAR_CLEARANCE
+                }
             }
             this.instance.position.z = Math.max(this.instance.position.z, pose.position.z + 1.5)
             // Preserve the smooth return from a distant parked map view. Once
@@ -401,8 +437,8 @@ export default class Camera
         this.driving = driving
         if(driving && !this.following) { this.exploring = false; this.focusCar() }
         this.orbitControls.enabled = this.view === 'orbit' && !driving
-        this.renderer?.domElement?.classList.toggle?.('has-cursor-grab', this.view === 'top' || !driving)
-        if(driving) this.renderer?.domElement?.classList.remove('has-cursor-grabbing')
+        this.renderer?.domElement?.classList.toggle?.('has-cursor-grab', this.view === 'top' || (this.view === 'orbit' && !driving))
+        if(driving || this.view === 'first') this.renderer?.domElement?.classList.remove?.('has-cursor-grabbing')
         if(changed)
         {
             this.time.trigger('cameraControl')
@@ -515,14 +551,15 @@ export default class Camera
         {
             if(this.wheelEvents.has(_event)) return
             if(globalThis.document?.querySelector?.('dialog[open]') || /INPUT|TEXTAREA|SELECT/.test(_event.target?.tagName || '')) return
+            if(_event.target?.closest?.('#camera-body')) return
             this.wheelEvents.add(_event)
-            if(this.view === 'first')
-            {
-                this.setView('orbit')
-                this.updateChaseCamera()
-            }
             // Capture before OrbitControls so exactly one owner applies wheel zoom.
             _event.stopImmediatePropagation()
+            if(this.view === 'first')
+            {
+                _event.preventDefault()
+                return
+            }
             if(this.view === 'orbit')
             {
                 _event.preventDefault()
@@ -752,13 +789,8 @@ export default class Camera
         this.orbitControls.touches.TWO = THREE.TOUCH.DOLLY_PAN
         // Permit pinch via OrbitControls; stop its wheel handler to avoid competing zooms.
         this.orbitControls.enableZoom = true
-        this.renderer.domElement.addEventListener('pointerdown', event => {
+        this.renderer.domElement.addEventListener('pointerdown', () => {
             this.updateDriving({ manualExploration: true })
-            if(this.view === 'first' && !this.driving && event.button === 0)
-            {
-                this.setView('orbit')
-                this.updateChaseCamera()
-            }
         }, { capture: true })
         window.addEventListener('keydown', event => {
             if(event.repeat || event.ctrlKey || event.metaKey || event.altKey || /INPUT|TEXTAREA|SELECT/.test(event.target?.tagName || '') || event.target?.isContentEditable) return

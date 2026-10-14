@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import { modelLoader } from '../Utils/ModelLoader.js'
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js'
 import { surfaceHeight } from './LandscapeLayout.js'
@@ -112,7 +112,9 @@ export function activityPropCollision(placement,physics,profile) {
     if(profile) {
         const {width,near,join,end,height,ground}=profile,s=placement.scale
         const points=[[-width/2,near,ground-.04],[width/2,near,ground-.04],[width/2,join,ground-.04],[-width/2,join,ground-.04],[-width/2,near,ground],[width/2,near,ground],[width/2,join,height],[-width/2,join,height]].map(point=>new CANNON.Vec3(...point.map(value=>value*s)))
-        const wedge=new CANNON.ConvexPolyhedron(points,[[0,3,2,1],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]])
+        const faces=[[0,3,2,1],[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]]
+        let wedge=new CANNON.ConvexPolyhedron(points,faces)
+        if(!wedge.vertices?.length) wedge=new CANNON.ConvexPolyhedron({vertices:points,faces})
         body.addShape(wedge)
         body.addShape(new CANNON.Box(new CANNON.Vec3(width*s/2,(end-join)*s/2,height*s/2)),new CANNON.Vec3(0,(join+end)*.5*s,height*s/2))
     }

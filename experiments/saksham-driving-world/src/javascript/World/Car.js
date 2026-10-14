@@ -1,6 +1,8 @@
 import * as THREE from 'three'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import { vehiclePose } from './VehiclePose.js'
+import { duskUniforms, updateHeadlightUniforms } from './DuskLighting.js'
+import { updateMeadowCarInteraction } from './MeadowEnvironment.js'
 import { TransformControls } from 'three/examples/jsm/controls/TransformControls.js'
 
 export default class Car
@@ -24,6 +26,7 @@ export default class Car
         // Set up
         this.container = new THREE.Object3D()
         this.position = new THREE.Vector3()
+        this.vehicleId = this.config?.cyberTruck ? 'cybertruck' : 'default'
 
         // Debug
         if(this.debug)
@@ -37,10 +40,23 @@ export default class Car
         this.setChassis()
         this.setAntena()
         this.setBackLights()
+        this.setHeadLights()
+        this.setBoostFlames()
         this.setWheels()
         this.setTransformControls()
         this.setShootingBall()
         this.setKlaxon()
+    }
+
+    getVehicleInfo()
+    {
+        const isCyber = Boolean(this.config?.cyberTruck)
+        return {
+            id: isCyber ? 'cybertruck' : 'default',
+            label: isCyber ? 'CyberTruck' : 'Trail Jeep',
+            shortLabel: isCyber ? 'Cyber' : 'Jeep',
+            cyberTruck: isCyber,
+        }
     }
 
     setModels()
@@ -62,12 +78,105 @@ export default class Car
         {
             this.models.chassis = this.resources.items.carDefaultChassis
             this.models.antena = this.resources.items.carDefaultAntena
-            // this.models.bunnyEarLeft = this.resources.items.carDefaultBunnyEarLeft
-            // this.models.bunnyEarRight = this.resources.items.carDefaultBunnyEarRight
             this.models.backLightsBrake = this.resources.items.carDefaultBackLightsBrake
             this.models.backLightsReverse = this.resources.items.carDefaultBackLightsReverse
             this.models.wheel = this.resources.items.carDefaultWheel
         }
+    }
+
+    setVehicle(kind)
+    {
+        const nextCyber = kind === 'cybertruck' || kind === true
+        this.config.cyberTruck = nextCyber
+        this.vehicleId = nextCyber ? 'cybertruck' : 'default'
+        this.setModels()
+
+        // Always pass { duplicated: true } so Objects.getConvertedMesh clones
+        // source GLTF meshes instead of reparenting/emptying the resource scene!
+        if(this.chassis?.object && this.models.chassis?.scene)
+        {
+            if(this.chassis.bodyChildren)
+            {
+                for(const child of this.chassis.bodyChildren)
+                {
+                    this.chassis.object.remove(child)
+                }
+            }
+            const nextChassis = this.objects.getConvertedMesh(this.models.chassis.scene.children, { duplicated: true })
+            this.chassis.bodyChildren = [...nextChassis.children]
+            for(const child of this.chassis.bodyChildren)
+            {
+                this.chassis.object.add(child)
+            }
+        }
+
+        // 2. Swap antenna mesh
+        if(this.antena?.object && this.models.antena?.scene)
+        {
+            this.chassis.object.remove(this.antena.object)
+            this.antena.object = this.objects.getConvertedMesh(this.models.antena.scene.children, { duplicated: true })
+            this.chassis.object.add(this.antena.object)
+        }
+
+        // 3. Swap brake and reverse backLights meshes
+        if(this.backLightsBrake?.object && this.models.backLightsBrake?.scene)
+        {
+            this.chassis.object.remove(this.backLightsBrake.object)
+            this.backLightsBrake.object = this.objects.getConvertedMesh(this.models.backLightsBrake.scene.children, { duplicated: true })
+            for(const _child of this.backLightsBrake.object.children)
+            {
+                _child.material = this.backLightsBrake.material
+            }
+            this.chassis.object.add(this.backLightsBrake.object)
+        }
+        if(this.backLightsReverse?.object && this.models.backLightsReverse?.scene)
+        {
+            this.chassis.object.remove(this.backLightsReverse.object)
+            this.backLightsReverse.object = this.objects.getConvertedMesh(this.models.backLightsReverse.scene.children, { duplicated: true })
+            for(const _child of this.backLightsReverse.object.children)
+            {
+                _child.material = this.backLightsReverse.material
+            }
+            this.chassis.object.add(this.backLightsReverse.object)
+        }
+
+        // 4. Swap wheel meshes inside the 4 persistent wheel Object3Ds
+        if(this.wheels?.items && this.models.wheel?.scene)
+        {
+            this.wheels.object = this.objects.getConvertedMesh(this.models.wheel.scene.children, { duplicated: true })
+            for(let i = 0; i < this.wheels.items.length; i++)
+            {
+                const wheelHolder = this.wheels.items[i]
+                for(const oldChild of [...wheelHolder.children])
+                {
+                    wheelHolder.remove(oldChild)
+                }
+                const clonedWheel = this.wheels.object.clone()
+                for(const child of [...clonedWheel.children])
+                {
+                    wheelHolder.add(child)
+                }
+            }
+        }
+
+        // Subtle suspension hop & sound feedback on swap
+        this.physics?.car?.jump?.(false, 60)
+        this.sounds?.play?.('carHorn1')
+
+        const info = this.getVehicleInfo()
+        if(typeof window !== 'undefined')
+        {
+            const evt = typeof CustomEvent === 'function'
+                ? new CustomEvent('drive-vehicle-change', { detail: info })
+                : { type: 'drive-vehicle-change', detail: info }
+            window.dispatchEvent?.(evt)
+        }
+        return info
+    }
+
+    toggleVehicle()
+    {
+        return this.setVehicle(this.config.cyberTruck ? 'default' : 'cybertruck')
     }
 
     setMovement()
@@ -108,7 +217,8 @@ export default class Car
     {
         this.chassis = {}
         this.chassis.offset = new THREE.Vector3(0, 0, - 0.28)
-        this.chassis.object = this.objects.getConvertedMesh(this.models.chassis.scene.children)
+        this.chassis.object = this.objects.getConvertedMesh(this.models.chassis.scene.children, { duplicated: true })
+        this.chassis.bodyChildren = [...(this.chassis.object.children || [])]
         this.chassis.object.position.copy(this.physics.car.chassis.body.position)
         this.chassis.oldPosition = this.chassis.object.position.clone()
         this.container.add(this.chassis.object)
@@ -130,6 +240,13 @@ export default class Car
 
             // Update position
             this.position.copy(this.chassis.object.position)
+            updateHeadlightUniforms(this.chassis.object.position, this.chassis.object.rotation.z)
+            updateMeadowCarInteraction(
+                this.chassis.object.position,
+                this.physics.car?.chassis?.body?.velocity || this.movement?.speed,
+                this.chassis.object.rotation.z,
+                Math.min(this.time.delta || 16.667, 100) / 1000
+            )
         })
     }
 
@@ -141,14 +258,8 @@ export default class Car
         this.antena.damping = 0.035
         this.antena.pullBackStrength = 0.02
 
-        this.antena.object = this.objects.getConvertedMesh(this.models.antena.scene.children)
+        this.antena.object = this.objects.getConvertedMesh(this.models.antena.scene.children, { duplicated: true })
         this.chassis.object.add(this.antena.object)
-
-        // this.antena.bunnyEarLeft = this.objects.getConvertedMesh(this.models.bunnyEarLeft.scene.children)
-        // this.chassis.object.add(this.antena.bunnyEarLeft)
-
-        // this.antena.bunnyEarRight = this.objects.getConvertedMesh(this.models.bunnyEarRight.scene.children)
-        // this.chassis.object.add(this.antena.bunnyEarRight)
 
         this.antena.speed = new THREE.Vector2()
         this.antena.absolutePosition = new THREE.Vector2()
@@ -178,12 +289,6 @@ export default class Car
 
             this.antena.object.rotation.y = this.antena.localPosition.x * 0.1
             this.antena.object.rotation.x = this.antena.localPosition.y * 0.1
-
-            // this.antena.bunnyEarLeft.rotation.y = this.antena.localPosition.x * 0.1
-            // this.antena.bunnyEarLeft.rotation.x = this.antena.localPosition.y * 0.1
-
-            // this.antena.bunnyEarRight.rotation.y = this.antena.localPosition.x * 0.1
-            // this.antena.bunnyEarRight.rotation.x = this.antena.localPosition.y * 0.1
         })
 
         // Debug
@@ -206,7 +311,7 @@ export default class Car
         this.backLightsBrake.material.transparent = true
         this.backLightsBrake.material.opacity = 0.5
 
-        this.backLightsBrake.object = this.objects.getConvertedMesh(this.models.backLightsBrake.scene.children)
+        this.backLightsBrake.object = this.objects.getConvertedMesh(this.models.backLightsBrake.scene.children, { duplicated: true })
         for(const _child of this.backLightsBrake.object.children)
         {
             _child.material = this.backLightsBrake.material
@@ -221,7 +326,7 @@ export default class Car
         this.backLightsReverse.material.transparent = true
         this.backLightsReverse.material.opacity = 0.5
 
-        this.backLightsReverse.object = this.objects.getConvertedMesh(this.models.backLightsReverse.scene.children)
+        this.backLightsReverse.object = this.objects.getConvertedMesh(this.models.backLightsReverse.scene.children, { duplicated: true })
         for(const _child of this.backLightsReverse.object.children)
         {
             _child.material = this.backLightsReverse.material
@@ -232,15 +337,158 @@ export default class Car
         // Time tick
         this.time.on('tick', () =>
         {
-            this.backLightsBrake.material.opacity = this.physics.controls.actions.brake ? 1 : 0.5
+            this.backLightsBrake.material.opacity = (this.physics.controls.actions.brake || this.physics.controls.actions.boost) ? 1 : 0.5
             this.backLightsReverse.material.opacity = this.physics.controls.actions.down ? 1 : 0.5
+        })
+    }
+
+    setHeadLights()
+    {
+        this.headLights = {}
+        this.headLights.group = new THREE.Group()
+        this.headLights.group.name = 'Car headlights and volumetric cones'
+        this.headLights.group.userData.cameraCollision = false
+
+        this.headLights.lensMaterial = new THREE.MeshBasicMaterial({
+            color: new THREE.Color('#fff5d6').convertLinearToSRGB(),
+            transparent: true,
+            opacity: 0.92,
+        })
+        this.headLights.lensMaterial.userData.duskEmission = true
+
+        this.headLights.coneMaterial = new THREE.ShaderMaterial({
+            transparent: true,
+            depthWrite: false,
+            blending: THREE.AdditiveBlending,
+            side: THREE.DoubleSide,
+            uniforms: {
+                uStrength: { value: duskUniforms.duskHeadlightStrength.value },
+            },
+            vertexShader: `
+                varying vec2 vConeUv;
+                void main() {
+                    vConeUv = uv;
+                    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                }
+            `,
+            fragmentShader: `
+                varying vec2 vConeUv;
+                uniform float uStrength;
+                void main() {
+                    float along = 1.0 - vConeUv.x;
+                    float across = abs(vConeUv.y - 0.5) * 2.0;
+                    float edge = smoothstep(1.0, 0.15, across);
+                    float fade = pow(max(0.0, along), 1.8) * smoothstep(0.0, 0.12, 1.0 - along);
+                    float alpha = edge * fade * 0.22 * uStrength;
+                    gl_FragColor = vec4(vec3(1.0, 0.92, 0.72), alpha);
+                }
+            `,
+        })
+        this.headLights.coneMaterial.userData.duskEmission = true
+
+        const lensGeometry = new THREE.BoxGeometry(0.08, 0.22, 0.12)
+        const coneGeometry = new THREE.PlaneGeometry(4.6, 1.65)
+        coneGeometry.translate(2.3, 0, 0)
+
+        for(const side of [-1, 1])
+        {
+            const yOffset = side * 0.44
+            const lens = new THREE.Mesh(lensGeometry, this.headLights.lensMaterial)
+            lens.position.set(1.08, yOffset, 0.44)
+            lens.userData.cameraCollision = false
+            this.headLights.group.add(lens)
+
+            const beam = new THREE.Mesh(coneGeometry, this.headLights.coneMaterial)
+            beam.position.set(1.1, yOffset, 0.36)
+            beam.rotation.y = 0.08
+            beam.rotation.z = side * 0.04
+            beam.userData.cameraCollision = false
+            this.headLights.group.add(beam)
+        }
+
+        this.chassis.object.add(this.headLights.group)
+        this.setHeadlightMode({ headlightStrength: duskUniforms.duskHeadlightStrength.value })
+    }
+
+    setHeadlightMode(preset = {})
+    {
+        if(!this.headLights) return
+        const strength = preset.headlightStrength ?? duskUniforms.duskHeadlightStrength.value ?? 0
+        this.headLights.group.visible = strength > 0.01
+        this.headLights.coneMaterial.uniforms.uStrength.value = strength
+        this.headLights.lensMaterial.opacity = Math.min(1, 0.55 + strength * 0.4)
+    }
+
+    setBoostFlames()
+    {
+        this.boostFlames = {}
+        this.boostFlames.group = new THREE.Group()
+        this.boostFlames.group.name = 'Car boost afterburners'
+        this.boostFlames.group.visible = false
+        this.boostFlames.group.userData.cameraCollision = false
+        this.boostFlames.outerMaterial = new THREE.MeshBasicMaterial({
+            color: 0xff7b29,
+            transparent: true,
+            opacity: 0.78,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+        })
+        this.boostFlames.outerMaterial.userData.duskEmission = true
+        this.boostFlames.coreMaterial = new THREE.MeshBasicMaterial({
+            color: 0xfff2a6,
+            transparent: true,
+            opacity: 0.92,
+            blending: THREE.AdditiveBlending,
+            depthWrite: false,
+        })
+        this.boostFlames.coreMaterial.userData.duskEmission = true
+
+        const outerGeo = new THREE.ConeGeometry(0.11, 0.58, 8)
+        outerGeo.rotateZ(Math.PI * 0.5)
+        outerGeo.translate(-0.29, 0, 0)
+        const coreGeo = new THREE.ConeGeometry(0.06, 0.34, 8)
+        coreGeo.rotateZ(Math.PI * 0.5)
+        coreGeo.translate(-0.17, 0, 0)
+
+        this.boostFlames.nozzles = []
+        for(const side of [-1, 1])
+        {
+            const nozzle = new THREE.Group()
+            nozzle.position.set(-1.14, side * 0.28, 0.24)
+            const outer = new THREE.Mesh(outerGeo, this.boostFlames.outerMaterial)
+            const core = new THREE.Mesh(coreGeo, this.boostFlames.coreMaterial)
+            outer.userData.cameraCollision = false
+            core.userData.cameraCollision = false
+            nozzle.add(outer, core)
+            this.boostFlames.group.add(nozzle)
+            this.boostFlames.nozzles.push(nozzle)
+        }
+
+        this.chassis.object.add(this.boostFlames.group)
+
+        this.time.on('tick', () =>
+        {
+            const boosting = Boolean(
+                this.controls?.actions?.boost &&
+                (this.controls?.actions?.up || this.controls?.actions?.down || Math.abs(this.movement?.localSpeed?.x || 0) > 0.08)
+            )
+            this.boostFlames.group.visible = boosting
+            if(boosting)
+            {
+                const t = (this.time.elapsed || 0) * 0.028
+                for(let i = 0; i < this.boostFlames.nozzles.length; i++)
+                {
+                    const pulse = 0.85 + Math.sin(t + i * 2.1) * 0.28
+                    this.boostFlames.nozzles[i].scale.set(pulse, 0.9 + Math.cos(t * 1.3 + i) * 0.14, 0.9 + Math.sin(t * 1.7) * 0.14)
+                }
+            }
         })
     }
 
     setWheels()
     {
         this.wheels = {}
-        this.wheels.object = this.objects.getConvertedMesh(this.models.wheel.scene.children)
+        this.wheels.object = this.objects.getConvertedMesh(this.models.wheel.scene.children, { duplicated: true })
         this.wheels.items = []
 
         for(let i = 0; i < 4; i++)
@@ -273,8 +521,6 @@ export default class Car
         this.transformControls.size = 0.5
         this.transformControls.attach(this.chassis.object)
         this.transformControls.enabled = false
-        // Modern TransformControls owns a scene helper; the controller itself
-        // is an input handler and cannot be attached to an Object3D.
         this.transformControlsHelper = this.transformControls.getHelper()
         this.transformControlsHelper.visible = this.transformControls.enabled
 
@@ -314,14 +560,9 @@ export default class Car
 
     setShootingBall()
     {
-        if(!this.config.cyberTruck)
-        {
-            return
-        }
-
         window.addEventListener('keydown', (_event) =>
         {
-            if(_event.key === 'b')
+            if(_event.key === 'b' && this.config?.cyberTruck)
             {
                 const angle = Math.random() * Math.PI * 2
                 const distance = 10
@@ -344,7 +585,7 @@ export default class Car
                 let direction = carPosition.vsub(bowlingBall.collision.body.position)
                 direction.normalize()
                 direction = direction.scale(100)
-                bowlingBall.collision.body.applyImpulse(direction, bowlingBall.collision.body.position)
+                bowlingBall.collision.body.applyImpulse(direction, new CANNON.Vec3(0, 0, 0))
             }
         })
     }

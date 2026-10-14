@@ -1,6 +1,6 @@
 import { expect,test } from 'bun:test'
 import * as THREE from 'three'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import ActivityProps, { activityPropPlacements,activityPropGeometry,activityPropSolids,activityPropCollision,propLabelPlanes,rampProfile } from '../src/javascript/World/ActivityProps.js'
 import EventEmitter from '../src/javascript/Utils/EventEmitter.js'

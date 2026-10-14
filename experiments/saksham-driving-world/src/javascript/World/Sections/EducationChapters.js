@@ -1,5 +1,5 @@
 import * as THREE from 'three'
-import CANNON from 'cannon'
+import * as CANNON from 'cannon-es'
 import { modelLoader } from '../../Utils/ModelLoader.js'
 import { activityPropGeometry } from '../ActivityProps.js'
 import { surfaceHeight } from '../LandscapeLayout.js'
